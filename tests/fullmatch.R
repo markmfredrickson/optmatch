@@ -1,0 +1,6 @@
+require('optmatch')
+data(plantdist)
+fullmatch(plantdist<10)
+data(nuclearplants)
+mhd2 <- mahal.dist(~date+cum.n, nuclearplants, pr~pt)
+fullmatch(mhd2 < 1)

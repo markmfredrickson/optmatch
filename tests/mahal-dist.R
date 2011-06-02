@@ -1,0 +1,16 @@
+require('optmatch')
+data(nuclear, package="boot")
+mahal.dist(pr~cap, nuclear)
+mahal.dist(pr~cap, nuclear,
+           inverse.cov=matrix(1,1,1,dimnames=list("cap", "cap")))
+mahal.dist(pr~date+cum.n, nuclear)
+mahal.dist(~date+cum.n, nuclear, pr~pt)
+if ( (require(splines)) )
+  mahal.dist(pr~ns(date,df=3)+cum.n, nuclear)
+if (require(splines))
+  mahal.dist(~ns(date,df=3)+cum.n, nuclear, pr ~ pt)
+cum.n.q <- cut(nuclear$cum.n, quantile(nuclear$cum.n), include.lowest=TRUE)
+mahal.dist(pr~date+cum.n.q, nuclear)
+mahal.dist(~date+cum.n.q, nuclear, pr~pt)
+### should give error, incorrect mode
+try(mahal.dist(as.factor(pr)~cap, nuclear))

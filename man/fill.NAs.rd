@@ -1,0 +1,93 @@
+\name{fill.NAs}
+\alias{fill.NAs}
+\title{Create missingness indicator variables and non-informatively fill in missing values}
+\description{
+  Given a \code{data.frame} or \code{formula} and data, \code{fill.NAs()} returns an
+  expanded data frame, including a new missingness flag for each variable
+  with missing values and replacing each missing entry with a
+  value representing a reasonable default for missing values in its column. 
+  Functions in the formula are supported, with transformations happening before \code{NA} replacement.
+  The expanded data frame is useful for propensity modeling and balance checking when there are
+  covariates with missing values. 
+}
+
+\usage{
+  fill.NAs(x, data = NULL)
+
+}
+
+\arguments{
+  \item{x}{Can be either a data frame (in which case the data argument should be \code{NULL}) or
+    a formula (in which case data must be a data.frame)}
+
+  \item{data}{If x is a formula, this must be a data.frame. Otherise it will be ignored.}
+}
+
+\details{
+  \code{fill.NAs} prepares data for use in a model or matching procedure by filling in
+  missing values with minimally invasive substitutes. Fill-in is performed column-wise,
+  with each column being treated individually. For each column that is missing, a new column
+  is created of the form \dQuote{ColumnName.NA} with indicators for each observation that is missing
+  a value for \dQuote{ColumnName}.
+
+  The replacement value used to fill in a missing value is simple mean replacement. For transformations
+  of variables, e.g. \code{y ~ x1 * x2}, the transformation occurs first. The transformation column will be
+  \code{NA} if any of the base columns are \code{NA}. Fill-in occurs next, replacing all missing values
+  with the observed column mean. This includes transformation columns.
+
+  Data can be passed to \code{fill.NAs} in two ways. First, you can simply pass a \code{data.frame}
+  object and \code{fill.NAs} will fill every column. Alternatively, you can pass a \code{formula} and
+  a \code{data.frame}. Fill-in  will only be applied to columns specifically used in the formula. Prior to
+  fill-in, any functions in the formula will be expanded. If any arguments to the functions are \code{NA},
+  the function value will also be \code{NA} and subject to fill-in.}
+
+\value{
+  A \code{data.frame} with all \code{NA} values replaced with mean values
+  and additional indicator columns for each column including
+  missing values. Suitable for directly passing to \code{\link{lm}} or other
+  model building functions to build propensity scores. 
+}
+\author{ Mark M. Fredrickson} %Ben B. Hansen
+
+\references{
+  von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
+    \emph{Sociological Methodlogy}, \bold{39}(1), 265 -- 291.}
+    
+\seealso{\code{\link{mdist}}, \code{\link{lm}}}
+
+\examples{
+
+data(nuclearplants)
+### Extract some representative covariates:
+np.missing <- nuclearplants[c('t1', 't2', 'ne', 'ct', 'cum.n')]
+
+### create some missingness in the covariates
+n <- dim(np.missing)[1]
+k <- dim(np.missing)[2]
+
+for (i in 1:n) {
+  missing <- rbinom(1, prob = .1, size = k)
+  if (missing > 0) {
+    np.missing[i, sample(k, missing)] <- NA      
+  }
+}
+
+### Restore outcome and treatment variables:
+np.missing <- data.frame(nuclearplants[c('cost', 'pr')], np.missing)
+
+### Fit a propensity score but with missing covariate data flagged 
+### and filled in, as in Rosenbaum and Rubin (1984, Appendix):
+(np.glm <- glm(fill.NAs(pr ~ t1 * t2, data=np.missing),
+family=binomial))
+
+# the previous call is equivalent to:
+# glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, fill.NAs(np.missing), family =
+#  binomial())
+
+### produce a matrix of propensity distances based on the propensity model 
+### with fill-in and flagging. Then perform pair matching on it:
+pairmatch(mdist(np.glm))
+
+}
+
+\keyword{manip}% at least one, from doc/KEYWORDS

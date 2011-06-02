@@ -1,0 +1,33 @@
+citHeader("To cite optmatch in publications use:")
+
+citEntry(entry="Article",
+	author = personList(as.person("Ben B. Hansen"), as.person("Stephanie Olsen Klopfer")),
+	title = "Optimal full matching and related designs via network flows",
+	keywords = "matched sampling, minimum cost flow, nonrandom treatment assignment, observational study, quasiexperiment, subclassification",
+#        Url = "http://www.stat.lsa.umich.edu/\\textasciitilde bbh/hansenKlopfer2006.pdf",
+        journal = "Journal of Computational and Graphical Statistics",
+        volume = "15",
+        number = "3",
+        pages = "609--627",
+        year = 2006,
+
+	textVersion = paste("Hansen, B.B. and Klopfer, S.O. (2006)",
+		      "Optimal full matching and related designs via network flows,", "JCGS 15 609-627.")
+)
+
+#citEntry(entry="Article",
+#	Title = "Full matching in an observational study of coaching for the SAT",
+#	Author = as.person("Ben B. Hansen"),
+#	Journal = "Journal of the American Statistical Association",
+#	Month = "September",
+#	Number = 467,
+#	Pages = "609-618",
+#	Volume = "99",
+#	Year = 2004 ,
+#        url = "http://www.stat.lsa.umich.edu/~bbh/optmatch.html",
+
+#        textVersion =
+#        paste("Hansen, B. B. (2004)",
+#              "Full matching in an observational study of coaching for the SAT",
+#              "JASA 99 609=618.")
+#)

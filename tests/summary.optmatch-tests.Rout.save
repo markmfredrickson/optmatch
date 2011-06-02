@@ -1,0 +1,195 @@
+
+R version 2.11.0 (2010-04-22)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require('optmatch')
+Loading required package: optmatch
+You're loading optmatch, by Ben Hansen, a package for flexible
+ and optimal matching.  Important license information:
+ The optmatch package makes essential use of D. P. Bertsekas
+ and P. Tseng's RELAX-IV algorithm and code, as well as
+ Bertsekas' AUCTION algorithm and code.
+ Bertsekas and Tseng freely permit their software to be used for
+ research purposes, but non-research uses, including the use of it
+ to 'satisfy in any part commercial delivery requirements to
+ government or industry,' require a special agreement with them.
+ By extension, this requirement applies to any use of the 
+ fullmatch() function. (If you are using another package that has
+ loaded optmatch, then you will probably be using fullmatch indirectly.)
+ For more information, enter relaxinfo() at the command line
+> data(plantdist)
+> summary(fullmatch(plantdist<10))
+Structure of matched sets:
+ 1:1  1:2 1:5+ 
+   5    1    1 
+Effective Sample Size:  8.18 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=0
+(within 0.00542 of optimum).
+Percentiles of matched distances:
+  0%  50%  95% 100% 
+   0    0    0    0 
+> summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
+Matching failed.  (Restrictions impossible to meet?)
+Enter ?matchfailed for more info.
+> data(nuclearplants)
+> psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
+> psd <- pscore.dist(psm)
+> psfm <- fullmatch(psd/(psd<.25))
+> summary(psfm)
+Structure of matched sets:
+ 1:0  3:1  2:1  1:2 1:5+  0:1 
+   3    1    1    1    1   11 
+Effective Sample Size:  5.92 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=1.02
+(within 0.018 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0110 0.0577 0.1600 0.1660 
+> pspm <- pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
+> summary(pspm)
+Matching failed in subclasses containing 6 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
+Structure of matched sets:
+1:1 0:1 
+  7  12 
+Effective Sample Size:  7 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=0
+(within 0.0173 of optimum).
+Percentiles of matched distances:
+  0%  50%  95% 100% 
+   0    0    0    0 
+> psd$m[1,] <- psd$m[1,] + rep(100,22)
+> summary(pairmatch(psd, controls=2))
+Structure of matched sets:
+1:2 0:1 
+ 10   2 
+Effective Sample Size:  13.3 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=226
+(within 0.0286 of optimum).
+Percentiles of matched distances:
+      0%      50%      95%     100% 
+  0.0168   1.2100 101.0000 103.0000 
+> summary(psfm, propensity.model=psm)
+Structure of matched sets:
+ 1:0  3:1  2:1  1:2 1:5+  0:1 
+   3    1    1    1    1   11 
+Effective Sample Size:  5.92 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=1.02
+(within 0.018 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0110 0.0577 0.1600 0.1660 
+
+For covariate balance information, load the RItools package and
+pass a (glm) propensity model to summary() as a second argument.
+> require('RItools')
+Loading required package: RItools
+Package SparseM (0.85) loaded.
+	   To cite, see citation("SparseM")
+
+> summary(psfm, propensity.model='foo')
+Structure of matched sets:
+ 1:0  3:1  2:1  1:2 1:5+  0:1 
+   3    1    1    1    1   11 
+Effective Sample Size:  5.92 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=1.02
+(within 0.018 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0110 0.0577 0.1600 0.1660 
+
+For covariate balance information, load the RItools package and
+pass a (glm) propensity model to summary() as a second argument.
+> summary(psfm, propensity.model=psm)
+Structure of matched sets:
+ 1:0  3:1  2:1  1:2 1:5+  0:1 
+   3    1    1    1    1   11 
+Effective Sample Size:  5.92 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=1.02
+(within 0.018 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0110 0.0577 0.1600 0.1660 
+Balance test overall result:
+  chisquare df p.value
+       2.29  9   0.986
+> summary(psfm, psm)
+Structure of matched sets:
+ 1:0  3:1  2:1  1:2 1:5+  0:1 
+   3    1    1    1    1   11 
+Effective Sample Size:  5.92 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=1.02
+(within 0.018 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0110 0.0577 0.1600 0.1660 
+Balance test overall result:
+  chisquare df p.value
+       2.29  9   0.986
+> psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
++             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
++             family=binomial, data=nuclearplants)
+> psd2 <- pscore.dist(psm2)
+> summary(pairmatch(psd2), propensity.model=psm2)
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.56
+(within 0.0272 of optimum).
+Percentiles of matched distances:
+    0%    50%    95%   100% 
+0.0415 0.9140 1.5100 1.6100 
+Balance test overall result:
+  chisquare df p.value
+       9.83  9   0.365
+> summary(pspm, propensity.model=psm) # balance checking when matching has failed
+Matching failed in subclasses containing 6 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
+Structure of matched sets:
+1:1 0:1 
+  7  12 
+Effective Sample Size:  7 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=0
+(within 0.0173 of optimum).
+Percentiles of matched distances:
+  0%  50%  95% 100% 
+   0    0    0    0 
+Balance test overall result:
+  chisquare df p.value
+          7  7   0.429
+>                                     # in some subclasses
+> 

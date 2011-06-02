@@ -1,0 +1,46 @@
+
+R version 2.6.2 (2008-02-08)
+Copyright (C) 2008 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require('optmatch')
+Loading required package: optmatch
+You're loading optmatch, by Ben Hansen, a package for flexible
+ and optimal matching.  Important license information:
+ The optmatch package makes essential use of D. P. Bertsekas
+ and P. Tseng's RELAX-IV algorithm and code, as well as
+ Bertsekas' AUCTION algorithm and code.
+ Bertsekas and Tseng freely permit their software to be used for
+ research purposes, but non-research uses, including the use of it
+ to 'satisfy in any part commercial delivery requirements to
+ government or industry,' require a special agreement with them.
+ By extension, this requirement applies to any use of the 
+ fullmatch() function. (If you are using another package that has
+ loaded optmatch, then you will probably be using fullmatch indirectly.)
+ For more information, enter relaxinfo() at the command line
+> data(plantdist)
+> fullmatch(plantdist<10)
+  A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T 
+m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.7 m.5 
+  U   V   W   X   Y   Z 
+m.4 m.6 m.4 m.3 m.2 m.1 
+> data(nuclearplants)
+> mhd2 <- mahal.dist(~date+cum.n, nuclearplants, pr~pt)
+> fullmatch(mhd2 < 1)
+  H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E 
+0.7 0.7 0.1 0.7 0.2 0.7 0.7 0.7 0.3 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.6 0.4 0.5 0.5 
+  W   F   X   G   Y   Z   d   e   f   a   b   c 
+0.4 0.6 0.3 0.7 0.2 0.1 1.3 1.2 1.1 1.1 1.2 1.3 
+> 

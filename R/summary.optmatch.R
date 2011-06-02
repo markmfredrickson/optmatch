@@ -1,0 +1,101 @@
+
+summary.optmatch <- function(object, 
+                             propensity.model = NULL, ...,
+                             min.controls=.2, max.controls=5,
+                             quantiles=c(0,.5, .95, 1)
+                             )
+{
+# Things to display in the summary method:
+## effective sample size -- stratumStructure
+## outlying propensity-score distances -- matched.distances()
+## overall balance -- xBalance()
+  so <- list()
+  so$thematch <- object
+  so$matching.failed <- mfd <- matchfailed(object)
+  if (all(mfd))
+    {
+      class(so) <- "summary.optmatch"
+      so$warnings <- c(so$warnings,
+                       list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
+                       )
+      return(so)
+    }
+  so$matched.set.structures <- stratumStructure(object[!mfd, drop=TRUE],min.controls=min.controls,max.controls=max.controls)
+  so$effective.sample.size <- attr(so$matched.set.structures, "comparable.num.matched.pairs")
+
+  matchdists <- attr(object, "matched.distances")[levels(object[!mfd, drop=TRUE])]
+  matchdists <- unlist(matchdists)
+  so$total.distance <- sum(matchdists)
+  so$total.tolerances <- sum(attr(object, "exceedances"))
+  so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
+
+  ## optional call to xbalance if it is loaded
+  if(exists("xBalance") && 
+     !is.null(propensity.model) &&
+     inherits(propensity.model, "glm")) {
+
+    # users must save the model for reliable behavior.
+    # we warn, instead of an error, but the user may get an error
+    # from model.frame or later
+    if(is.null(propensity.model$model)) {
+      warning("This propensity seems to have been fit with 'model=FALSE'.\nI'm reconstructing the data set as best I can, but I might fail,\nor get a different data set than the one behind propensity.model.\nTo be sure, re-fit your propensity.model with 'model = TRUE'.")  
+    }
+
+    so$balance <- xBalance(fmla = formula(propensity.model),
+                   strata=object[!mfd, drop=TRUE],
+                     data = expand.model.frame(propensity.model,
+                       all.vars(formula(propensity.model)),
+                       na.expand=TRUE)[!mfd,],
+                   report=c('adj.means', 'z.scores', 'chisquare.test'))
+  } else if (!is.null(propensity.model)) so$warnings <-
+    c(so$warnings,
+      list("For covariate balance information, load the RItools package and\npass a (glm) propensity model to summary() as a second argument.")
+      )
+
+  class(so) <- "summary.optmatch"
+  so
+}
+
+print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...)
+  {
+  if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
+  if (all(x$matching.failed))
+    {
+      do.call(cat, warns)
+      return(invisible(x))
+    }
+  
+    if (any(x$matching.failed))  {
+      cat(paste("Matching failed in subclasses containing",sum(x$matching.failed),
+                "of",length(x$matching.failed),"observations.\n"))
+      cat("Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)\n")
+    } 
+
+  attr(x$matched.set.structures, "comparable.num.matched.pairs") <- NULL
+  cat("Structure of matched sets:\n")
+  print(x$matched.set.structures)
+  cat("Effective Sample Size: ", signif(x$effective.sample.size, digits), "\n")
+  cat("(equivalent number of matched pairs).\n\n")
+  cat("sum(matched.distances)=",
+      signif(x$total.distance, digits),"\n",sep="")
+  cat("(within",
+      signif(x$total.tolerances,digits),
+      "of optimum).\n")
+  cat("Percentiles of matched distances:\n")
+  print(signif(x$matched.dist.quantiles, digits))
+
+  if ('balance' %in% names(x))
+    {
+    cat("Balance test overall result:\n")
+    b.o <- x$balance$overall
+    row.names(b.o) <-  " "
+    print(b.o, digits=3)
+    }
+
+  if ('warnings' %in% names(x))
+    {
+      cat("\n")
+      do.call(cat, warns)
+    }
+  invisible(x)
+  }

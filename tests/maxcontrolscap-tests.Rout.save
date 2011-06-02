@@ -1,0 +1,86 @@
+
+R version 2.9.0 (2009-04-17)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ### maxControlsCap
+> require('optmatch')
+Loading required package: optmatch
+You're loading optmatch, by Ben Hansen, a package for flexible
+ and optimal matching.  Important license information:
+ The optmatch package makes essential use of D. P. Bertsekas
+ and P. Tseng's RELAX-IV algorithm and code, as well as
+ Bertsekas' AUCTION algorithm and code.
+ Bertsekas and Tseng freely permit their software to be used for
+ research purposes, but non-research uses, including the use of it
+ to 'satisfy in any part commercial delivery requirements to
+ government or industry,' require a special agreement with them.
+ By extension, this requirement applies to any use of the 
+ fullmatch() function. (If you are using another package that has
+ loaded optmatch, then you will probably be using fullmatch indirectly.)
+ For more information, enter relaxinfo() at the command line
+> data(nuclearplants)
+> mhd2a <- mahal.dist(~date+cum.n, nuclearplants, pr~pt)
+> mhd2a[1:2] <- lapply(mhd2a[1:2], t)
+> 
+> stratumStructure(fullmatch(mhd2a/(mhd2a<3))) # Works OK: 
+5:1 4:1 2:1 1:1 1:2 
+  1   2   3   2   1 
+attr(,"comparable.num.matched.pairs")
+[1] 12.2
+> maxControlsCap(mhd2a/(mhd2a<3))              # no unmatchable Tx
+$given.min.controls
+0 1 
+0 0 
+
+$strictest.feasible.max.controls
+0 1 
+1 1 
+
+> stratumStructure(fullmatch(mhd2a/(mhd2a<3), max=1))
+5:1 4:1 2:1 1:1 
+  1   2   2   5 
+attr(,"comparable.num.matched.pairs")
+[1] 12.53333
+> stratumStructure(fullmatch(mhd2a/(mhd2a<3), max=1/2))
+19:7  3:3 
+   1    1 
+attr(,"comparable.num.matched.pairs")
+[1] 0
+> stratumStructure(fullmatch(mhd2a/(mhd2a<2))) # Problem in version <= .5-9:
+1:0 5:1 4:1 3:1 2:1 1:1 1:2 
+  1   1   1   1   3   2   1 
+attr(,"comparable.num.matched.pairs")
+[1] 12.1
+> (mx2 <- maxControlsCap(mhd2a/(mhd2a<2)))     # caused by unmatchable Tx
+$given.min.controls
+0 1 
+0 0 
+
+$strictest.feasible.max.controls
+0 1 
+1 1 
+
+> stratumStructure(fullmatch(mhd2a/(mhd2a<2), max=mx2$strictest))
+1:0 5:1 4:1 3:1 2:1 1:1 
+  1   1   1   1   2   5 
+attr(,"comparable.num.matched.pairs")
+[1] 12.43333
+> stratumStructure(fullmatch(mhd2a/(mhd2a<2), max=1/2))
+19:7  3:3 
+   1    1 
+attr(,"comparable.num.matched.pairs")
+[1] 0
+> 

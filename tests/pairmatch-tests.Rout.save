@@ -1,0 +1,68 @@
+
+R version 2.11.0 (2010-04-22)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require('optmatch')
+Loading required package: optmatch
+You're loading optmatch, by Ben Hansen, a package for flexible
+ and optimal matching.  Important license information:
+ The optmatch package makes essential use of D. P. Bertsekas
+ and P. Tseng's RELAX-IV algorithm and code, as well as
+ Bertsekas' AUCTION algorithm and code.
+ Bertsekas and Tseng freely permit their software to be used for
+ research purposes, but non-research uses, including the use of it
+ to 'satisfy in any part commercial delivery requirements to
+ government or industry,' require a special agreement with them.
+ By extension, this requirement applies to any use of the 
+ fullmatch() function. (If you are using another package that has
+ loaded optmatch, then you will probably be using fullmatch indirectly.)
+ For more information, enter relaxinfo() at the command line
+> data(plantdist)
+> pairmatch(plantdist)
+   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
+ m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
+   Q    R    S    T    U    V    W    X    Y    Z 
+ m.4  m.5 <NA> <NA>  m.6 <NA> <NA>  m.7 <NA> <NA> 
+> pairmatch(plantdist, controls=2)
+   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
+ m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.2  m.4  m.3 <NA> <NA> 
+   Q    R    S    T    U    V    W    X    Y    Z 
+ m.4  m.5  m.5  m.3  m.6 <NA>  m.1  m.7  m.7  m.6 
+> pairmatch(plantdist/(plantdist<1)) # Matching fails everywhere
+   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
+m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+   Q    R    S    T    U    V    W    X    Y    Z 
+m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+> pairmatch(plantdist/(plantdist<5), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
+   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
+ m.1  m.2  m.3  m.4  m.5 <NA>  m.6 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
+   Q    R    S    T    U    V    W    X    Y    Z 
+ m.4  m.5 <NA> <NA> <NA> <NA> <NA>  m.6 <NA> <NA> 
+> data(nuclearplants)
+> psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
+> psd <- pscore.dist(psm)
+> pairmatch(psd, controls=2)
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ m.8  m.7  m.2  m.5  m.4 <NA>  m.2  m.9  m.6  m.6  m.7  m.3  m.3 m.10  m.4  m.1 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ m.2  m.7  m.1  m.8  m.4  m.9  m.5 m.10  m.6  m.8  m.9 <NA> m.10  m.1  m.3  m.5 
+> pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA> <NA>  0.1 <NA>  0.2 <NA> <NA> <NA>  0.3 <NA> <NA> <NA> <NA> <NA>  0.4  0.6 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 0.3  0.4  0.1  0.5  0.2  0.6  0.5  0.7 <NA>  0.7 1.NA 1.NA 1.NA 1.NA 1.NA 1.NA 
+> 
+> 
