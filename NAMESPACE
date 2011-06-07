@@ -17,4 +17,4 @@ S3method(mdist, "function")
 S3method(mdist, numeric)
 S3method(mdist, bigglm)
 
-
+import(SparseM)
