@@ -28,9 +28,18 @@ test_that("DistSpec => nodes and arcs", {
   # matrix and matrix.csr implement prepareMatching
   # each returns the proper number of nodes and arcs
   
-  # test data: 2t + 3c = 5 nodes, 4 arcs (2 pairs unmatchable)
+  # test data: 4 arcs (2 pairs unmatchable)
   m <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E")
+
+  m.result <- prepareMatching(m)
+  expect_equal(dim(m.result), c(4, 3))
+  expect_equal(unique(m.result$treatment), as.factor(c("D", "E")))
+  expect_equal(unique(m.result$control), as.factor(c("A", "B", "C")))
+
   # for the sparse representation, we use 0 to notate unmatchable
+  # SparseM does not appear to support row names...
   m.csr <- as.matrix.csr(matrix(c(1, 0, 1, 2, 2, 0), nrow = 2, ncol = 3))
 
 })
