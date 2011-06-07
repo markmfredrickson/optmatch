@@ -7,4 +7,9 @@
 
 setClassUnion("DistanceSpecification", c("matrix", "matrix.csr"))
 
+### prepareMatching: DistanceSpecification -> arcs
+### where arcs is a data.frame with 3 columns: control, treatment, distance
+
+setGeneric("prepareMatching", function(distances)
+  standardGeneric("prepareMatching"))
 
