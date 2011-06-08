@@ -42,4 +42,7 @@ test_that("DistSpec => nodes and arcs", {
   # SparseM does not appear to support row names...
   m.csr <- as.matrix.csr(matrix(c(1, 0, 1, 2, 2, 0), nrow = 2, ncol = 3))
 
+  m.csr.result <- prepareMatching(m.csr)
+  expect_equal(dim(m.csr.result), c(4,3))
+
 })
