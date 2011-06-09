@@ -9,7 +9,8 @@
 # 1   2
 # Inf 3
 setClass("InfinitySparseMatrix", 
-  representation(cols = "numeric", rows = "numeric", dimension = "numeric"),
+  representation(cols = "numeric", rows = "numeric", dimension = "numeric",
+    colnames = "character", rownames = "character"),
   contains = "numeric")
 
 ### Basic Matrix-like Operations and Conversions ###
@@ -29,13 +30,13 @@ setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   ids <- (rowids - 1) * ncol + x@cols
   v[ids] <- x
 
-  return(matrix(v, nrow = nrow, ncol = ncol, byrow = T))
+  return(matrix(v, nrow = nrow, ncol = ncol, byrow = T, dimnames = list(x@rownames, x@colnames)))
 })
 
 setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
 
 # setMethod("as", "matrix", "InfinitySparseMatrix", function(x) {
-#  return(1)  
+#  return(1)    
 # })
 
 setAs("matrix", "InfinitySparseMatrix", function(from) { 
@@ -48,9 +49,36 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
   
   inf.by.row <- apply(is.finite(from), 1, sum)
   rows <- cumsum(c(1, inf.by.row))
-
-  return(new("InfinitySparseMatrix", vfromt[finite], cols = colids, rows = rows, dimension = dims))
+  
+  x <- new("InfinitySparseMatrix", vfromt[finite], cols = colids, rows = rows, dimension = dims)
+  if (!is.null(rownames(from))) {
+    x@rownames <- rownames(from)
+  }
+  if (!is.null(colnames(from))) {
+    x@colnames <- colnames(from)
+  }
+  return(x)
 })
 
 as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
+
+# dimnames implementation
+
+setMethod("colnames<-", "InfinitySparseMatrix", function(x, value) {
+    x@colnames <- value
+    return(x)
+})
+
+setMethod("colnames", "InfinitySparseMatrix", function(x) {
+  return(x@colnames)  
+})
+
+setMethod("rownames<-", "InfinitySparseMatrix", function(x, value) {
+    x@rownames <- value
+    return(x)
+})
+
+setMethod("rownames", "InfinitySparseMatrix", function(x) {
+  return(x@rownames)  
+})
 
