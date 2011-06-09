@@ -12,7 +12,7 @@ setClass("InfinitySparseMatrix",
   representation(cols = "numeric", rows = "numeric"),
   contains = "numeric")
 
-### Basic Matrix-like Operations ###
+### Basic Matrix-like Operations and Conversions ###
 dim.InfinitySparseMatrix <- function(x) { c(length(x@rows) - 1, max(x@cols)) }
 
 setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
@@ -28,3 +28,20 @@ setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
 
   return(matrix(v, nrow = nrow, ncol = ncol, byrow = T))
 })
+
+# setMethod("as", "matrix", "InfinitySparseMatrix", function(x) {
+#  return(1)  
+# })
+
+as.InfinitySparseMatrix <- function(x) { 
+  dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]  
+  vxt <- as.vector(t(x)) # make it into row major order
+  finite <- is.finite(vxt)
+  
+  colids <- rep(1:ncol, nrow)[finite]
+  rowids <- rep(1:nrow, each = ncol)[finite]
+  
+  rows <- cumsum(rle(rowids)$lengths)
+
+  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = c(1, rows + 1)))
+}

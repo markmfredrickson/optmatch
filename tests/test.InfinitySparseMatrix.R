@@ -14,5 +14,9 @@ test_that("ISM Basics", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   expect_equal(as.matrix(A), m)
 
+  # converting from a matrix to a ISM
+  expect_equal(as.InfinitySparseMatrix(m), A)
+  # expect_equal(as(m, "InfinitySparseMatrix"), A)
+
 })
 
