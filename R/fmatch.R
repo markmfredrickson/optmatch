@@ -41,8 +41,8 @@ if (mxc!=max.col.units | mnc!=min.col.units |
 if (mnc>1 & round(max.row.units)>1) 
    { warning("since min.col.units>1, fmatch coerced max.row.units to 1") }
 
-nt <- length(controls)
-nc <- length(treateds)
+nt <- length(treateds)
+nc <- length(controls)
 d <- dists$distance + 1
 startn <- rep(c(1:nt), nc)
 endn <- nt + rep(c(1:nc), rep(nt ,nc))
