@@ -78,6 +78,10 @@ feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
 (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
 x <- feas*fop$x - (1-feas)
-return(x)
+# trim the pseudo nodes (e.g. the sink) from the list
+x <- x[1:(dim(dists)[1])]
+results <- dists
+results$distance <- NULL
+return(results[as.logical(x), ])
 
 }
