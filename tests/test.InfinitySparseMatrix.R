@@ -30,5 +30,10 @@ test_that("ISM Basics", {
   D <- as.InfinitySparseMatrix(y)
   expect_identical(as.matrix(D), y)
 
+  # the as() technique should be equivalent
+  expect_identical(as(D, "matrix"), y)
+  expect_equal(A, as(m, "InfinitySparseMatrix"))
+
 })
+
 

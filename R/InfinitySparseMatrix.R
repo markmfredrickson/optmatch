@@ -32,20 +32,25 @@ setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   return(matrix(v, nrow = nrow, ncol = ncol, byrow = T))
 })
 
+setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
+
 # setMethod("as", "matrix", "InfinitySparseMatrix", function(x) {
 #  return(1)  
 # })
 
-as.InfinitySparseMatrix <- function(x) { 
-  dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]  
-  vxt <- as.vector(t(x)) # make it into row major order
-  finite <- is.finite(vxt)
+setAs("matrix", "InfinitySparseMatrix", function(from) { 
+  dims <- dim(from) ; nrow <- dims[1] ; ncol <- dims[2]  
+  vfromt <- as.vector(t(from)) # make it into row major order
+  finite <- is.finite(vfromt)
   
   colids <- rep(1:ncol, nrow)[finite]
   rowids <- rep(1:nrow, each = ncol)[finite]
   
-  inf.by.row <- apply(is.finite(x), 1, sum)
+  inf.by.row <- apply(is.finite(from), 1, sum)
   rows <- cumsum(c(1, inf.by.row))
 
-  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = rows, dimension = dims))
-}
+  return(new("InfinitySparseMatrix", vfromt[finite], cols = colids, rows = rows, dimension = dims))
+})
+
+as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
+
