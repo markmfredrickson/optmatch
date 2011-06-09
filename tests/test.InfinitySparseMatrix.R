@@ -18,5 +18,14 @@ test_that("ISM Basics", {
   expect_equal(as.InfinitySparseMatrix(m), A)
   # expect_equal(as(m, "InfinitySparseMatrix"), A)
 
+  # a more complicated examples, missing an entire row/col
+  w <- matrix(c(1,Inf,2, 3, Inf, 4), nrow = 3)
+  B <- as.InfinitySparseMatrix(w)
+  expect_identical(as.matrix(B), w)
+
+  y <- matrix(c(1,2,3,Inf, Inf, Inf), nrow = 3)
+  D <- as.InfinitySparseMatrix(y)
+  expect_identical(as.matrix(D), y)
+
 })
 

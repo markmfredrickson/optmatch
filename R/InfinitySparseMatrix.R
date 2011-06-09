@@ -41,7 +41,8 @@ as.InfinitySparseMatrix <- function(x) {
   colids <- rep(1:ncol, nrow)[finite]
   rowids <- rep(1:nrow, each = ncol)[finite]
   
-  rows <- cumsum(rle(rowids)$lengths)
+  inf.by.row <- apply(is.finite(x), 1, sum)
+  rows <- cumsum(c(1, inf.by.row))
 
-  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = c(1, rows + 1)))
+  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = rows))
 }
