@@ -4,16 +4,19 @@
 ################################################################################
 
 # instantiate with:
-# a <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,2,4))
+# a <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,3,4))
 # To get a matrix like:
 # 1   2
 # Inf 3
 setClass("InfinitySparseMatrix", 
-  representation(cols = "numeric", rows = "numeric"),
+  representation(cols = "numeric", rows = "numeric", dimension = "numeric"),
   contains = "numeric")
 
 ### Basic Matrix-like Operations and Conversions ###
-dim.InfinitySparseMatrix <- function(x) { c(length(x@rows) - 1, max(x@cols)) }
+dim.InfinitySparseMatrix <- function(x) { 
+  if (length(x@dimension) == 0) { return(c(length(x@rows) - 1, max(x@cols))) }
+  else { return(x@dimension) }
+}
 
 setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
@@ -44,5 +47,5 @@ as.InfinitySparseMatrix <- function(x) {
   inf.by.row <- apply(is.finite(x), 1, sum)
   rows <- cumsum(c(1, inf.by.row))
 
-  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = rows))
+  return(new("InfinitySparseMatrix", vxt[finite], cols = colids, rows = rows, dimension = dims))
 }
