@@ -17,11 +17,18 @@ if (!is.numeric(f) | f>1 | f<0) stop("f must be a number in [0,1]")
 stopifnot(is(distances, "DistanceSpecification"))
 dists <- prepareMatching(distances)
 # dists is a data.frame with 3 columns: control, treatment, distance
+# for defensive reasons, we make sure the control and treatment columns are factors
+dists$control <- as.factor(dists$control) ; dists$treatment <- as.factor(dists$treatment)
 
-controls <- unique(dists$control)
-treateds <- unique(dists$treatment)
+# the Fortan code uses numeric ids. the first nt + nc are resevered for the units
+# to be matched. 1:nt are treated (nt + 1):(nt + nc) are the controls
+treateds <- as.integer(dists$treatment)
+nt <- length(unique(treateds))
 
-if ((sum(dim(distances)[1]) + length(controls) + length(treateds)) > (1e+7-2))
+controls <- as.integer(dists$control) + nt 
+nc <- length(unique(controls))
+
+if ((sum(dim(distances)[1]) + nc + nt) > (1e+7-2))
   stop(paste('matrix arg to fmatch may have only',
              1e+7, "-(nrows+ncols+2) finite entries;",
              sum(finiteind) + sum(dim(distance.matrix)) - 1e+7 -2, 'too many'),
@@ -41,17 +48,15 @@ if (mxc!=max.col.units | mnc!=min.col.units |
 if (mnc>1 & round(max.row.units)>1) 
    { warning("since min.col.units>1, fmatch coerced max.row.units to 1") }
 
-nt <- length(treateds)
-nc <- length(controls)
-d <- dists$distance + 1
-startn <- rep(c(1:nt), nc)
-endn <- nt + rep(c(1:nc), rep(nt ,nc))
+d <- dists$distance
+startn <- treateds 
+endn <- controls
 ucap <- rep(1, (nt*nc))
 
 # Add figures for "end" and "sink" nodes
 # "end" is node nt+nc+1; "sink" is node nt+nc+2
 d <- c(d, rep(0, nc+nt), rep(0, nc))
-startn <- c(startn, 1:(nt+nc), nt+ 1:nc)
+startn <- c(startn, 1:(nt+nc), nt+ 1:nc) # NOTE: this assumes treates and controls form a 1:(nc+nt) vector
 endn <- c(endn, rep(nt+nc+1, nc+nt), rep(nt+nc+2, nc))
 ucap <- c(ucap, rep(mxc-mnc, nt), rep(mxr-1, nc), rep(1, nc))
 
@@ -80,8 +85,48 @@ feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
 x <- feas*fop$x - (1-feas)
 # trim the pseudo nodes (e.g. the sink) from the list
 x <- x[1:(dim(dists)[1])]
-results <- dists
-results$distance <- NULL
-return(results[as.logical(x), ])
 
+return(matches2factor(dists, x))
+
+}
+
+# a helper for fmatch(),
+# turns the cannonical form and the results of the Fortran code into a factor of matches
+# NOTE: this algorithm _should_ run in linear time. It rather depends on how good data.frame look up
+# is. If that is itself linear (and not constant), then this algorithm runs in quadratic time, which would be
+# nice to avoid.
+matches2factor <- function(data, matches) {
+  matches.only <- data[matches == 1, ]
+  controls <- levels(as.factor(data$control))
+  treateds <- levels(as.factor(data$treatment))
+
+  # for each treated units, get the controls it is linked to and vice-versa
+  treated.control <- lapply(treateds, function(t) { matches.only$control[matches.only$treatment == t]})
+  names(treated.control) <- treateds
+  control.treated <- lapply(controls, function(t) { matches.only$treatment[matches.only$control == t]})
+  names(control.treated) <- controls
+
+  # now we see which treateds are linked to the same group of controls.
+  # the groups vector will be a set of numerics, each indicating a matched group.
+  nt <- length(treated.control)
+  groupst <- vector("numeric", nt)
+  for (i in nt:1) { # counts down to give better numbering in the sets.
+    val <- treated.control[[i]]
+    same <- as.logical(lapply(treated.control, function(i) { identical(i, val) }))
+    groupst[same] <- i
+  }
+  names(groupst) <- treateds
+  
+  # now we look up the control ids from the treated ids
+  nc <- length(control.treated)
+  groupsc <- vector("numeric", nt)
+  for (i in nc:1) { # counts down to give better numbering in the sets.
+    tied.to <- control.treated[[i]][1]
+    groupsc[i] <- groupst[tied.to]
+  }
+  names(groupsc) <- controls
+
+  tmp <- as.factor(paste("m", c(groupst, groupsc), sep = ""))
+  names(tmp) <- c(treateds, controls)
+  return(tmp)  
 }
