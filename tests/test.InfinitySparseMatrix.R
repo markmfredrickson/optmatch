@@ -18,7 +18,7 @@ test_that("ISM Basics", {
   expect_equivalent(as.matrix(A), m)
 
   # converting from a matrix to a ISM
-  expect_equal(as.InfinitySparseMatrix(m), A)
+  expect_equivalent(as.InfinitySparseMatrix(m), A)
   # expect_equal(as(m, "InfinitySparseMatrix"), A)
 
   # a more complicated examples, missing an entire row/col
@@ -32,7 +32,7 @@ test_that("ISM Basics", {
 
   # the as() technique should be equivalent
   expect_equivalent(as(D, "matrix"), y)
-  expect_equal(A, as(m, "InfinitySparseMatrix"))
+  expect_equivalent(A, as(m, "InfinitySparseMatrix"))
 
 })
 
