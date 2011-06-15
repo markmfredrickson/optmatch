@@ -14,11 +14,11 @@ test_that("fmatch accepts DistanceSpecifications", {
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
 
-  res <- fmatch(m, 3, 3)
+  res <- fmatch(m, 2, 2)
 
   expect_equal(length(res), 6)
   expect_equal(length(levels(res)), 3)
-  expect_equal(res["A"], res["D"])
+  expect_equivalent(res["A"], res["D"])
   expect_false(res["A"] == res["B"])
 
   ### for use at the R prompt
@@ -52,6 +52,6 @@ test_that("Fortran output => factor", {
 
   expect_false(res["A"] == res["C"])
 
-  expect_equal(c("A", "B", "C", "D", "E", "F"), names(res))
+  expect_true(all(c("A", "B", "C", "D", "E", "F") %in% names(res)))
 
 })
