@@ -88,4 +88,15 @@ test_that("Math Ops", {
   expect_is(qA, "InfinitySparseMatrix")
   expect_equivalent(as.matrix(qA), q * m)
 
+  # names should be sticky across arithmatic
+  # TODO, math should reorder by names in case that changes things
+  colnames(A) <- paste("C", 1:2, sep = "")
+  rownames(A) <- paste("T", 1:2, sep = "")
+  colnames(q) <- paste("C", 1:2, sep = "")
+  rownames(q) <- paste("T", 1:2, sep = "")
+
+  Aq = A + q
+  expect_equal(colnames(Aq), c("C1", "C2"))
+  expect_equal(rownames(Aq), c("T1", "T2"))
+
 })

@@ -123,7 +123,7 @@ function(e1, e2) {
   res <- callGeneric(data1, data2)
 
   return(makeInfinitySparseMatrix(res, cols = e1@cols[idx1], rows = e1@rows[idx1], 
-    dimension = e1@dimension, colnames = e1@colnames[idx1], rownames = e1@rownames[idx1]))
+    dimension = e1@dimension, colnames = e1@colnames, rownames = e1@rownames))
   
 })
 
