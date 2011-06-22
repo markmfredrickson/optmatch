@@ -100,3 +100,32 @@ setMethod("rownames", "InfinitySparseMatrix", function(x) {
   return(x@rownames)  
 })
 
+################################################################################
+# Infinity Sparse Matrix: Math Ops
+################################################################################
+setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"), 
+function(e1, e2) {
+  if (!identical(dim(e1), dim(e2))) {
+    stop(paste("non-conformable matrices"))  
+  }  
+
+  pairs1 <- mapply(c, e1@rows, e1@cols, SIMPLIFY = F)
+  pairs2 <- mapply(c, e2@rows, e2@cols, SIMPLIFY = F)
+  
+  # Note: This might be expensive. There may be a way to do this in one pass if the data
+  # were pre-sorted in into row/column order
+  idx1 <- which(pairs1 %in% pairs2)
+  idx2 <- which(pairs2 %in% pairs1)
+
+  data1 <- e1@.Data[idx1]
+  data2 <- e2@.Data[idx2]
+
+  res <- callGeneric(data1, data2)
+
+  return(makeInfinitySparseMatrix(res, cols = e1@cols[idx1], rows = e1@rows[idx1], 
+    dimension = e1@dimension, colnames = e1@colnames[idx1], rownames = e1@rownames[idx1]))
+  
+})
+
+
+

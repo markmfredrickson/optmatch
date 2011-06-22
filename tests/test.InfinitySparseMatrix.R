@@ -43,3 +43,39 @@ test_that("ISM Handles Names", {
   expect_equal(as.matrix(as(m, "InfinitySparseMatrix")), m)
   
 })
+
+test_that("Math Ops", {
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  A <- as.InfinitySparseMatrix(m)
+
+  # scalar math
+  expect_equivalent(as.matrix(A + 1), m + 1)
+  expect_equivalent(as.matrix(A - 1), m - 1)
+  expect_equivalent(as.matrix(A * 2), m * 2)
+  expect_equivalent(as.matrix(A / 2), m / 2)
+  
+  # matrix element wise math
+  expect_equivalent(as.matrix(A + A), m + m)
+
+  # Inf - Inf or Inf / Inf gives NA
+  mm <- m - m
+  mm[is.na(mm)] <- Inf
+
+  md <- m / m
+  md[is.na(md)] <- Inf
+
+  expect_equivalent(as.matrix(A - A), mm)
+  expect_equivalent(as.matrix(A * A), m * m)
+  expect_equivalent(as.matrix(A / A), md)
+
+  # The harder case is when the matrix has non-identical row/col ids
+
+  q <- matrix(c(1, 2, Inf, 4), nrow = 2, ncol = 2)
+  B <- as.InfinitySparseMatrix(q)
+
+  expect_equivalent(as.matrix(A + B), m + q)
+  expect_equivalent(as.matrix(A * B), m * q)
+
+  # TODO, make up temp matrices for sub and div
+
+})
