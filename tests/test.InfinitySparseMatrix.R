@@ -6,7 +6,7 @@ library(testthat)
 context("InfinitySparseMatrix tests")
 
 test_that("ISM Basics", {
-  A <- makeInfinitySparseMatrix(c(1,2,3), colids = c(1,2, 2), rowids = c(1,1,2))
+  A <- makeInfinitySparseMatrix(c(1,2,3), cols = c(1,2, 2), rows = c(1,1,2))
   expect_is(A, "InfinitySparseMatrix")
   expect_equal(dim(A), c(2,2))
   
@@ -16,6 +16,8 @@ test_that("ISM Basics", {
 
   # converting from a matrix to a ISM
   expect_equivalent(as.InfinitySparseMatrix(m), A)
+  # and back again
+  expect_equivalent(as.matrix(as.InfinitySparseMatrix(m)), m)
   # expect_equal(as(m, "InfinitySparseMatrix"), A)
 
   # a more complicated examples, missing an entire row/col

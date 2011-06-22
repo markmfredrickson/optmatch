@@ -9,52 +9,51 @@
 # To get a matrix like:
 # 1   2
 # Inf 3
+setClassUnion("OptionalCharacter", c("character", "NULL"))
 setClass("InfinitySparseMatrix", 
   representation(cols = "numeric", rows = "numeric", dimension = "numeric",
-    colnames = "character", rownames = "character"),
+    colnames = "OptionalCharacter", rownames = "OptionalCharacter"),
   contains = "numeric")
 
 # using a maker function for now, probably should be an initialize function
-makeInfinitySparseMatrix <- function(data, colids, rowids, colnames = NULL, rownames = NULL, dimension = NULL) {
-  if (!all.equal(length(data), length(colids), length(rowids))) {
+makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL, rownames = NULL, dimension = NULL) {
+  if (!all.equal(length(data), length(cols), length(rows))) {
     stop("Data and column/row ids must be vectors of the same length")  
   }
 
   if(is.null(dimension)) {
-    dimension <- c(max(rowids), max(colids))  
+    dimension <- c(max(rows), max(cols))  
   }  
 
-  if(is.null(rownames)) {
-    rownames <- paste("T", 1:dimension[1], sep = "")  
-  }
+  # if(is.null(rownames)) {
+  #   rownames <- paste("T", 1:dimension[1], sep = "")  
+  # }
 
-  if(is.null(colnames)) {
-    colnames <- paste("C", 1:dimension[2], sep = "")  
-  }
+  # if(is.null(colnames)) {
+  #   colnames <- paste("C", 1:dimension[2], sep = "")  
+  # }
 
 
-  return(new("InfinitySparseMatrix", data, cols = colids, rows = rowids, colnames = colnames, rownames =
+  return(new("InfinitySparseMatrix", data, cols = cols, rows = rows, colnames = colnames, rownames =
     rownames, dimension = dimension))
 }
 
 ### Basic Matrix-like Operations and Conversions ###
 dim.InfinitySparseMatrix <- function(x) { 
-  if (length(x@dimension) == 0) { return(c(length(x@rows) - 1, max(x@cols))) }
-  else { return(x@dimension) }
+  return(x@dimension)
 }
 
 setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
-  v <- rep(Inf, nrow * ncol)
-  
-  # we already have the column ids of the data, we need the row ids
-  rowids <- rep(1:nrow, diff(x@rows))
+  v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(x@rownames, x@colnames))
 
-  # combine them to get the ID of the matrix (in row major order)
-  ids <- (rowids - 1) * ncol + x@cols
-  v[ids] <- x
+  # There might be a better, vectorized way to do this, but this is correct, if slow
+  n <- length(x)
+  for (i in 1:n) {
+    v[x@rows[i], x@cols[i]] <- x[i]  
+  }
 
-  return(matrix(v, nrow = nrow, ncol = ncol, byrow = T, dimnames = list(x@rownames, x@colnames)))
+  return(v)
 })
 
 setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
@@ -65,22 +64,17 @@ setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
 
 setAs("matrix", "InfinitySparseMatrix", function(from) { 
   dims <- dim(from) ; nrow <- dims[1] ; ncol <- dims[2]  
-  vfromt <- as.vector(t(from)) # make it into row major order
-  finite <- is.finite(vfromt)
+  finite <- is.finite(from)
   
-  colids <- rep(1:ncol, nrow)[finite]
-  rowids <- rep(1:nrow, each = ncol)[finite]
+  colids <- rep(1:ncol, each = nrow)[finite]
+  rowids <- rep(1:nrow, ncol)[finite]
   
-  inf.by.row <- apply(is.finite(from), 1, sum)
-  rows <- cumsum(c(1, inf.by.row))
-  
-  x <- new("InfinitySparseMatrix", vfromt[finite], cols = colids, rows = rows, dimension = dims)
-  if (!is.null(rownames(from))) {
-    x@rownames <- rownames(from)
-  }
-  if (!is.null(colnames(from))) {
-    x@colnames <- colnames(from)
-  }
+  x <- makeInfinitySparseMatrix(as.vector(from[finite]),
+                                cols = colids,
+                                rows = rowids,
+                                rownames = rownames(from),
+                                colnames = colnames(from),
+                                dimension = dims)
   return(x)
 })
 
