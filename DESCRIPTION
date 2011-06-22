@@ -6,7 +6,7 @@ Author: Ben B. Hansen <ben.hansen@umich.edu> and Mark Fredrickson <mark.m.fredri
   with embedded Fortran code due to Dimitri P. Bertsekas
   <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Ben B. Hansen <optmatch@ctools.umich.edu>
-Depends: R (>= 2.6.0), testthat, SparseM
+Depends: R (>= 2.6.0), testthat 
 Suggests: boot, RItools
 Description: Functions for optimal matching, including full matching
 License: file LICENSE
