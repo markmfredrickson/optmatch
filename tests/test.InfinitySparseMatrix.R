@@ -78,4 +78,14 @@ test_that("Math Ops", {
 
   # TODO, make up temp matrices for sub and div
 
+  # dense + sparse => sparse
+  Aq = A + q
+  expect_is(Aq, "InfinitySparseMatrix")
+  expect_equivalent(as.matrix(Aq), m + q)
+
+  # make sure it works the other direction (and with mult)
+  qA = q * A
+  expect_is(qA, "InfinitySparseMatrix")
+  expect_equivalent(as.matrix(qA), q * m)
+
 })

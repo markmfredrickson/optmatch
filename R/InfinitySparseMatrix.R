@@ -127,5 +127,19 @@ function(e1, e2) {
   
 })
 
+setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"), 
+function(e1, e2) {
+  callGeneric(e1, as.InfinitySparseMatrix(e2))
+})
+
+setMethod("Arith", signature(e1 = "matrix", e2 = "InfinitySparseMatrix"), 
+function(e1, e2) {
+  callGeneric(as.InfinitySparseMatrix(e1), e2)
+})
+
+
+
+
+
 
 
