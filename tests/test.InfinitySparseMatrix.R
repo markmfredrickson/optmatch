@@ -6,13 +6,10 @@ library(testthat)
 context("InfinitySparseMatrix tests")
 
 test_that("ISM Basics", {
-  A <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,3,4))  
+  A <- makeInfinitySparseMatrix(c(1,2,3), colids = c(1,2, 2), rowids = c(1,1,2))
   expect_is(A, "InfinitySparseMatrix")
   expect_equal(dim(A), c(2,2))
-
-  # the matrix conversion adds an explicit dimension component.
-  # solution: create an initialize method that plugs in dimension if it does not exist
-  A <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,3,4), dimension = c(2,2))    
+  
   # converting to the equivalent matrix
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   expect_equivalent(as.matrix(A), m)

@@ -4,7 +4,8 @@
 ################################################################################
 
 # instantiate with:
-# a <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,3,4))
+# a <- new("InfinitySparseMatrix", c(1,2,3), cols = c(1,2, 2), rows = c(1,1,2))
+# data is the data, cols are column IDs, rows are row IDs
 # To get a matrix like:
 # 1   2
 # Inf 3
@@ -12,6 +13,29 @@ setClass("InfinitySparseMatrix",
   representation(cols = "numeric", rows = "numeric", dimension = "numeric",
     colnames = "character", rownames = "character"),
   contains = "numeric")
+
+# using a maker function for now, probably should be an initialize function
+makeInfinitySparseMatrix <- function(data, colids, rowids, colnames = NULL, rownames = NULL, dimension = NULL) {
+  if (!all.equal(length(data), length(colids), length(rowids))) {
+    stop("Data and column/row ids must be vectors of the same length")  
+  }
+
+  if(is.null(dimension)) {
+    dimension <- c(max(rowids), max(colids))  
+  }  
+
+  if(is.null(rownames)) {
+    rownames <- paste("T", 1:dimension[1], sep = "")  
+  }
+
+  if(is.null(colnames)) {
+    colnames <- paste("C", 1:dimension[2], sep = "")  
+  }
+
+
+  return(new("InfinitySparseMatrix", data, cols = colids, rows = rowids, colnames = colnames, rownames =
+    rownames, dimension = dimension))
+}
 
 ### Basic Matrix-like Operations and Conversions ###
 dim.InfinitySparseMatrix <- function(x) { 
