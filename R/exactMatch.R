@@ -2,14 +2,16 @@
 # exactMatch: create InfinitySparseMatrices from factors
 ################################################################################
 
-exactMatch <- function(split, treatment) {
+setGeneric("exactMatch", 
+  def = function(x, ...) standardGeneric("exactMatch"))
 
-  if (length(split) != length(treatment)) {
+setMethod(exactMatch, "vector", function(x, treatment) {
+  if (length(x) != length(treatment)) {
     stop("Splitting vector and treatment vector must be same length")  
   }
   
   # defensive programming
-  split <- as.factor(split)
+  x <- as.factor(x)
   treatment <- as.factor(treatment)
 
   if (length(levels(treatment)) != 2) {
@@ -17,11 +19,11 @@ exactMatch <- function(split, treatment) {
   }
 
   # the upper level is the treatment condition
-  splitT <- split[treatment == 1]
-  splitC <- split[!treatment == 0]
+  xT <- x[treatment == 1]
+  xC <- x[!treatment == 0]
 
-  csForTs <- lapply(splitT, function(t) {
-    which(t == splitC)
+  csForTs <- lapply(xT, function(t) {
+    which(t == xC)
   })
 
   cols <- unlist(csForTs)
@@ -38,4 +40,12 @@ exactMatch <- function(split, treatment) {
 
   return(makeInfinitySparseMatrix(rep(0, length(rows)), cols = cols, rows =
     rows, rownames = rns, colnames = cns))  
-}
+})
+
+setMethod(exactMatch, "formula", function(x, data = NULL) {
+  mf <- model.frame(x)
+  
+  # formula is expected to be Z ~ B, where b is the blocking factor
+  # and Z is treatment, Z ~ B1 + B2 ... is also allowed
+  exactMatch(interaction(mf[,-1]), mf[,1]) # use the factor based method
+})
