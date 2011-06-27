@@ -1,11 +1,9 @@
-mdist <- function(x, structure.fmla = NULL, ...) {
-  UseMethod("mdist", x)
-}
+setGeneric("mdist", def = function(x, mask = NULL, ...)  standardGeneric("mdist"))
 
 # mdist method: optmatch.dlist
-mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
+setMethod("mdist", "DistanceSpecification", function(x, mask = NULL, ...) {
   return(x)
-} # just return the argument
+}) # just return the argument
 
 # mdist method: function
 # for the function method, both data and structure fmla are required
@@ -14,7 +12,7 @@ mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
 # and the controls in the stratum. It could then return the matrix of
 # mdists, which the rest of the function would markup with rownames
 # etc.
-mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
+setMethod("mdist", "function", function(x, mask = NULL, data = NULL, ...) {
 
   if (is.null(data) || is.null(structure.fmla)) {
     stop("Both data and the structure formula are required for
@@ -73,11 +71,11 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
   attr(ans, 'row.names') <- row.names(data)
   class(ans) <- c('optmatch.dlist', 'list')
   return(ans)
-}
+})
 
 
 # mdist method: formula
-mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
+setMethod("mdist", "formula", function(x, mask = NULL, data = NULL, subset = NULL, ...) {
   mf <- match.call(expand.dots=FALSE)
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
@@ -110,7 +108,7 @@ mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...
 
 ###  return(mf)
   mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
-}
+})
 
 isThereAPipe <- function(fmla)
 {
@@ -130,10 +128,10 @@ update.formula(fmla, structure.fmla)
 }
 
 # mdist method: glm
-mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
+setMethod("mdist", "glm", function(x, mask = NULL, standardization.scale = mad, ...)
 {
   pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
-}
+})
 
 # parsing formulas for creating mdists
 parseFmla <- function(fmla) {
@@ -155,7 +153,7 @@ parseFmla <- function(fmla) {
 
 
 # mdist method: bigglm
-mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.scale=mad, ...)
+setMethod("mdist", "bigglm", function(x, mask = NULL, data = NULL, standardization.scale = mad, ...)
 {
   if (is.null(data))
     stop("data argument is required for computing mdists from bigglms")
@@ -188,14 +186,14 @@ as.vector(controls$tHePs), `-`))
 
 mdist(psdiffs, structure.fmla=structure.fmla,
       data=Data)
-}
+})
 
 
 ### mdist method: numeric.
 ### (mdist can't work with numeric vectors at present,
 ### but it can return an informative error message).
 
-mdist.numeric <- function(x, structure.fmla = NULL, trtgrp=NULL, ...)
+setMethod("mdist", "numeric", function(x, mask = NULL, ...)
 {
 
   stop("No mdist method for numerics.
@@ -204,4 +202,6 @@ mdist.numeric <- function(x, structure.fmla = NULL, trtgrp=NULL, ...)
   and strata (optional) indicates a stratification variable, all
   columns in your.data")
 
-}
+})
+
+
