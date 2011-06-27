@@ -1,3 +1,7 @@
+################################################################################
+# Mdist: distance matrix creation functions
+################################################################################
+
 setGeneric("mdist", def = function(x, mask = NULL, ...)  standardGeneric("mdist"))
 
 # mdist method: optmatch.dlist
