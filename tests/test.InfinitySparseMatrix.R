@@ -100,3 +100,16 @@ test_that("Math Ops", {
   expect_equal(rownames(Aq), c("T1", "T2"))
 
 })
+
+test_that("Subsetting", {
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
+  
+  res.sub <- subset(A, A == 2)
+  expect_equal(res.sub@.Data, 2)
+  expect_equal(res.sub@cols, 2)
+  expect_equal(res.sub@rows, 1)
+
+})

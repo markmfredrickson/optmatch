@@ -139,6 +139,23 @@ function(e1, e2) {
 
 
 
+################################################################################
+# Manipulating matrices: subset, cbind, rbind, etc
+################################################################################
+
+subset.InfinitySparseMatrix <- function(x, subset, ...) {
+  y <- x # just in case x is passed by ref, I don't think it is, but safety first
+  ss <- subset & !is.na(subset) # from default subset implementation
+  y@.Data <- y[ss]
+  y@cols <- y@cols[ss]
+  y@rows <- y@rows[ss]
+
+  # should we purge cols and rows? Otherwise, we have the same size matrix, just 
+  # with fewer finit entries. 
+  # this might be better thought of as a replace method
+
+  return(y)
+}
 
 
 
