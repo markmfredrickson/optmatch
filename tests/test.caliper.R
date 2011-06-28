@@ -6,32 +6,33 @@ library(testthat)
 context("Caliper")
 
 test_that("Caliper return values", {
-  n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
 
   # use the Mahalanobis distance mdist method
-  result <- caliper(.2, Z ~ X1 + X2, data = test.data)
-  expect_is(result, "optmatch.dlist")
+  result <- caliper(2, A)
+  expect_is(result, "DistanceSpecification")
   
+  expect_equal(result@.Data, c(0,0))
 })
 
 test_that("Caliper exclusion", {
-  n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
-  rownames(test.data) <- letters[1:n]
-  # test exclusion functionality
-  result <- caliper(.2, Z ~ X1 + X2, data = test.data, exclude = c("a", "b"))
-  m <- result$m
-  expect_true(all(m[, "a"]) == 0)
-  expect_true(all(m[, "b"]) == 0)
+  m <- matrix(c(3,Inf, 1, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
+
+  # use the Mahalanobis distance mdist method
+  result <- caliper(2, A, exclude = c("B"))
+
+  m2 <- matrix(c(Inf, Inf, 0, 0), nrow = 2, ncol = 2)
+  rownames(m2) <- c("A", "B")
+  colnames(m2) <- c("C", "D")
+
+  expect_equal(as.matrix(result), m2)
   
 })
+
 

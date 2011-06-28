@@ -4,10 +4,7 @@
 
 setGeneric("mdist", def = function(x, mask = NULL, ...)  standardGeneric("mdist"))
 
-# mdist method: optmatch.dlist
-setMethod("mdist", "DistanceSpecification", function(x, mask = NULL, ...) {
-  return(x)
-}) # just return the argument
+
 
 # mdist method: function
 # for the function method, both data and structure fmla are required
@@ -208,4 +205,14 @@ setMethod("mdist", "numeric", function(x, mask = NULL, ...)
 
 })
 
+# mdist methods for DistanceSpecifications
+# apparently the class union is less important than the true
+# type, so the numeric method above gets in the way
+setMethod("mdist", "InfinitySparseMatrix", function(x, mask = NULL, ...) {
+  return(x)
+}) # just return the argument
+
+setMethod("mdist", "matrix", function(x, mask = NULL, ...) {
+  return(x)
+}) # just return the argument
 
