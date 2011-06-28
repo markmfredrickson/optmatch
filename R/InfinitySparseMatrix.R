@@ -229,3 +229,8 @@ rbind.InfinitySparseMatrix <- function(x, y, ...) {
   return(z)
 
 }
+
+t.InfinitySparseMatrix <- function(x) {
+  makeInfinitySparseMatrix(x@.Data, cols = x@rows, rows = x@cols, 
+                           colnames = x@rownames, rownames = x@colnames)
+}

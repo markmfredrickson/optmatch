@@ -181,3 +181,14 @@ test_that("rbinding ISMs and matrices", {
 
 })
 
+
+test_that("t(ransform) function", {
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
+
+  expect_equal(as.matrix(t(A)), t(m))
+  
+})
+
