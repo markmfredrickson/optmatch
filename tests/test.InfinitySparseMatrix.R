@@ -135,4 +135,49 @@ test_that("cbinding ISMs and matrices", {
   colnames(m3) <- c("C", "D", "C", "D") # this seems like a bad idea!
   expect_equal(as.matrix(res.Am2), m3)
 
+  m4 <- matrix(1, nrow = 2, ncol = 3)
+  rownames(m4) <- c("A", "C")
+  colnames(m4) <- c("X", "Y", "Z")
+  expect_error(cbind(A, m4))
+
+  m5 <- matrix(1, nrow = 3, ncol = 2)
+  rownames(m5) <- c("A", "B", "C")
+  colnames(m5) <- c("X", "Y")
+  expect_error(cbind(A, m5))
+
 })
+
+test_that("rbinding ISMs and matrices", {
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
+
+  res.AA <- rbind(A, A)
+  expect_equal(length(res.AA), 6)
+  expect_equal(dim(res.AA), c(4,2))
+
+  res.Am <- rbind(A, m)
+  expect_equal(res.Am, res.AA)
+  
+  m2 <- m
+  colnames(m2) <- c("D", "C")
+  res.Am2 <- rbind(A, m2)
+  m3 <- matrix(c(1,Inf,2,3,2,3,1,Inf), ncol = 2)
+  rownames(m3) <- c("A", "B", "A", "B")
+  colnames(m3) <- c("C", "D")
+  expect_equal(as.matrix(res.Am2), m3)
+
+  m4 <- matrix(1, nrow = 2, ncol = 2)
+  rownames(m4) <- c("A", "B")
+  colnames(m4) <- c("X", "Y")
+  expect_error(rbind(A, m4))
+
+  m5 <- matrix(1, nrow = 2, ncol = 3)
+  rownames(m5) <- c("A", "B")
+  colnames(m5) <- c("C", "D", "E")
+
+  expect_error(rbind(A, m5))
+
+})
+

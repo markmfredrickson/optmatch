@@ -191,3 +191,41 @@ cbind.InfinitySparseMatrix <- function(x, y, ...) {
   return(z)
 
 }
+
+# I don't like the duplication between cbind and rbind, but
+# I don't know that calling t(cbind(t(x), t(y))) is the correct solution
+# (at least the error messages will be wrong)
+
+rbind.InfinitySparseMatrix <- function(x, y, ...) {
+  y <- as.InfinitySparseMatrix(y) # this is a noop if y is an ISM
+
+  if(!is.null(x@colnames) & !(is.null(y@colnames))) {
+    if (!all(x@colnames %in% y@colnames) | !all(y@colnames %in% x@colnames)) {
+      stop("Matrices must have matching rownames")  
+    }
+  }
+
+  if (!is.null(x@rownames)) {
+    xrows <- length(x@rownames)
+
+    if (any(y@rownames %in% x@rownames)) {
+      warning("Matrices share row names. This is probably a bad idea.")  
+    }
+
+  } else {
+    xrows <- max(x@rows)
+  }
+
+  ymatch <- match(y@colnames, x@colnames)
+  yorder <- ymatch[y@cols]
+
+  z <- makeInfinitySparseMatrix(
+    c(x@.Data, y@.Data),
+    rows = c(x@rows, y@rows + xrows),
+    cols = c(x@cols, yorder),
+    rownames = c(x@rownames, y@rownames),
+    colnames = c(x@colnames)
+  )
+  return(z)
+
+}
