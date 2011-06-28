@@ -113,3 +113,26 @@ test_that("Subsetting", {
   expect_equal(res.sub@rows, 1)
 
 })
+
+test_that("cbinding ISMs and matrices", {
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  rownames(m) <- c("A", "B")
+  colnames(m) <- c("C", "D")
+  A <- as.InfinitySparseMatrix(m)
+
+  res.AA <- cbind(A, A)
+  expect_equal(length(res.AA), 6)
+  expect_equal(dim(res.AA), c(2, 4))
+
+  res.Am <- cbind(A, m)
+  expect_equal(res.Am, res.AA)
+  
+  m2 <- m
+  rownames(m2) <- c("B", "A")
+  res.Am2 <- cbind(A, m2)
+  m3 <- matrix(c(1,Inf,2,3, Inf, 1, 3,2), nrow = 2)
+  rownames(m3) <- c("A", "B")
+  colnames(m3) <- c("C", "D", "C", "D") # this seems like a bad idea!
+  expect_equal(as.matrix(res.Am2), m3)
+
+})

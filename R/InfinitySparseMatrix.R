@@ -158,5 +158,36 @@ subset.InfinitySparseMatrix <- function(x, subset, ...) {
 }
 
 
+cbind.InfinitySparseMatrix <- function(x, y, ...) {
+  y <- as.InfinitySparseMatrix(y) # this is a noop if y is an ISM
 
+  if(!is.null(x@rownames) & !(is.null(y@rownames))) {
+    if (!all(x@rownames %in% y@rownames) | !all(y@rownames %in% x@rownames)) {
+      stop("Matrices must have matching rownames.")  
+    }
+  }
 
+  if (!is.null(x@colnames)) {
+    xcols <- length(x@colnames)
+
+    if (any(y@colnames %in% x@colnames)) {
+      warning("Matrices share column names. This is probably a bad idea.")  
+    }
+
+  } else {
+    xcols <- max(x@cols)
+  }
+
+  ymatch <- match(y@rownames, x@rownames)
+  yorder <- ymatch[y@rows]
+
+  z <- makeInfinitySparseMatrix(
+    c(x@.Data, y@.Data),
+    rows = c(x@rows, yorder),
+    cols = c(x@cols, y@cols + xcols),
+    rownames = c(x@rownames),
+    colnames = c(x@colnames, y@colnames)
+  )
+  return(z)
+
+}
