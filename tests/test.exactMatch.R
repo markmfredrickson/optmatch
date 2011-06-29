@@ -93,3 +93,33 @@ test_that("Use proper environment or data.frame", {
   expect_identical(res.envir, res.df)
   
 })
+
+test_that("Makes correct mask", {
+  # this data gave me problems with a makedist() test.
+  # it should produces a matrix with a 2x3 0 matrix in
+  # the upper left and a 3x2 0 m matrix in the lower right
+  # it was producing a 3x3 and a 2x2 for some reason.
+
+  set.seed(20110629)
+  data <- data.frame(z = rep(c(1,0), 5),
+                     y = rnorm(10),
+                     b = rep(c(1,0), each = 5))
+  rownames(data) <- letters[1:10]
+  Y <- data$z
+  A <- data$b
+  names(Y) <- rownames(data)
+  names(A) <- rownames(data)
+
+  reference <- matrix(c(rep(c(0,0,0,Inf,Inf), 2), 
+                        rep(c(Inf, Inf, Inf, 0, 0), 3)), 
+                      nrow = 5, ncol = 5)
+
+  mask.df <- exactMatch(z ~ b, data = data)
+  expect_equal(length(mask.df), 3*2 + 2*3) # sizes of the 0 blocks
+
+  mask.fac <- exactMatch(A, Y)
+  expect_equal(length(mask.fac), 12)
+
+  expect_identical(mask.df, mask.fac)
+  
+})

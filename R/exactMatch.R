@@ -9,7 +9,6 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   if (length(x) != length(treatment)) {
     stop("Splitting vector and treatment vector must be same length")  
   }
-  
   # defensive programming
   x <- as.factor(x)
   treatment <- as.factor(treatment)
@@ -20,7 +19,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
 
   # the upper level is the treatment condition
   xT <- x[treatment == 1]
-  xC <- x[!treatment == 0]
+  xC <- x[treatment == 0]
 
   csForTs <- lapply(xT, function(t) {
     which(t == xC)
