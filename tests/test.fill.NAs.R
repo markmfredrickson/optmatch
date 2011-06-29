@@ -5,8 +5,6 @@
 library(testthat)
 context("fill.NAs")
 
-# library("splines")
-
 test_that("Basic Tests", {
   # Takes and returns a data frame
   expect_is(fill.NAs(data.frame(1)), "data.frame")
@@ -35,7 +33,7 @@ test_that("Basic Tests", {
 })
 
 test_that("Function expansion", {
-
+  library(splines)
   # for variables encapsulated in functions, only the variable should be expanded into a NA column
   sample.df <- data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA, 3, 4), 20))
 
