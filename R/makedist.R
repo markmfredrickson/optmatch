@@ -1,4 +1,87 @@
-makedist <- function(structure.fmla, data,
+################################################################################
+# makedist: produces DistanceSpecificaitons from data and a distance function
+################################################################################
+
+# an internal function to handle the heavy lifting
+# z is a treatment indicator for the data
+# 
+makedist <- function(z, data, distancefn, mask = NULL) {
+  
+  # first, check z for correctness
+  if (any(is.na(z))) {
+    stop("NAs not allowed in treatment indicator.")  
+  }
+
+  if (length(unique(z)) != 2) {
+    stop(paste("Treatment indicator must have exactly 2 levels not", length(levels(z))))  
+  }
+  z <- as.logical(z) # at this point, z has 2 levels, so is safe to convert to logical
+
+  # next, data should be same length/size as z
+  # I would have liked to have "duck typed" data by using
+  # hasMethod(f = "dim", signature = class(data))
+  # but "vector" has a dim method (though it returns null!), which causes this to fail
+  if (inherits(data, "matrix") | inherits(data, "data.frame")) {
+    data.len <- dim(data)[1]  
+  } else {
+    data.len <- length(data)  
+  }
+   
+  if (data.len != length(z)) {
+    stop("Treatment indicator and data must have the same length.")  
+  }
+
+  # data can be either a vector or a data.frame/matrix
+  if (is.vector(data)) {
+    namefn <- names
+  } else {
+    namefn <- rownames
+  }
+
+  cns <- namefn(subset(data, z))
+  rns <- namefn(subset(data, !z))
+
+  if (length(cns) == 0 | length(rns) == 0) {
+    stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
+  }
+
+  if (is.null(mask)) {
+    # without a mask, make a dense matrix    
+    nc <- length(cns)
+    nr <- length(rns)
+    
+    res <- matrix(0, nrow = nr, ncol = nc, dimnames = list(control = rns, treatment = cns))
+    
+    # matrices have column major order
+    controlids <- rep(rns, nc)
+    treatmentids <- rep(cns, each = nr)
+
+  } else {
+    # with a mask, make a copy and only fill in the finite entries of mask
+    res <- mask
+
+    treatmentids <- res@cols
+    controlids <- res@rows
+
+    # TODO: check that the rownames, colnames of mask match data
+  }
+
+  # it would be nice if we could abstract this, like with subset(data, z),
+  # I am unaware of a function that will do that.
+
+  if (is.vector(data)) {
+    dists <- distancefn(data[treatmentids], data[controlids])    
+  } else {
+    dists <- distancefn(data[treatmentids, ], data[controlids, ])          
+  }
+
+  res <- replace(res, 1:length(res), dists)
+
+  return(res)
+}
+
+
+makedistold <- function(structure.fmla, data,
                      fn=function(trtvar, dat, ...){
                        matrix(0, sum(trtvar), sum(!trtvar),
                               dimnames=list(names(trtvar)[trtvar],
