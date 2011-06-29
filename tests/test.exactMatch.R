@@ -76,3 +76,20 @@ test_that("Exact match on formula", {
   expect_equal(res.bb, res.multi)
   
 })
+
+test_that("Use proper environment or data.frame", {
+  n <- 16
+  Z <- rep(c(0,1), n/2)
+  W <- rnorm(16)
+  B <- c(rep(0, n/2), rep(1, n/2))
+  test.data <- data.frame(a = Z, x = W, c = B)
+
+  names(Z) <- letters[1:n]
+  rownames(test.data) <- letters[1:n]
+
+  res.envir <- exactMatch(Z ~ B)
+  res.df <- exactMatch(a ~ c, data = test.data)
+
+  expect_identical(res.envir, res.df)
+  
+})

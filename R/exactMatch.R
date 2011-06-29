@@ -42,10 +42,24 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     rows, rownames = rns, colnames = cns))  
 })
 
-setMethod(exactMatch, "formula", function(x, data = NULL) {
-  mf <- model.frame(x)
-  
+setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.action = NULL, ...) {
+  # lifted pretty much verbatim from lm()
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("data", "subset", "na.action"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf$formula <- x
+  mf[[1L]] <- as.name("model.frame")
+
+  mf <- eval(mf, parent.frame())
+
+  blocking <- interaction(mf[,-1])
+  treatment <- mf[,1]
+
+  names(blocking) <- rownames(mf)
+  names(treatment) <- rownames(mf)
+
   # formula is expected to be Z ~ B, where b is the blocking factor
   # and Z is treatment, Z ~ B1 + B2 ... is also allowed
-  exactMatch(interaction(mf[,-1]), mf[,1]) # use the factor based method
+  exactMatch(blocking, treatment) # use the factor based method
 })
