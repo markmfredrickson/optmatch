@@ -28,11 +28,11 @@ test_that("No mask => dense matrix", {
   z <- c(rep(0, 5), rep(1, 8))
 
   # this is what we should get. the equivalent of outer
-  m <- t(outer(X = data[z == 1], Y = data[z == 0], FUN = `-`))
+  m <- outer(X = data[z == 1], Y = data[z == 0], FUN = `-`)
 
   res <- makedist(z, data, `-`)
 
-  expect_equal(dim(res), c(5, 8))
+  expect_equal(dim(res), c(8, 5))
   expect_is(res, "matrix")
   expect_equivalent(res, m)
 
@@ -43,4 +43,49 @@ test_that("No mask => dense matrix", {
   res.df <- makedist(z, data.df, aminus)
   expect_equal(res.df, res)
   expect_equivalent(res.df, m)
+})
+
+test_that("Mask => ISM result", {
+  set.seed(20110629)
+  data <- data.frame(z = rep(c(1,0), 5),
+                     y = rnorm(10),
+                     b = rep(c(1,0), each = 5))
+  rownames(data) <- letters[1:10]
+ 
+  yminus <- function(t,c) { t$y - c$y }
+
+  upper.left <- makedist(data$z[data$b == 1], data[data$b == 1,], yminus)
+  lower.right <- makedist(data$z[data$b == 0], data[data$b == 0,], yminus)
+  upper <- cbind(upper.left, matrix(Inf, nrow = 3, ncol = 3))
+  lower <- cbind(matrix(Inf, nrow = 2, ncol = 2), lower.right)
+  m <- rbind(upper, lower)
+
+  test.mask <- exactMatch(z ~ b, data = data)
+
+  res <- makedist(data$z, data, yminus, mask = test.mask)
+
+  expect_equal(length(res), length(test.mask))
+
+  expect_equivalent(as.matrix(res), m)
+
+  # masks should match the data on treatment and control names
+  data2 <- data
+  rownames(data2) <- letters[11:20]
+  test.mask.bad <- exactMatch(z ~ b, data = data2)
+  
+  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad))
+
+  # repeat previous test with bad row and column names respectively
+  data3 <- data
+  rownames(data3) <- c("foo", rownames(data[-1,]))
+  test.mask.bad.treat <- exactMatch(z ~ b, data = data3)
+  
+  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad.treat))
+
+  data4 <- data
+  rownames(data3) <- c(rownames(data)[1:9], "bar")
+  test.mask.bad.cntrl <- exactMatch(z ~ b, data = data3)
+  
+  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad.cntrl))
+
 })

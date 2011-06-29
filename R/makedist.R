@@ -38,8 +38,8 @@ makedist <- function(z, data, distancefn, mask = NULL) {
     namefn <- rownames
   }
 
-  cns <- namefn(subset(data, z))
-  rns <- namefn(subset(data, !z))
+  rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
+  cns <- namefn(subset(data, !as.logical(z)))
 
   if (length(cns) == 0 | length(rns) == 0) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
@@ -50,18 +50,23 @@ makedist <- function(z, data, distancefn, mask = NULL) {
     nc <- length(cns)
     nr <- length(rns)
     
-    res <- matrix(0, nrow = nr, ncol = nc, dimnames = list(control = rns, treatment = cns))
+    res <- matrix(0, nrow = nr, ncol = nc, dimnames = list(treatment = rns, control = cns))
     
     # matrices have column major order
-    controlids <- rep(rns, nc)
-    treatmentids <- rep(cns, each = nr)
+    treatmentids <- rep(rns, nc)
+    controlids <- rep(cns, each = nr)
 
   } else {
     # with a mask, make a copy and only fill in the finite entries of mask
     res <- mask
+    
+    if (!all(mask@rownames %in% rns) | !(all(rns %in% mask@rownames)) |
+        !all(mask@colnames %in% cns) | !(all(cns %in% mask@colnames))) {
+      stop("Row and column names of mask must match those of the data.")  
+    }
 
-    treatmentids <- res@cols
-    controlids <- res@rows
+    treatmentids <- res@rownames[res@rows]
+    controlids <- res@colnames[res@cols]
 
     # TODO: check that the rownames, colnames of mask match data
   }
