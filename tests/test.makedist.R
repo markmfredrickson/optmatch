@@ -22,7 +22,7 @@ test_that("Checking input", {
   expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, `-`))
 })
 
-test_that("No mask => dense matrix", {
+test_that("No exclusions => dense matrix", {
   data <- c(1:5, 2:9)
   names(data) <- letters[1:13]
   z <- c(rep(0, 5), rep(1, 8))
@@ -60,32 +60,32 @@ test_that("Mask => ISM result", {
   lower <- cbind(matrix(Inf, nrow = 2, ncol = 2), lower.right)
   m <- rbind(upper, lower)
 
-  test.mask <- exactMatch(z ~ b, data = data)
+  test.exclusions <- exactMatch(z ~ b, data = data)
 
-  res <- makedist(data$z, data, yminus, mask = test.mask)
+  res <- makedist(data$z, data, yminus, exclusions = test.exclusions)
 
-  expect_equal(length(res), length(test.mask))
+  expect_equal(length(res), length(test.exclusions))
 
   expect_equivalent(as.matrix(res), m)
 
-  # masks should match the data on treatment and control names
+  # exclusionss should match the data on treatment and control names
   data2 <- data
   rownames(data2) <- letters[11:20]
-  test.mask.bad <- exactMatch(z ~ b, data = data2)
+  test.exclusions.bad <- exactMatch(z ~ b, data = data2)
   
-  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad))
+  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad))
 
   # repeat previous test with bad row and column names respectively
   data3 <- data
   rownames(data3) <- c("foo", rownames(data[-1,]))
-  test.mask.bad.treat <- exactMatch(z ~ b, data = data3)
+  test.exclusions.bad.treat <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad.treat))
+  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad.treat))
 
   data4 <- data
   rownames(data3) <- c(rownames(data)[1:9], "bar")
-  test.mask.bad.cntrl <- exactMatch(z ~ b, data = data3)
+  test.exclusions.bad.cntrl <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, mask = test.mask.bad.cntrl))
+  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad.cntrl))
 
 })

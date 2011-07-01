@@ -2,7 +2,7 @@
 # Mdist: distance matrix creation functions
 ################################################################################
 
-setGeneric("mdist", def = function(x, mask = NULL, ...)  standardGeneric("mdist"))
+setGeneric("mdist", def = function(x, exclusions = NULL, ...)  standardGeneric("mdist"))
 
 
 
@@ -13,7 +13,7 @@ setGeneric("mdist", def = function(x, mask = NULL, ...)  standardGeneric("mdist"
 # and the controls in the stratum. It could then return the matrix of
 # mdists, which the rest of the function would markup with rownames
 # etc.
-setMethod("mdist", "function", function(x, mask = NULL, data = NULL, ...) {
+setMethod("mdist", "function", function(x, exclusions = NULL, data = NULL, ...) {
 
   if (is.null(data) || is.null(structure.fmla)) {
     stop("Both data and the structure formula are required for
@@ -76,7 +76,7 @@ setMethod("mdist", "function", function(x, mask = NULL, data = NULL, ...) {
 
 
 # mdist method: formula
-setMethod("mdist", "formula", function(x, mask = NULL, data = NULL, subset = NULL, ...) {
+setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, ...) {
   mf <- match.call(expand.dots=FALSE)
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
@@ -129,7 +129,7 @@ update.formula(fmla, structure.fmla)
 }
 
 # mdist method: glm
-setMethod("mdist", "glm", function(x, mask = NULL, standardization.scale = mad, ...)
+setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
 {
   pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
 })
@@ -154,7 +154,7 @@ parseFmla <- function(fmla) {
 
 
 # mdist method: bigglm
-setMethod("mdist", "bigglm", function(x, mask = NULL, data = NULL, standardization.scale = mad, ...)
+setMethod("mdist", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
 {
   if (is.null(data))
     stop("data argument is required for computing mdists from bigglms")
@@ -194,7 +194,7 @@ mdist(psdiffs, structure.fmla=structure.fmla,
 ### (mdist can't work with numeric vectors at present,
 ### but it can return an informative error message).
 
-setMethod("mdist", "numeric", function(x, mask = NULL, ...)
+setMethod("mdist", "numeric", function(x, exclusions = NULL, ...)
 {
 
   stop("No mdist method for numerics.
@@ -208,11 +208,11 @@ setMethod("mdist", "numeric", function(x, mask = NULL, ...)
 # mdist methods for DistanceSpecifications
 # apparently the class union is less important than the true
 # type, so the numeric method above gets in the way
-setMethod("mdist", "InfinitySparseMatrix", function(x, mask = NULL, ...) {
+setMethod("mdist", "InfinitySparseMatrix", function(x, exclusions = NULL, ...) {
   return(x)
 }) # just return the argument
 
-setMethod("mdist", "matrix", function(x, mask = NULL, ...) {
+setMethod("mdist", "matrix", function(x, exclusions = NULL, ...) {
   return(x)
 }) # just return the argument
 

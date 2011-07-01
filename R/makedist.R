@@ -5,7 +5,7 @@
 # an internal function to handle the heavy lifting
 # z is a treatment indicator for the data
 # 
-makedist <- function(z, data, distancefn, mask = NULL) {
+makedist <- function(z, data, distancefn, exclusions = NULL) {
   
   # first, check z for correctness
   if (any(is.na(z))) {
@@ -45,8 +45,8 @@ makedist <- function(z, data, distancefn, mask = NULL) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
   }
 
-  if (is.null(mask)) {
-    # without a mask, make a dense matrix    
+  if (is.null(exclusions)) {
+    # without a exclusions, make a dense matrix    
     nc <- length(cns)
     nr <- length(rns)
     
@@ -57,18 +57,18 @@ makedist <- function(z, data, distancefn, mask = NULL) {
     controlids <- rep(cns, each = nr)
 
   } else {
-    # with a mask, make a copy and only fill in the finite entries of mask
-    res <- mask
+    # with a exclusions, make a copy and only fill in the finite entries of exclusions
+    res <- exclusions
     
-    if (!all(mask@rownames %in% rns) | !(all(rns %in% mask@rownames)) |
-        !all(mask@colnames %in% cns) | !(all(cns %in% mask@colnames))) {
-      stop("Row and column names of mask must match those of the data.")  
+    if (!all(exclusions@rownames %in% rns) | !(all(rns %in% exclusions@rownames)) |
+        !all(exclusions@colnames %in% cns) | !(all(cns %in% exclusions@colnames))) {
+      stop("Row and column names of exclusions must match those of the data.")  
     }
 
     treatmentids <- res@rownames[res@rows]
     controlids <- res@colnames[res@cols]
 
-    # TODO: check that the rownames, colnames of mask match data
+    # TODO: check that the rownames, colnames of exclusions match data
   }
 
   # it would be nice if we could abstract this, like with subset(data, z),
