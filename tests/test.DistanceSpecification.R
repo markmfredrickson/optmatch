@@ -14,7 +14,7 @@ test_that("Basic types are DistanceSpeficiations", {
   
 })
 
-test_that("DistSpec => nodes and arcs", {
+test_that("Matrix => nodes and arcs", {
   # tests:
   expect_true(isGeneric("prepareMatching"))
   
@@ -31,5 +31,23 @@ test_that("DistSpec => nodes and arcs", {
   expect_equal(unique(m.result$treatment), as.factor(c("D", "E")))
   expect_equal(unique(m.result$control), as.factor(c("A", "B", "C")))
 
+
+})
+
+test_that("ISM => nodes and arcs", {
+  m <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+  A.nonames <- as.InfinitySparseMatrix(m)
+
+  expect_error(prepareMatching(A.nonames))
+
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E")
+  A <- as.InfinitySparseMatrix(m)
+
+  res.ISM <- prepareMatching(A)
+
+  expect_equal(dim(res.ISM), c(4, 3))
+  expect_equal(unique(res.ISM$treatment), as.factor(c("D", "E")))
+  expect_equal(unique(res.ISM$control), as.factor(c("A", "B", "C")))
 
 })

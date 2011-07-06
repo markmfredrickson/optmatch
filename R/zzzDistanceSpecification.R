@@ -33,3 +33,15 @@ function(distances) {
   return(tmp) 
 })
 
+setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
+  if (is.null(distances@rownames) | is.null(distances@colnames)) {
+    stop("Row and column names are required for matching.")
+  }
+
+  tmp <- data.frame(control = as.factor(distances@colnames[distances@cols]),
+                    treatment = as.factor(distances@rownames[distances@rows]),
+                    distance = distances@.Data)
+
+  return(tmp)
+  
+})
