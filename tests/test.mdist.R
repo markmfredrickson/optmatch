@@ -18,15 +18,10 @@ test_that("Distances from glms", {
   test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
    
   result.glm <- mdist(test.glm)
-  result.glm2 <- mdist(test.glm, ~ B)
   
-  expect_is(result.glm, "optmatch.dlist")
-  expect_equal(length(result.glm), 1)
-  expect_equal(length(result.glm2), 2)
+  expect_true(is(result.glm, "DistanceSpecification"))
+  expect_equal(length(result.glm), (n/2)^2)
   
-  result.optmatch.dlist <- mdist(result.glm)
-  expect_is(result.optmatch.dlist, "optmatch.dlist")
-  expect_equal(length(result.optmatch.dlist), 1)
 })
 
 test_that("Distances from formulas", {

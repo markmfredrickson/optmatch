@@ -131,8 +131,25 @@ update.formula(fmla, structure.fmla)
 # mdist method: glm
 setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
 {
-  pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
+  z <- x$y > 0
+  pooled.sd <- if (is.null(standardization.scale)) {
+    1 
+  } else {
+    szn.scale(x$linear.predictors, z ,standardization.scale)
+  }
+
+  lp.adj <- x$linear.predictors/pooled.sd
+
+  f <- function(t, c) { abs(t - c) }
+  
+  makedist(z, lp.adj, f, exclusions)
 })
+
+szn.scale <- function(x, Tx, standardizer = mad, ...) {
+  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 + 
+        (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+}
 
 # parsing formulas for creating mdists
 parseFmla <- function(fmla) {
