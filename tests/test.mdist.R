@@ -35,8 +35,7 @@ test_that("Distances from formulas", {
   test.data <- data.frame(Z, X1, X2, B)
 
   result.fmla <- mdist(Z ~ X1 + X2 + B, data = test.data)
-  expect_is(result.fmla, "optmatch.dlist")
-  expect_equal(length(result.fmla), 1)
+  expect_true(is(result.fmla, "DistanceSpecification"))
 })
 
 test_that("Distances from functions", {

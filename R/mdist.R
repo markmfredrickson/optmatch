@@ -18,37 +18,17 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 
 # mdist method: formula
 setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, ...) {
-  mf <- match.call(expand.dots=FALSE)
+  mf <- match.call(expand.dots = FALSE)
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
-  names(mf)[names(mf)=="x"] <- "formula"
+  names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
-
-  if (length(x)==2)
-      if (!is.null(structure.fmla) && length(structure.fmla)==3)
-          x <- update.formula(structure.fmla, x) else
-  stop("If you give mdist() a formula, it needs to have a left hand side\nin order for mdist.formula() to figure out who is to be matched to whom.",
-       call.=FALSE)
-
-  if (isThereAPipe(x)) {
-      if (!is.null(structure.fmla))
-          warning("I see a pipe, a '|', in the formula you gave as primary argument to mdist().\n So I'm using what's to the right of it in lieu of the RHS of the\n'structure.fmla' argument that you've also given.", call.=FALSE)
-      parsed <- parseFmla(x)
-    # this block occurs if the grouping factor is present
-    # e.g. z ~ x1 + x2 | grp
-    if (!is.null(unlist(parsed[3]))) {
-      xenv <- environment(x)
-      x <- as.formula(paste(as.character(parsed[1:2]), collapse = "~"))
-      environment(x) <- xenv
-      structure.fmla <- as.formula(paste("~", parsed[[3]]))
-    }
-  }
-  mf$formula <-  makeJoinedFmla(x, structure.fmla)
   mf <- eval(mf, parent.frame())
 
-###  return(mf)
+  # TODO: check x for correct format Z ~ ...
+
   mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
 })
 
