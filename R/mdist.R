@@ -17,7 +17,8 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 
 
 # mdist method: formula
-setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, ...) {
+setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
+                                       s.matrix = NULL, ...) {
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
@@ -29,7 +30,25 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
 
   # TODO: check x for correct format Z ~ ...
 
-  mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  if (!is.null(s.matrix)) {
+    # TODO: error check the inv.cov matrix to make sure it is safe
+    # should match dimension of mf
+  } else {
+    # default s.matrix is the inverse covariance matrix
+    s.matrix <- solve(cov(mf[,-1])) # don't need Z in the cov matrix
+  }
+
+  f <- function(treated, control) {
+    n <- dim(treated)[1]
+    tmp <- numeric(n) 
+    for (i in 1:n) {
+      tmp[i] <- sqrt(as.matrix(treated[i,] - control[i,]) %*% s.matrix %*% t(as.matrix(treated[i,] - control[i,]))) 
+    }
+    return(tmp)
+  }
+
+  makedist(mf[,1], mf[,-1], f, exclusions)
+
 })
 
 # mdist method: glm
