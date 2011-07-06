@@ -42,35 +42,29 @@ test_that("Distances from formulas", {
 test_that("Distances from functions", {
   n <- 16
   Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
+  X1 <- rep(c(1,2,3,4), each = n/4)
   B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
+  test.data <- data.frame(Z, X1, B)
   
-  # first, a simpler version of scalar diffs
-  sdiffs <- function(treatments, controls) {
-    abs(outer(treatments$X1, controls$X1, `-`))
+  sdiffs <- function(t, c) {
+    abs(t$X1 - c$X1)
   }
   
-  result.function <- mdist(sdiffs, Z ~ 1, test.data)
-  expect_equal(dim(result.function[[1]]), c(8,8))
+  result.function <- mdist(sdiffs, z = Z, data = test.data)
+  expect_equal(dim(result.function), c(8,8))
+
+  # the result is a blocked matrix:
+  # | 2 1 |
+  # | 3 2 |
+
+  expect_equal(mean(result.function), 2)
+ 
+  # no treatment indicator
+  expect_error(mdist(sdiffs, data = test.data))
+
+  # no data
+  expect_error(mdist(sdiffs, z = Z))
   
-  # skipping these internal function tests
-  # test(identical(optmatch:::parseFmla(y ~ a | group), lapply(c("y", "a", "group"), as.name)))
-  # test(identical(optmatch:::parseFmla(y ~ a), c(as.name("y"), as.name("a"), NULL)))
-  
-  expect_true(!is.null(rownames(result.function$m1)) && all(rownames(result.function$m1) %in% rownames(test.data[test.data$Z == 1,])))
-  
-  result.function.a <- mdist(sdiffs, Z ~ 1 | B, test.data)
-  result.function.b <- mdist(sdiffs, Z ~ B, test.data)
-  
-  expect_identical(result.function.a, result.function.b)
-  
-  expect_error(mdist(sdiffs, Z ~ B + X1, test.data))
-  
-  # the fun part, making a dlist when there are multiple groups
-  
-  expect_equal(length(mdist(sdiffs, Z ~ B, test.data)), 2)
 })
 
 ###### Using mad() instead of sd() for GLM distances

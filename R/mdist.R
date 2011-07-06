@@ -4,74 +4,15 @@
 
 setGeneric("mdist", def = function(x, exclusions = NULL, ...)  standardGeneric("mdist"))
 
+setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = NULL, ...) {
 
-
-# mdist method: function
-# for the function method, both data and structure fmla are required
-# api change from makedist: I think it would make more sense to have
-# the function take two data.frames: the treatments in this stratum
-# and the controls in the stratum. It could then return the matrix of
-# mdists, which the rest of the function would markup with rownames
-# etc.
-setMethod("mdist", "function", function(x, exclusions = NULL, data = NULL, ...) {
-
-  if (is.null(data) || is.null(structure.fmla)) {
-    stop("Both data and the structure formula are required for
-    computing mdists from functions.")
+  if (is.null(data) | is.null(z)) {
+    stop("Data and treatment indicator arguments are required.")
   }
 
   theFun <- match.fun(x)
-  parsedFmla <- parseFmla(structure.fmla)
 
-  if(is.null(parsedFmla[[1]])) {
-    stop("Treatment variable required")
-  }
-
-  if((identical(parsedFmla[[2]], 1) && is.null(parsedFmla[3])) ||
-     (length(parsedFmla[[2]]) > 1)) {
-    stop("Please specify the grouping as either: z ~ grp or z ~ 1 | grp")
-  }
-
-  treatmentvar <- parsedFmla[[1]]
-
-  if(is.null(parsedFmla[3][[1]])) { # I swear subscripting is incomprehensible!
-    strata <- parsedFmla[[2]]
-  } else {
-    strata <- parsedFmla[[3]]
-  }
-
-
-  # split up the dataset by parts
-  # call optmatch.dlist maker function on parts, names
-
-    # create a function to produce one distance matrix
-  doit <- function(data,...) {
-     # indicies are created per chunk to split out treatment and controls
-     indices <- data[as.character(treatmentvar)] == 1
-     treatments <- data[indices,]
-     controls <- data[!indices,]
-     distances <- theFun(treatments, controls, ...)
-
-     colnames(distances) <- rownames(controls)
-     rownames(distances) <- rownames(treatments)
-
-     return(distances)
-  }
-
-  if (!(identical(strata, 1))) {
-    if(is.factor(eval(strata, data))){
-      ss <- eval(strata, data) ##to preserve existing labels/levels
-    } else {
-      ss <- factor(eval(strata, data), labels = 'm')
-    }
-    ans <- lapply(split(data, ss), doit,...)
-  } else {
-    ans <- list(m1 = doit(data,...))
-  }
-
-  attr(ans, 'row.names') <- row.names(data)
-  class(ans) <- c('optmatch.dlist', 'list')
-  return(ans)
+  makedist(z, data, theFun, exclusions)
 })
 
 
