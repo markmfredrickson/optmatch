@@ -36,6 +36,13 @@ test_that("Distances from formulas", {
 
   result.fmla <- mdist(Z ~ X1 + X2 + B, data = test.data)
   expect_true(is(result.fmla, "DistanceSpecification"))
+
+  # test pulling from the environment, like lm does
+  result.envir <- mdist(Z ~ X1 + X2 + B)
+  expect_equal(result.fmla, result.envir)
+
+  expect_error(mdist(~ X1 + X2, data = test.data))
+  expect_error(mdist(Z ~ 1, data = test.data))
 })
 
 test_that("Distances from functions", {

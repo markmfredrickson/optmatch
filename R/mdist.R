@@ -19,6 +19,10 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 # mdist method: formula
 setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
                                        s.matrix = NULL, ...) {
+  if (length(x) != 3) {
+    stop("Formula must have a left hand side.")  
+  }
+
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
@@ -28,8 +32,10 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
   mf[[1L]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
 
-  # TODO: check x for correct format Z ~ ...
-
+  if (dim(mf)[2] < 2) {
+    stop("Formula must have a right hand side with at least one variable.")   
+  }
+  
   if (!is.null(s.matrix)) {
     # TODO: error check the inv.cov matrix to make sure it is safe
     # should match dimension of mf
