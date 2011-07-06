@@ -139,7 +139,7 @@ test_that("Jake found a bug 2010-06-14", {
   ### Issue appears to be a missing row.names/class
 
   jb.sdiffs <- function(treatments, controls) {
-    abs(outer(treatments$X1, controls$X2, `-`))
+    abs(treatments$X1 - controls$X2)
   }
   
   n <- 16
@@ -149,7 +149,7 @@ test_that("Jake found a bug 2010-06-14", {
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, X2, B)
 
-  absdist1 <- mdist(jb.sdiffs, structure.fmla = Z ~ 1 | B, data = test.data)
+  absdist1 <- mdist(jb.sdiffs, z = Z, data = test.data)
   # failing because fmatch is in transition, commentb back in later
   # expect_true(length(pairmatch(absdist1)) > 0)
  
