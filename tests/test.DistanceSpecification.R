@@ -2,7 +2,6 @@
 ### Tests for objects implementing the distance specification protocol
 ################################################################################
 library(testthat)
-library(SparseM)
 
 context("Distance Specification Protocol")
 
