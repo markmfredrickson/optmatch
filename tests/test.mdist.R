@@ -128,19 +128,24 @@ test_that("Errors for numeric vectors", {
 ###          )
 ###     )
 ###test(all.equal(unlist(result.combined), unlist(with(nuclearplants, mdist(pr ~ t1 + t2, structure.fmla=strat.fmla)))))
-###
-###### bigglm method
-###if (require('biglm')) {
-###bgps <- bigglm(fmla, data=nuclearplants, family=binomial() )
-###shouldError(mdist(bgps, structure.fmla=pr ~ 1))
-###shouldError(mdist(bgps, data=nuclearplants))
-###result.bigglm1 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants)
-###result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
-###                        standardization.scale=sd)
-###result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
-###                        standardization.scale=NULL)
-###}
-###
+test_that("Bigglm distances", {
+  if (require('biglm')) {
+    n <- 16
+    Z <- c(rep(0, n/2), rep(1, n/2))
+    X1 <- rnorm(n, mean = 5)
+    X2 <- rnorm(n, mean = -2, sd = 2)
+    B <- rep(c(0,1), n/2)
+    test.data <- data.frame(Z, X1, X2, B)
+
+    bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
+    res.bg <- mdist(bgps, data = test.data)
+
+    # compare to glm
+    res.glm <- mdist(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
+    expect_equal(res.bg, res.glm) 
+  }
+})
+
 test_that("Jake found a bug 2010-06-14", {
   ### Issue appears to be a missing row.names/class
 

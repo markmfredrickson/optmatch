@@ -83,37 +83,39 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
 # mdist method: bigglm
 setMethod("mdist", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
 {
-  if (is.null(data))
+  if (is.null(data)) {
     stop("data argument is required for computing mdists from bigglms")
+  }
 
-  if (!is.data.frame(data))
+  if (!is.data.frame(data)) {
     stop("mdist doesn't understand data arguments that aren't data frames.")
+  }
 
-  if (is.null(structure.fmla) | !inherits(structure.fmla, 'formula'))
-    stop("structure.fmla argument required with bigglms.
-(Use form 'structure.fmla=<treatment.variable> ~ 1'
- for no stratification before matching)")
+  theps <- predict(x, data, type = 'link', se.fit = FALSE)
 
-theps <- predict(x, data, type='link', se.fit=FALSE)
-if (length(theps)!=dim(data)[1])
-stop("predict.bigglm() returns a vector of the wrong length;
+  if (length(theps) != dim(data)[1]) {
+    stop("predict.bigglm() returns a vector of the wrong length;
 are there missing values in data?")
+  }
 
+  # this makes heavy use of the bigglm terms object, the original formula
+  # if this implementation detail changes in later versions of bigglm,
+  # look here for the problem.
 
-Data <-  model.frame(structure.fmla, data=data)
-treatmentvar <- as.character(structure.fmla[[2]])
-pooled.sd <- if (is.null(standardization.scale)) 1 else
-szn.scale(theps, Data[[treatmentvar]], standardizer=standardization.scale,...)
-
-Data$tHePs <- theps/pooled.sd
-
-psdiffs <- function(treatments, controls) {
-abs(outer(as.vector(treatments$tHePs),
-as.vector(controls$tHePs), `-`))
-}
-
-mdist(psdiffs, structure.fmla=structure.fmla,
-      data=Data)
+  Data <-  model.frame(x$terms, data = data)
+  z <- Data[, 1]
+  pooled.sd <- if (is.null(standardization.scale)) {
+    1
+  } else { 
+    szn.scale(theps, z, standardizer=standardization.scale,...)
+  }
+  
+  psdiffs <- function(treatments, controls) {
+    abs(treatments - controls) / pooled.sd
+  }
+  
+  makedist(z, theps, psdiffs, exclusions)
+      
 })
 
 
