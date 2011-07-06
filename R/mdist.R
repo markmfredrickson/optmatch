@@ -32,23 +32,6 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
   mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
 })
 
-isThereAPipe <- function(fmla)
-{
-    inherits(fmla, "formula") && length(fmla) == 3 && length(fmla[[3]])==3 && fmla[[3]][[1]] == as.name("|")
-}
-# One big formula from a formula plus astructure formula -- for use w/ model.frame
-makeJoinedFmla <- function(fmla, structure.fmla)
-{
-    if (is.null(structure.fmla)) return(fmla)
-    stopifnot(inherits(fmla, "formula"), inherits(structure.fmla, "formula"),
-              length(fmla)==3)
-
-l <- length(structure.fmla)
-structure.fmla[[l]] <- as.call(c(as.name("+"), as.name("."), structure.fmla[[l]]))
-
-update.formula(fmla, structure.fmla)
-}
-
 # mdist method: glm
 setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
 {
@@ -71,25 +54,6 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
   sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 + 
         (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
 }
-
-# parsing formulas for creating mdists
-parseFmla <- function(fmla) {
-
-  treatment <- fmla[[2]]
-  rhs <- fmla[[3]]
-  if (length(rhs) == 3 && rhs[[1]] == as.name("|")) {
-    covar <- rhs[[2]]
-    group <- rhs[[3]]
-
-  } else {
-    covar <- rhs
-    group <- NULL
-  }
-
-  return(c(treatment, covar, group))
-
-}
-
 
 # mdist method: bigglm
 setMethod("mdist", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
