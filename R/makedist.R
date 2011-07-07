@@ -6,21 +6,9 @@
 # z is a treatment indicator for the data
 # 
 makedist <- function(z, data, distancefn, exclusions = NULL) {
+  # conversion and error checking handled by toZ
+  z <- toZ(z)
   
-  # first, check z for correctness
-  if (any(is.na(z))) {
-    stop("NAs not allowed in treatment indicator.")  
-  }
-
-  if (length(unique(z)) != 2) {
-    stop(paste("Treatment indicator must have exactly 2 levels not", length(levels(z))))  
-  }
-
-  if (is.factor(z)) {
-    z <- as.numeric(z) - 1 # make a 0/1 numeric vector  
-  }
-  z <- as.logical(z) # at this point, z is numeric 0/1, so is safe to convert to logical
-
   # next, data should be same length/size as z
   # I would have liked to have "duck typed" data by using
   # hasMethod(f = "dim", signature = class(data))

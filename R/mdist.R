@@ -37,6 +37,9 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
   }
 
   data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
+
+  z <- toZ(mf[,1])
+  names(z) <- rownames(mf)
   
   if (!is.null(s.matrix)) {
     # TODO: error check the inv.cov matrix to make sure it is safe
@@ -57,8 +60,7 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     return(tmp)
   }
 
-  z <- mf[,1]
-  names(z) <- rownames(mf)
+
 
   makedist(z, data, f, exclusions)
 
