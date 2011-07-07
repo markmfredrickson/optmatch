@@ -20,6 +20,17 @@ test_that("toZ", {
   cZ <- as.character(Z) ; names(cZ) <- names(Z)
   expect_identical(Z, toZ(cZ))
 
+  # expected failures
+  expect_error(toZ(c(1,2,3,4)))
+  expect_error(toZ(as.factor(c(1,2,3,4))))
+  expect_error(toZ(as.character(c(1,2,3,4))))
+
+  # single column data.frames and matrices should be valid
+  dZ <- data.frame(Z)
+  expect_identical(Z, toZ(dZ))
+
+  mZ <- matrix(Z, ncol = 1) ; rownames(mZ) <- names(Z)
+  expect_identical(Z, toZ(mZ))
 })
   
 }

@@ -11,9 +11,20 @@ setGeneric("toZ", function(x) {
     stop("NAs not allowed in treatment indicator.")  
   }
 
+  if (is.data.frame(x) | is.matrix(x)) {
+    if (dim(x)[2] > 1) {
+      stop("Treatment indicators must be vectors or single column
+      matrices/data.frames")
+    }
+
+    nms <- rownames(x)
+    x <- x[,1]
+    names(x) <- nms
+  }
+
   if (length(unique(x)) != 2) {
     stop(paste("Treatment indicator must have exactly 2 levels not",
-      length(unique(z))))  
+      length(unique(x))))  
   }
   
   nms <- names(x)
@@ -33,5 +44,6 @@ setMethod("toZ", "character", function(x) toZ(as.factor(x)))
 setMethod("toZ", "factor", function(x) {
   toZ(as.numeric(x) - 1)  
 })
+
 
 
