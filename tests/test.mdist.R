@@ -30,7 +30,7 @@ test_that("Distances from formulas", {
   Z[sample.int(n, n/2)] <- 1
   X1 <- rnorm(n, mean = 5)
   X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
+  B <- as.factor(rep(c(0,1), n/2))
 
   test.data <- data.frame(Z, X1, X2, B)
 

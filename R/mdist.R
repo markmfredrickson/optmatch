@@ -36,6 +36,7 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     stop("Formula must have a right hand side with at least one variable.")   
   }
 
+  data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
   
   if (!is.null(s.matrix)) {
     # TODO: error check the inv.cov matrix to make sure it is safe
@@ -44,20 +45,19 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     # default s.matrix is the inverse covariance matrix
     # the extra as.matrix() is that if there is only one variable, it will be
     # a matrix not a vector
-    s.matrix <- solve(cov(as.matrix(mf[,-1]))) # don't need Z in the cov matrix
+    s.matrix <- solve(cov(as.matrix(data))) # don't need Z in the cov matrix
   }
 
   f <- function(treated, control) {
     n <- dim(treated)[1]
     tmp <- numeric(n) 
     for (i in 1:n) {
-      tmp[i] <- sqrt(as.matrix(treated[i,] - control[i,]) %*% s.matrix %*% t(as.matrix(treated[i,] - control[i,]))) 
+      tmp[i] <- sqrt(t(as.matrix(treated[i,] - control[i,])) %*% s.matrix %*% as.matrix(treated[i,] - control[i,]))
     }
     return(tmp)
   }
 
   z <- mf[,1]
-  data <- subset(mf, T, -1) # perserves matrix/data.frame and colnames
   names(z) <- rownames(mf)
 
   makedist(z, data, f, exclusions)
