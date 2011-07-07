@@ -15,7 +15,11 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
   if (length(unique(z)) != 2) {
     stop(paste("Treatment indicator must have exactly 2 levels not", length(levels(z))))  
   }
-  z <- as.logical(z) # at this point, z has 2 levels, so is safe to convert to logical
+
+  if (is.factor(z)) {
+    z <- as.numeric(z) - 1 # make a 0/1 numeric vector  
+  }
+  z <- as.logical(z) # at this point, z is numeric 0/1, so is safe to convert to logical
 
   # next, data should be same length/size as z
   # I would have liked to have "duck typed" data by using

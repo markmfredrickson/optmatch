@@ -104,3 +104,22 @@ test_that("makedist works on single column data.frames", {
   res <- makedist(data$z, subset(data, T, select = 2), f)
   expect_true(all(res != 0)) # makes sure res <- ... worked
 })
+
+test_that("Z can be a numeric, logical, or two level factor", {
+  n <- 16
+  Z <- numeric(n)
+  Z[sample.int(n, n/2)] <- 1
+  X1 <- rnorm(n, mean = 5)
+  
+  names(X1) <- letters[1:n]
+
+  res.one <- makedist(Z, X1, `-`) 
+  res.logical <- makedist(as.logical(Z), X1, `-`) 
+  expect_identical(res.one, res.logical)
+  
+  res.factor <- makedist(as.factor(Z), X1, `-`) 
+  expect_identical(res.one, res.factor)
+  
+  Y <- rep(1:4, n/4)
+  expect_error(makedist(as.factor(Y), X1, `-`))
+})

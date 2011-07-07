@@ -44,8 +44,13 @@ test_that("Distances from formulas", {
   expect_error(mdist(~ X1 + X2, data = test.data))
   expect_error(mdist(Z ~ 1, data = test.data))
 
+  # checking diferent classes of responses
   res.one <- mdist(Z ~ X1) 
+  res.logical <- mdist(as.logical(Z) ~ X1)
+  expect_identical(res.one, res.logical)
 
+  res.factor <- mdist(as.factor(Z) ~ X1)
+  expect_identical(res.one, res.factor)
 })
 
 test_that("Distances from functions", {
