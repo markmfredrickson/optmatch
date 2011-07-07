@@ -1,7 +1,13 @@
-pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE)
-  {
-stopifnot(is.matrix(distance)||inherits(distance,"optmatch.dlist"),
-          all(floor(controls)==controls), all(controls>0))
+pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE) {
+
+  # Should this checking be pushed to fullmatch to avoid duplication?
+  if (!is(distance, "DistanceSpecification")) {
+    stop("argument \'distance\' must be a DistanceSpecification")
+  }
+
+  if (!all(floor(controls) == controls) | !all(controls > 0)) {
+    stop("Minimum controls must be greater than treated units")  
+  }
 
 n.Tx <- if (remove.unmatchables)
   function(x) {sum(apply(x,1,function(row) any(is.finite(row))))} else nrow 

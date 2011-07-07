@@ -4,8 +4,12 @@ omit.fraction=NULL, tol=.001, subclass.indices=NULL)
 ############################################################
 # CHECK DIMNAMES OF DISTANCE			   #
 ############################################################
-if (!is.list(distance) & !is.matrix(distance))
-  stop("argument \'distance\' must be a matrix or list") 
+if (!is(distance, "DistanceSpecification"))
+  stop("distance must be a DistanceSpecification object")
+
+# TODO: remove cast when removing all list capabilities
+distance <- as.matrix(distance)
+
 if (is.matrix(distance))
   {
     if (is.logical(distance))
