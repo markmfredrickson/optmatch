@@ -35,13 +35,16 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")   
   }
+
   
   if (!is.null(s.matrix)) {
     # TODO: error check the inv.cov matrix to make sure it is safe
     # should match dimension of mf
   } else {
     # default s.matrix is the inverse covariance matrix
-    s.matrix <- solve(cov(mf[,-1])) # don't need Z in the cov matrix
+    # the extra as.matrix() is that if there is only one variable, it will be
+    # a matrix not a vector
+    s.matrix <- solve(cov(as.matrix(mf[,-1]))) # don't need Z in the cov matrix
   }
 
   f <- function(treated, control) {
@@ -53,7 +56,11 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     return(tmp)
   }
 
-  makedist(mf[,1], mf[,-1], f, exclusions)
+  z <- mf[,1]
+  data <- subset(mf, T, -1) # perserves matrix/data.frame and colnames
+  names(z) <- rownames(mf)
+
+  makedist(z, data, f, exclusions)
 
 })
 

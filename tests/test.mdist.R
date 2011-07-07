@@ -43,6 +43,9 @@ test_that("Distances from formulas", {
 
   expect_error(mdist(~ X1 + X2, data = test.data))
   expect_error(mdist(Z ~ 1, data = test.data))
+
+  res.one <- mdist(Z ~ X1) 
+
 })
 
 test_that("Distances from functions", {

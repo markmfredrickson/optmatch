@@ -89,3 +89,18 @@ test_that("Mask => ISM result", {
   expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad.cntrl))
 
 })
+
+test_that("makedist works on single column data.frames", {
+  set.seed(20110707)
+  data <- data.frame(z = rep(c(1,0), 5),
+                     y = rnorm(10),
+                     b = rep(c(1,0), each = 5))
+  rownames(data) <- letters[1:10]
+
+  f <- function(treated, control) {
+    treated[, "y"] - control[, "y"]  
+  }
+
+  res <- makedist(data$z, subset(data, T, select = 2), f)
+  expect_true(all(res != 0)) # makes sure res <- ... worked
+})

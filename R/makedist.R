@@ -77,7 +77,8 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
   if (is.vector(data)) {
     dists <- distancefn(data[treatmentids], data[controlids])    
   } else {
-    dists <- distancefn(data[treatmentids, ], data[controlids, ])          
+    dists <- distancefn(data[treatmentids,, drop = FALSE], 
+                        data[controlids,, drop = FALSE])          
   }
 
   res <- replace(res, 1:length(res), dists)
