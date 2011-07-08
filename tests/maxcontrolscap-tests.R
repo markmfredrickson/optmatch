@@ -1,8 +1,9 @@
 ### maxControlsCap
 require('optmatch')
 data(nuclearplants)
-mhd2a <- mahal.dist(~date+cum.n, nuclearplants, pr~pt)
-mhd2a[1:2] <- lapply(mhd2a[1:2], t)
+mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants, 
+              excludes = exactMatch(pr ~ pt, data = nuclearplants))
+mhd2a <- t(mhd2a)
 
 stratumStructure(fullmatch(mhd2a/(mhd2a<3))) # Works OK: 
 maxControlsCap(mhd2a/(mhd2a<3))              # no unmatchable Tx
