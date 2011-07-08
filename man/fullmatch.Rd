@@ -60,7 +60,7 @@ as produced by \code{\link{mdist}}.}
   control and treated subjects, respectively, are omitted.
   
   When matching within subclasses (so that \code{distance} is a list of matrices, as produced by
-  \code{makedist} or \code{mahal.dist} or \code{pscore.dist}), \code{omit.fraction} specifies the fraction of
+  \code{makedist}), \code{omit.fraction} specifies the fraction of
   controls to be rejected in each subproblem, a parameter that can be
   made to differ by subclass by setting \code{omit.fraction} equal to a
   named numeric vector of fractions.  }
@@ -95,8 +95,8 @@ as produced by \code{\link{mdist}}.}
   of the data frame you're working with, then you should compare the
   names of fullmatch's output to your row names in order to be sure
   things are in the proper order.  You can relieve yourself of these
-  worries by using \code{\link{mdist}} (or \code{\link{makedist}}, \code{\link{pscore.dist}},
-  or \code{\link{mahal.dist}}, which [as of version 0.6] are dispatched
+  worries by using \code{\link{mdist}} (or \code{\link{makedist}}
+  , which [as of version 0.6] are dispatched
   as needed by \code{\link{mdist}}) to produce the distances, as
   it passes the ordering of units to \code{fullmatch}, which then uses
   it to order its outputs.

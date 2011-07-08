@@ -35,7 +35,7 @@ caliper(width, ..., exclude = c(), penalty = Inf)
 \value{
   Object of class \code{optmatch.dlist}, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. For more information, see \code{\link{pscore.dist}}
+  \code{\link{pairmatch}}. 
 
 }
 \author{Mark M. Fredrickson and Ben B. Hansen}

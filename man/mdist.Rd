@@ -8,17 +8,11 @@
   \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 }
 \usage{
-  mdist(x, structure.fmla = NULL, ...)
+  mdist(x, ...)
 }
 \arguments{
   \item{x}{The object to use as the basis for forming the mdist.
   Methods exist for formulas, functions, and generalized linear models.}
-  \item{structure.fmla}{A formula denoting the treatment variable on the 
-  left hand side and an optional grouping expression on the right hand side. For
-  example, \code{z ~ 1} indicates no grouping. \code{z ~ s} subsets the data only
-  computing distances within the subsets formed by \code{s}. See method
-  notes, below, for
-  additional formula options.}
   \item{...}{Additional method arguments. Most methods require a 'data' argument.}
 }
 \details{
@@ -46,10 +40,7 @@
   
   The \code{mdist.formula} method computes the squared Mahalanobis
   distance between observations, with the right-hand side of the formula
-  determining which variables contribute to the Mahalanobis distance. If
-  matching is to be done within strata, the stratification can be
-  communicated using either the \code{structure.fmla} argument (e.g. \code{~ grp}) or as part of
-  the main formula (e.g. \code{z ~ x1 + x2 | grp}).
+  determining which variables contribute to the Mahalanobis distance. 
 
   An \code{mdist.glm} method takes an argument of class \code{glm} as
   first argument.  It assumes that this object is a fitted propensity
@@ -62,17 +53,12 @@
   \code{NULL}, respectively.)  A \code{mdist.bigglm}
   method works analogously with \code{bigglm} objects, created by
   the \code{bigglm} function from package \sQuote{biglm}, which can
-  handle bigger data sets than the ordinary glm function can.  In
-  contrast with \code{mdist.glm} it requires additional \code{data} and
-  \code{structure.fmla} arguments.  (If you have enough data to have to
-  use \code{bigglm}, then you'll probably have to subgroup before
-  matching to avoid memory problems. So you'll have to use the
-  \code{structure.fmla} argument anyway.)
+  handle bigger data sets than the ordinary glm function can. 
 }
 \value{
   Object of class \code{optmatch.dlist}, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. For more information, see \code{\link{pscore.dist}}
+  \code{\link{pairmatch}}. 
 
 }
 \author{ Mark M. Fredrickson} %Ben B. Hansen
@@ -84,8 +70,8 @@
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{ \code{\link{makedist}}, \code{\link{mahal.dist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
-          \code{\link{pscore.dist}}}
+\seealso{ \code{\link{makedist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
+          }
 \examples{
 data(nuclearplants)
 mdist.examples <- list()
@@ -112,17 +98,18 @@ mdist.examples$mh1 <- mdist(pr ~ t1 + t2, data = nuclearplants)
 ### Absolute differences on a scalar:
 
 sdiffs <- function(treatments, controls) {
-  abs(outer(treatments$t1, controls$t1, `-`))
+  abs(treatments$t1 - controls$t1)
 }
 
-(absdist <- mdist(sdiffs, structure.fmla = pr ~ 1, data = nuclearplants))
+(absdist <- mdist(sdiffs, z = nuclearplants$pr, data = nuclearplants, 
+                  exclusions = exactMatch(pr ~ pt, nuclearplants)))
 
 ### Pair matching on the variable `t1`:
 pairmatch(absdist)
 
 
 ### Propensity score matching within subgroups:
-mdist.examples$ps3 <- mdist(aGlm, structure.fmla=~pt)
+mdist.examples$ps3 <- mdist(aGlm, exactMatch(pr ~ pt, nuclearplants))
 fullmatch(mdist.examples$ps3)
 
 ### Propensity score matching with a propensity score caliper:
@@ -130,9 +117,8 @@ mdist.examples$pscal <- mdist.examples$ps1 + caliper(1,mdist.examples$ps1)
 fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
 
 ### A Mahalanobis distance for matching within subgroups:
-mdist.examples$mh2 <- mdist(pr ~ t1 + t2 | pt, data = nuclearplants)
-all.equal(mdist.examples$mh2,
-          mdist(pr ~ t1 + t2, structure.fmla = ~ pt, data = nuclearplants))
+mdist.examples$mh2 <- mdist(pr ~ t1 + t2 , data = nuclearplants,
+                            excludes = exactMatch(pr ~ pt, nuclearplants))
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:

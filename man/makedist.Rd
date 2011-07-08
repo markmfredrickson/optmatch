@@ -6,18 +6,14 @@
   for \code{fullmatch()} and heading off certain user errors.
 }
 \usage{
-makedist(structure.fmla, data, fn = function(trtvar, dat, ...) {
+makedist(z, data, fn = function(trtvar, dat, ...) {
     matrix(0, sum(trtvar), sum(!trtvar), dimnames = list(names(trtvar)[trtvar], names(trtvar)[!trtvar]))
 }, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{structure.fmla}{A formula defined w.r.t. data frame \code{data},
-  with a treatment variable on the LHS and either \sQuote{1}, if no
-  stratification prior to matching, or variables
-defining pre-matching stratification on the RHS.}
-  \item{data}{ A data frame in which \code{structure.fmla} is evaluated
-    and \code{fn} operates. }
+  \item{z}{A treatment indicator variable with precisely two unique values}
+  \item{data}{ A data frame that will form the data passed to \code{fn}. }
   \item{fn}{ A user-supplied function to compute distances. See
     details and examples.}
   \item{\dots}{ Additional arguments to \code{fn} }
@@ -28,7 +24,7 @@ defining pre-matching stratification on the RHS.}
   \code{dat}, a data frame.  There may be additional arguments.  If the
   function uses variables in \code{dat}, these should be referenced
   using names from the input \code{trtvar}, particularly if the sample is being
-  split into strata (ie \code{structure.fmla} has a non-trivial RHS).
+  split into strata. 
   When this happens, \code{fn} will be passed a \code{trtvar} input
   observations for only a subset of the rows of \code{dat}, so it has to
   use \code{trtvar} to decide which rows of \code{dat} to operate on; it
@@ -36,12 +32,7 @@ defining pre-matching stratification on the RHS.}
   with row names of \code{dat}.
 }
 \value{
-  A list of matrices, one for each subclass defined by the interaction
-  of variables appearing on the right hand side of
-  \code{structure.fmla}.  Each of these is a number of treatments by
-  number of controls matrix of distances, with the distance between
-  treatments and controls calculated by the user-given function \code{fn}.
-
+  A DistanceSpecification.
   The list also has some attributes that are not of direct interest to
   the user, but are used by \code{fullmatch()}.
 }
@@ -59,43 +50,39 @@ this function, but then \code{fullmatch()} has no way of knowing the
 order of observations in whatever data frame you're working from, since
 that info is lost in the transition to a distance matrix.}
 
-\seealso{\code{\link{fullmatch}}, \code{\link{pscore.dist}}, \code{\link{mahal.dist}}}
+\seealso{\code{\link{fullmatch}}, \code{\link{mdist}} }
 \examples{
 data(nuclearplants)
 
 ##-- A distance function used in P. Rosenbaum's (2002) book
-rankdiffs <- function(trtvar, dat, vars)
-{
-dmt <- matrix(0,sum(trtvar), sum(!trtvar)) 
-for (vv in vars) {
-vvr <- rank(dat[names(trtvar),vv])
-dmt <- dmt + abs(outer(vvr[trtvar], vvr[!trtvar],"-"))
+ranked.plants <- apply(nuclearplants, 2, rank)
+
+rankdiffs <- function(treateds, controls) {
+  # treateds and controls are data.frames of equal height
+  rowSums(abs(treateds - controls))
 }
-round(dmt)              
-}
-##-- Gives a warning because this fn doesn't assign dimnames
-(rdd1 <- makedist(pr~1, nuclearplants[nuclearplants$pt==0,], rankdiffs, c("cap","date")))
-fullmatch(rdd1)
-##-- fullmatch() knows its value should be ordered as the nuclearplants data set is
-rdd1$m
-##-- now fullmatch() doesn't know the proper order of units and has to guess
-fullmatch(rdd1$m)
-(rdd2 <- makedist(pr~pt, nuclearplants, rankdiffs, c("cap","date")))
-fullmatch(rdd2)
+
+(rdd <- makedist(nuclearplants$pr, ranked.plants[, c("cap", "date")], rankdiffs))
+fullmatch(rdd)
 
 ##- Distance on a propensity score
-scalardiffs <- function(trtvar,data,scalarname) {
-sclr <- data[names(trtvar), scalarname]
-names(sclr) <- names(trtvar)
-abs(outer(sclr[trtvar],sclr[!trtvar], '-'))
+scalar.diffs <- function(treated, controls) {
+  # here treated and controls are two equal length vectors
+  abs(treated - controls)
 }
-nuclearplants$pscore <- glm(pr~.-(pr+cost), family=binomial(),
+
+pscore <- glm(pr~.-(pr+cost), family=binomial(),
                       data=nuclearplants)$linear.predictors
+
+names(pscore) <- rownames(nuclearplants)
+
 ##-- Distance for propensity score matching w/o prior stratification
-psd1 <- makedist(pr~1, nuclearplants, scalardiffs, "pscore")
+psd1 <- makedist(nuclearplants$pr, pscore, scalar.diffs)
 fullmatch(psd1)
+
 ##-- Distance for propensity score matching within levels of "pt"
-psd2 <- makedist(pr~pt, nuclearplants, scalardiffs, "pscore")
+psd2 <- makedist(nuclearplants$pr, pscore, scalar.diffs,
+                 exactMatch(pr ~ pt, data = nuclearplants))
 fullmatch(psd2)
 
 }
