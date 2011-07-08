@@ -48,14 +48,35 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     # default s.matrix is the inverse covariance matrix
     # the extra as.matrix() is that if there is only one variable, it will be
     # a matrix not a vector
-    s.matrix <- solve(cov(as.matrix(data))) # don't need Z in the cov matrix
+    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+
+    s.matrix <- solve(mt + mc) # don't need Z in the cov matrix
+
+    # the old mahal.dist wrapped the solve in a try() and used this if there
+    # was failure. Is this a common issue? I'm waiting for a failure case
+    # before turning this code on (and with adjustments to the different
+    # variable names, etc.
+    # 
+    # if (inherits(icv,"try-error"))
+    # {
+    #    dnx <- dimnames(cv)
+    #    s <- svd(cv)
+    #    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+    #    if (!any(nz))
+    #      stop("covariance has rank zero")
+
+    #    icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+    #    dimnames(icv) <- dnx[2:1]
+    # }
+
   }
 
   f <- function(treated, control) {
     n <- dim(treated)[1]
     tmp <- numeric(n) 
     for (i in 1:n) {
-      tmp[i] <- sqrt(t(as.matrix(treated[i,] - control[i,])) %*% s.matrix %*% as.matrix(treated[i,] - control[i,]))
+      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% s.matrix %*% as.matrix(treated[i,] - control[i,])
     }
     return(tmp)
   }
