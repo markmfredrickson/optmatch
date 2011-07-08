@@ -8,7 +8,8 @@ local-install:
 	R CMD Install --library=.local .
 
 autotest: local-install
-	R -q -e "library(optmatch, lib.loc = '.local'); library(testthat); auto_test_package('.')"
+
+	R -q -e "library(optmatch, lib.loc = '.local'); library(testthat); auto_test('./R', './inst/tests', 'summary')"
 
 build:
 	R CMD Build .
