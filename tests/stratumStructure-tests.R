@@ -8,13 +8,14 @@ stratumStructure(plantsfm)
 stratumStructure(plantsfm1)
 
 data(nuclearplants)
-psd <- pscore.dist(glm(pr~.-(pr+cost), family=binomial(),
+psd <- mdist(glm(pr~.-(pr+cost), family=binomial(),
                        data=nuclearplants))
 stratumStructure(fullmatch(psd))
 stratumStructure(fm.psd.cal <- fullmatch(psd/(psd<.25)))
 
-psd2 <- pscore.dist(glm(pr~.-(pr+cost), family=binomial(),
-                       data=nuclearplants),structure.fmla=~pt)
+psd2 <- mdist(glm(pr~.-(pr+cost), family=binomial(),
+                       data=nuclearplants),
+              excludes = exactMatch(pr ~ pt, nuclearplants))
 stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1))
 stratumStructure(fullmatch(psd2,min.controls=3,max.controls=3))
 
