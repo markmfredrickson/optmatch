@@ -26,11 +26,10 @@ test_that("Distances from glms", {
 
 test_that("Distances from formulas", {
   n <- 16
-  Z <- numeric(n)
-  Z[sample.int(n, n/2)] <- 1
+  Z <- rep(c(0,1), n/2)
   X1 <- rnorm(n, mean = 5)
   X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- as.factor(rep(c(0,1), n/2))
+  B <- as.factor(rep(c(0,1), each = n/2))
 
   test.data <- data.frame(Z, X1, X2, B)
 
@@ -61,6 +60,13 @@ test_that("Distances from formulas", {
   # result
   expect_true(all(abs(mdist(Z ~ X1 + X2 + B, s.matrix = diag(3)) - euclid^2) <
     .00001)) # there is some rounding error, but it is small
+
+
+  # excluding matches combined with a formula
+  stratify <- exactMatch(Z ~ B)
+  res.strat <- mdist(Z ~ X1 + X2, exclusions = stratify)
+  expect_is(res.strat, "InfinitySparseMatrix")
+  expect_equal(length(res.strat), 2 * (n/4)^2)
 
 })
 
@@ -184,3 +190,4 @@ test_that("Jake found a bug 2010-06-14", {
   # expect_true(length(pairmatch(absdist1)) > 0)
  
 })
+
