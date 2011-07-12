@@ -77,8 +77,11 @@ c("H","I","J","K","L","M","N","O","P","Q","R",
 
 (tmn <- minControlsCap(plantdist)$strictest)
 maxControlsCap(plantdist, min=tmn)
-splitdist <- list(one=plantdist[1:3, 1:9], two=plantdist[4:7, 10:19])
-(tmn <- minControlsCap(splitdist)$strictest)
-maxControlsCap(splitdist, min=tmn)
+### START HERE! Need to recreate split dist from the plantdist matrix above.
+splitdist <- matrix(Inf, nrow = 7, ncol = 19)
+splitdist[1:3, 1:9] <- 0
+splitdist[4:7, 10:19] <- 0
+(tmn <- minControlsCap(splitdist + plantdist)$strictest)
+maxControlsCap(splitdist + plantdist, min=tmn)
 }
 \keyword{ optimize }% at least one, from doc/KEYWORDS

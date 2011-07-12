@@ -1,5 +1,6 @@
 maxControlsCap <- function(distance, min.controls=NULL, subclass.indices=NULL)
 {
+  distance <- as.matrix(distance) # turns an ISM into a matrix, temporary cast
 ############################################################
 # CHECK DIMNAMES OF DISTANCE			   #
 ############################################################

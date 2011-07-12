@@ -15,7 +15,7 @@ stratumStructure(fm.psd.cal <- fullmatch(psd/(psd<.25)))
 
 psd2 <- mdist(glm(pr~.-(pr+cost), family=binomial(),
                        data=nuclearplants),
-              excludes = exactMatch(pr ~ pt, nuclearplants))
+              exclusions = exactMatch(pr ~ pt, nuclearplants))
 stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1))
 stratumStructure(fullmatch(psd2,min.controls=3,max.controls=3))
 

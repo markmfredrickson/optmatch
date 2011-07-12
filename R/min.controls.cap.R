@@ -1,5 +1,6 @@
 minControlsCap <- function(distance, max.controls=NULL, subclass.indices=NULL)
 {
+  distance <- as.matrix(distance) # cast ISM to matrix, temporary
 if (!is.list(distance) & !is.matrix(distance))
   stop("argument \'distance\' must be a matrix or list") 
 

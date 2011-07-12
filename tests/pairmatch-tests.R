@@ -8,6 +8,6 @@ data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- mdist(psm)
 pairmatch(psd, controls=2)
-pairmatch(caliper(mdist(psm, excludes = exactMatch9(pr ~ pt, data =
+pairmatch(caliper(mdist(psm, exclusions = exactMatch(pr ~ pt, data =
 nuclearplants)), width=2)) # Fails in subclass '1'
 
