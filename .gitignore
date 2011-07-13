@@ -2,4 +2,6 @@
 *.tar.gz
 *.so
 *.o
-.autotest
+.local
+src-*
+
