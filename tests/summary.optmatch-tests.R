@@ -4,10 +4,11 @@ summary(fullmatch(plantdist<10))
 summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
 data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-psd <- mdist(psm)
+psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
 psfm <- fullmatch(psd/(psd<.25))
 summary(psfm)
-pspm <- pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
+pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
+exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
 summary(pspm)
 psd[1,] <- psd[1,] + rep(100,22)
 summary(pairmatch(psd, controls=2))
@@ -19,7 +20,7 @@ summary(psfm, psm)
 psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
             family=binomial, data=nuclearplants)
-psd2 <- mdist(psm2)
+psd2 <- mdist(psm2, standardization.scale = sd)
 summary(pairmatch(psd2), propensity.model=psm2)
 summary(pspm, propensity.model=psm) # balance checking when matching has failed
                                     # in some subclasses
