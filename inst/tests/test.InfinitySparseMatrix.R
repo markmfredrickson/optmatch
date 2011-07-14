@@ -192,3 +192,28 @@ test_that("t(ransform) function", {
   
 })
 
+################################################################################
+# Tests for the BlockedISM subclass
+################################################################################
+
+test_that("BlockedISM addition", {
+  Z <- rep(c(0,1), 8)
+  B1 <- rep(1:4, each = 4)
+  B2 <- rep(c(0,1), each = 8)
+  
+  res.b1 <- exactMatch(Z ~ B1)
+  res.b2 <- exactMatch(Z ~ B2)
+
+  res.b1b1 <- res.b1 + res.b1
+  expect_equal(res.b1b1@groups, res.b1@groups)
+  
+  # should use the smaller of the two's groups
+  res.b2b1 <- res.b2 + res.b1
+  expect_equal(res.b2b1@groups, res.b1@groups)
+  
+  expect_is(res.b2 + 1, "BlockedInfinitySparseMatrix")
+  expect_is(res.b2 + matrix(1, nrow = 8, ncol = 8),
+    "BlockedInfinitySparseMatrix")
+  expect_is(matrix(1, nrow = 8, ncol = 8) + res.b2,
+    "BlockedInfinitySparseMatrix")
+})

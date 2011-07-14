@@ -73,7 +73,7 @@ test_that("Exact match on formula", {
 
   res.multi <- exactMatch(Z ~ B + B2)
 
-  expect_equal(res.bb, res.multi)
+  expect_equal(as.matrix(res.bb), as.matrix(res.multi))
   
 })
 
@@ -122,4 +122,28 @@ test_that("Makes correct mask", {
 
   expect_identical(mask.df, mask.fac)
   
+})
+
+test_that("Must have names", {
+  expect_error(exactMatch(rep(c(0,1), each = 5), rep(c(0,1), 5)))
+  Z <- rep(c(0,1), 8)
+  B <- rep(1:4, each = 4)
+  names(B) <- letters[1:6]
+  em <- exactMatch(B, Z)
+
+  expect_false(is.null(em@colnames))
+  expect_false(is.null(em@rownames))
+  expect_false(is.null(names(em@groups)))
+
+})
+
+test_that("Contains grouping information", {
+  Z <- rep(c(0,1), 8)
+  B <- rep(1:4, each = 4)
+  
+  res.em <- exactMatch(Z ~ B)
+  expect_is(res.em, "BlockedInfinitySparseMatrix")
+
+  # the grouping factor must have names
+  expect_equal(length(names(res.em@groups)), 16)
 })

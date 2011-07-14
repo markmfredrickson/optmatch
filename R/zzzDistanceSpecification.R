@@ -45,3 +45,32 @@ setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
   return(tmp)
   
 })
+
+
+### subproblems: a DistanceSpecification may be split into smaller blocks
+### returns false if there are no more subproblems, returns a list otherwise
+
+setGeneric("subproblems", function(distances)
+  standardGeneric("subproblems"))
+
+# same method for matrices and ISMs
+setMethod("subproblems", "DistanceSpecification", function(distances) FALSE)
+
+setMethod("subproblems", "BlockedInfinitySparseMatrix", 
+function(distances) {
+  lapply(levels(distances@groups), function(l) {
+    members <- names(distances@groups[distances@groups == l])
+    row.members <- which(distances@rownames %in% members)
+    col.members <- which(distances@colnames %in% members)
+    ridx <- distances@rows %in% row.members
+    cidx <- distances@cols %in% col.members
+
+    idx <- ridx & cidx
+
+    makeInfinitySparseMatrix(distances[idx], 
+      rows = match(distances@rows[idx], row.members), 
+      cols = match(distances@cols[idx], col.members),
+      rownames = distances@rownames[row.members],
+      colnames = distances@colnames[col.members])
+  })
+})

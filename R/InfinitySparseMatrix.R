@@ -122,9 +122,11 @@ function(e1, e2) {
 
   res <- callGeneric(data1, data2)
 
-  return(makeInfinitySparseMatrix(res, cols = e1@cols[idx1], rows = e1@rows[idx1], 
-    dimension = e1@dimension, colnames = e1@colnames, rownames = e1@rownames))
-  
+  tmp <- e1
+  tmp@.Data <- res
+  tmp@cols <- e1@cols[idx1]
+  tmp@rows <- e1@rows[idx1]
+  return(tmp)
 })
 
 setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"), 
@@ -234,3 +236,42 @@ t.InfinitySparseMatrix <- function(x) {
   makeInfinitySparseMatrix(x@.Data, cols = x@rows, rows = x@cols, 
                            colnames = x@rownames, rownames = x@colnames)
 }
+
+################################################################################
+# Blocked Infinity Sparse Matrix
+# Just like an ISM, but keeps track of which group a unit is in
+################################################################################
+
+setClass("BlockedInfinitySparseMatrix", 
+  representation(groups = "factor"),
+  contains = "InfinitySparseMatrix")
+
+# in both of the next two methods I use callGeneric(as(...), ...)
+# I would have prefered callNextMethod, but I kept getting errors,
+# so I manually made the call to the parent class.
+setMethod("Arith", signature(e1 = "BlockedInfinitySparseMatrix", 
+                             e2 = "BlockedInfinitySparseMatrix"), 
+function(e1, e2) {
+  tmp <- callGeneric(as(e1, "InfinitySparseMatrix"), as(e2, "InfinitySparseMatrix"))
+  tmp <- as(tmp, "BlockedInfinitySparseMatrix")
+  if (length(e1@groups) > length(e2@groups)) {
+    tmp@groups <- e1@groups  
+  } else {
+    tmp@groups <- e2@groups  
+  }
+
+  return(tmp)
+})
+
+# the case where BISM is first is covered above
+setMethod("Arith", signature(e1 = "InfinitySparseMatrix", 
+                             e2 = "BlockedInfinitySparseMatrix"), 
+function(e1, e2) {
+  tmp <- callGeneric(e1, as(e2, "InfinitySparseMatrix"))
+  tmp <- as(tmp, "BlockedInfinitySparseMatrix")
+  tmp@groups <- e2@groups
+  return(tmp)
+})
+
+
+
