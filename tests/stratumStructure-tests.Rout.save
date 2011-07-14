@@ -1,7 +1,8 @@
 
-R version 2.9.0 (2009-04-17)
-Copyright (C) 2009 The R Foundation for Statistical Computing
+R version 2.13.0 (2011-04-13)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: i386-apple-darwin9.8.0/i386 (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -16,6 +17,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(optmatch)
+Loading required package: testthat
 You're loading optmatch, by Ben Hansen, a package for flexible
  and optimal matching.  Important license information:
  The optmatch package makes essential use of D. P. Bertsekas
@@ -46,8 +48,9 @@ attr(,"comparable.num.matched.pairs")
 [1] 10.16667
 > 
 > data(nuclearplants)
-> psd <- pscore.dist(glm(pr~.-(pr+cost), family=binomial(),
-+                        data=nuclearplants))
+> psd <- mdist(glm(pr~.-(pr+cost), family=binomial(),
++                        data=nuclearplants),
++              standardization.scale = sd) # sd was standard in < 0.7-2
 > stratumStructure(fullmatch(psd))
  5:1  3:1  1:3 1:17 
    1    1    1    1 
@@ -59,16 +62,18 @@ attr(,"comparable.num.matched.pairs")
 attr(,"comparable.num.matched.pairs")
 [1] 5.916667
 > 
-> psd2 <- pscore.dist(glm(pr~.-(pr+cost), family=binomial(),
-+                        data=nuclearplants),structure.fmla=~pt)
+> psd2 <- mdist(glm(pr~.-(pr+cost), family=binomial(),
++                        data=nuclearplants),
++               standardization.scale = sd,
++               exclusions = exactMatch(pr ~ pt, nuclearplants))
 > stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1))
-7:19  1:1 
-   1    3 
+10:22 
+    1 
 attr(,"comparable.num.matched.pairs")
-[1] 3
+[1] 0
 > stratumStructure(fullmatch(psd2,min.controls=3,max.controls=3))
-7:19  3:3 
-   1    1 
+10:22 
+    1 
 attr(,"comparable.num.matched.pairs")
 [1] 0
 > 
