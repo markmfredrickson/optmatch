@@ -1,7 +1,8 @@
 
-R version 2.11.0 (2010-04-22)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: i386-apple-darwin9.8.0/i386 (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -17,6 +18,7 @@ Type 'q()' to quit R.
 
 > require('optmatch')
 Loading required package: optmatch
+Loading required package: testthat
 You're loading optmatch, by Ben Hansen, a package for flexible
  and optimal matching.  Important license information:
  The optmatch package makes essential use of D. P. Bertsekas
@@ -52,17 +54,23 @@ m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA
    Q    R    S    T    U    V    W    X    Y    Z 
  m.4  m.5 <NA> <NA> <NA> <NA> <NA>  m.6 <NA> <NA> 
 > data(nuclearplants)
+> # in both of mdist calls below use sd to maintain backwards compatibility with
+> # pscore.dist, which used sd by default. mdist has used mad as the std. scale
+> # since it was added to the package, so the use of mdist should be consistent
+> # for users going forward.
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-> psd <- pscore.dist(psm)
+> psd <- mdist(psm, standardization.scale = sd)
 > pairmatch(psd, controls=2)
-   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
- m.8  m.7  m.2  m.5  m.4 <NA>  m.2  m.9  m.6  m.6  m.7  m.3  m.3 m.10  m.4  m.1 
-   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
- m.2  m.7  m.1  m.8  m.4  m.9  m.5 m.10  m.6  m.8  m.9 <NA> m.10  m.1  m.3  m.5 
-> pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
-   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
-<NA> <NA>  0.1 <NA>  0.2 <NA> <NA> <NA>  0.3 <NA> <NA> <NA> <NA> <NA>  0.4  0.6 
-   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
- 0.3  0.4  0.1  0.5  0.2  0.6  0.5  0.7 <NA>  0.7 1.NA 1.NA 1.NA 1.NA 1.NA 1.NA 
+   a    A    b    B    c    C    d    D    e    E    f    F    G    H    I    J 
+ m.1  m.2  m.3  m.4  m.5  m.6  m.9  m.7 <NA>  m.8 m.10  m.9 m.10  m.8  m.7  m.5 
+   K    L    M    N    O    P    Q    R    S    T    U    V    W    X    Y    Z 
+<NA>  m.2  m.9  m.6  m.7  m.3  m.3 m.10  m.4  m.1  m.2  m.1  m.4  m.5  m.6  m.8 
+> pairmatch(caliper(mdist(psm, standardization.scale = sd,
++   exclusions = exactMatch(pr ~ pt, data =
++   nuclearplants)), width=2)) # Fails in subclass '1'
+   a    A    b    B    c    C    d    D    e    E    f    F    G    H    I    J 
+m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+   K    L    M    N    O    P    Q    R    S    T    U    V    W    X    Y    Z 
+m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
 > 
 > 
