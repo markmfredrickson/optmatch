@@ -36,12 +36,21 @@ test_that("ISM Basics", {
 })
 
 test_that("ISM Handles Names", {
-  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
-  rownames(m) <- c("A", "B")
-  colnames(m) <- c("C", "D")
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
+              dimnames = list(treated = c("A", "B"),
+                              control = c("C", "D")))
 
   expect_equal(as.matrix(as(m, "InfinitySparseMatrix")), m)
   
+  A <- makeInfinitySparseMatrix(c(1,2,3), rows = c(1,1,2), cols = c(1,2,2))
+  expect_true(is.null(dimnames(A)))
+
+  dms <- list(treated = c("A", "B"), control = c("x", "y"))
+  dimnames(A) <- dms
+  expect_equal(dimnames(A), dms)
+
+  dimnames(m) <- dms
+  expect_equal(as.matrix(A), m)
 })
 
 test_that("Math Ops", {
@@ -131,8 +140,8 @@ test_that("cbinding ISMs and matrices", {
   rownames(m2) <- c("B", "A")
   res.Am2 <- cbind(A, m2)
   m3 <- matrix(c(1,Inf,2,3, Inf, 1, 3,2), nrow = 2)
-  rownames(m3) <- c("A", "B")
-  colnames(m3) <- c("C", "D", "C", "D") # this seems like a bad idea!
+  dimnames(m3) <- list(treated = c("A", "B"),
+                       control = c("C", "D", "C", "D"))
   expect_equal(as.matrix(res.Am2), m3)
 
   m4 <- matrix(1, nrow = 2, ncol = 3)
@@ -164,8 +173,8 @@ test_that("rbinding ISMs and matrices", {
   colnames(m2) <- c("D", "C")
   res.Am2 <- rbind(A, m2)
   m3 <- matrix(c(1,Inf,2,3,2,3,1,Inf), ncol = 2)
-  rownames(m3) <- c("A", "B", "A", "B")
-  colnames(m3) <- c("C", "D")
+  dimnames(m3) <- list(treated = c("A", "B", "A", "B"),
+                       control = c("C", "D"))
   expect_equal(as.matrix(res.Am2), m3)
 
   m4 <- matrix(1, nrow = 2, ncol = 2)
@@ -183,9 +192,11 @@ test_that("rbinding ISMs and matrices", {
 
 
 test_that("t(ransform) function", {
-  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
-  rownames(m) <- c("A", "B")
-  colnames(m) <- c("C", "D")
+  # set up the names on the dims backwards to that when
+  # we call t(m), everything is labeled properly
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
+              dimnames = list(control = c("A", "B"),
+                              treated = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
   expect_equal(as.matrix(t(A)), t(m))

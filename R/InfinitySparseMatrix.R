@@ -45,7 +45,7 @@ dim.InfinitySparseMatrix <- function(x) {
 
 setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
-  v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(x@rownames, x@colnames))
+  v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(treated = x@rownames, control = x@colnames))
 
   # There might be a better, vectorized way to do this, but this is correct, if slow
   n <- length(x)
@@ -82,6 +82,22 @@ as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 
 # dimnames implementation
 
+setMethod("dimnames", "InfinitySparseMatrix", function(x) {
+  if (is.null(x@rownames) & is.null(x@colnames)) {
+    return(NULL) 
+  }
+  list(treated = x@rownames, control = x@colnames)
+})
+
+setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
+  if (length(value) != 2) {
+    # message copied from matrix method
+    stop(paste("length of 'dimnames' [", length(value), "] not equal to dims [2]", sep = ""))
+  }
+  x@rownames <- value[[1]]
+  x@colnames <- value[[2]]
+  x
+})
 setMethod("colnames<-", "InfinitySparseMatrix", function(x, value) {
     x@colnames <- value
     return(x)

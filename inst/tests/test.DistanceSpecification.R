@@ -71,10 +71,10 @@ test_that("Subproblems", {
     "DistanceSpecification")})))
 
   m1 <- matrix(0, nrow = 2, ncol = 3,
-    dimnames = list(c("b", "d"), c("a", "c", "e")))
+    dimnames = list(treated = c("b", "d"), control = c("a", "c", "e")))
 
   m2 <- matrix(0, nrow = 3, ncol = 2,
-    dimnames = list(c("f", "h", "j"), c("g", "i")))
+    dimnames = list(treated = c("f", "h", "j"), control = c("g", "i")))
 
   expect_equal(as.matrix(res.em[[1]]), m1)
   expect_equal(as.matrix(res.em[[2]]), m2)
