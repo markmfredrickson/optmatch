@@ -78,4 +78,20 @@ test_that("Subproblems", {
 
   expect_equal(as.matrix(res.em[[1]]), m1)
   expect_equal(as.matrix(res.em[[2]]), m2)
+
+  # findSubproblems should always return a list, of length # of probs
+  expect_equal(length(findSubproblems(m)), 1)
+  expect_equal(length(findSubproblems(as.InfinitySparseMatrix(m))), 1)
+  
+  B2 <- rep(1:5, each = 2)
+  names(B2) <- letters[1:10]
+  em2 <- exactMatch(B2, rep(c(0,1), 5))
+  em.subps <- findSubproblems(em2)
+  expect_equal(length(em.subps), 5)
+  expect_is(em.subps, "list")
+  lapply(em.subps, function(i) {
+    expect_is(i, "DistanceSpecification")  
+  })
+
 })
+

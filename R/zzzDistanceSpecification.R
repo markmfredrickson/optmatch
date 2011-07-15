@@ -74,3 +74,16 @@ function(distances) {
       colnames = distances@colnames[col.members])
   })
 })
+
+# a helper to get all the subproblems from the implied tree of a DS
+findSubproblems <- function(d) {
+  res <- subproblems(d)
+  
+  if (is.list(res)) {
+    return(do.call(c, lapply(res, findSubproblems)))
+  }
+
+  return(list(d))
+
+} 
+
