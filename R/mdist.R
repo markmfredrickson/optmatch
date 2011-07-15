@@ -18,7 +18,7 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 
 # mdist method: formula
 setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
-                                       s.matrix = NULL, ...) {
+                                       inv.scale.matrix = NULL, ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
   }
@@ -41,17 +41,17 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
   
-  if (!is.null(s.matrix)) {
+  if (!is.null(inv.scale.matrix)) {
     # TODO: error check the inv.cov matrix to make sure it is safe
     # should match dimension of mf
   } else {
-    # default s.matrix is the inverse covariance matrix
+    # default inv.scale.matrix is the inverse covariance matrix
     # the extra as.matrix() is that if there is only one variable, it will be
     # a matrix not a vector
     mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
     mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
 
-    s.matrix <- solve(mt + mc) # don't need Z in the cov matrix
+    inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
 
     # the old mahal.dist wrapped the solve in a try() and used this if there
     # was failure. Is this a common issue? I'm waiting for a failure case
@@ -76,7 +76,7 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     n <- dim(treated)[1]
     tmp <- numeric(n) 
     for (i in 1:n) {
-      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% s.matrix %*% as.matrix(treated[i,] - control[i,])
+      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% inv.scale.matrix %*% as.matrix(treated[i,] - control[i,])
     }
     return(tmp)
   }
