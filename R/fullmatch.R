@@ -2,121 +2,57 @@ fullmatch <- function(distance,
     min.controls = 0, 
     max.controls = Inf, 
     omit.fraction = NULL, 
-    tol = .001, 
-    subclass.indices = NULL) {
+    tol = .001) {
 
-############################################################
-# CHECK DIMNAMES OF DISTANCE			   #
-############################################################
+  ### Checking Input ###
+  
   if (!is(distance, "DistanceSpecification")) {
-    stop("distance must be a DistanceSpecification object")      
+    stop("argument \'distance\' must be a DistanceSpecification object")      
   }
 
-  # TODO: remove cast when removing all list capabilities
-  distance <- as.matrix(distance)
-
-  if (is.matrix(distance))
-  {
-    if (is.logical(distance))
-      distance <- matrix(as.numeric(distance),
-          nrow(distance), ncol(distance),
-          dimnames=dimnames(distance))
-
-        if (!is.numeric(distance))
-          stop("matrix \'distance\' must be of mode numeric")
-            if (is.null(dimnames(distance))) {
-              stop("argument \'distance\' must have dimnames") }
-    if (any(duplicated(unlist(dimnames(distance)))))
-    { stop("dimnames of argument \'distance\' contain duplicates") }
-    nmtrt <- dimnames(distance)[[1]]
-      nmctl <- dimnames(distance)[[2]]
-  } else
-  {
-    if (!all(unlist(lapply(distance,function(x){is.matrix(x) | is.null(x)}))))
-    {
-      bads <- (1:length(distance))[!sapply(distance,function(x){
-          is.matrix(x) | is.null(x)})]
-        stop(paste("elements", 
-              ifelse(length(bads)>1, paste(bads[1],"...",sep=""),bads[1]), 
-              "of list \'distance\' fail to be (numeric) matrices.",
-              sep=" "))
+  # we expect the following to be defined for the distance object
+  # put any functions in this list that are called directly on distance
+  methods <- c("dim", "dimnames", "prepareMatching", "subproblems",
+    "is.numeric")
+  dist.class <- class(distance)
+  lapply(methods, function(m) {
+    if (!hasMethod(m, dist.class)) {
+      # skip the FUN = ... in the call stack
+      stop(paste("argument \'distance\' must have a", m, "method."), call. = F)  
     }
-    distance[sapply(distance,is.null)] <- NULL
-      if (any(lcl <- sapply(distance,is.logical)))
-        distance[lcl] <- lapply(distance[lcl],
-            function(x) matrix(as.numeric(x),
-              nrow(x), ncol(x),
-              dimnames=dimnames(x))
-            )
+  })
 
-          if (!all(unlist(lapply(distance,is.numeric))))
-            stop("elements of list \'distance\' must be of mode numeric")
-              if (any(unlist(lapply(distance, function(x){is.null(dimnames(x))}))))
-                stop("matrices in list \'distance\' must have dimnames")
-                  nmtrt <- unlist(lapply(distance, function(x){dimnames(x)[[1]]}))
-                  nmctl <- unlist(lapply(distance, function(x){dimnames(x)[[2]]}))
+  dnms <- dimnames(distance)
+  if (is.null(dnms) | is.null(dnms[[1]]) | is.null(dnms[[2]])) {
+    stop("argument \'distance\' must have dimnames") 
   }
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR SUBCLASS.INDICES	   #
-############################################################
-  if (is.matrix(distance))
-  {
-    if (is.data.frame(subclass.indices))
-    {
-      if (is.null(row.names(subclass.indices)) | 
-          !all(row.names(subclass.indices) %in%
-            c(nmtrt,nmctl)))
-        stop("row names of data frame \'subclass.indices\' must exist and occur in dimnames of distance")
-          rns <- row.names(subclass.indices)
-          subclass.indices <- interaction(subclass.indices, drop=TRUE)
-          names(subclass.indices) <- rns
-    }
-    if (is.factor(subclass.indices)) 
-    {
-      if (is.null(names(subclass.indices)) | 
-          !all(names(subclass.indices) %in% c(nmtrt,nmctl)) ) 
-        stop("names of factor \'subclass.indices\' must exist and occur in dimnames of distance")
-          idc <- subclass.indices[!is.na(subclass.indices)]
-          rns <- names(idc) 
-    } else 
-    {
-      if (is.null(subclass.indices)) 
-      {
-        idc <- factor(rep("m",length(nmtrt)+length(nmctl)))
-          if
-            (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl))))))
-            {names(idc) <- sort(c(nmtrt,nmctl))}
-          else
-          {names(idc) <- c(nmtrt,nmctl)[
-            order(as.numeric(c(nmtrt,nmctl)))]
-          }
-        rns <- names(idc)
-      } else    
-      {
-        stop("argument \'subclass.indices\' must be a factor") 
-      }
-    }
-  } else
-  {
-    if (!is.null(subclass.indices))
-      warning("argument \'subclass.indices\' ignored when \'distance\' is a list")
-        if (is.null(names(distance)))
-        {
-          dnm <- paste("m", 1:length(distance), "l", sep="")
-        } else dnm <- names(distance)
-          dnm[names(distance)==""] <-
-            paste("m", 1:length(distance), "l", sep="")[names(distance)==""]
-            names(distance) <- dnm
-            idc <- factor(c(rep(dnm, unlist(lapply(distance,function(x){dim(x)[1]}))),
-                  rep(dnm, unlist(lapply(distance,function(x){dim(x)[2]})))))
-            names(idc) <- c(nmtrt,nmctl)
-            if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl))))))
-            {idc <- idc[order(c(nmtrt,nmctl))]}
-            else
-            {idc <- idc[order(as.numeric(c(nmtrt,nmctl)))]
-            }
-        rns <- names(idc)
+  
+  if (any(duplicated(unlist(dnms)))){ 
+    stop("dimnames of argument \'distance\' contain duplicates") 
   }
+
+  nmtrt <- dnms[[1]]
+  nmctl <- dnms[[2]]
+
+  # note: this next _should_ be unnecessary, the objects should do this
+  # but better safe than sorry
+  if (!identical(dim(distance), c(length(nmtrt), length(nmctl)))) {
+    stop("argument \'distance\' dimensions do not match row and column names")  
+  }
+
+  if (!is.numeric(distance)) {
+    stop("argument \'distance\' must be numeric")  
+  }
+
+
+  idc <- factor(rep("m", length(nmtrt) + length(nmctl)))
+  if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl)))))) {
+    names(idc) <- sort(c(nmtrt,nmctl))
+  } else {
+    names(idc) <- c(nmtrt,nmctl)[order(as.numeric(c(nmtrt,nmctl)))]
+  }
+  rns <- names(idc)
+
 ############################################################
 # HANDLE DIFFERENT INPUT FORMS FOR MIN.CONTROLS		   #
 ############################################################
@@ -190,6 +126,9 @@ fullmatch <- function(distance,
   sfs <- levels(factor(idc[mgrp]))
   err <- numeric(length(sfs)) ; names(err) <- sfs
   TOL <- tol*sum(mgrp)
+
+# TODO: remove cast when removing all list capabilities
+  distance <- as.matrix(distance)
 
   for (i in sfs)
   { 

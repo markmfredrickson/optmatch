@@ -65,6 +65,17 @@ test_that("Checks input", {
   expect_error(fullmatch(m))
   expect_error(fullmatch(as.InfinitySparseMatrix(m)))
 
+  # a logical matrix should case an error
+  ml <- matrix(rep(c(T,F), 4), nrow = 2, ncol = 2, dimnames =
+    list(letters[1:2], letters[3:4]))
+
+  expect_error(fullmatch(ml))
+  ml <- replace(ml, 1:4, as.numeric(ml))
+  expect_is(fullmatch(ml), "factor")
+
+  # row and columns share names
+  dimnames(ml) <- list(letters[1:2], letters[2:3])
+  expect_error(fullmatch(ml))
 })
 
 
