@@ -48,6 +48,9 @@ fullmatch <- function(distance,
   # it may only have 1 entry
   problems <- findSubproblems(distance)
 
+  # the number of problems should match the argument lengths for
+  # min, max, and omit
+
   np <- length(problems)
   if (length(min.controls) > 1 & np != length(min.controls)) {
     stop(paste("Length of \'min.controls\' arg must be same ",
@@ -62,9 +65,17 @@ fullmatch <- function(distance,
     stop(paste("Length of \'omit.fraction\' arg must be same ",
               "as number of subproblems [", np, "]", sep = ""))  
   }
-
-  # the number of problems should match the argument lengths for
-  # min, max, and omit
+  
+  # reset the arguments to be the right length if they are not
+  if (length(min.controls) == 1) {
+    min.controls <- rep(min.controls, np)   
+  }
+  if (length(max.controls) == 1) {
+    max.controls <- rep(max.controls, np)   
+  }
+  if (length(omit.fraction) == 1) {
+    omit.fraction <- rep(omit.fraction, np)   
+  }
 
   idc <- factor(rep("m", length(nmtrt) + length(nmctl)))
   if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl)))))) {
