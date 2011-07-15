@@ -18,7 +18,7 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 
 # mdist method: formula
 setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
-                                       inv.scale.matrix = NULL, ...) {
+                                       inv.scale.matrix = NULL, COV = cov, ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
   }
@@ -48,8 +48,8 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
     # default inv.scale.matrix is the inverse covariance matrix
     # the extra as.matrix() is that if there is only one variable, it will be
     # a matrix not a vector
-    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    mt <- COV(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- COV(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
 
     inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
 
