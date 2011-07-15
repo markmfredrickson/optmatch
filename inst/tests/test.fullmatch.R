@@ -76,6 +76,24 @@ test_that("Checks input", {
   # row and columns share names
   dimnames(ml) <- list(letters[1:2], letters[2:3])
   expect_error(fullmatch(ml))
+
+  # the min, max, and omit must be same length as the number of subproblems,
+  # which might be more than 1 if using exactMatch, e.g.
+
+  m <- matrix(1, nrow = 2, ncol = 2, dimnames = list(c("a", "b"), c('d',
+  'e')))  
+  
+  expect_error(fullmatch(m, min.controls = c(0,0)))
+  expect_error(fullmatch(m, max.controls = c(Inf,Inf)))
+  expect_error(fullmatch(m, omit.fraction = c(1, 1)))
+
+  B <- rep(1:5, each = 2)
+  names(B) <- letters[1:10]
+  em <- exactMatch(B, rep(c(0,1), 5))
+  expect_error(fullmatch(em, min.controls = c(0,0)))
+  expect_error(fullmatch(em, max.controls = c(Inf,Inf)))
+  expect_error(fullmatch(em, omit.fraction = c(1, 1)))
+
 })
 
 

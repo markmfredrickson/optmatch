@@ -44,6 +44,27 @@ fullmatch <- function(distance,
     stop("argument \'distance\' must be numeric")  
   }
 
+  # problems is guaranteed to be a list of DistanceSpecifictions
+  # it may only have 1 entry
+  problems <- findSubproblems(distance)
+
+  np <- length(problems)
+  if (length(min.controls) > 1 & np != length(min.controls)) {
+    stop(paste("Length of \'min.controls\' arg must be same ",
+              "as number of subproblems [", np, "]", sep = ""))  
+  }
+  if (length(max.controls) > 1 & np != length(max.controls)) {
+    stop(paste("Length of \'max.controls\' arg must be same ",
+              "as number of subproblems [", np, "]", sep = ""))  
+  }
+  if (!is.null(omit.fraction) & length(omit.fraction) > 1 & np !=
+    length(omit.fraction)) {
+    stop(paste("Length of \'omit.fraction\' arg must be same ",
+              "as number of subproblems [", np, "]", sep = ""))  
+  }
+
+  # the number of problems should match the argument lengths for
+  # min, max, and omit
 
   idc <- factor(rep("m", length(nmtrt) + length(nmctl)))
   if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl)))))) {
