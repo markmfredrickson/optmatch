@@ -40,9 +40,22 @@ fullmatch <- function(distance,
     stop("argument \'distance\' dimensions do not match row and column names")  
   }
 
+  # distances and other args must be numeric
   if (!is.numeric(distance)) {
     stop("argument \'distance\' must be numeric")  
   }
+  if (!is.numeric(min.controls)) {
+    stop("argument \'min.controls\' must be numeric")  
+  }
+  if (!is.numeric(max.controls)) {
+    stop("argument \'max.controls\' must be numeric")  
+  }
+  if (!is.null(omit.fraction)) {
+    if (any(abs(omit.fraction) > 1, na.rm = TRUE) | !is.numeric(omit.fraction)) { 
+      stop("omit.fraction must be NULL or numeric between -1 and 1") 
+    }
+  }
+
 
   # problems is guaranteed to be a list of DistanceSpecifictions
   # it may only have 1 entry
@@ -73,61 +86,63 @@ fullmatch <- function(distance,
   if (length(max.controls) == 1) {
     max.controls <- rep(max.controls, np)   
   }
+
+  if (is.null(omit.fraction)) {
+    omit.fraction <- NA  
+  }
   if (length(omit.fraction) == 1) {
     omit.fraction <- rep(omit.fraction, np)   
   }
 
-  idc <- factor(rep("m", length(nmtrt) + length(nmctl)))
-  if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl)))))) {
-    names(idc) <- sort(c(nmtrt,nmctl))
-  } else {
-    names(idc) <- c(nmtrt,nmctl)[order(as.numeric(c(nmtrt,nmctl)))]
+  if (any(omit.fraction > 0 & max.controls <= .5, na.rm=TRUE)) {
+      stop("positive \'omit.fraction\' with \'max.controls\' <= 1/2 not permitted")    
   }
-  rns <- names(idc)
 
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR MIN.CONTROLS		   #
-############################################################
-  mncpt <- fullmatchNumControlsHandling(min.controls,levels(idc),"min.controls")
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR MAX.CONTROLS		   #
-############################################################
-  mxcpt <- fullmatchNumControlsHandling(max.controls,levels(idc),"max.controls")
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR OMIT.FRACTION	   #
-############################################################
-  if (is.null(omit.fraction)) 
-  {
-    omf <- rep(NA, nlevels(idc))
-      names(omf) <- levels(idc)
-  } else
-  {
-    if (any(abs(omit.fraction)>1, na.rm=TRUE) | !is.numeric(omit.fraction))
-    { stop("omit.fraction must be NULL or numeric between -1 and 1") }
-    if (length(omit.fraction)==1)
-    {
-      omf <- rep(omit.fraction, nlevels(idc)) 
-        names(omf) <- levels(idc)
-    } else
-    {
-      if (!all(levels(idc) %in% names(omit.fraction))) {
-        stop("\'omit.fraction\' not specified for some subclasses") }
-      omf <- omit.fraction[levels(idc)]
-    } 
-    if (any(omf > 0 & mxcpt <= .5, na.rm=TRUE) )
-      stop("positive \'omit.fraction\' with \'max.controls\' <= 1/2 not permitted")
-        if (any(omf < 0 & mncpt >= 2, na.rm=TRUE) )
-          stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
+  if (any(omit.fraction < 0 & min.controls >= 2, na.rm=TRUE)) {
+      stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
   }
-############################################################
-# CREATE STRATUM IDENTIFIER				   #
-############################################################
-#strat <- character(length(rns))
-##strat <- as.character(idc) # NEW
-#names(strat) <- rns
-#ssizes <- lapply(split(strat, idc), length)
-#split(strat, idc) <- rep(names(ssizes), unlist(ssizes))
+  
+  total.n <- sum(dim(distance))
 
+  TOL <- tol * total.n
+
+  # a helper to handle a single matching problem. all args required. 
+  # input error checking happens in the public fullmatch function.
+  .fullmatch <- function(d, mnctl, mxctl, omf) {
+    ncol <- dim(d)[2]
+    nrow <- dim(d)[1]
+
+    tol.frac <- (nrow + ncol - 2)/(total.n - 2 * nrow)
+  
+    # if omf is specified (i.e. not NA), see if is greater than 0
+    # if omf is not specified, check to see if mxctl is > .5
+    if (switch(1 + is.na(omf), omf > 0,  mxctl > .5)) {
+      maxc <- min(mxctl, ncol)
+      minc <- max(mnctl, 1/nrow)
+      omf.calc <- omf
+  
+    } else {
+      maxc <- min(1/mnctl, ncol)
+      minc <- max(1/nxctk, 1/nrow)
+      omf.calc <- -1 * omf
+    }
+
+    temp <- SubDivStrat(rownames = rownames(d),
+                        colnames = colnames(d),
+                        distmat = as.matrix(d), # TODO: remove to allow sparse problems
+                        max.cpt = maxc,
+                        min.cpt = minc,
+                        tolerance = TOL * tol.frac,
+                        omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+
+    return(temp)
+  }
+  
+  solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+
+  return(solutions)
+
+### DEAD CODE BELOW ###
 
 ################################################################
 # MARK AND SEPARATE UNITS BELONGING TO STRATA LACKING ROW UNITS#
@@ -223,3 +238,5 @@ fullmatch <- function(distance,
       attr(strat.abv, "matched.distances") <- matched.distances(strat.abv, distance)
       strat.abv
 }
+
+
