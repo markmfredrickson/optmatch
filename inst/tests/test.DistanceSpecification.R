@@ -106,5 +106,10 @@ test_that("Subproblems", {
   expect_equal(dim(res.allin[[1]]), c(8,8))
   expect_equal(res.allin[[1]]@.Data, as.vector(dist))
 
+  # factors that create unworkable subproblems (e.g. only control units)
+  # use z from above
+  bad.factor <- c(rep(1:4, each = 2), rep(c(4,5), 4))
+  bad.match <- exactMatch(bad.factor, z)
+  expect_equal(dim(bad.match), c(8,8))
 })
 

@@ -22,7 +22,7 @@ makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL, rownames
   }
 
   if(is.null(dimension)) {
-    dimension <- c(max(rows), max(cols))  
+    dimension <- c(max(c(rows, length(rownames))), max(c(cols, length(colnames))))  
   }  
 
   # if(is.null(rownames)) {
