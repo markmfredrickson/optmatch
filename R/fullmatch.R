@@ -112,7 +112,7 @@ fullmatch <- function(distance,
     ncol <- dim(d)[2]
     nrow <- dim(d)[1]
 
-    tol.frac <- (nrow + ncol - 2)/(total.n - 2 * nrow)
+    tol.frac <- (nrow + ncol - 2)/(total.n - 2 * np)
   
     # if omf is specified (i.e. not NA), see if is greater than 0
     # if omf is not specified, check to see if mxctl is > .5

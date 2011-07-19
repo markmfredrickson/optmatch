@@ -135,7 +135,15 @@ test_that("Must have names", {
   expect_false(is.null(em@rownames))
   expect_false(is.null(names(em@groups)))
 
+  position <- rep(1:4, each = 4)  
+  z <- rep(0:1, 8)
+  names(z) <- letters[1:16]
+  dist <- mdist(z ~ position, inv.scale.matrix = diag(1))
+  allin <- exactMatch(rep(1, 16), z)
+  
+  expect_equal(names(allin@groups), letters[1:16])
 })
+
 
 test_that("Contains grouping information", {
   Z <- rep(c(0,1), 8)

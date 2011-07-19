@@ -228,3 +228,6 @@ test_that("BlockedISM addition", {
   expect_is(matrix(1, nrow = 8, ncol = 8) + res.b2,
     "BlockedInfinitySparseMatrix")
 })
+
+
+

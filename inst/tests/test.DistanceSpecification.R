@@ -93,5 +93,18 @@ test_that("Subproblems", {
     expect_is(i, "DistanceSpecification")  
   })
 
+
+  # a dense problem that looks likes a sparse problem
+  position <- rep(1:4, each = 4)  
+  z <- rep(0:1, 8)
+  names(z) <- letters[1:16]
+  dist <- mdist(z ~ position, inv.scale.matrix = diag(1))
+  allin <- exactMatch(rep(1, 16), z)
+  
+  res.allin <- findSubproblems(dist + allin)
+  expect_equal(length(res.allin), 1)
+  expect_equal(dim(res.allin[[1]]), c(8,8))
+  expect_equal(res.allin[[1]]@.Data, as.vector(dist))
+
 })
 

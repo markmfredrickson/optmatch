@@ -36,8 +36,9 @@ test_that("Basic Matches", {
   # completely determine who matches whom (though for the same level, this
   # test is agnostic about which pairs should be matched.
   lapply(1:4, function(i) {
-    in.level <- position == i
-    expect_false(any(res.mat[in.level] %in% res.mat[!in.level]))
+    in.level <- names(z)[position == i] # possibly reorders factor
+    not.in.level <- names(z)[position != i]
+    expect_false(any(res.mat[in.level] %in% res.mat[not.in.level]))
   })
 })
 
