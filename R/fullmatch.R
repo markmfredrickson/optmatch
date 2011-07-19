@@ -141,26 +141,8 @@ fullmatch <- function(distance,
   solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
 
   matching <- lapply(solutions, function(s) { s$cells })
-  optmatch.obj <- as.factor(mapply(function(label, groups) { paste(label, groups, sep = ".") }, 1:np, matching))
-  names(optmatch.obj) <- names(unlist(matching))
-
-  class(optmatch.obj) <- c("optmatch", "factor")
-
-  # TODO: handle errors/failed matches
-  # attr(strat.abv, "exceedances") <- err
-  # if (sum(err, na.rm=TRUE)>TOL) {
-  #     warning(
-  #         paste("prescribed tol of ", tol, "per obs. poss. exceeded by up to ", 
-  #           round(sum(err), 3), ".", sep="") )
-  # }
-
-  attr(optmatch.obj, "call") <- match.call()
  
-  # attr(match.factor, "contrast.group") <- inrow ### WHAT IS INROW?
-  # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
-  # attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
-
-  return(optmatch.obj)
+  return(makeOptmatch(matching))
 }
 
 
