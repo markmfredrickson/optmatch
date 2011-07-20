@@ -1,11 +1,11 @@
-caliper <- function(width, ..., exclude = c()) {
+caliper <- function(width, ..., exclude = c(), compare = `<=`) {
 
   start <- as.InfinitySparseMatrix(mdist(...)) # returns a DistanceSpecification
 
   excluded.rows <- which(start@rownames %in% exclude)
   excluded.cols <- which(start@colnames %in% exclude)
 
-  x <- subset(start, start <= width | 
+  x <- subset(start, compare(start, width) | 
                      start@rows %in% excluded.rows |
                      start@cols %in% excluded.cols)
 
