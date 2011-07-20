@@ -58,7 +58,7 @@ setMethod("subproblems", "DistanceSpecification", function(distances) FALSE)
 
 setMethod("subproblems", "BlockedInfinitySparseMatrix", 
 function(distances) {
-  lapply(levels(distances@groups), function(l) {
+  tmp <- lapply(levels(distances@groups), function(l) {
     members <- names(distances@groups[distances@groups == l])
     row.members <- which(distances@rownames %in% members)
     col.members <- which(distances@colnames %in% members)
@@ -73,6 +73,14 @@ function(distances) {
       rownames = distances@rownames[row.members],
       colnames = distances@colnames[col.members])
   })
+
+  ftmp <- Filter(function(x) { length(x) > 0 }, tmp)
+
+  if (length(ftmp) == 0) {
+    return(FALSE) # no subproblems found  
+  }
+
+  return(ftmp)
 })
 
 # a helper to get all the subproblems from the implied tree of a DS

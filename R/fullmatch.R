@@ -123,7 +123,7 @@ fullmatch <- function(distance,
   
     } else {
       maxc <- min(1/mnctl, ncol)
-      minc <- max(1/nxctk, 1/nrow)
+      minc <- max(1/mxctl, 1/nrow)
       omf.calc <- -1 * omf
     }
 
@@ -142,7 +142,7 @@ fullmatch <- function(distance,
 
   matching <- lapply(solutions, function(s) { s$cells })
  
-  return(makeOptmatch(matching))
+  return(makeOptmatch(matching, nmtrt, match.call()))
 }
 
 

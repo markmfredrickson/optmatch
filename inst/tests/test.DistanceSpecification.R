@@ -111,5 +111,9 @@ test_that("Subproblems", {
   bad.factor <- c(rep(1:4, each = 2), rep(c(4,5), 4))
   bad.match <- exactMatch(bad.factor, z)
   expect_equal(dim(bad.match), c(8,8))
+
+  # don't return invalid subproblems, in this case, only return 1 subprob
+  res.sp <- findSubproblems(bad.match)
+  expect_equal(length(res.sp), 4) # there are 5 levels in the factor, but only 4 valid subprobs
 })
 

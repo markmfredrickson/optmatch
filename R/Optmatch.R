@@ -6,8 +6,9 @@
 ####### Object Creation #########
 
 makeOptmatch <- function(matching, # a list matches for different strata, each with names
-                         call = match.call()) { # an optional call to a function creating the object
-    
+                         treated, # list of the names of the treated units 
+                         call) # the result of match.call() 
+{    
   optmatch.obj <- unlist(mapply(function(label, groups) { paste(label, groups, sep = ".") }, 
                                    1:(length(matching)), 
                                    matching))
@@ -27,7 +28,7 @@ makeOptmatch <- function(matching, # a list matches for different strata, each w
 
   attr(optmatch.obj, "call") <- call
  
-  # attr(match.factor, "contrast.group") <- inrow ### WHAT IS INROW?
+  attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
   # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
   # attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
   
@@ -41,7 +42,7 @@ makeOptmatch <- function(matching, # a list matches for different strata, each w
   function(x, ..., drop=FALSE)
 {
   y <- NextMethod("[")
-  if  (!is.null(attr(y, "contrast.group"))) {
+  if  (!is.null(attr(x, "contrast.group"))) {
     cgs <- attr(x, "contrast.group")
     names(cgs) <- names(x)
 
