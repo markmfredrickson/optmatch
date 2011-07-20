@@ -1,6 +1,6 @@
 require('optmatch')
 data(plantdist)
-fullmatch(plantdist<10)
+fullmatch(1 * (plantdist < 10)) # make plantdist < 10 numeric, not logical
 data(nuclearplants)
 mhd2 <- mdist(pr ~ date + cum.n, data = nuclearplants, 
               exclusions = exactMatch(pr ~ pt, data = nuclearplants))

@@ -1,6 +1,6 @@
 require('optmatch')
 data(plantdist)
-summary(fullmatch(plantdist<10))
+summary(fullmatch(1 * (plantdist<10)))
 summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
 data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)

@@ -80,18 +80,17 @@ sum(matchfailed(mxpl.fm1))
 
 mxpl.si <- factor(c('a', 'a', 'c', rep('d',4), 'b', 'c', 'c', rep('d', 16)))
 names(mxpl.si) <- LETTERS[1:26]
+mxpl.exactmatch <- exactMatch(mxpl.si, c(rep(1, 7), rep(0, 26 - 7)))
 # Subclass a contains two treated units but no controls;
 # subclass b contains only a control unit;
 # subclass c contains one treated and two control units;
 # subclass d contains the remaining twenty units.
+# only valid subproblems will be used
 
-mcl <- c(Inf, Inf, 1, Inf)
-names(mcl) <- c('a', 'b', 'c', 'd')
+mcl <- c(1, Inf)
 
-mxpl.fm2 <- fullmatch(plantdist,        # contains four subproblems, 
-                   subclass.indices=    # three of which are infeasible
-                   mxpl.si,
-                   max.controls=mcl)
+mxpl.fm2 <- fullmatch(plantdist + mxpl.exactmatch,
+                      max.controls=mcl)
 sum(matched(mxpl.fm2))
 
 table(unmatched(mxpl.fm2), matchfailed(mxpl.fm2))

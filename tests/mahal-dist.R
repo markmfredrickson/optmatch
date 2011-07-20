@@ -2,7 +2,7 @@ require('optmatch')
 data(nuclear, package="boot")
 mdist(pr ~ cap, data = nuclear)
 mdist(pr ~ cap, data = nuclear,
-           s.matrix = matrix(1,1,1, dimnames=list("cap", "cap")))
+           inv.scale.matrix = matrix(1,1,1, dimnames=list("cap", "cap")))
 mdist(pr ~ date + cum.n, data = nuclear)
 mdist(pr ~ date + cum.n, data = nuclear, exclusions = exactMatch(pr ~ pt, data = nuclear))
 
