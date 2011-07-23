@@ -1,60 +1,94 @@
-fmatch <- function(distance.matrix, max.row.units, max.col.units, 
-			min.col.units=1, f=1)
+fmatch <- function(distance, max.row.units, max.col.units, 
+			min.col.units = 1, f = 1)
 {
-# NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
-mxc <- round(max.col.units) #  (formerly kt)
-mnc <- round(min.col.units) #  (formerly ktl)
-mxr <- round(max.row.units)
-if (mnc>1) {mxr <- 1}
-finiteind <- is.finite(distance.matrix)
+  # distance must have a prepareMatching object
+  if (!hasMethod("prepareMatching", class(distance))) {
+    stop("Argument \'distance\' must have a \'prepareMatching\' method")  
+  }
+  # NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
+  mxc <- round(max.col.units) #  (formerly kt)
+  mnc <- round(min.col.units) #  (formerly ktl)
+  mxr <- round(max.row.units)
+  
+  if (mnc > 1) {
+    mxr <- 1
+  }
 
-# Check that matching problem is well-specified
-if (mxc<mnc) stop("min.col.units may not exceed max.col.units")
-if (any(c(mxc, mnc, mxr)<1)) 
-   { stop("max and min constraints must be 1 or greater") }
-if (!is.numeric(f) | f>1 | f<0) stop("f must be a number in [0,1]")
+  # Check that matching problem is well-specified
+  if (mxc < mnc) {
+    stop("min.col.units may not exceed max.col.units")
+  } 
 
-# Check requirements for invoking RELAX4 fortran routine
-# if (!is.loaded(symbol.For("relaxalg"))) stop("library relax4s.so not loaded")
+  if (any(c(mxc, mnc, mxr) < 1)) { 
+    stop("max and min constraints must be 1 or greater") 
+  }
 
-if ((sum(finiteind) + sum(dim(distance.matrix))) > (1e+7-2) )
-  stop(paste('matrix arg to fmatch may have only',
-             1e+7, "-(nrows+ncols+2) finite entries;",
-             sum(finiteind) + sum(dim(distance.matrix)) - 1e+7 -2, 'too many'),
-       call.=FALSE)
-if (any(as.integer(distance.matrix[finiteind])!=distance.matrix[finiteind] | 
-	distance.matrix[finiteind]<0)) 
-   { stop("distance.matrix should be nonnegative integer") }
-# SHOULD PROBABLY DISABLE NEXT TWO WARNINGS
-if (mxc!=max.col.units | mnc!=min.col.units | 
-	(mxr==round(max.row.units) & mxr!=max.row.units) ) 
-   { warning("fmatch coerced one or more constraints to integer") }
-if (mnc>1 & round(max.row.units)>1) 
-   { warning("since min.col.units>1, fmatch coerced max.row.units to 1") }
+  if (!is.numeric(f) | f > 1 | f < 0) {
+    stop("f must be a number in [0,1]")
+  } 
 
-nt <- dim(distance.matrix)[1]
-nc <- dim(distance.matrix)[2]
-dists <- as.vector(distance.matrix)+1
-startn <- rep(c(1:nt), nc)
-endn <- nt + rep(c(1:nc), rep(nt ,nc))
-ucap <- rep(1, (nt*nc))
-startn <- startn[finiteind]
-endn <- endn[finiteind]
-ucap <- ucap[finiteind]
-dists <- dists[finiteind]
+  # Ok, let's see how a big a problem we are working on
+  # this returns a "canonical" matching: a data.frame with
+  # three columns: treated, control, distance. Where the first two
+  # are factors and the last is numeric.
+  distance.prepared <- prepareMatching(distance)
+  treated.units <- levels(distance.prepared$treated)
+  control.units <- levels(distance.prepared$control)
+  nt <- length(treated.units)
+  nc <- length(control.units) 
+  narcs <- dim(distance.prepared)[1]
+  problem.size <- narcs + nt + nc
 
-# Add figures for "end" and "sink" nodes
-# "end" is node nt+nc+1; "sink" is node nt+nc+2
-dists <- c(dists, rep(0, nc+nt), rep(0, nc))
-startn <- c(startn, 1:(nt+nc), nt+ 1:nc)
-endn <- c(endn, rep(nt+nc+1, nc+nt), rep(nt+nc+2, nc))
-ucap <- c(ucap, rep(mxc-mnc, nt), rep(mxr-1, nc), rep(1, nc))
+  # these "soft" limits are backed by "hard" limits in the Fortran code itself
+  if (problem.size > (1e+7-2)) {
+      stop(paste('matrix arg to fmatch may have only',
+                 1e+7, "-(nrows+ncols+2) finite entries;",
+                 problem.size - 1e+7 - 2, 'too many'),
+           call. = FALSE)
+  }
 
-# supply
-b <- c(rep(mxc, nt), rep(0, nc), -(mxc*nt-round(f*nc)), -round(f*nc))
+  
+  if (any(as.integer(distance.prepared$distance) != distance.prepared$distance | 
+	    distance.prepared$distance < 0)) { 
+    stop("distance should be nonnegative integer") 
+  }
 
-fop <- .Fortran("relaxalg", 
-		as.integer(nc+nt+2), 
+  # SHOULD PROBABLY DISABLE NEXT TWO WARNINGS
+  if (mxc != max.col.units | mnc!=min.col.units | 
+  	  (mxr == round(max.row.units) & mxr != max.row.units)) { 
+      warning("fmatch coerced one or more constraints to integer")
+  }
+
+  if (mnc > 1 & round(max.row.units) > 1) { 
+    warning("since min.col.units > 1, fmatch coerced max.row.units to 1") 
+  }
+
+  # set up the problem for the Fortan algorithm
+  # each node has a integer ID number
+  # startn indicates where each arc starts (using ID num)
+  # endn indicates where each arc ends (using ID num)
+  # nodes 1:nt are the treated units
+  # nodes (nt + 1):nc are the control units
+  # we use the levels of the treated and control factors to generate the ID numbers
+  # the capacity of these arcs is 1
+
+  dists <- as.vector(distance.prepared$distance) + 1
+  startn <- as.numeric(distance.prepared$treated)
+  endn <- nt + as.numeric(distance.prepared$control)
+  ucap <- rep(1, narcs)
+
+  # Add entries for "end" and "sink" nodes
+  # "end" is node nt+nc+1; "sink" is node nt+nc+2
+  dists <- c(dists, rep(0, nc + nt), rep(0, nc))
+  startn <- c(startn, 1:(nt + nc), nt + 1:nc)
+  endn <- c(endn, rep(nt + nc + 1, nc + nt), rep(nt + nc + 2, nc))
+  ucap <- c(ucap, rep(mxc - mnc, nt), rep(mxr - 1, nc), rep(1, nc))
+
+  # supply
+  b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
+
+  fop <- .Fortran("relaxalg", 
+		as.integer(nc + nt + 2), 
 		as.integer(length(startn)), 
 		as.integer(startn), 
 		as.integer(endn), 
@@ -69,14 +103,34 @@ fop <- .Fortran("relaxalg",
 		DUP = TRUE,
 		PACKAGE = "optmatch")
 
-feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) | 
-(round(f*nc) <= nt & round(f*nc)*mxr >= nt))
+  feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) | 
+            (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
-x <- feas*fop$x - (1-feas)
+  x <- feas * fop$x - (1 - feas)
 
-ans <- numeric(length(finiteind))
-ans[finiteind] <- x[-c((sum(finiteind)+1):length(x))]
-dim(ans) <- c(nt, nc)
-dimnames(ans) <- dimnames(distance.matrix)
-ans
+  ans <- numeric(narcs)
+  ans <- x[1:narcs]
+  tmp <- solution2factor(cbind(distance.prepared, solution = ans))
+
+  res <- numeric(sum(dim(distance)))
+  names(res) <- c(rownames(distance), colnames(distance))
+  res[names(tmp)] <- tmp
+
+  return(res)
+}
+
+# a small helper function to turn a solution data.frame into a factor of matches
+solution2factor <- function(s) {
+  s <- s[s$solution == 1,] 
+  
+  # control units are labeled by the first treated unit to which they are connected
+  # unlist(as.list(...)) was the best way I could find to make this into a vector, keeping names
+  control.links <- unlist(as.list(by(s, s$control, function(x) { x[1,"treated"] })))
+
+  # treated units are labeld by the label of the first control unit to which they are connected
+  treated.links <- unlist(as.list(by(s, s$treated, function(x) { control.links[x[1, "control"]][1] })))
+
+  # join the links
+  return(c(treated.links, control.links))
+  
 }

@@ -26,7 +26,7 @@ function(distances) {
   controls <- rep(cs, each = control.reps)
   treatments <- rep(rs, treatment.reps)
 
-  tmp <- data.frame(control = controls, treatment = treatments, distance =
+  tmp <- data.frame(control = controls, treated = treatments, distance =
     raw.distances)
   tmp <- tmp[is.finite(tmp$distance),]
 
@@ -39,7 +39,7 @@ setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
   }
 
   tmp <- data.frame(control = as.factor(distances@colnames[distances@cols]),
-                    treatment = as.factor(distances@rownames[distances@rows]),
+                    treated = as.factor(distances@rownames[distances@rows]),
                     distance = distances@.Data)
 
   return(tmp)
