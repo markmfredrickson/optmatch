@@ -60,7 +60,7 @@ if (any(rfeas) & any(cfeas))
    temp <- fmatch(floor(dm*reso), max.row.units=ceiling(1/min.cpt), 
 		  max.col.units=ceiling(max.cpt),
 		min.col.units=max(1, floor(min.cpt)), f=f.ctls) 
-   if (any(temp<0)) {maxerr <- 0} else 
+   if (any(is.na(temp))) {maxerr <- 0} else 
       {
       maxerr <- sum(temp*dm, na.rm=TRUE) - 
 	     sum(temp*floor(dm*reso), na.rm=TRUE)/reso +
@@ -81,7 +81,7 @@ if ( maxerr > tolerance)
     }
 if (matched.distances)
   {
-if (all(temp>=0))
+if (all(!is.na(temp)))
    {
    dma <- max(dm[as.logical(temp)])
    dist <- c(apply(temp*pmin(dm, dma), 1, sum), 
@@ -98,7 +98,7 @@ dist[c(rep(FALSE, dim(temp)[1]),
  } else {dist <- 0}
    } else { temp <- 0 ; maxerr <- 0 ; dist <- 0}
 
-if (all(temp<=0) & any(temp<0)) {
+if (all(is.na(temp))) {
 
   ans <- rep("NA",length(rownames)+length(colnames))
   names(ans) <- c(rownames, colnames)
@@ -111,7 +111,7 @@ if (all(temp<=0) & any(temp<0)) {
 
 }
 
-if (any(ans=="0")) {ans[ans=="0"] <- NA}
+ans[ans == "0"] <- NA
 
 list(cells=ans, err=maxerr, match.distance=dist)
 }

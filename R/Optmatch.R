@@ -9,9 +9,13 @@ makeOptmatch <- function(matching, # a list matches for different strata, each w
                          treated, # list of the names of the treated units 
                          call) # the result of match.call() 
 {    
-  optmatch.obj <- unlist(mapply(function(label, groups) { paste(label, groups, sep = ".") }, 
-                                   1:(length(matching)), 
-                                   matching))
+  optmatch.obj <- unlist(mapply(function(label, groups) { 
+      tmp <- groups
+      tmp[!is.na(groups)] <- paste(label, groups[!is.na(groups)], sep = ".")
+      return(tmp)
+    }, 
+    1:(length(matching)), 
+    matching))
   optmatch.obj <- as.factor(optmatch.obj)
 
   names(optmatch.obj) <- names(unlist(matching))
