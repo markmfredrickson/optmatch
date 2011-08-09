@@ -2,12 +2,17 @@
 ### Useful tasks for developing, not required to build the R package
 ################################################################################
 
-local-install:
-	rm -rf .local
+R: OPTMATCH_TIMESTAMP
+	R -q --no-save 
+	
+.local:
 	mkdir .local
-	R --vanilla CMD Install --library=.local .
 
-autotest: local-install
+OPTMATCH_TIMESTAMP: .local R/* tests/* inst/tests/*
+	R --vanilla CMD Install --library=.local .
+	date > OPTMATCH_TIMESTAMP
+
+autotest: OPTMATCH_TIMESTAMP
 	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); auto_test('./R', './inst/tests', 'summary')"
 
 build:
@@ -19,5 +24,4 @@ check: build
 clean:
 	git clean
 
-R: local-install
-	R -q --no-save 
+
