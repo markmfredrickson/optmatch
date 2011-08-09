@@ -10,16 +10,17 @@ if (!all(colnames %in% dimnames(distmat)[[2]]))
 
 rownames <- as.character(rownames)
 colnames <- as.character(colnames)
-if (length(rownames)>1)
-  {
-  dm <- as.matrix(distmat[rownames, colnames])
-  } else
-  {
-  dm <- matrix(distmat[rownames, colnames], length(rownames),
-               length(colnames), dimnames=list(rownames, colnames))
-  }
+
+# in a previous version distmat was always a matrix
+# and dm was just the subset of the matrix that was being considered
+# now, distmat may be a sparse distance specification object
+# and dm is just the same thing.
+# rather than rename dm to something else, just using the same name
+dm <- distmat 
+
 rfeas <- apply(dm,1,function(x) {any(is.finite(x))})
 cfeas <- apply(dm,2,function(x) {any(is.finite(x))})
+
 if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt)) 
    {
    ans <- rep("NA",length(rownames)+length(colnames))
@@ -27,18 +28,21 @@ if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
    return(list(cells=ans, maxerr=NULL, distance=NULL))
    }
 
+# the next block of code, the dm <- ... is commented out as 
+# dm is no longer a matrix. Completely unreachable entries may be a
+# problem later, but 
 if (is.null(omit.fraction))
    {
    f.ctls <- 1
-   dm <- matrix(dm[rfeas, cfeas], sum(rfeas), sum(cfeas),
-	 dimnames=list(rownames[rfeas], colnames[cfeas]))
+   # dm <- matrix(dm[rfeas, cfeas], sum(rfeas), sum(cfeas),
+	 # dimnames=list(rownames[rfeas], colnames[cfeas]))
    } else 
    { 
    if (!is.numeric(omit.fraction) | omit.fraction <0 | omit.fraction
       > 1) {stop("omit.fraction must be null or between 0 and 1")}
    f.ctls <- 1-omit.fraction 
-   dm <- matrix(dm[rfeas,], sum(rfeas), length(colnames),
-	 dimnames=list(rownames[rfeas], colnames))
+   # dm <- matrix(dm[rfeas,], sum(rfeas), length(colnames),
+	 # dimnames=list(rownames[rfeas], colnames))
    }
 
 if (any(rfeas) & any(cfeas))
@@ -93,36 +97,20 @@ dist[c(rep(FALSE, dim(temp)[1]),
    }
  } else {dist <- 0}
    } else { temp <- 0 ; maxerr <- 0 ; dist <- 0}
-stratumlabels <- function(matches)
-{
-rdm <- dim(matches)[1]
-cdm <- dim(matches)[2]
-## LABEL CONTROL SUBJECTS ACCORDING TO ROW NUMBER OF FIRST TREATED 
-## SUBJECT TO WHOM THEY ARE MATCHED
-clbl <- apply(matches, 2, function(x)
-                      { (c(1:rdm, 0)[c(as.logical(x), TRUE)])[1] } )
 
-c(apply(rep(clbl, rep(rdm, cdm)) * matches, 1, function(x) {
-  c(x, 0)[c(as.logical(x), TRUE)][1]} ), clbl)
+if (all(temp<=0) & any(temp<0)) {
+
+  ans <- rep("NA",length(rownames)+length(colnames))
+  names(ans) <- c(rownames, colnames)
+
+} else {
+
+  ans <- rep("0",length(rownames)+length(colnames))
+  names(ans) <- c(rownames, colnames)
+  ans <- temp[c(rownames, colnames)]
 
 }
 
-if (all(temp<=0) & any(temp<0))
-{
-ans <- rep("NA",length(rownames)+length(colnames))
-names(ans) <- c(rownames, colnames)
-} else
-{
-ans <- rep("0",length(rownames)+length(colnames))
-names(ans) <- c(rownames, colnames)
-if (any(temp>0))
-   {
-   dimnames(temp) <- dimnames(dm)
-   mout <- stratumlabels(temp)
-   ans[names(mout)] <- mout
-   }
-}
-#if (any(ans=="0")) {ans[ans=="0"] <- paste("0", 1:sum(ans=="0"), sep="")}
 if (any(ans=="0")) {ans[ans=="0"] <- NA}
 
 list(cells=ans, err=maxerr, match.distance=dist)
