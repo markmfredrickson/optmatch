@@ -121,14 +121,18 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
 # a small helper function to turn a solution data.frame into a factor of matches
 solution2factor <- function(s) {
-  s <- s[s$solution == 1,] 
+  s2 <- s[s$solution == 1,] 
   
+  if (dim(s2)[1] == 0) {
+    return(NULL)  
+  }
+
   # control units are labeled by the first treated unit to which they are connected
   # unlist(as.list(...)) was the best way I could find to make this into a vector, keeping names
-  control.links <- unlist(as.list(by(s, s$control, function(x) { x[1,"treated"] })))
+  control.links <- unlist(as.list(by(s2, s2$control, function(x) { x[1,"treated"] })))
 
   # treated units are labeld by the label of the first control unit to which they are connected
-  treated.links <- unlist(as.list(by(s, s$treated, function(x) { control.links[x[1, "control"]][1] })))
+  treated.links <- unlist(as.list(by(s2, s2$treated, function(x) { control.links[x[1, "control"]][1] })))
 
   # join the links
   return(c(treated.links, control.links))

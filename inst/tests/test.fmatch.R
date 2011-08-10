@@ -65,6 +65,11 @@ test_that("Solutions -> factor helper", {
   names(cnm.expected) <- c("D", "E", "F", "A", "B", "C")
   
   expect_equal(solution2factor(controlNotMatched), cnm.expected)
+
+  # handles failed matchings by returning NULL
+  noMatches <- cbind(skeleton, solution = -1)
+  
+  expect_true(is.null(solution2factor(noMatches)))
 })
 
 
