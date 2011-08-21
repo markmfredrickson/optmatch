@@ -10,16 +10,14 @@
   within calipers.)
 }
 \usage{
-caliper(width, ..., exclude = c(), penalty = Inf)
+caliper(width, ..., exclude = c(), compare = `<=`)
 }
 \arguments{
   \item{width}{The width of the caliper: how wide of a margin to allow in matches.}
   \item{...}{Arguments are passed to \code{mdist()}, which forms the basic distance matrix. The caliper is then fit to this matrix. See \code{\link{mdist}} for more information.}
   \item{exclude}{A character vector of observations (corresponding to rownames) to exclude from the caliper.}
-  \item{penalty}{Attach a penalty (to be mulitplied to the distance
-    value) for pairs outside of the caliper. The default of \code{Inf}
-    prevents matches between such pairs; finite values of \code{penalty}
-    permit such matches but discourage them.}
+  \item{cmpare}{A function that decides that whether two observations are with the caliper. The default is \code{`<=`};
+  you may prefer \code{`<`}}
 }
 \details{
     
@@ -33,9 +31,10 @@ caliper(width, ..., exclude = c(), penalty = Inf)
 
 }
 \value{
-  Object of class \code{optmatch.dlist}, which is suitable to be given
+  Object of class \code{DistanceSpecification}, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. 
+  \code{\link{pairmatch}}. The caliper will be only zeros and \code{Inf} values,
+  indicating a possible match or no possible match, respectively.
 
 }
 \author{Mark M. Fredrickson and Ben B. Hansen}
@@ -47,7 +46,7 @@ caliper(width, ..., exclude = c(), penalty = Inf)
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{ \code{\link{mdist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
+\seealso{\code{\link{exactMatch}}, \code{\link{mdist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
 
 \examples{
 data(nuclearplants)
