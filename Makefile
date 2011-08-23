@@ -16,10 +16,10 @@ autotest: OPTMATCH_TIMESTAMP
 	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); auto_test('./R', './inst/tests', 'summary')"
 
 build:
-	R CMD Build .
+	R --vanilla CMD Build .
 
 check: build
-	R CMD Check optmatch_0.7-2.tar.gz
+	R --vanilla CMD Check optmatch_0.7-2.tar.gz
 
 clean:
 	git clean
