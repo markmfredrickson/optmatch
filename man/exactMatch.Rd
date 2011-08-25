@@ -47,11 +47,11 @@ as.matrix(pt.em)
 
 ### Blunt matches:
 match.pt.em <- fullmatch(pt.em)
-print(match.pt.em, grouped = T)
+print(match.pt.em, grouped = TRUE)
 
 ### Combine the propensity scores with the subclasses:
 match.ppty.em <- fullmatch(ppty.distances + pt.em)
-print(match.ppty.em, grouped = T)
+print(match.ppty.em, grouped = TRUE)
 
 
 }
