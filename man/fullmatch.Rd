@@ -11,7 +11,7 @@
 }
 \usage{
 fullmatch(distance, min.controls = 0, max.controls = Inf, 
-omit.fraction = NULL, tol = 0.001, subclass.indices = NULL)
+omit.fraction = NULL, tol = 0.001)
 }
 \arguments{
   \item{distance}{ A matrix of nonnegative discrepancies, 
@@ -76,9 +76,6 @@ as produced by \code{\link{mdist}}.}
   sum of discrepancies for all treatments and controls placed
   into the same matched sets.
  }
-
-  \item{subclass.indices}{ An old argument included for
-    back-compatibility; no longer needed.}
 }
 
 \details{
