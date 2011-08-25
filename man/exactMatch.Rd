@@ -7,19 +7,15 @@
 }
 \usage{
   exactMatch(x, ...)
-  exactMatch(x, data = NULL, subset = NULL, na.action = NULL)
 }
 \arguments{
   \item{x}{A factor vector or a formula}
-  \item{data}{Pptional \code{data.frame} for the formula method.}
-  \item{subset}{Optional subset argument as used by \code{model.matrix}.}
-  \item{na.action}{Optional \code{NA} handling argument for \code{model.matrix}}
-  \item{...}{Arguments for future methods}
+  \item{...}{Arguments for specific methods methods}
 }
 \details{
   \code{exactMatch} creates a block diagonal matrix of 0s and \code{Inf}s. The pairs
   with 0 entries are within the same level of the factor and legitimate matches.
-  \code{\Inf} indicates units in different levels. \code{exactMatch} replaces the
+  \code{Inf} indicates units in different levels. \code{exactMatch} replaces the
   \code{structure.fmla} argument to several functions in previous versions of Optmatch.
 }
 \value{
