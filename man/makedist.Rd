@@ -3,40 +3,27 @@
 \title{Assemble match distances from a data frame}
 \description{
   Helper function to produce first arguments to \code{fullmatch()}, reducing memory requirements
-  for \code{fullmatch()} and heading off certain user errors.
+  for \code{fullmatch()} and heading off certain user errors. You probably want to use \code{mdist}
+  instead.
 }
 \usage{
-makedist(z, data, fn = function(trtvar, dat, ...) {
-    matrix(0, sum(trtvar), sum(!trtvar), dimnames = list(names(trtvar)[trtvar], names(trtvar)[!trtvar]))
-}, ...)
+makedist(z, data, distancefn, exclusions = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{z}{A treatment indicator variable with precisely two unique values}
-  \item{data}{ A data frame that will form the data passed to \code{fn}. }
-  \item{fn}{ A user-supplied function to compute distances. See
-    details and examples.}
-  \item{\dots}{ Additional arguments to \code{fn} }
+  \item{data}{A vector, data frame or matrix the same number of observations as \code{z}}
+  \item{distancefn}{ A user-supplied function to compute distances.
+    takes two arguments: the treated data for each treatment-control pair and the control data for each pair.
+    Returns a list of distances the same length of the pairs objects.
+  \item{exclusions}{ A (sparse) distance specification that indicates which pairs are valid matches. }
 }
 \details{
-  \code{fn} should be a function with first two arguments
-  \code{trtvar}, a treatment variable, and 
-  \code{dat}, a data frame.  There may be additional arguments.  If the
-  function uses variables in \code{dat}, these should be referenced
-  using names from the input \code{trtvar}, particularly if the sample is being
-  split into strata. 
-  When this happens, \code{fn} will be passed a \code{trtvar} input
-  observations for only a subset of the rows of \code{dat}, so it has to
-  use \code{trtvar} to decide which rows of \code{dat} to operate on; it
-  does this by lining up names of the (shorter) vector \code{trtvar}
-  with row names of \code{dat}.
 }
 \value{
-  A DistanceSpecification.
-  The list also has some attributes that are not of direct interest to
-  the user, but are used by \code{fullmatch()}.
+  A DistanceSpecification with the computed distances between treated and control units.
 }
-\author{Ben Hansen }
+\author{Ben Hansen and Mark M. Fredrickson}
 \note{ Use of this function to prepare input to \code{fullmatch()}
   prevents two common problems.  First, the function encourages you to
   stratify a large data set and match within strata, then calculates
