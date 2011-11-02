@@ -8,11 +8,12 @@
   \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 }
 \usage{
-  mdist(x, ...)
+  mdist(x, exclusions = NULL, ...)
 }
 \arguments{
   \item{x}{The object to use as the basis for forming the mdist.
   Methods exist for formulas, functions, and generalized linear models.}
+  \item{exclusions}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper})}
   \item{...}{Additional method arguments. Most methods require a 'data' argument.}
 }
 \details{
