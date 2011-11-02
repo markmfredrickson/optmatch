@@ -35,24 +35,24 @@ You're loading optmatch, by Ben Hansen, a package for flexible
 > data(plantdist)
 > pairmatch(plantdist)
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5 <NA> <NA>  m.6 <NA> <NA>  m.7 <NA> <NA> 
+ 1.4  1.5 <NA> <NA>  1.6 <NA> <NA>  1.7 <NA> <NA> 
 > pairmatch(plantdist, controls=2)
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.2  m.4  m.3 <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7 <NA>  1.1  1.2 <NA>  1.2  1.4  1.3 <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5  m.5  m.3  m.6 <NA>  m.1  m.7  m.7  m.6 
+ 1.4  1.5  1.5  1.3  1.6 <NA>  1.1  1.7  1.7  1.6 
 > pairmatch(plantdist/(plantdist<1)) # Matching fails everywhere
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
 > pairmatch(plantdist/(plantdist<5), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
-   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5 <NA>  m.6 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
-   Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5 <NA> <NA> <NA> <NA> <NA>  m.6 <NA> <NA> 
+    A    B    C    D    E    G    H    I    J    K    L    M    N    O    P    Q 
+  1.1  1.2  1.3  1.4  1.5  1.6 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA>  1.4 
+    R    S    T    U    V    W    X    Y    Z 
+  1.5 <NA> <NA> <NA> <NA> <NA>  1.6 <NA> <NA> 
 > data(nuclearplants)
 > # in both of mdist calls below use sd to maintain backwards compatibility with
 > # pscore.dist, which used sd by default. mdist has used mad as the std. scale
@@ -61,16 +61,15 @@ m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 > psd <- mdist(psm, standardization.scale = sd)
 > pairmatch(psd, controls=2)
-   a    A    b    B    c    C    d    D    e    E    f    F    G    H    I    J 
- m.1  m.2  m.3  m.4  m.5  m.6  m.9  m.7 <NA>  m.8 m.10  m.9 m.10  m.8  m.7  m.5 
-   K    L    M    N    O    P    Q    R    S    T    U    V    W    X    Y    Z 
-<NA>  m.2  m.9  m.6  m.7  m.3  m.3 m.10  m.4  m.1  m.2  m.1  m.4  m.5  m.6  m.8 
+   A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+ 1.2  1.4  1.6  1.7  1.8  1.9 1.10  1.1  1.3  1.5  1.7  1.9 1.10 <NA>  1.8  1.2 
+   N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+ 1.6  1.7  1.3  1.3  1.5  1.4  1.1  1.2  1.1  1.4 1.10  1.6  1.8  1.9 <NA>  1.5 
 > pairmatch(caliper(mdist(psm, standardization.scale = sd,
 +   exclusions = exactMatch(pr ~ pt, data =
 +   nuclearplants)), width=2)) # Fails in subclass '1'
-   a    A    b    B    c    C    d    D    e    E    f    F    G    H    I    J 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
-   K    L    M    N    O    P    Q    R    S    T    U    V    W    X    Y    Z 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
-> 
-> 
+    A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+ <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+    N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+ <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+

@@ -19,3 +19,18 @@ test_that("No cross strata matches", {
 
 })
 
+test_that("Remove unmatchables", {
+  A <- matrix(c(1,1,Inf,1,1,Inf,1,1,Inf,1,1,Inf), nrow = 3)
+  dimnames(A) <- list(1:3, 4:7)
+
+  expect_true(all(is.na(pairmatch(A, remove.unmatchables = F))))
+  expect_true(!all(is.na(pairmatch(A, remove.unmatchables = T))))
+
+  Ai <- as.InfinitySparseMatrix(A)
+  expect_true(all(is.na(pairmatch(Ai, remove.unmatchables = F))))
+  expect_true(!all(is.na(pairmatch(Ai, remove.unmatchables = T))))
+
+
+  
+})
+
