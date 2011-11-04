@@ -29,8 +29,17 @@ test_that("Remove unmatchables", {
   Ai <- as.InfinitySparseMatrix(A)
   expect_true(all(is.na(pairmatch(Ai, remove.unmatchables = F))))
   expect_true(!all(is.na(pairmatch(Ai, remove.unmatchables = T))))
-
-
-  
 })
 
+test_that("Omit fraction computed per subproblem", {
+
+  # this is easiest to show using the nuclearplants data
+  data(nuclearplants, env = parent.env())
+  
+  psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
+  em <- exactMatch(pr ~ pt, data = nuclearplants)
+  
+  res.pm <- pairmatch(mdist(psm) + em)
+  
+  expect_true(!all(is.na(res.pm)))
+})

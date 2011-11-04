@@ -97,4 +97,20 @@ test_that("Checks input", {
 
 })
 
+test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
+  # this bug was discovered while working on pairmatch, but it would appear to be
+  # a fullmatch bug, though it might actually be in in subdivstrat or fmatch.
 
+  A <- matrix(c(1,1,Inf,1,1,Inf,1,1,Inf,1,1,Inf), nrow = 3)
+  dimnames(A) <- list(1:3, 4:7)
+  Ai <- as.InfinitySparseMatrix(A)
+  
+  # the omit.fraction values as computed by pairmatch and was the same
+  # for both A and Ai
+
+  res.a <- fullmatch(A, min.controls = 1, max.controls = 1, omit.fraction = 0.5)
+  res.ai <- fullmatch(Ai, min.controls = 1, max.controls = 1, omit.fraction = 0.5)
+
+  expect_equivalent(res.a, res.ai)
+  
+})

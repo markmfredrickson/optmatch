@@ -9,24 +9,34 @@ pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE
     stop("Minimum controls must be greater than treated units")  
   }
 
-  # hard coding type based trimming for now. this should probably
-  # be a DistanceSpecification method, e.g. finiteRows()
-  if (remove.unmatchables) {
-    if (inherits(distance, "matrix")) {
-      # drop any rows that are entirely NA
-      distance <- distance[apply(distance, 1, function(row) {
-        any(is.finite(row)) }),]
-    } else { 
-      # assuming an InfinitySparseMatrix here      
-      validrows <- which(1:(nrow(distance)) %in% distance@rows)    
-      distance@dimension <- c(length(validrows), ncol(distance))
-      distance@rownames <- distance@rownames[validrows]
-    }
+  subprobs <- findSubproblems(distance)
+
+  if (length(controls) > 1 & !(length(subprobs) == length(controls))) {
+    stop(paste("Controls argument must have same length as the number of subproblems (", 
+      length(subprobs), ")", sep = ""))
   }
 
-  nt <- nrow(distance)  
-  nc <- ncol(distance)
-  omf <- (nc - controls * nt)/nc
+  omf <- mapply(controls, subprobs, FUN = function(control, prob) {
+    # hard coding type based trimming for now. this should probably
+    # be a DistanceSpecification method, e.g. finiteRows()
+    if (remove.unmatchables) {
+      if (inherits(prob, "matrix")) {
+      # drop any rows that are entirely NA
+      prob <- prob[apply(prob, 1, function(row) {
+        any(is.finite(row)) }),]
+      } else { 
+        # assuming an InfinitySparseMatrix here      
+        validrows <- which(1:(nrow(prob)) %in% prob@rows)    
+        prob@dimension <- c(length(validrows), ncol(prob))
+        prob@rownames <- prob@rownames[validrows]
+      }
+    }
+
+    nt <- nrow(prob)  
+    nc <- ncol(prob)
+    return((nc - control * nt)/nc)
+  })
+
   if (any(omf<0)) {
     stop('not enough controls in some subclasses')
   }
