@@ -5,7 +5,7 @@ summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
 data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
-psfm <- fullmatch(psd/(psd<.25))
+psfm <- fullmatch(psd + caliper(.25, psd))
 summary(psfm)
 pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
 exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
