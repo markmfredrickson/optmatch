@@ -132,7 +132,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     temp <- 0 ; maxerr <- 0 ; dist <- 0
   }
 
-  ans <- rep("NA",length(rownames)+length(colnames))
+  ans <- rep(NA,length(rownames)+length(colnames))
   names(ans) <- c(rownames, colnames)
   
   matches <- solution2factor(temp)

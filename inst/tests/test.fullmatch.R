@@ -123,3 +123,16 @@ test_that("Reversion Test: Inf entries in matrix", {
   # the previous version also returned all 5 entries, not just the matched ones.
   expect_equal(length(fullmatch(as.InfinitySparseMatrix(d))), 5)
 })
+
+test_that("Reversion Test: Proper labeling of NAs", {
+  # NA was being labeled as 1.NA
+  A <- matrix(c(1,1,Inf,1,1,Inf,1,1,Inf,1,1,Inf), nrow = 3)
+  dimnames(A) <- list(1:3, 4:7)
+
+  Ai <- as.InfinitySparseMatrix(A)
+  res <- fullmatch(Ai)
+
+  expect_true(is.na(res[[3]])) # improperly labeled as "1.NA"
+  expect_true(!all(is.na(res[-3])))
+
+})
