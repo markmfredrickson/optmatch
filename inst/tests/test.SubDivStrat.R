@@ -55,4 +55,18 @@ test_that("No Warnings", {
 
   options(old.opts)
 })
+
+test_that("NA for unmatched items", {
+  d <- matrix(c(1,2, 3,4, Inf, Inf), nrow = 2, dimnames = list(c(1,2), c(3,4, "U")))
+  max.cpt <- 3
+  min.cpt <- 0.5
+  tolerance <- 0.005
+  
+  res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d), 
+                     distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
+                     tolerance = tolerance, omit.fraction = NULL)
+
+  expect_equal(length(res$cells), 5)
+
+})
 } # end require(test_that)

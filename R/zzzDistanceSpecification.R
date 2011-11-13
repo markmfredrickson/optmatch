@@ -26,9 +26,12 @@ function(distances) {
   controls <- rep(cs, each = control.reps)
   treatments <- rep(rs, treatment.reps)
 
-  tmp <- data.frame(control = controls, treated = treatments, distance =
-    raw.distances)
-  tmp <- tmp[is.finite(tmp$distance),]
+  idx <- is.finite(raw.distances)
+
+  # call factor() in order to drop unused levels
+  tmp <- data.frame(control = factor(controls[idx]), 
+                    treated = factor(treatments[idx]), 
+                    distance = raw.distances[idx])
 
   return(tmp) 
 })

@@ -114,3 +114,12 @@ test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
   expect_equivalent(res.a, res.ai)
   
 })
+
+test_that("Reversion Test: Inf entries in matrix", {
+  # this was handled in the previous version just fine
+  d <- matrix(c(1,2, 3,4, Inf, Inf), nrow = 2, dimnames = list(c(1,2), c(3,4, "U")))
+  expect_equal(length(fullmatch(d)), 5)
+  
+  # the previous version also returned all 5 entries, not just the matched ones.
+  expect_equal(length(fullmatch(as.InfinitySparseMatrix(d))), 5)
+})
