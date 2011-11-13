@@ -1,30 +1,32 @@
-SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
+SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE)
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
   } 
 
-  if (!all(rownames %in% dimnames(distmat)[[1]])) {
-    stop("input \'rownames\' may only contain row names of input \'distmat\'")
+  if (!all(rownames %in% dimnames(distspec)[[1]])) {
+    stop("input \'rownames\' may only contain row names of input \'distspec\'")
   }
 
-  if (!all(colnames %in% dimnames(distmat)[[2]])) {
-    stop("input \'rownames\' may only contain col. names of input \'distmat\'")
+  if (!all(colnames %in% dimnames(distspec)[[2]])) {
+    stop("input \'rownames\' may only contain col. names of input \'distspec\'")
   }
+  
+  # distance must have a prepareMatching object
+  if (!hasMethod("prepareMatching", class(distspec))) {
+    stop("Argument \'distspec\' must have a \'prepareMatching\' method")  
+  }
+
+  # convert the distspec into a cannonical matching specification with columns
+  # treated, control, distance
+  dm <- prepareMatching(distspec)
 
   rownames <- as.character(rownames)
   colnames <- as.character(colnames)
 
-  # in a previous version distmat was always a matrix
-  # and dm was just the subset of the matrix that was being considered
-  # now, distmat may be a sparse distance specification object
-  # and dm is just the same thing.
-  # rather than rename dm to something else, just using the same name
-  dm <- distmat 
-
-  rfeas <- apply(dm,1,function(x) {any(is.finite(x))})
-  cfeas <- apply(dm,2,function(x) {any(is.finite(x))})
+  rfeas <- length(unique(dm$treated))
+  cfeas <- length(unique(dm$control))
 
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt)) 
   {
@@ -54,8 +56,8 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
   {
     old.o <- options(warn=-1)
     
-    if (any(dm > 0 & is.finite(dm))) {
-      reso <- (.Machine$integer.max/64 -2)/max(dm[is.finite(dm)]) 
+    if (any(dm$distance > 0)) {
+      reso <- (.Machine$integer.max/64 -2)/max(dm$distance) 
     } else {
       reso <- min(.Machine$integer.max/64 -2, (sum(rfeas)+sum(cfeas))/tolerance)
     }
@@ -67,8 +69,11 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     options(old.o)
 
     # fmatch returns a matrix with columns `treatment`, `control`, and `solution`
+    # it also has a column `distance` with toIntFuction(dm * reso)
     .matcher <- function(toIntFunction) {
-      fmatch(toIntFunction(dm * reso), 
+      tmp <- dm
+      tmp$distance <- toIntFunction(dm$distance * reso)
+      fmatch(tmp, 
              max.row.units = ceiling(1/min.cpt), 
              max.col.units = ceiling(max.cpt),
              min.col.units = max(1, floor(min.cpt)), f=f.ctls)
@@ -80,8 +85,8 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     if (any(is.na(temp$solution))) {
       maxerr <- 0
     } else {
-      maxerr <- sum(temp$solution * temp$distance, na.rm = TRUE) - 
-                sum(temp$solution * floor(temp$distance * reso), na.rm = TRUE) / reso +
+      maxerr <- sum(temp$solution * dm$distance, na.rm = TRUE) - 
+                sum(temp$solution * temp$distance, na.rm = TRUE) / reso +
                 (sum(rfeas) > 1 & sum(cfeas) > 1) *
                 (sum(rfeas) + sum(cfeas) - 2 - sum(temp$solution)) / reso 
     }
@@ -91,14 +96,14 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
       temp1 <- temp
       temp2 <- .matcher(round)
       
-      if  (sum(temp1$solution * temp1$distance, na.rm = TRUE) <= sum(temp2$solution * temp2$distance, na.rm = TRUE)) {
+      if  (sum(temp1$solution * dm$distance, na.rm = TRUE) <= sum(temp2$solution * dm$distance, na.rm = TRUE)) {
         temp <- temp1
       } else {
         temp <- temp2
       }
 
-      maxerr <- sum(temp$solution * temp$distance, na.rm = TRUE) - 
-                sum(temp1$solution * floor(temp$distance * reso), na.rm = TRUE)/reso +
+      maxerr <- sum(temp$solution * dm$distance, na.rm = TRUE) - 
+                sum(temp1$solution * temp$distance, na.rm = TRUE)/reso +
                 (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) - 
                   (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$solution)) / reso 
     }

@@ -50,7 +50,7 @@ test_that("No Warnings", {
   # omit.fraction is NULL
  
   res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d), 
-                     distmat = d, max.cpt = max.cpt, min.cpt = min.cpt,
+                     distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
                      tolerance = tolerance, omit.fraction = NULL)
 
   options(old.opts)

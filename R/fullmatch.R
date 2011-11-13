@@ -129,7 +129,7 @@ fullmatch <- function(distance,
 
     temp <- SubDivStrat(rownames = rownames(d),
                         colnames = colnames(d),
-                        distmat = d, 
+                        distspec = d, 
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,

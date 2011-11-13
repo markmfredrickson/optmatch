@@ -1,10 +1,10 @@
 fmatch <- function(distance, max.row.units, max.col.units, 
 			min.col.units = 1, f = 1)
-{
-  # distance must have a prepareMatching object
-  if (!hasMethod("prepareMatching", class(distance))) {
-    stop("Argument \'distance\' must have a \'prepareMatching\' method")  
+{  
+  if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
+    stop("Distance argument is not a cannonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")  
   }
+
   # NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
   mxc <- round(max.col.units) #  (formerly kt)
   mnc <- round(min.col.units) #  (formerly ktl)
@@ -31,12 +31,11 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # this returns a "canonical" matching: a data.frame with
   # three columns: treated, control, distance. Where the first two
   # are factors and the last is numeric.
-  distance.prepared <- prepareMatching(distance)
-  treated.units <- levels(distance.prepared$treated)
-  control.units <- levels(distance.prepared$control)
+  treated.units <- levels(distance$treated)
+  control.units <- levels(distance$control)
   nt <- length(treated.units)
   nc <- length(control.units) 
-  narcs <- dim(distance.prepared)[1]
+  narcs <- dim(distance)[1]
   problem.size <- narcs + nt + nc
 
   # these "soft" limits are backed by "hard" limits in the Fortran code itself
@@ -48,8 +47,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
   
-  if (any(as.integer(distance.prepared$distance) != distance.prepared$distance | 
-	    distance.prepared$distance < 0)) { 
+  if (any(as.integer(distance$distance) != distance$distance | 
+	    distance$distance < 0)) { 
     stop("distance should be nonnegative integer") 
   }
 
@@ -72,9 +71,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # we use the levels of the treated and control factors to generate the ID numbers
   # the capacity of these arcs is 1
 
-  dists <- as.vector(distance.prepared$distance) + 1
-  startn <- as.numeric(distance.prepared$treated)
-  endn <- nt + as.numeric(distance.prepared$control)
+  dists <- as.vector(distance$distance) + 1
+  startn <- as.numeric(distance$treated)
+  endn <- nt + as.numeric(distance$control)
   ucap <- rep(1, narcs)
 
   # Add entries for "end" and "sink" nodes
@@ -110,15 +109,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   ans <- numeric(narcs)
   ans <- x[1:narcs]
-  return(cbind(distance.prepared, solution = ans))
-
-  ### Not evaluated becuase we are passing more information back to the caller.
-  # this using the helper below, 
-  res <- numeric(sum(dim(distance)))
-  names(res) <- c(rownames(distance), colnames(distance))
-  res[names(tmp)] <- tmp
-
-  return(res)
+  return(cbind(distance, solution = ans))
 }
 
 

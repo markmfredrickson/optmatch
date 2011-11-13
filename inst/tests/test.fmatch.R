@@ -18,8 +18,9 @@ test_that("fmatch accepts DistanceSpecifications", {
   m <- matrix(v, nrow = 3, ncol = 3)
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
+  pm <- prepareMatching(m)
 
-  res <- fmatch(m, 2, 2)
+  res <- fmatch(pm, 2, 2)
 
   expect_equal(dim(res), c(7,4)) # seven non-Inf entries
 
@@ -29,7 +30,8 @@ test_that("fmatch accepts DistanceSpecifications", {
     "solution"], numeric(0))
 
   M <- as.InfinitySparseMatrix(m)
-  res.ism <- fmatch(M, 2, 2)
+  pM <- prepareMatching(M)
+  res.ism <- fmatch(pM, 2, 2)
   expect_identical(res$solution, res.ism$solution)
 })
 
