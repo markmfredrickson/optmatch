@@ -21,14 +21,16 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   res <- fmatch(m, 2, 2)
 
-  expect_equal(length(res), 6)
-  expect_equal(length(unique(res)), 3)
-  expect_equivalent(res["A"], res["D"])
-  expect_false(as.logical(res["A"] == res["B"])) # as.logical throws away the names
+  expect_equal(dim(res), c(7,4)) # seven non-Inf entries
+
+  # check that A-D is a pair and A-B is not a match 
+  expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
+  expect_equal(res[res$control == "A" & res$treated == "B",
+    "solution"], numeric(0))
 
   M <- as.InfinitySparseMatrix(m)
   res.ism <- fmatch(M, 2, 2)
-  expect_identical(res, res.ism)
+  expect_identical(res$solution, res.ism$solution)
 })
 
 test_that("Solutions -> factor helper", {

@@ -65,6 +65,8 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     }
 
     options(old.o)
+
+    # fmatch returns a matrix with columns `treatment`, `control`, and `solution`
     .matcher <- function(toIntFunction) {
       fmatch(toIntFunction(dm * reso), 
              max.row.units = ceiling(1/min.cpt), 
@@ -75,13 +77,13 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
 
     temp <- .matcher(floor)
 
-    if (any(is.na(temp))) {
+    if (any(is.na(temp$solution))) {
       maxerr <- 0
     } else {
-      maxerr <- sum(temp * dm, na.rm = TRUE) - 
-                sum(temp * floor(dm * reso), na.rm = TRUE) / reso +
+      maxerr <- sum(temp$solution * temp$distance, na.rm = TRUE) - 
+                sum(temp$solution * floor(temp$distance * reso), na.rm = TRUE) / reso +
                 (sum(rfeas) > 1 & sum(cfeas) > 1) *
-                (sum(rfeas) + sum(cfeas) - 2 - sum(temp)) / reso 
+                (sum(rfeas) + sum(cfeas) - 2 - sum(temp$solution)) / reso 
     }
 
     if (maxerr > tolerance)
@@ -89,23 +91,24 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
       temp1 <- temp
       temp2 <- .matcher(round)
       
-      if  (sum(temp1 * dm, na.rm = TRUE) <= sum(temp2 * dm, na.rm = TRUE)) {
+      if  (sum(temp1$solution * temp1$distance, na.rm = TRUE) <= sum(temp2$solution * temp2$distance, na.rm = TRUE)) {
         temp <- temp1
       } else {
         temp <- temp2
       }
 
-      maxerr <- sum(temp * dm, na.rm = TRUE) - 
-                sum(temp1 * floor(dm * reso), na.rm = TRUE)/reso +
+      maxerr <- sum(temp$solution * temp$distance, na.rm = TRUE) - 
+                sum(temp1$solution * floor(temp$distance * reso), na.rm = TRUE)/reso +
                 (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) - 
-                  (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1)) / reso 
+                  (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$solution)) / reso 
     }
 
+    ### NOTE: this if statment not yet updated to new fmatch data format.
     if (matched.distances) {
-      if (all(!is.na(temp))) {
-        dma <- max(dm[as.logical(temp)])
-        dist <- c(apply(temp*pmin(dm, dma), 1, sum), 
-                  apply(temp*pmin(dm, dma), 2, sum))
+      if (all(!is.na(temp$solution))) {
+        dma <- max(dm[as.logical(temp$solution)])
+        dist <- c(apply(temp$solution * pmin(dm, dma), 1, sum), 
+                  apply(temp$solution * pmin(dm, dma), 2, sum))
 
         dist[c(rep(FALSE, dim(temp)[1]), 
                apply(temp * apply(temp, 1, sum), 2, sum) == 1)] <- NA
@@ -124,21 +127,36 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     temp <- 0 ; maxerr <- 0 ; dist <- 0
   }
 
-  if (all(is.na(temp))) {
+  if (all(is.na(temp$solution))) {
 
     ans <- rep("NA",length(rownames)+length(colnames))
     names(ans) <- c(rownames, colnames)
 
   } else {
-
-    ans <- rep("0",length(rownames)+length(colnames))
-    names(ans) <- c(rownames, colnames)
-    ans <- temp[c(rownames, colnames)]
-
+    ans <- solution2factor(temp)
   }
 
   ans[ans == "0"] <- NA
 
-  return(list(cells=ans, err=maxerr, match.distance=dist))
+  return(list(cells = ans, err = maxerr, match.distance = dist))
 }
 
+# a small helper function to turn a solution data.frame into a factor of matches
+solution2factor <- function(s) {
+  s2 <- s[s$solution == 1,] 
+  
+  if (dim(s2)[1] == 0) {
+    return(NULL)  
+  }
+
+  # control units are labeled by the first treated unit to which they are connected
+  # unlist(as.list(...)) was the best way I could find to make this into a vector, keeping names
+  control.links <- unlist(as.list(by(s2, s2$control, function(x) { x[1,"treated"] })))
+
+  # treated units are labeld by the label of the first control unit to which they are connected
+  treated.links <- unlist(as.list(by(s2, s2$treated, function(x) { control.links[x[1, "control"]][1] })))
+
+  # join the links
+  return(c(treated.links, control.links))
+  
+}

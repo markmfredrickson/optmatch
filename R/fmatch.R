@@ -110,8 +110,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   ans <- numeric(narcs)
   ans <- x[1:narcs]
-  tmp <- solution2factor(cbind(distance.prepared, solution = ans))
+  return(cbind(distance.prepared, solution = ans))
 
+  ### Not evaluated becuase we are passing more information back to the caller.
+  # this using the helper below, 
   res <- numeric(sum(dim(distance)))
   names(res) <- c(rownames(distance), colnames(distance))
   res[names(tmp)] <- tmp
@@ -119,22 +121,4 @@ fmatch <- function(distance, max.row.units, max.col.units,
   return(res)
 }
 
-# a small helper function to turn a solution data.frame into a factor of matches
-solution2factor <- function(s) {
-  s2 <- s[s$solution == 1,] 
-  
-  if (dim(s2)[1] == 0) {
-    return(NULL)  
-  }
 
-  # control units are labeled by the first treated unit to which they are connected
-  # unlist(as.list(...)) was the best way I could find to make this into a vector, keeping names
-  control.links <- unlist(as.list(by(s2, s2$control, function(x) { x[1,"treated"] })))
-
-  # treated units are labeld by the label of the first control unit to which they are connected
-  treated.links <- unlist(as.list(by(s2, s2$treated, function(x) { control.links[x[1, "control"]][1] })))
-
-  # join the links
-  return(c(treated.links, control.links))
-  
-}
