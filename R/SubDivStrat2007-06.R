@@ -65,10 +65,15 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     }
 
     options(old.o)
-    
-    temp <- fmatch(floor(dm*reso), max.row.units=ceiling(1/min.cpt), 
-                   max.col.units=ceiling(max.cpt),
-                   min.col.units=max(1, floor(min.cpt)), f=f.ctls)
+    .matcher <- function(toIntFunction) {
+      fmatch(toIntFunction(dm * reso), 
+             max.row.units = ceiling(1/min.cpt), 
+             max.col.units = ceiling(max.cpt),
+             min.col.units = max(1, floor(min.cpt)), f=f.ctls)
+
+    }    
+
+    temp <- .matcher(floor)
 
     if (any(is.na(temp))) {
       maxerr <- 0
@@ -82,10 +87,7 @@ SubDivStrat <- function(rownames, colnames, distmat, min.cpt,
     if (maxerr > tolerance)
     {
       temp1 <- temp
-      temp2 <- fmatch(round(dm * reso), 
-                      max.row.units = ceiling(1/min.cpt), 
-                      max.col.units = ceiling(max.cpt),
-                      min.col.units = max(1, floor(min.cpt)), f = f.ctls) 
+      temp2 <- .matcher(round)
       
       if  (sum(temp1 * dm, na.rm = TRUE) <= sum(temp2 * dm, na.rm = TRUE)) {
         temp <- temp1
