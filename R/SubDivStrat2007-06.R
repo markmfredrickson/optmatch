@@ -132,16 +132,11 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     temp <- 0 ; maxerr <- 0 ; dist <- 0
   }
 
-  if (all(is.na(temp$solution))) {
-
-    ans <- rep("NA",length(rownames)+length(colnames))
-    names(ans) <- c(rownames, colnames)
-
-  } else {
-    ans <- solution2factor(temp)
-  }
-
-  ans[ans == "0"] <- NA
+  ans <- rep("NA",length(rownames)+length(colnames))
+  names(ans) <- c(rownames, colnames)
+  
+  matches <- solution2factor(temp)
+  ans[names(matches)] <- matches
 
   return(list(cells = ans, err = maxerr, match.distance = dist))
 }
