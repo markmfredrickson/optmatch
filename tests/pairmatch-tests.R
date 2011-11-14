@@ -2,8 +2,8 @@ require('optmatch')
 data(plantdist)
 pairmatch(plantdist)
 pairmatch(plantdist, controls=2)
-pairmatch(plantdist/(plantdist<1)) # Matching fails everywhere
-pairmatch(plantdist/(plantdist<5), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
+pairmatch(plantdist + caliper(1, plantdist)) # Matching fails everywhere
+pairmatch(plantdist + caliper(5, plantdist, compare = `<`), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
 data(nuclearplants)
 # in both of mdist calls below use sd to maintain backwards compatibility with
 # pscore.dist, which used sd by default. mdist has used mad as the std. scale
