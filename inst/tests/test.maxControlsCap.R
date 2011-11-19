@@ -21,3 +21,8 @@ test_that("basics", {
   expect_equal(length(res$strictest.feasible.max.controls), 2) # two level problem
   expect_true(!is.na(res$strictest.feasible.max.controls))
 })
+
+test_that("Testing input", {
+  # must pass a dist spec
+  expect_error(maxControlsCap(1:10), "Distance must be a DistanceSpecification \\(see mdist\\)") # had to use \\( as the string is treated as a regex
+})

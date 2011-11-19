@@ -1,12 +1,13 @@
 maxControlsCap <- function(distance, min.controls=NULL, subclass.indices=NULL)
 {
+  if (!inherits(distance, "DistanceSpecification")) {
+    stop("Distance must be a DistanceSpecification (see mdist)")
+  }
   sps <- findSubproblems(distance)
   distance <- lapply(sps, as.matrix) # turns an ISM into a matrix, temporary cast
 ############################################################
 # CHECK DIMNAMES OF DISTANCE			   #
 ############################################################
-if (!is.list(distance) & !is.matrix(distance))
-  stop("argument \'distance\' must be a matrix or list") 
 if (is.matrix(distance))
   {
   if (!is.numeric(distance))
