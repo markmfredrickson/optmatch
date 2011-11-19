@@ -157,5 +157,14 @@ test_that("Contains grouping information", {
 
   # the names of the strata should be used as names of the subprobs list
   expect_equal(names(findSubproblems(res.em)), letters[1:4])
+
+  ### these next few tests are related to eM(), so I'm putting the test here, 
+  ### but it is implemented in fullmatch.R
+  # the result of the fullmatch should use the original names
+  fm <- fullmatch(res.em)
+  expect_true(all(1:16 %in% names(fm)))
+
+  # the prefixes shoudl be used in the levels of the factor
+  expect_true(all(fm %in% apply(expand.grid(letters[1:4], 1:4), 1, function(r) { paste(r, collapse = ".") })))
 })
 

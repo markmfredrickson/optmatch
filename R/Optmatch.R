@@ -8,17 +8,22 @@
 makeOptmatch <- function(matching, # a list matches for different strata, each with names
                          treated, # list of the names of the treated units 
                          call) # the result of match.call() 
-{    
-  optmatch.obj <- unlist(mapply(function(label, groups) { 
-      tmp <- groups
-      tmp[!is.na(groups)] <- paste(label, groups[!is.na(groups)], sep = ".")
-      return(tmp)
-    }, 
-    1:(length(matching)), 
-    matching))
-  optmatch.obj <- as.factor(optmatch.obj)
+{   
+  grpnames <- names(matching)
+  if (is.null(grpnames)) {
+    grpnames <- 1:(length(matching))  
+  }
 
-  names(optmatch.obj) <- names(unlist(matching))
+  
+  optmatch.obj <- Reduce(mapply(function(label, groups) {
+        tmp <- groups
+        tmp[!is.na(groups)] <- paste(label, groups[!is.na(groups)], 
+          sep = ".")
+        return(tmp)
+        }, grpnames, matching), f = c)
+
+  optmatch.obj <- as.factor(optmatch.obj)
+  names(optmatch.obj) <- unlist(sapply(matching, names)) 
 
   class(optmatch.obj) <- c("optmatch", "factor")
 
