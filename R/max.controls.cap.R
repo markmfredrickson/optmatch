@@ -27,16 +27,30 @@ maxControlsCap <- function(distance, min.controls = NULL)
   #    {idc <- idc[order(as.numeric(c(nmtrt,nmctl)))]
   #       }
   # rns <- names(idc)
+  
+  # min.controls is valid if it is a scalar or a vector with the same names as sps
+  if(length(min.controls) > 1 & 
+     (!all(names(min.controls) %in% names(sps)) |
+     !all(names(sps) %in% names(min.controls)))) {
+    stop("Names of 'min.controls' must match the subproblems. See 'findSubproblems' and 'exactMatch'.") 
+  }
 
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR MIN.CONTROLS		   #
-############################################################
-mncpt <- fullmatchNumControlsHandling(min.controls, levels(idc), "min.controls")
-############################################################
-# HANDLE OMIT.FRACTION	                                   #
-############################################################
-omf <- rep(NA, nlevels(idc))
-names(omf) <- levels(idc)
+  # if min.controls is null we set it to 0 by default
+  if(is.null(min.controls)) {
+    min.controls <- 0  
+  } 
+
+  # make it into a well named vector of min.control values
+  if(length(min.controls) == 1) {
+    min.controls <- rep(min.controls, length(sps))  
+    names(min.controls) <- names(sps)
+  }
+
+  ############################################################
+  # HANDLE OMIT.FRACTION	                                   #
+  ############################################################
+  omf <- rep(NA, length(sps))
+  names(omf) <- names(sps)
 
 ############################################################
 # CREATE STRATUM IDENTIFIER				   #
@@ -71,7 +85,7 @@ if (is.null(min.controls))
    names(gmnc) <- levels(idc)
    } else
    {
-   gmnc <- mncpt
+   gmnc <- min.controls
    gmnc[!(names(gmnc) %in% sfs)] <- 0
    }
 
