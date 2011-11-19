@@ -37,3 +37,14 @@ test_that("Testing input", {
   maxControlsCap(res.em, min.controls = c(a = 1, b = 1, c = 1, d = 1))
 
 })
+
+test_that("Correct output", {
+  # borrowing from the R CMD Check tests to nail down proper output.
+  data(nuclearplants, env = parent.env()) 
+
+  mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants)
+  res.mxcc <- maxControlsCap(mhd2a + caliper(3, mhd2a))
+
+  expect_equal(res.mxcc$strictest.feasible.max.controls, c(1,1))
+  
+})
