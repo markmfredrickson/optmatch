@@ -45,6 +45,6 @@ test_that("Correct output", {
   mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants)
   res.mxcc <- maxControlsCap(mhd2a + caliper(3, mhd2a))
 
-  expect_equal(res.mxcc$strictest.feasible.max.controls, c(1,1))
+  expect_equal(res.mxcc$strictest.feasible.max.controls, c(q1,1))
   
 })
