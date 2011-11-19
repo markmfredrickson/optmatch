@@ -117,3 +117,22 @@ test_that("Subproblems", {
   expect_equal(length(res.sp), 4) # there are 5 levels in the factor, but only 4 valid subprobs
 })
 
+test_that("Validating DistSpecs", {
+  # nameless matrices are not valid:
+  m <- matrix(1:4, nrow = 2)
+
+  expect_error(validDistanceSpecifcation(m))
+  expect_error(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+
+  dimnames(m) <- list(1:2, 3:4)
+  expect_true(validDistanceSpecifcation(m))
+  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+
+  # matrices/isms must be numeric
+  m2 <- matrix(letters[1:4], nrow = 2)
+  dimnames(m2) <- list(1:2, 3:4)
+  expect_equal(mode(m2), "character")
+
+  expect_error(validDistanceSpecifcation(m2))
+  expect_error(validDistanceSpecifcation(as.InfinitySparseMatrix(m2)))
+})

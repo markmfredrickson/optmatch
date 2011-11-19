@@ -3,40 +3,19 @@ maxControlsCap <- function(distance, min.controls=NULL, subclass.indices=NULL)
   if (!inherits(distance, "DistanceSpecification")) {
     stop("Distance must be a DistanceSpecification (see mdist)")
   }
+
+  # check if it is valid distance specification, 
+  # if not through an error message explaining the issue
+  validDistanceSpecifcation(distance, stopOnProblem = TRUE)
+
+  # if we get this far, the distspec is valid, and findSubproblems
+  # will generate a list of also valid distspecs.
   sps <- findSubproblems(distance)
   distance <- lapply(sps, as.matrix) # turns an ISM into a matrix, temporary cast
-############################################################
-# CHECK DIMNAMES OF DISTANCE			   #
-############################################################
-if (is.matrix(distance))
-  {
-  if (!is.numeric(distance))
-    stop("matrix \'distance\' must be of mode numeric")
-  if (is.null(dimnames(distance))) {
-   stop("argument \'distance\' must have dimnames") }
-  if (any(duplicated(unlist(dimnames(distance)))))
-   { stop("dimnames of argument \'distance\' contain duplicates") }
-  nmtrt <- dimnames(distance)[[1]]
-  nmctl <- dimnames(distance)[[2]]
-} else
-{
-if (!all(unlist(lapply(distance,function(x){is.matrix(x) | is.null(x)}))))
-  {
-   bads <- (1:length(distance))[!sapply(distance,function(x){
-                                                  is.matrix(x) | is.null(x)})]
-  stop(paste("elements", 
-             ifelse(length(bads)>1, paste(bads[1],"...",sep=""),bads[1]), 
-             "of list \'distance\' fail to be (numeric) matrices.",
-             sep=" "))
-   }
-distance[sapply(distance,is.null)] <- NULL
-if (!all(unlist(lapply(distance,is.numeric))))
-  stop("elements of list \'distance\' must be of mode numeric")
-if (any(unlist(lapply(distance, function(x){is.null(dimnames(x))}))))
-  stop("matrices in list \'distance\' must have dimnames")
-  nmtrt <- unlist(lapply(distance, function(x){dimnames(x)[[1]]}))
-  nmctl <- unlist(lapply(distance, function(x){dimnames(x)[[2]]}))
-}
+
+  nmtrt <- rownames(distance)
+  nmctl <- colnames(distance)
+
 ############################################################
 # HANDLE DIFFERENT INPUT FORMS FOR SUBCLASS.INDICES	   #
 ############################################################

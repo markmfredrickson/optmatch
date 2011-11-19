@@ -98,3 +98,33 @@ findSubproblems <- function(d) {
 
 } 
 
+### Validating and error checking for DistanceSpecification objects
+setGeneric("validDistanceSpecifcation", function(distance, stopOnProblem = TRUE)
+  standardGeneric("validDistanceSpecifcation"))
+
+# for now, only one method for all DistSpec objects (matrix, ISM, BISM)
+setMethod("validDistanceSpecifcation", "DistanceSpecification", 
+function(distance, stopOnProblem = TRUE) {
+  valid <- TRUE # innocent until proven guilty
+
+  valid <- valid & !is.null(dimnames(distance))
+
+  if (stopOnProblem & !valid) {
+    stop("Distance must have dimnames. Rows are treated, columns are control.")  
+  }
+
+  # for matrices we check with is.numeric
+  valid <- valid & is.numeric(distance)
+
+  # for ISMs, non-numeric input can be turned into a zero length vector
+  # luckily for us, this should be true of matrices as well.
+  valid <- valid & length(distance) > 0
+
+  if (stopOnProblem & !valid) {
+    stop("Distance must be numeric.")  
+  }
+
+  return(valid)
+})
+
+
