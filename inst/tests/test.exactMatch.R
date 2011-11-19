@@ -147,11 +147,15 @@ test_that("Must have names", {
 
 test_that("Contains grouping information", {
   Z <- rep(c(0,1), 8)
-  B <- rep(1:4, each = 4)
+  B <- rep(letters[1:4], each = 4)
   
   res.em <- exactMatch(Z ~ B)
   expect_is(res.em, "BlockedInfinitySparseMatrix")
 
   # the grouping factor must have names
   expect_equal(length(names(res.em@groups)), 16)
+
+  # the names of the strata should be used as names of the subprobs list
+  expect_equal(names(findSubproblems(res.em)), letters[1:4])
 })
+

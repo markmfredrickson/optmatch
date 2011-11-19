@@ -77,6 +77,8 @@ function(distances) {
       colnames = distances@colnames[col.members])
   })
 
+  names(tmp) <- levels(distances@groups)
+
   ftmp <- Filter(function(x) { length(x) > 0 }, tmp)
 
   if (length(ftmp) == 0) {
