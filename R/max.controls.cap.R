@@ -1,4 +1,4 @@
-maxControlsCap <- function(distance, min.controls=NULL, subclass.indices=NULL)
+maxControlsCap <- function(distance, min.controls = NULL)
 {
   if (!inherits(distance, "DistanceSpecification")) {
     stop("Distance must be a DistanceSpecification (see mdist)")
@@ -16,67 +16,18 @@ maxControlsCap <- function(distance, min.controls=NULL, subclass.indices=NULL)
   nmtrt <- rownames(distance)
   nmctl <- colnames(distance)
 
-############################################################
-# HANDLE DIFFERENT INPUT FORMS FOR SUBCLASS.INDICES	   #
-############################################################
-if (is.matrix(distance))
-  {
-if (is.data.frame(subclass.indices))
-   {
-   if (is.null(row.names(subclass.indices)) | 
-      !all(row.names(subclass.indices) %in%
-      c(nmtrt,nmctl)))
-      stop("row names of data frame \'subclass.indices\' must exist and occur in dimnames of distance")
-   rns <- row.names(subclass.indices)
-   subclass.indices <- interaction(subclass.indices, drop=TRUE)
-   names(subclass.indices) <- rns
-   }
-if (is.factor(subclass.indices)) 
-   {
-   if (is.null(names(subclass.indices)) | 
-      !all(names(subclass.indices) %in% c(nmtrt,nmctl)) ) 
-      stop("names of factor \'subclass.indices\' must exist and occur in dimnames of distance")
-   idc <- subclass.indices[!is.na(subclass.indices)]
-   rns <- names(idc) 
-   } else 
-   {
-   if (is.null(subclass.indices)) 
-      {
-      idc <- factor(rep("m", length(nmtrt)+length(nmctl)))
-      if
-      (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl))))))
-      {names(idc) <- sort(c(nmtrt,nmctl))}
-      else
-      {names(idc) <- c(nmtrt,nmctl)[
-		     order(as.numeric(c(nmtrt,nmctl)))]
-      }
-      rns <- names(idc)
-      } else    
-      {
-      stop("argument \'subclass.indices\' must be a factor") 
-      }
-   }
-} else
-{
-if (!is.null(subclass.indices))
-  warning("argument \'subclass.indices\' ignored when \'distance\' is a list")
-if (is.null(names(distance)))
-  {
-dnm <- paste("m", 1:length(distance), "l", sep="")
-} else dnm <- names(distance)
-dnm[names(distance)==""] <-
-  paste("m", 1:length(distance), "l", sep="")[names(distance)==""]
-names(distance) <- dnm
-idc <- factor(c(rep(dnm, unlist(lapply(distance,function(x){dim(x)[1]}))),
-                rep(dnm, unlist(lapply(distance,function(x){dim(x)[2]})))))
-names(idc) <- c(nmtrt,nmctl)
-if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl))))))
-   {idc <- idc[order(c(nmtrt,nmctl))]}
-   else
-   {idc <- idc[order(as.numeric(c(nmtrt,nmctl)))]
-      }
-rns <- names(idc)
-}
+  # deleted a lot of the stuff surrounding subclass.indices, saving this 
+  # for reference
+  # idc <- factor(c(rep(dnm, unlist(lapply(distance,function(x){dim(x)[1]}))),
+  #              rep(dnm, unlist(lapply(distance,function(x){dim(x)[2]})))))
+  # names(idc) <- c(nmtrt,nmctl)
+  # if (any(is.na(suppressWarnings(as.numeric(c(nmtrt,nmctl))))))
+  #    {idc <- idc[order(c(nmtrt,nmctl))]}
+  #    else
+  #    {idc <- idc[order(as.numeric(c(nmtrt,nmctl)))]
+  #       }
+  # rns <- names(idc)
+
 ############################################################
 # HANDLE DIFFERENT INPUT FORMS FOR MIN.CONTROLS		   #
 ############################################################

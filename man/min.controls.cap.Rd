@@ -21,7 +21,6 @@ maxControlsCap(distance, min.controls = NULL, subclass.indices = NULL)
     controls per matched set.  (Only makes sense for \code{minControlsCap}.)}
   \item{min.controls}{ Optionally, set limits on the minimum number of
     controls per matched set.  (Only makes sense for \code{maxControlsCap}.)}
-  \item{subclass.indices}{ This argument no longer supported (nor necessary). }
 }
 \details{
     The function works by repeated application of full matching, so on
