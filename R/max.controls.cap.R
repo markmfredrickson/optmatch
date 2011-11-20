@@ -51,7 +51,8 @@ maxControlsCap <- function(distance, min.controls = NULL)
     names(min.controls) <- names(sps)
   }
 
-  max.controls <- mapply(sps, min.controls, FUN = function(p, mc) {
+  .maxControlsCap <- function(p, mc) {
+    p <- as.matrix(p) # MMF: easier to upgrade the function by using a matrix
     omf <- NA
     trnl <- rownames(p)
     tcnl <- colnames(p)
@@ -108,16 +109,20 @@ maxControlsCap <- function(distance, min.controls = NULL)
         if (min(1/tgmnc,length(trnl))!=max(1, 1/tlmxc))
         {
           tlmxc <- 
-            optimize( function(invlmxc, rown1, coln1, dist1, gmnc1, omf1) {
-                ifelse(!all(SubDivStrat(rownames=coln1, colnames=rown1, distspec=t(dist1),
-                      max.cpt=min(1/gmnc1, length(rown1)), min.cpt=invlmxc,
-                      tolerance=.5, omit.fraction= switch(1+is.na(omf), -omf,
-                        NULL) )$cells=="NA") ,
-                  invlmxc, -invlmxc)
+            optimize( function(invlmxc) {
+                ifelse(!all(is.na(SubDivStrat(rownames = tcnl,
+                                        colnames = trnl,
+                                        distspec = t(tdm),
+                                        max.cpt = min(1/tgmnc, length(trnl)),
+                                        min.cpt = invlmxc,
+                                        tolerance = .5,
+                                        omit.fraction = NULL)$cells)),
+                       invlmxc, -invlmxc)
                 },
-                upper=min(1/tgmnc,length(trnl)), lower=max(1, 1/tlmxc),
-                tol=1, maximum=TRUE, rown1=trnl, coln1=tcnl,
-                dist1=tdm, gmnc1=tgmnc, omf1=omf
+                upper = min(1/tgmnc,length(trnl)), 
+                lower = max(1, 1/tlmxc),
+                tol = 1, 
+                maximum = TRUE 
                 )$objective
             tlmxc <- 1/floor(tlmxc)
         } 
@@ -129,10 +134,10 @@ maxControlsCap <- function(distance, min.controls = NULL)
         {
           tlmxc <- ceiling(
               optimize( function(lmxc1, rown1, coln1, dist1, gmnc1, omf1) {
-                ifelse(!all(SubDivStrat( rownames=rown1, colnames=coln1, distspec=dist1,
+                ifelse(!all(is.na(SubDivStrat( rownames=rown1, colnames=coln1, distspec=dist1,
                       min.cpt=max(gmnc1, 1/length(rown1)), max.cpt=lmxc1,
                       tolerance=.5, omit.fraction= switch(1+is.na(omf), omf,
-                        NULL) )$cells=="NA") ,
+                        NULL) )$cells)),
                   lmxc1, 2*length(coln1) - lmxc1)
                 },
                 lower=max(tgmnc,1), upper=min(length(tcnl), tlmxc), tol=1,
@@ -143,8 +148,10 @@ maxControlsCap <- function(distance, min.controls = NULL)
         
     }
   return(tlmxc)
-})
+  }
 
-list(given.min.controls = min.controls, strictest.feasible.max.controls = max.controls)
+  max.controls <- mapply(sps, min.controls, FUN = .maxControlsCap)
+
+  return(list(given.min.controls = min.controls, strictest.feasible.max.controls = max.controls))
 }
  

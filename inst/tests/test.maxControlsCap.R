@@ -19,7 +19,7 @@ test_that("basics", {
   res <- maxControlsCap(em)
   
   expect_equal(length(res$strictest.feasible.max.controls), 2) # two level problem
-  expect_true(!is.na(res$strictest.feasible.max.controls))
+  expect_true(all(!is.na(res$strictest.feasible.max.controls)))
 })
 
 test_that("Testing input", {
@@ -42,9 +42,9 @@ test_that("Correct output", {
   # borrowing from the R CMD Check tests to nail down proper output.
   data(nuclearplants, env = parent.env()) 
 
-  mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants)
+  mhd2a <- t(mdist(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants))
   res.mxcc <- maxControlsCap(mhd2a + caliper(3, mhd2a))
 
-  expect_equal(res.mxcc$strictest.feasible.max.controls, c(q1,1))
+  expect_equivalent(res.mxcc$strictest.feasible.max.controls, c(1,1))
   
 })
