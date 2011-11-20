@@ -289,5 +289,11 @@ function(e1, e2) {
   return(tmp)
 })
 
-
+# BISMs need to maintain grouping info when getting flipped
+t.BlockedInfinitySparseMatrix <- function(x) {
+  tmp <- t.InfinitySparseMatrix(x)
+  tmp <- as(tmp, "BlockedInfinitySparseMatrix")
+  tmp@groups <- x@groups
+  return(tmp)
+}
 

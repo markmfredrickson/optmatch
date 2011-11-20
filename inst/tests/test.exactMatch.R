@@ -168,3 +168,13 @@ test_that("Contains grouping information", {
   expect_true(all(fm %in% apply(expand.grid(letters[1:4], 1:4), 1, function(r) { paste(r, collapse = ".") })))
 })
 
+test_that("t() maintains stratification", {
+  Z <- rep(c(0,1), 8)
+  B <- rep(letters[1:4], each = 4)
+  
+  em <- exactMatch(Z ~ B)
+  em.t <- t(em)
+
+  expect_equal(length(findSubproblems(em)), 4)
+  expect_equal(length(findSubproblems(em.t)), 4)
+})
