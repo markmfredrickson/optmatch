@@ -29,7 +29,7 @@ notMF <- if (inherits(stratum, "optmatch")) {
 
 stratum <- as.integer(as.factor(stratum))
 if (any(is.na(stratum)))
-  stratum[is.na(stratum)] <- max(stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
+  stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
 ttab <- table(stratum,as.logical(tgp))
 comp.num.matched.pairs <- sum(2/(1/ttab[notMF,1] + 1/ttab[notMF,2]))
