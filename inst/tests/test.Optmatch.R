@@ -6,8 +6,10 @@ library(testthat)
 context("Optmatch object")
 
 test_that("Object creation", {
-  ms <- list(c(a = 1, b = 2, c = 1 , d = 2), c(e = 1, f = 2, g = 3, h = 1, i = 2, j = 3))  
-  res.opt <- makeOptmatch(ms, c("a", "c", "e", "f", "g"), NULL)
+  dist <- diag(5)
+  dimnames(dist) <- list(letters[1:5], letters[6:10])
+  ms <- list(c(a = 1, f = 1, b = 1 , g = 2), c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3))  
+  res.opt <- makeOptmatch(dist, ms, NULL)
 
   expect_equal(length(res.opt), 10)
   expect_is(res.opt, "factor")
@@ -21,10 +23,12 @@ test_that("Object creation", {
 })
 
 test_that("Object subsetting", {
-  ms <- list(c(a = 1, b = 2, c = 1 , d = 2), c(e = 1, f = 2, g = 3, h = 1, i = 2, j = 3))  
-  res.opt <-makeOptmatch(ms, c("a", "c", "e", "f", "g"), NULL)
+  dist <- diag(5)
+  dimnames(dist) <- list(letters[1:5], letters[6:10])
+  ms <- list(c(a = 1, f = 1, b = 1 , g = 2), c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3))  
+  res.opt <- makeOptmatch(dist, ms, NULL)
 
-  expect_equal(names(res.opt[1:4]), letters[1:4])
+  expect_equal(names(res.opt[1:4]), c("a", "f", "b", "g"))
   expect_equal(length(res.opt[c("a", "b")]), 2)
   
 })

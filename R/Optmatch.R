@@ -5,10 +5,13 @@
 
 ####### Object Creation #########
 
-makeOptmatch <- function(matching, # a list matches for different strata, each with names
-                         treated, # list of the names of the treated units 
+makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix or ISM)
+                         matching, # a list matches for different strata, each with names
                          call) # the result of match.call() 
 {   
+
+  treated <- rownames(distance)
+
   grpnames <- names(matching)
   if (is.null(grpnames)) {
     grpnames <- 1:(length(matching))  
@@ -39,7 +42,7 @@ makeOptmatch <- function(matching, # a list matches for different strata, each w
  
   attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
   # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
-  # attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
+  # attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, matching)
   
   return(optmatch.obj)
 }

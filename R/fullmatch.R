@@ -142,7 +142,7 @@ fullmatch <- function(distance,
 
   matching <- lapply(solutions, function(s) { s$cells })
  
-  return(makeOptmatch(matching, nmtrt, match.call()))
+  return(makeOptmatch(distance, matching, match.call()))
 }
 
 
