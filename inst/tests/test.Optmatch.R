@@ -32,3 +32,19 @@ test_that("Object subsetting", {
   expect_equal(length(res.opt[c("a", "b")]), 2)
   
 })
+
+test_that("Matched distances", {
+  # see R/matched.distances.R for the function
+  # it is only called by makeOptmatch internally, so putting the tests here
+  # start with an easy case: 
+  dist <- matrix(Inf, nrow = 5, ncol = 5)
+  diag(dist) <- 1:5
+  dimnames(dist) <- list(letters[1:5], letters[6:10])
+  dist.match <- as.factor(c(1.1,1.1,1.2,1.2,2.1,2.1,2.2,2.2,2.3,2.3))
+  names(dist.match) <- c("a","f","b","g","c","h","d","i","e","j")
+  class(dist.match) <- c("optmatch", "factor")
+
+  res.md <- matched.distances(dist.match, dist)
+  expect_equivalent(as.vector(res.md), 1:5)
+  
+})

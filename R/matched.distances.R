@@ -1,28 +1,15 @@
-matched.distances <- function(matchobj, distance, preserve.unit.names=FALSE)
-  {
-stopifnot(inherits(matchobj,"optmatch"))
+matched.distances <- function(matchobj, distance, preserve.unit.names = FALSE)
+{
+  stopifnot(inherits(matchobj,"optmatch"))
+  validDistanceSpecifcation(distance)
 
-finddist.mat <- function(dmat, omobj)
-  {
-tapply(names(omobj),omobj, FUN=function(x,DMAT){
-  DMAT[match(x,dimnames(DMAT)[[1]], nomatch=0),
-                 match(x,dimnames(DMAT)[[2]], nomatch=0),
-       drop=!preserve.unit.names]
-}, dmat)
-  }
+  # subsetting is a little rough right now, so making a temporary cast to matrix
+  distance <- as.matrix(distance)
+  res <- tapply(names(matchobj), matchobj, FUN = function(x) {
+      distance[match(x, dimnames(distance)[[1]], nomatch = 0),
+               match(x, dimnames(distance)[[2]], nomatch = 0),
+               drop = !preserve.unit.names]
+  })
 
-if (!inherits(distance,"optmatch.dlist"))
-  {
-return(finddist.mat(distance, matchobj))
-  } else {
-res <- lapply(distance,finddist.mat, matchobj)
-res <- lapply(res, function(x){x[unlist(lapply(x,length))>0]})
-names(res) <- NULL
-nms <- unlist(lapply(res, names))
-if (any(duplicated(nms)))
-warning("something is wrong -- matched set referenced in separate distance matrices")
-res <- unlist(res, recursive=FALSE)
-return(res[levels(matchobj)])
-  }
-
-  }
+  return(res)
+}
