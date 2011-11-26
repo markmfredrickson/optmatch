@@ -116,10 +116,10 @@ test_that("Subsetting", {
   colnames(m) <- c("C", "D")
   A <- as.InfinitySparseMatrix(m)
   
-  res.sub <- subset(A, A == 2)
-  expect_equal(res.sub@.Data, 2)
-  expect_equal(res.sub@cols, 2)
-  expect_equal(res.sub@rows, 1)
+  res.sub <- subset(A, c(TRUE, FALSE))
+  expect_equal(res.sub@.Data, c(1, 2))
+  expect_equal(res.sub@cols, c(1,2))
+  expect_equal(res.sub@rows, c(1,1))
 
 })
 

@@ -161,17 +161,51 @@ function(e1, e2) {
 # Manipulating matrices: subset, cbind, rbind, etc
 ################################################################################
 
-subset.InfinitySparseMatrix <- function(x, subset, ...) {
+# we match the subset.matrix semmantics: subset = rows, select = columns, both logical
+subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
+  
+  xdim <- dim(x)
+  
+  if (missing(subset)) {
+    subset <- rep(TRUE, xdim[1])  
+  }
+
+  if (missing(select)) {
+    select <- rep(TRUE, xdim[2])  
+  }
+
+  if (!is.logical(subset) | !is.logical(select)) {
+    stop("Subset and select arguments must be logical")  
+  }
+
+  if (length(subset) != xdim[1] | length(select) != xdim[2]) {
+    stop("Subset and select must be same length as rows and columns, respectively.")  
+  }
+
+  # get the indexes of the selected rows and columns
+  selectedRows <- which(subset)
+  selectedCols <- which(select)
+
+  # combine the two indexes
+  idx <- (x@rows %in% selectedRows) & (x@cols %in% selectedCols)
+  newRowIdx <- cumsum(subset)
+  newColIdx <- cumsum(select)
+  return(makeInfinitySparseMatrix(x[idx],
+                                  newColIdx[x@cols[idx]],
+                                  newRowIdx[x@rows[idx]],
+                                  colnames = x@colnames[select],
+                                  rownames = x@rownames[subset]))
+}
+
+# a slightly different method of subsetting. Return a matrix of the same size, but with
+# entries not in the index listed as zero
+discardOthers <- function(x, index) {
   y <- x # just in case x is passed by ref, I don't think it is, but safety first
-  ss <- subset & !is.na(subset) # from default subset implementation
+  ss <- index & !is.na(index) # from default subset implementation
   y@.Data <- y[ss]
   y@cols <- y@cols[ss]
   y@rows <- y@rows[ss]
-
-  # should we purge cols and rows? Otherwise, we have the same size matrix, just 
-  # with fewer finit entries. 
-  # this might be better thought of as a replace method
-
+  
   return(y)
 }
 

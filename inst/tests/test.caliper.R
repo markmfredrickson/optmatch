@@ -16,6 +16,9 @@ test_that("Caliper return values", {
   expect_is(result, "DistanceSpecification")
   
   expect_equal(result@.Data, c(0,0))
+
+  # make sure that matrix input does same thing
+  expect_equal(caliper(2, A), caliper(2, m))
 })
 
 test_that("Caliper exclusion", {

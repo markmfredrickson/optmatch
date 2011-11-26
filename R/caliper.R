@@ -5,7 +5,7 @@ caliper <- function(width, ..., exclude = c(), compare = `<=`) {
   excluded.rows <- which(start@rownames %in% exclude)
   excluded.cols <- which(start@colnames %in% exclude)
 
-  x <- subset(start, compare(start, width) | 
+  x <- discardOthers(start, compare(start, width) | 
                      start@rows %in% excluded.rows |
                      start@cols %in% excluded.cols)
 

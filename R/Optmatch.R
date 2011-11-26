@@ -16,7 +16,6 @@ makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix 
   if (is.null(grpnames)) {
     grpnames <- 1:(length(matching))  
   }
-
   
   optmatch.obj <- Reduce(mapply(function(label, groups) {
         tmp <- groups
@@ -42,7 +41,7 @@ makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix 
  
   attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
   # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
-  # attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, matching)
+  attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
   
   return(optmatch.obj)
 }

@@ -17,7 +17,7 @@ test_that("Object creation", {
   
   # two levels of matches shouldn't be 1.NA, 2.NA, should just be NA
   ms2 <- list(c(a = 1, b = 2, c = 1 , d = NA), c(e = 1, f = 2, g = 3, h = 1, i = 2, j = NA))
-  res.opt2 <- makeOptmatch(ms2, c("a", "c", "e", "f", "g"), NULL)
+  res.opt2 <- makeOptmatch(dist, ms2, NULL)
   expect_true(all(is.na(res.opt2[c("d", "j")])))
 
 })
@@ -46,5 +46,10 @@ test_that("Matched distances", {
 
   res.md <- matched.distances(dist.match, dist)
   expect_equivalent(as.vector(res.md), 1:5)
+
+  # now an ISM version
+  dist.i <- as.InfinitySparseMatrix(dist)
+  res.mdi <- matched.distances(dist.match, dist.i)
+  expect_equivalent(as.vector(res.mdi), 1:5)
   
 })
