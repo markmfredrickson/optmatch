@@ -1,7 +1,7 @@
 require('optmatch')
 data(plantdist)
-summary(fullmatch(1 * (plantdist<10)))
-summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
+summary(fullmatch(caliper(10, plantdist)))
+summary(pairmatch(plantdist + caliper(1, plantdist < 1))) # Matching fails everywhere
 data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
