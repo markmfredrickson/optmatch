@@ -52,4 +52,11 @@ test_that("Matched distances", {
   res.mdi <- matched.distances(dist.match, dist.i)
   expect_equivalent(as.vector(res.mdi), 1:5)
   
+  # proper names
+  res.names <- matched.distances(dist.match, dist, preserve.unit.names = TRUE)
+  expect_equal(names(res.names), c("1.1", "1.2", "2.1", "2.2", "2.3"))
+
+  res.names.i <- matched.distances(dist.match, dist.i, preserve.unit.names = TRUE)
+  expect_equal(names(res.names.i), c("1.1", "1.2", "2.1", "2.2", "2.3"))
+
 })
