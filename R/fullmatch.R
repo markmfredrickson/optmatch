@@ -140,9 +140,7 @@ fullmatch <- function(distance,
   
   solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
 
-  matching <- lapply(solutions, function(s) { s$cells })
- 
-  return(makeOptmatch(distance, matching, match.call()))
+  return(makeOptmatch(distance, solutions, match.call()))
 }
 
 

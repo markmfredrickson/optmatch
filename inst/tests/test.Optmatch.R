@@ -8,7 +8,12 @@ context("Optmatch object")
 test_that("Object creation", {
   dist <- diag(5)
   dimnames(dist) <- list(letters[1:5], letters[6:10])
-  ms <- list(c(a = 1, f = 1, b = 2, g = 2), c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3))  
+
+  # recreate the result of running fullmatch. Must have err and cells fields
+  ms <- list(
+    list(err = 0, cells = c(a = 1, f = 1, b = 2, g = 2)),
+    list(err = 0, cells = c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3)))
+
   res.opt <- makeOptmatch(dist, ms, NULL)
 
   expect_equal(length(res.opt), 10)
@@ -16,7 +21,10 @@ test_that("Object creation", {
   expect_is(res.opt, "optmatch")
   
   # two levels of matches shouldn't be 1.NA, 2.NA, should just be NA
-  ms2 <- list(c(a = 1, f = 1, b = 1, g = NA), c(c = 1, h = 1, d = 2, i = 2, e = 2, j = NA))  
+  ms2 <- list(
+    list(err = 0, cells = c(a = 1, f = 1, b = 1, g = NA)),
+    list(err = 0, cells = c(c = 1, h = 1, d = 2, i = 2, e = 2, j = NA)))
+
   res.opt2 <- makeOptmatch(dist, ms2, NULL)
   expect_true(all(is.na(res.opt2[c("g", "j")])))
 
@@ -25,7 +33,10 @@ test_that("Object creation", {
 test_that("Object subsetting", {
   dist <- diag(5)
   dimnames(dist) <- list(letters[1:5], letters[6:10])
-  ms <- list(c(a = 1, f = 1, b = 2, g = 2), c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3))  
+
+  ms <- list(list(err = 0, cells = c(a = 1, f = 1, b = 2, g = 2)),
+             list(err = 0, cells = c(c = 1, h = 1, d = 2, i = 2, e = 3, j = 3)))
+
   res.opt <- makeOptmatch(dist, ms, NULL)
 
   expect_equal(names(res.opt[1:4]), c("a", "f", "b", "g"))

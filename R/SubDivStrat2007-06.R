@@ -138,7 +138,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-  return(list(cells = ans, err = maxerr, match.distance = dist))
+  return(list(cells = ans, err = maxerr))
 }
 
 # a small helper function to turn a solution data.frame into a factor of matches

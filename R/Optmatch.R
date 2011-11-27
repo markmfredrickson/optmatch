@@ -6,9 +6,11 @@
 ####### Object Creation #########
 
 makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix or ISM)
-                         matching, # a list matches for different strata, each with names
+                         solutions, # the results of calling SubDivStrat on multiple strata
                          call) # the result of match.call() 
-{   
+{ 
+  # pull out just the matching vectors
+  matching <- lapply(solutions, function(x) { x$cells })
 
   treated <- rownames(distance)
 
@@ -29,13 +31,9 @@ makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix 
 
   class(optmatch.obj) <- c("optmatch", "factor")
 
-  # TODO: handle errors/failed matches
-  # attr(strat.abv, "exceedances") <- err
-  # if (sum(err, na.rm=TRUE)>TOL) {
-  #     warning(
-  #         paste("prescribed tol of ", tol, "per obs. poss. exceeded by up to ", 
-  #           round(sum(err), 3), ".", sep="") )
-  # }
+  tmp <- sapply(solutions, function(x) { x$err })
+  names(tmp) <- grpnames
+  attr(optmatch.obj, "exceedances") <- tmp
 
   attr(optmatch.obj, "call") <- call
  
