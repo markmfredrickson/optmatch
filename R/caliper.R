@@ -1,42 +1,22 @@
-caliper <- function(width, ..., exclude = c(), compare = `<=`) {
+setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`, ...)
+  standardGeneric("caliper"))
 
-  start <- as.InfinitySparseMatrix(mdist(...)) # returns a DistanceSpecification
+setMethod("caliper", "InfinitySparseMatrix",
+function(x, width = 1, exclude = c(), compare = `<=`, ...) {
 
-  excluded.rows <- which(start@rownames %in% exclude)
-  excluded.cols <- which(start@colnames %in% exclude)
+  excluded.rows <- which(x@rownames %in% exclude)
+  excluded.cols <- which(x@colnames %in% exclude)
 
-  x <- discardOthers(start, compare(start, width) | 
-                     start@rows %in% excluded.rows |
-                     start@cols %in% excluded.cols)
+  y <- discardOthers(x, compare(x, width) | 
+                     x@rows %in% excluded.rows |
+                     x@cols %in% excluded.cols)
 
-  x@.Data <- rep(0, length(x@.Data))
+  y@.Data <- rep(0, length(y@.Data))
 
-  return(x)
-  
-  # this might be useful if I reinstate the penalty argument
-  #
-  # res <- sapply(start, function(mat) {
-  #   mat[mat > width] <- penalty * mat[mat > width]
-  #   mat[!(mat > width)] <- 0
-  #   return(mat)
-  # }, simplify = F)
-  # f <- revertrows(exclude)
-  # res <- mapply(f, res, start, SIMPLIFY = F)
+  return(y)
+})
 
-  # # after mapplying, res becomes a plain list, make it a dlist
-  # class(res) <- list("optmatch.dlist", "list")
-  # attributes(res) <- attributes(start)
-
-  # return(res)
-}
-
-# revertrows <- function(exclude) { 
-#   function(updateme, orig) {
-#     rns <- exclude[exclude %in% rownames(orig)]
-#     cns <- exclude[exclude %in% colnames(orig)]
-#     updateme[rns, ] <- 0 
-#     updateme[,cns] <- 0
-#     return(updateme)
-#   }
-# }
-
+setMethod("caliper", "matrix",
+function(x, width = 1, exclude = c(), compare = `<=`, ...) {
+  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, ...)  
+})

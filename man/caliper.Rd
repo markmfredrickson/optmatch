@@ -10,13 +10,14 @@
   within calipers.)
 }
 \usage{
-caliper(width, ..., exclude = c(), compare = `<=`)
+caliper(x, width = 1, exclude = c(), compare = `<=`, ...)
 }
 \arguments{
+  \item{x}{A distance specification created with \code{\link{mdist}} or similar.}
   \item{width}{The width of the caliper: how wide of a margin to allow in matches.}
-  \item{...}{Arguments are passed to \code{mdist()}, which forms the basic distance matrix. The caliper is then fit to this matrix. See \code{\link{mdist}} for more information.}
   \item{exclude}{A character vector of observations (corresponding to rownames) to exclude from the caliper.}
   \item{cmpare}{A function that decides that whether two observations are with the caliper. The default is \code{`<=`};
+  \item{...}{Arguments for specific methods.}  
   you may prefer \code{`<`}}
 }
 \details{
@@ -53,26 +54,21 @@ data(nuclearplants)
 
 ### Caliper  of .2 pooled SDs in the propensity score
 ppty <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-(pptycaliper <- caliper(ppty, width = .2))
+ppty.dist <- mdist(ppty)
 
-identical(pptycaliper,  # If not writing 'width=',
-caliper(.2,ppty))        # give your width first.
-
-### Caliper on a pre-formed distance
-ppty.dist <- mdist(ppty) 
-identical(caliper(ppty.dist, width = .2), pptycaliper)
+(pptycaliper <- caliper(ppty.dist, width = .2)) 
 
 ### caliper on the Mahalanobis distance
-caliper(width = 3, pr ~ t1 + t2, data = nuclearplants)             
+caliper(mdist(pr ~ t1 + t2, data = nuclearplants), width = 3)
 
 ### Mahalanobis distance matching with a caliper
 ### of 1 pooled SD in the propensity score:
-( mhd.pptyc <- caliper(ppty, width = 1) +
+( mhd.pptyc <- caliper(ppty.dist, width = 1) +
   mdist(pr ~ t1 + t2, data = nuclearplants) )
 pairmatch(mhd.pptyc)
 
 ### Excluding observations from caliper requirements:
-caliper(width = 3, pr ~ t1 + t2, data = nuclearplants, exclude = c("A", "f"))
+caliper(mdist(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f"))
 
 }
 \keyword{nonparametric }% at least one, from doc/KEYWORDS

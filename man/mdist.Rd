@@ -114,7 +114,7 @@ mdist.examples$ps3 <- mdist(aGlm, exactMatch(pr ~ pt, nuclearplants))
 fullmatch(mdist.examples$ps3)
 
 ### Propensity score matching with a propensity score caliper:
-mdist.examples$pscal <- mdist.examples$ps1 + caliper(1,mdist.examples$ps1)
+mdist.examples$pscal <- mdist.examples$ps1 + caliper(mdist.examples$ps1, 1)
 fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
 
 ### A Mahalanobis distance for matching within subgroups:
@@ -123,7 +123,7 @@ mdist.examples$mh2 <- mdist(pr ~ t1 + t2 , data = nuclearplants,
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:
-fullmatch(mdist.examples$mh2 + caliper(1, mdist.examples$ps3))
+fullmatch(mdist.examples$mh2 + caliper(mdist.examples$ps3, 1))
 
 }
 

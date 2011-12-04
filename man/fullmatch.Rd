@@ -177,7 +177,7 @@ summary(fm3)
 ppty <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 ### Note that units without counterparts within the
 ### caliper are automatically dropped.
-( fm4 <- fullmatch(mhd+caliper(1, ppty)) )
+( fm4 <- fullmatch(mhd + caliper(mdist(ppty), 1)) )
 summary(fm4)
 
 ### Propensity balance assessment. Requires RItools package.

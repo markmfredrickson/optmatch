@@ -95,7 +95,7 @@ mhd <- mdist(pr ~ t1 + t2, data =nuclearplants)
 summary(pm1) 
 ### Pair matching within a propensity score caliper.  
 ppty <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants) 
-( pm2 <- pairmatch(mhd+caliper(2,ppty)) ) 
+( pm2 <- pairmatch(mhd + caliper(mdist(ppty), 2)) ) 
 summary(pm2)
 
 ### Propensity balance assessment. Requires RItools package.
