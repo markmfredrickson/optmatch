@@ -1,11 +1,37 @@
 useDynLib(optmatch)
 
-# export(fullmatch, pairmatch, makedist, pscore.dist, mahal.dist, matched.distances, matched, matchfailed, unmatched, maxControlsCap, minControlsCap, relaxinfo, stratumStructure, caliper, mdist, fill.NAs)
-exportPattern("*")
+export(fullmatch, 
+       pairmatch, 
+       matched.distances, 
+       matched, 
+       matchfailed, 
+       unmatched, 
+       maxControlsCap, 
+       minControlsCap, 
+       relaxinfo, 
+       stratumStructure, 
+       caliper, 
+       mdist, 
+       fill.NAs,
+       exactMatch,
+       makeInfinitySparseMatrix,
+       as.InfinitySparseMatrix,
+       discardOthers)
+
+### S3 Stuff
 
 S3method(print, optmatch)
 S3method(summary, optmatch)
 S3method("[", optmatch)
 S3method(print, summary.optmatch)
+S3method(dim, InfinitySparseMatrix)
+S3method(subset, InfinitySparseMatrix)
+S3method(cbind, InfinitySparseMatrix)
+S3method(rbind, InfinitySparseMatrix)
+S3method(t, InfinitySparseMatrix)
+S3method(t, BlockedInfinitySparseMatrix)
 
+### S4 Stuff
+
+exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix, DistanceSpecification)
 
