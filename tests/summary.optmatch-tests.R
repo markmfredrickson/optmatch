@@ -1,11 +1,11 @@
 require('optmatch')
 data(plantdist)
-summary(fullmatch(caliper(10, plantdist)))
-summary(pairmatch(plantdist + caliper(1, plantdist < 1))) # Matching fails everywhere
+summary(fullmatch(1 * (plantdist < 10))) # a zero-1 matrix
+summary(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
 data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
-psfm <- fullmatch(psd + caliper(.25, psd))
+psfm <- fullmatch(psd + caliper(psd, 0.25))
 summary(psfm)
 pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
 exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'

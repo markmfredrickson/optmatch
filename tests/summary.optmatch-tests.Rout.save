@@ -1,7 +1,8 @@
 
-R version 2.11.0 (2010-04-22)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.13.0 (2011-04-13)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: i386-apple-darwin9.8.0/i386 (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -17,6 +18,7 @@ Type 'q()' to quit R.
 
 > require('optmatch')
 Loading required package: optmatch
+Loading required package: testthat
 You're loading optmatch, by Ben Hansen, a package for flexible
  and optimal matching.  Important license information:
  The optmatch package makes essential use of D. P. Bertsekas
@@ -31,7 +33,7 @@ You're loading optmatch, by Ben Hansen, a package for flexible
  loaded optmatch, then you will probably be using fullmatch indirectly.)
  For more information, enter relaxinfo() at the command line
 > data(plantdist)
-> summary(fullmatch(plantdist<10))
+> summary(fullmatch(1 * (plantdist < 10))) # a zero-1 matrix
 Structure of matched sets:
  1:1  1:2 1:5+ 
    5    1    1 
@@ -43,17 +45,19 @@ sum(matched.distances)=0
 Percentiles of matched distances:
   0%  50%  95% 100% 
    0    0    0    0 
-> summary(pairmatch(plantdist/(plantdist<1))) # Matching fails everywhere
+> summary(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
 Matching failed.  (Restrictions impossible to meet?)
 Enter ?matchfailed for more info.
 > data(nuclearplants)
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-> psd <- pscore.dist(psm)
-> psfm <- fullmatch(psd/(psd<.25))
+> psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
+> psfm <- fullmatch(psd + caliper(psd, 0.25))
 > summary(psfm)
+Matching failed in subclasses containing 14 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
- 1:0  3:1  2:1  1:2 1:5+  0:1 
-   3    1    1    1    1   11 
+ 3:1  2:1  1:2 1:5+ 
+   1    1    1    1 
 Effective Sample Size:  5.92 
 (equivalent number of matched pairs).
 
@@ -62,26 +66,18 @@ sum(matched.distances)=1.02
 Percentiles of matched distances:
     0%    50%    95%   100% 
 0.0110 0.0577 0.1600 0.1660 
-> pspm <- pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
+> pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
++ exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
 > summary(pspm)
-Matching failed in subclasses containing 6 of 32 observations.
+Matching failed.  (Restrictions impossible to meet?)
+Enter ?matchfailed for more info.
+> psd[1,] <- psd[1,] + rep(100,22)
+> summary(pairmatch(psd, controls=2))
+Matching failed in subclasses containing 2 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
-1:1 0:1 
-  7  12 
-Effective Sample Size:  7 
-(equivalent number of matched pairs).
-
-sum(matched.distances)=0
-(within 0.0173 of optimum).
-Percentiles of matched distances:
-  0%  50%  95% 100% 
-   0    0    0    0 
-> psd$m[1,] <- psd$m[1,] + rep(100,22)
-> summary(pairmatch(psd, controls=2))
-Structure of matched sets:
-1:2 0:1 
- 10   2 
+1:2 
+ 10 
 Effective Sample Size:  13.3 
 (equivalent number of matched pairs).
 
@@ -89,11 +85,13 @@ sum(matched.distances)=226
 (within 0.0286 of optimum).
 Percentiles of matched distances:
       0%      50%      95%     100% 
-  0.0168   1.2100 101.0000 103.0000 
+  0.0168   1.1500 101.0000 102.0000 
 > summary(psfm, propensity.model=psm)
+Matching failed in subclasses containing 14 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
- 1:0  3:1  2:1  1:2 1:5+  0:1 
-   3    1    1    1    1   11 
+ 3:1  2:1  1:2 1:5+ 
+   1    1    1    1 
 Effective Sample Size:  5.92 
 (equivalent number of matched pairs).
 
@@ -107,13 +105,15 @@ For covariate balance information, load the RItools package and
 pass a (glm) propensity model to summary() as a second argument.
 > require('RItools')
 Loading required package: RItools
-Package SparseM (0.85) loaded.
+Package SparseM (0.89) loaded.
 	   To cite, see citation("SparseM")
 
 > summary(psfm, propensity.model='foo')
+Matching failed in subclasses containing 14 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
- 1:0  3:1  2:1  1:2 1:5+  0:1 
-   3    1    1    1    1   11 
+ 3:1  2:1  1:2 1:5+ 
+   1    1    1    1 
 Effective Sample Size:  5.92 
 (equivalent number of matched pairs).
 
@@ -126,9 +126,11 @@ Percentiles of matched distances:
 For covariate balance information, load the RItools package and
 pass a (glm) propensity model to summary() as a second argument.
 > summary(psfm, propensity.model=psm)
+Matching failed in subclasses containing 14 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
- 1:0  3:1  2:1  1:2 1:5+  0:1 
-   3    1    1    1    1   11 
+ 3:1  2:1  1:2 1:5+ 
+   1    1    1    1 
 Effective Sample Size:  5.92 
 (equivalent number of matched pairs).
 
@@ -139,11 +141,13 @@ Percentiles of matched distances:
 0.0110 0.0577 0.1600 0.1660 
 Balance test overall result:
   chisquare df p.value
-       2.29  9   0.986
+       9.48  9   0.394
 > summary(psfm, psm)
+Matching failed in subclasses containing 14 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
- 1:0  3:1  2:1  1:2 1:5+  0:1 
-   3    1    1    1    1   11 
+ 3:1  2:1  1:2 1:5+ 
+   1    1    1    1 
 Effective Sample Size:  5.92 
 (equivalent number of matched pairs).
 
@@ -154,15 +158,17 @@ Percentiles of matched distances:
 0.0110 0.0577 0.1600 0.1660 
 Balance test overall result:
   chisquare df p.value
-       2.29  9   0.986
+       9.48  9   0.394
 > psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
 +             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
 +             family=binomial, data=nuclearplants)
-> psd2 <- pscore.dist(psm2)
+> psd2 <- mdist(psm2, standardization.scale = sd)
 > summary(pairmatch(psd2), propensity.model=psm2)
+Matching failed in subclasses containing 12 of 32 observations.
+Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
-1:1 0:1 
- 10  12 
+1:1 
+ 10 
 Effective Sample Size:  10 
 (equivalent number of matched pairs).
 
@@ -170,26 +176,12 @@ sum(matched.distances)=7.56
 (within 0.0272 of optimum).
 Percentiles of matched distances:
     0%    50%    95%   100% 
-0.0415 0.9140 1.5100 1.6100 
+0.0419 0.7450 1.5300 1.6600 
 Balance test overall result:
   chisquare df p.value
-       9.83  9   0.365
+          8  8   0.433
 > summary(pspm, propensity.model=psm) # balance checking when matching has failed
-Matching failed in subclasses containing 6 of 32 observations.
-Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
-Structure of matched sets:
-1:1 0:1 
-  7  12 
-Effective Sample Size:  7 
-(equivalent number of matched pairs).
-
-sum(matched.distances)=0
-(within 0.0173 of optimum).
-Percentiles of matched distances:
-  0%  50%  95% 100% 
-   0    0    0    0 
-Balance test overall result:
-  chisquare df p.value
-          7  7   0.429
+Matching failed.  (Restrictions impossible to meet?)
+Enter ?matchfailed for more info.
 >                                     # in some subclasses
 > 
