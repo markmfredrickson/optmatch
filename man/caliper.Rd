@@ -1,5 +1,9 @@
-\name{caliper}
+\name{caliper-methods}
+\docType{methods}
 \alias{caliper}
+\alias{caliper-methods}
+\alias{caliper,InfinitySparseMatrix-method}
+\alias{caliper,matrix-method}
 \title{Prepare matching distances suitable for matching within calipers}
 \description{
   Encodes calipers, or maximum allowable distances within which to
@@ -9,14 +13,14 @@
   other distance specifications for richer matching problems.
 }
 \usage{
-caliper(x, width = 1, exclude = c(), compare = `<=`, ...)
+\S4method{caliper}{InfinitySparseMatrix}(x, width = 1, exclude = c(), compare = `<=`)
+\S4method{caliper}{matrix}(x, width = 1, exclude = c(), compare = `<=`)
 }
 \arguments{
   \item{x}{A distance specification created with \code{\link{mdist}} or similar.}
   \item{width}{The width of the caliper: how wide of a margin to allow in matches.}
   \item{exclude}{A character vector of observations (corresponding to row and column names) to exclude from the caliper.}
   \item{compare}{A function that decides that whether two observations are with the caliper. The default is \code{`<=`}. \code{`<`} is a common alternative.}
-  \item{...}{Arguments for specific methods.}  
 }
 \details{
   \code{caliper} is a generic function with methods for any of the allowed distance

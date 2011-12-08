@@ -1,8 +1,8 @@
-setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`, ...)
+setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`)
   standardGeneric("caliper"))
 
 setMethod("caliper", "InfinitySparseMatrix",
-function(x, width = 1, exclude = c(), compare = `<=`, ...) {
+function(x, width = 1, exclude = c(), compare = `<=`) {
 
   excluded.rows <- which(x@rownames %in% exclude)
   excluded.cols <- which(x@colnames %in% exclude)
@@ -17,6 +17,6 @@ function(x, width = 1, exclude = c(), compare = `<=`, ...) {
 })
 
 setMethod("caliper", "matrix",
-function(x, width = 1, exclude = c(), compare = `<=`, ...) {
-  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, ...)  
+function(x, width = 1, exclude = c(), compare = `<=`) {
+  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare)  
 })
