@@ -10,8 +10,8 @@
   constraints embedded in the matching problem's distance matrix.
 }
 \usage{
-minControlsCap(distance, max.controls = NULL, subclass.indices = NULL)
-maxControlsCap(distance, min.controls = NULL, subclass.indices = NULL)
+minControlsCap(distance, max.controls = NULL)
+maxControlsCap(distance, min.controls = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
