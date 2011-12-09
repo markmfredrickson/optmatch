@@ -14,28 +14,27 @@ fullmatch(distance, min.controls = 0, max.controls = Inf,
 omit.fraction = NULL, tol = 0.001)
 }
 \arguments{
-  \item{distance}{ A matrix of nonnegative discrepancies, 
-each indicating the permissibility and desirability of matching the unit 
-corresponding to its row (a 'treatment') to the unit
-corresponding to its column (a 'control'); or, better, a list of such matrices,
-as produced by \code{\link{mdist}}.}
-  \item{min.controls}{ The minimum ratio of controls to
-  treatments that is to be permitted within a matched set: should
-  be nonnegative and finite.  If
-  \code{min.controls} is not a whole number, the reciprocal of a whole
-  number, or zero, then it is rounded \emph{down} to the nearest
-  whole number or reciprocal of a whole number.
+  \item{distance}{ A matrix of nonnegative discrepancies, each indicating the
+  permissibility and desirability of matching the unit corresponding to its row
+  (a 'treatment') to the unit corresponding to its column (a 'control'); or,
+  better, a distance specification as produced by \code{\link{mdist}}.}
 
-  When matching within subclasses, \code{min.controls} may be a named
-  numeric vector
-  separately specifying the minimum permissible ratio of controls to
-  treatments for each subclass.  The names of this vector should include
-  names of all matrices in the list \code{distance}.
+  \item{min.controls}{ The minimum ratio of controls to treatments that is to
+  be permitted within a matched set: should be nonnegative and finite.  If
+  \code{min.controls} is not a whole number, the reciprocal of a whole number,
+  or zero, then it is rounded \emph{down} to the nearest whole number or
+  reciprocal of a whole number.
+
+  When matching within subclasses (such as those created by
+  \code{\link{exactMatch}}), \code{min.controls} may be a named numeric vector
+  separately specifying the minimum permissible ratio of controls to treatments
+  for each subclass.  The names of this vector should include names of all
+  subproblems \code{distance}.
 %  The names of this vector should include all nonempty levels of
 %  \code{subclass.indices}, if \code{subclass.indices} is a factor,
 %  or all nonempty levels of \code{interaction{subclass.indices}},
 %  if \code{subclass.indices} is a data frame.
-}
+ }
 
 \item{max.controls}{ The maximum ratio of controls to treatments that is
   to be permitted within a matched set: should be positive and numeric.
@@ -43,9 +42,10 @@ as produced by \code{\link{mdist}}.}
   whole number, or \code{Inf}, then it is rounded \emph{up} to the
   nearest whole number or reciprocal of a whole number.
 
-  When matching within subclasses, \code{max.controls} may be a named
-  numeric vector separately specifying the maximum permissible ratio
-  of controls to treatments in each subclass. }
+  When matching within subclasses (such as those created by
+  \code{\link{exactMatch}}), \code{max.controls} may be a named numeric vector
+  separately specifying the maximum permissible ratio of controls to treatments
+  in each subclass. }
 
 \item{omit.fraction}{Optionally, specify what fraction of
   controls or treated subjects are to be rejected.  If
@@ -59,11 +59,11 @@ as produced by \code{\link{mdist}}.}
   treated and control subjects without permissible matches among the
   control and treated subjects, respectively, are omitted.
   
-  When matching within subclasses (so that \code{distance} is a list of matrices, as produced by
-  \code{makedist}), \code{omit.fraction} specifies the fraction of
-  controls to be rejected in each subproblem, a parameter that can be
-  made to differ by subclass by setting \code{omit.fraction} equal to a
-  named numeric vector of fractions.  }
+  When matching within subclasses (such as those created by
+  \code{\link{exactMatch}}), \code{omit.fraction} specifies the fraction of
+  controls to be rejected in each subproblem, a parameter that can be made to
+  differ by subclass by setting \code{omit.fraction} equal to a named numeric
+  vector of fractions.  }
 
 \item{tol}{ Because of internal rounding, \code{fullmatch} may
   solve a slightly different matching problem than the one
@@ -84,20 +84,13 @@ as produced by \code{\link{mdist}}.}
   discrepancies indicating more desirable matches. 
   Matrix \code{distance} must have row and column names.
   
-  Consider using \code{\link{mdist}} to generate the distances.
-  \code{fullmatch} tries to guess the
-  order in which units would have been given in a data frame, and to
-  order the factor that it returns accordingly.  If the dimnames of
-  \code{distance}, or the matrices it lists, are not simply row numbers
-  of the data frame you're working with, then you should compare the
-  names of fullmatch's output to your row names in order to be sure
-  things are in the proper order.  You can relieve yourself of these
-  worries by using \code{\link{mdist}} (or \code{\link{makedist}}
-  , which [as of version 0.6] are dispatched
-  as needed by \code{\link{mdist}}) to produce the distances, as
-  it passes the ordering of units to \code{fullmatch}, which then uses
-  it to order its outputs.
-  
+  Consider using \code{\link{mdist}} to generate the distances. This generic
+  function as several useful methods for handling propensity score models,
+  computing Mahalanobis distances (and other arbitrary distances), and using
+  user supplied functions. These distances can also be combined with those
+  generated by \code{\link{exactMatch}} and \code{\link{caliper}} to create
+  very nuanced matching specificaitons.
+    
   The value of \code{tol} can have a substantial effect on
   computation time; with smaller values, computation takes longer.
   Not every tolerance can be met, and how small a tolerance is too small
@@ -106,22 +99,24 @@ as produced by \code{\link{mdist}}.}
   given value of argument \code{tol}, then matching proceeds but a
   warning is issued.  }
 
-  \value{ Primarily, a named vector of class \code{c('optmatch',
-  'factor')}.  Elements of this vector correspond to members of the
-  treatment and control groups in reference to which the matching
-  problem was posed, and are named accordingly; the names are taken from
-  the row and column names of \code{distance}.  Each element of
-  the vector is either \code{NA}, indicating unavailability of any
-  suitable matches for that element, or the concatenation of: (i) a character abbreviation of
-  the name of the subclass, if matching within subclasses, or the string
-  '\code{m}' if not; (ii) the string \code{.}; and (iii) a
-  nonnegative integer or the string \code{NA}.  In this last place,
-  positive whole numbers indicate placement of the unit into a matched
-  set and \code{NA}
-  indicates that all or part of the matching problem given to
-  \code{fullmatch} was found to be infeasible.  The functions
-  \code{\link{matched}}, \code{\link{unmatched}}, and
-  \code{\link{matchfailed}} distinguish these scenarios.
+  \value{ Primarily, a named vector of class \code{c('optmatch', 'factor')}.
+  Elements of this vector correspond to members of the treatment and control
+  groups in reference to which the matching problem was posed, and are named
+  accordingly; the names are taken from the row and column names of
+  \code{distance}.  Each element of the vector is either \code{NA}, indicating
+  unavailability of any suitable matches for that element, or the concatenation
+  of: (i) a character abbreviation of the name of the subclass (as encouded
+  using \code{\link{exactMatch}}) (ii) the string \code{.}; and (iii) a
+  nonnegative integer.  In this last place, positive whole numbers indicate
+  placement of the unit into a matched set and \code{NA} indicates that all or
+  part of the matching problem given to \code{fullmatch} was found to be
+  infeasible.  The functions \code{\link{matched}}, \code{\link{unmatched}},
+  and \code{\link{matchfailed}} distinguish these scenarios.
+
+  The order of the entries in the matched factor is unspecified and may not
+  match the order of the rows in the original \code{data.frame} or
+  \code{matrix}.  See the examples for \code{fullmatch} for how to properly use
+  \code{cbind} to combine a matched set with original data.
 
 %  In some cases, only proper subsets of the initial treatment and/or
 %  control groups will be represented in the value of \code{fullmatch}.
@@ -160,7 +155,8 @@ as produced by \code{\link{mdist}}.}
 \author{Ben Hansen}
 
 \seealso{\code{\link{matched}}, \code{\link{mdist}},
-  \code{\link{caliper}}}
+  \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{pairmatch}}}
+
 \examples{
 data(nuclearplants)
 ### Full matching on a Mahalanobis distance
@@ -183,16 +179,9 @@ summary(fm4)
 ### Propensity balance assessment. Requires RItools package.
 \dontrun{library(RItools) ; summary(fm4,ppty)}
 
-### Creating a data frame with the matched sets attached.
-### mdist(), caliper() and the like cooperate with fullmatch()
-### to make sure observations are in the proper order:
-all.equal(names(fm4), row.names(nuclearplants))
-### So our data frame including the matched sets is just
-cbind(nuclearplants, matches=fm4)
-
-### In contrast, if your matching distance is an ordinary matrix
-### (as earlier versions of optmatch required), you'll
-### have to align it by observation name with your data set. 
+### The order of the names in the match factor is unspecified.
+### To ensure matching of matched set to obserservation, you
+### must align it by observation name with your data set. 
 cbind(nuclearplants, matches = fm4[row.names(nuclearplants)])
 
 }
