@@ -34,4 +34,4 @@ S3method(t, BlockedInfinitySparseMatrix)
 ### S4 Stuff
 
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix, DistanceSpecification)
-
+exportMethods(as.matrix, colnames, rownames)
