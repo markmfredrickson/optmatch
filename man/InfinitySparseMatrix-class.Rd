@@ -13,11 +13,9 @@
 \alias{colnames<-,InfinitySparseMatrix-method}
 \alias{dimnames,InfinitySparseMatrix-method}
 \alias{dimnames<-,InfinitySparseMatrix-method}
-\alias{mdist,InfinitySparseMatrix-method}
 \alias{prepareMatching,InfinitySparseMatrix-method}
 \alias{rownames,InfinitySparseMatrix-method}
 \alias{rownames<-,InfinitySparseMatrix-method}
-\alias{as.InfinitySparseMatrix}
 \alias{cbind.InfinitySparseMatrix}
 \alias{rbind.InfinitySparseMatrix}
 \alias{dim.InfinitySparseMatrix}
@@ -62,11 +60,9 @@ Class \code{"\linkS4class{DistanceSpecification}"}, directly.
     \item{colnames<-}{\code{signature(x = "InfinitySparseMatrix")}: Set column names. }
     \item{dimnames}{\code{signature(x = "InfinitySparseMatrix")}: Get row and column names. }
     \item{dimnames<-}{\code{signature(x = "InfinitySparseMatrix")}: Set row and column names. }
-    \item{mdist}{\code{signature(x = "InfinitySparseMatrix")}: As an InfinitySparseMatrix is already a distance, this is the identity function. }
     \item{prepareMatching}{\code{signature(distances = "InfinitySparseMatrix")}: Turn a InfinitySparseMatrix into a cannonical matching problem. }
     \item{rownames}{\code{signature(x = "InfinitySparseMatrix")}: Get the row names. }
     \item{rownames<-}{\code{signature(x = "InfinitySparseMatrix")}: Set the row names. }
-    \item{as.InfinitySparseMatrix}{\code{signature(x = "matrix")}: Convert a dense matrix to an InfinitySparseMatrix. }
     \item{cbind.InfinitySparseMatrix}{\code{signature(x = "InfinitySparseMatrix", y = "DistanceSpecification")}: Column bind. }
     \item{rbind.InfinitySparseMatrix}{\code{signature(x = "InfinitySparseMatrix", y = "DistanceSpecification")}: Row bind. }
     \item{dim.InfinitySparseMatrix}{\code{signature(x = "InfinitySparseMatrix")}: Get row and column names. }
