@@ -1,5 +1,13 @@
 \name{mdist}
 \alias{mdist}
+\alias{mdist-methods}
+\alias{mdist,bigglm-method}
+\alias{mdist,formula-method}
+\alias{mdist,function-method}
+\alias{mdist,glm-method}
+\alias{mdist,InfinitySparseMatrix-method}
+\alias{mdist,matrix-method}
+\alias{mdist,numeric-method}
 \title{Create matching distances}
 \description{
   A generic function, with several supplied methods, for creating
@@ -8,42 +16,62 @@
   \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 }
 \usage{
-  mdist(x, exclusions = NULL, ...)
+mdist(x, exclusions = NULL, ...)
+
+\S4method{mdist}{function}(x, exclusions = NULL, z = NULL, data = NULL, ...) 
+
+\S4method{mdist}{formula}(x, exclusions = NULL, data = NULL, subset = NULL, inv.scale.matrix = NULL, COV = cov, ...)
+
+\S4method{mdist}{glm}(x, exclusions = NULL, standardization.scale = mad, ...)
+
+\S4method{mdist}{bigglm}(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
+
+\S4method{mdist}{numeric}(x, exclusions = NULL, ...)
+
+\S4method{mdist}{InfinitySparseMatrix}(x, exclusions = NULL, ...)
+
+\S4method{mdist}{matrix}(x, exclusions = NULL, ...)
 }
 \arguments{
-  \item{x}{The object to use as the basis for forming the mdist.
-  Methods exist for formulas, functions, and generalized linear models.}
-  \item{exclusions}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper})}
-  \item{...}{Additional method arguments. Most methods require a 'data' argument.}
+  \item{x}{The object to use as the basis for dispatch to the specialized methods}
+  \item{exclusions}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper}) that defines for which entries values should be computed. This can significantly speed up computation for sparse matching problems.}
+  \item{z}{A vector indicating the whether the entries in \code{data} are in the treated or control groups.}
+  \item{data}{A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.}
+  \item{subset}{A subset of the data to use in creating the distance specification.}
+  \item{inv.scale.matrix}{A matrix that scales the distance computation. The default Mahalanobis distance scales the squared Euclidean distance by
+the inverse of the covariance matrix. Other scale matrices can be supplied, for example,
+the identity matrix will result in squared Euclidean distance.}
+  \item{COV}{A covariance computing function that can be supplied to the \code{formula} method.}
+  \item{standardization.scale}{Standardizes the data based on the median absolute deviation (by default).}
+  \item{...}{Additional method arguments.}
 }
 \details{
-  The \code{mdist} method provides three ways to construct a matching distance
-  (ie, a distance matrix or suitably organized list of such matrices):
-  guided by a function, by a fitted model, or by a formula.  The class
-  of the first argument given to \code{mdist} determines which of these
-  methods is invoked.
+  The \code{function} method takes a function of two arguments. When called,
+  this function will receive a two \code{data.frame}s each of length \code{nt *
+  nc}, where \code{nt} is the number of treated units and \code{nc} is the
+  number of control units. The first argument is represents the treated units,
+  while the second represents the control units. Combined the two vectors
+  represents every possible treated-control pair. While this might sound
+  complicated at first, it is quite easy to use. For example, the simple
+  1-dimensional distance of treated and control units can be implemented as:
+  \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z = rep(c(T,F),10), data = d)}.
 
-  The \code{mdist.function} method takes a function of two arguments. When
-  called, this function will receive the treatment observations as the first argument
-  and the control observations as the second argument. As an example, the following
-  computes the raw differences between values of \code{t1} for treatment
-  units (here, nuclear plants with \code{pr==1}) and controls (here,
-  plants with \code{pr==0}), returning the result as
-  a distance matrix:
-  \code{sdiffs <- function(treatments, controls) {
-      abs(outer(treatments$t1, controls$t1, `-`))
-    }
-  }
+  The \code{z} argument is a vector indicating whether a unit is in the treated
+  or control groups. The \code{data} argument is what is chopped up and fed
+  to the function.  The \code{mdist.function} method does similar things as the
+  earlier optmatch function \code{\link{makedist}}, although the interface is a
+  bit different.
 
-  The \code{mdist.function} method does similar things as the
-  earlier optmatch function \code{\link{makedist}}, although the
-  interface is a bit different.
-  
-  The \code{mdist.formula} method computes the squared Mahalanobis
-  distance between observations, with the right-hand side of the formula
-  determining which variables contribute to the Mahalanobis distance. 
+  The formula method produces, by default, a Mahalanobis distance specification
+  based on the formula \code{treatment ~ var1 + var2 + ... }, where
+  \code{treatment} iexclusions = NULLs the treatment indicator. A Mahalanobis
+  distance scales the squared Euclidean distance by the inverse of the
+  covariance matrix. Other scale matrices can be supplied, for example, the
+  identity matrix will result in squared Euclidean distance. If you wish to use
+  an alternative function to compute the covariance, pass it in the \code{COV}
+  argument.
 
-  An \code{mdist.glm} method takes an argument of class \code{glm} as
+  An \code{glm} method takes an argument of class \code{glm} as
   first argument.  It assumes that this object is a fitted propensity
   model, extracting distances on the linear propensity score (logits of
   the estimated conditional probabilities) and, by default, rescaling the distances
@@ -51,15 +79,22 @@
   (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
   changed to the actual s.d., or rescaling can be skipped entirely, by
   setting argument \code{standardization.scale} to \code{sd} or
-  \code{NULL}, respectively.)  A \code{mdist.bigglm}
+  \code{NULL}, respectively.)  The \code{bigglm}
   method works analogously with \code{bigglm} objects, created by
   the \code{bigglm} function from package \sQuote{biglm}, which can
   handle bigger data sets than the ordinary glm function can. 
+
+  The \code{numeric} method is simply a placeholder that returns an error
+  message and some helpful suggestions on how to create distance matrices, as
+  there is no obvious way to create distance matrix from just a numeric vector.
+
+  The \code{matrix} and \code{InfinitySparseMatrix} just return their arguments as these objects are already valid distance specifications.
 }
 \value{
-  Object of class \code{optmatch.dlist}, which is suitable to be given
-  as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. 
+  Object of the class union \code{DistanceSpecification} (either a
+  \code{matrix} or a \code{InfinitySparseMatrix} or derived class), which is
+  suitable to be given as \code{distance} argument to \code{\link{fullmatch}}
+  or \code{\link{pairmatch}}. 
 
 }
 \author{ Mark M. Fredrickson} %Ben B. Hansen
