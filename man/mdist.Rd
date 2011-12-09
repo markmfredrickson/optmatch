@@ -58,9 +58,7 @@ the identity matrix will result in squared Euclidean distance.}
 
   The \code{z} argument is a vector indicating whether a unit is in the treated
   or control groups. The \code{data} argument is what is chopped up and fed
-  to the function.  The \code{mdist.function} method does similar things as the
-  earlier optmatch function \code{\link{makedist}}, although the interface is a
-  bit different.
+  to the function.  
 
   The formula method produces, by default, a Mahalanobis distance specification
   based on the formula \code{treatment ~ var1 + var2 + ... }, where
@@ -106,8 +104,7 @@ the identity matrix will result in squared Euclidean distance.}
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{ \code{\link{makedist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
-          }
+\seealso{\code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{caliper}}, \code{\link{exactMatch}}}
 \examples{
 data(nuclearplants)
 mdist.examples <- list()

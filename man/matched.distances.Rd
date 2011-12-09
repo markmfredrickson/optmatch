@@ -13,7 +13,7 @@ matched.distances(matchobj, distance,preserve.unit.names=FALSE)
 \arguments{
   \item{matchobj}{ Value of a call to \code{pairmatch} or \code{fullmatch}. }
   \item{distance}{ Either a distance matrix or the value of a call to
-    or \code{makedist}.}
+    or \code{mdist}.}
   \item{preserve.unit.names}{Logical.  If true, for each matched set
     \code{matched.distances} returns the submatrix of the distance
     matrix corresponding to it; if false, a vector containing the

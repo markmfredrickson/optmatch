@@ -15,8 +15,7 @@ export(fullmatch,
        fill.NAs,
        exactMatch,
        makeInfinitySparseMatrix,
-       as.InfinitySparseMatrix,
-       discardOthers)
+       as.InfinitySparseMatrix)
 
 ### S3 Stuff
 

@@ -84,8 +84,7 @@ and related designs via network flows}, \emph{Journal of Computational
 and Graphical Statistics}, \bold{15}, 609--627.  } 
 
 \seealso{
-\code{\link{matched}}, \code{\link{caliper}}, \code{\link{fullmatch}},
-\code{\link{makedist}} } 
+\code{\link{matched}}, \code{\link{caliper}}, \code{\link{fullmatch}}} 
 
 \examples{ 
 data(nuclearplants) 
