@@ -43,3 +43,26 @@ test_that("Omit fraction computed per subproblem", {
   
   expect_true(!all(is.na(res.pm)))
 })
+
+test_that("Compute omit fraction based on reachable treated units", {
+  m <- matrix(c(1,Inf,3,Inf, Inf,
+                1,2,Inf,Inf, Inf,
+                1,1,Inf,3, Inf),
+                byrow = T,
+                nrow = 3,
+                dimnames = list(letters[1:3], LETTERS[22:26]))
+
+  # Control unit Z is completely unreachable. Therefore it should not be a problem
+  # to drop it.
+
+  expect_true(!all(is.na(pairmatch(m[,1:4]))))
+  
+  # when the wrong omit.fraction value is computed both of these tests should fail
+  # note: the correct omit.fraction to pass to fullmatch is 0.25
+  # it is wrong to pass 0.4
+  # and remove.unmatchables does not solve the problem
+  expect_true(!all(is.na(pairmatch(m))))
+  expect_true(!all(is.na(pairmatch(m, remove.unmatchables = T))))
+  
+
+})
