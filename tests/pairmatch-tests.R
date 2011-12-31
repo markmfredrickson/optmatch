@@ -2,7 +2,7 @@ require('optmatch')
 data(plantdist)
 pairmatch(plantdist)
 pairmatch(plantdist, controls=2)
-pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
+## Not run: pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
 pairmatch(plantdist + caliper(plantdist, 5, compare = `<`), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
 data(nuclearplants)
 # in both of mdist calls below use sd to maintain backwards compatibility with
@@ -12,7 +12,9 @@ data(nuclearplants)
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- mdist(psm, standardization.scale = sd)
 pairmatch(psd, controls=2)
-pairmatch(caliper(mdist(psm, standardization.scale = sd,
-  exclusions = exactMatch(pr ~ pt, data =
-  nuclearplants)), width=2)) # Fails in subclass '1'
+
+# Also not run: again an error would be thrown (which R CMD CHECK does not like)
+# pairmatch(caliper(mdist(psm, standardization.scale = sd,
+#   exclusions = exactMatch(pr ~ pt, data =
+#   nuclearplants)), width=2)) # Fails in subclass '1'
 

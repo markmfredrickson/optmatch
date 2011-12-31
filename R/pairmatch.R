@@ -32,6 +32,20 @@ pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE
       }
     }
 
+    # a similar procedure is used to remove all control rows that
+    # are unreachable
+
+    if (inherits(prob, "matrix")) {
+      # drop any rows that are entirely NA
+      prob <- prob[, apply(prob, 2, function(row) {
+        any(is.finite(row)) })]
+    } else { 
+        # assuming an InfinitySparseMatrix here      
+        validcols <- which(1:(ncol(prob)) %in% prob@cols)    
+        prob@dimension <- c(nrow(prob), length(validcols))
+        prob@colnames <- prob@colnames[validcols]
+    }
+
     nt <- nrow(prob)  
     nc <- ncol(prob)
     return((nc - control * nt)/nc)

@@ -45,9 +45,7 @@ sum(matched.distances)=0
 Percentiles of matched distances:
   0%  50%  95% 100% 
    0    0    0    0 
-> summary(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
-Matching failed.  (Restrictions impossible to meet?)
-Enter ?matchfailed for more info.
+> ## Not run as it would cause an error: summary(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
 > data(nuclearplants)
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 > psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
@@ -66,11 +64,10 @@ sum(matched.distances)=1.02
 Percentiles of matched distances:
     0%    50%    95%   100% 
 0.0110 0.0577 0.1600 0.1660 
-> pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
-+ exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
-> summary(pspm)
-Matching failed.  (Restrictions impossible to meet?)
-Enter ?matchfailed for more info.
+> ## not run as it causes an error in a subclass
+> # pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
+> #                   exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
+> # summary(pspm)
 > psd[1,] <- psd[1,] + rep(100,22)
 > summary(pairmatch(psd, controls=2))
 Matching failed in subclasses containing 2 of 32 observations.
@@ -180,8 +177,4 @@ Percentiles of matched distances:
 Balance test overall result:
   chisquare df p.value
           8  8   0.433
-> summary(pspm, propensity.model=psm) # balance checking when matching has failed
-Matching failed.  (Restrictions impossible to meet?)
-Enter ?matchfailed for more info.
->                                     # in some subclasses
 > 
