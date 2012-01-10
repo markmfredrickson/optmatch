@@ -331,3 +331,13 @@ t.BlockedInfinitySparseMatrix <- function(x) {
   return(tmp)
 }
 
+### Cbind/rbind
+cbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
+  # demote the blocked representation to a regular ISM and call the usual cbind method
+  cbind(as.InfinitySparseMatrix(x), y, ...)
+}
+
+rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
+  # demote the blocked representation to a regular ISM and call the usual cbind method
+  rbind(as.InfinitySparseMatrix(x), y, ...)
+}

@@ -25,8 +25,12 @@ S3method("[", optmatch)
 S3method(print, summary.optmatch)
 S3method(dim, InfinitySparseMatrix)
 S3method(subset, InfinitySparseMatrix)
+
 S3method(cbind, InfinitySparseMatrix)
 S3method(rbind, InfinitySparseMatrix)
+S3method(cbind, BlockedInfinitySparseMatrix)
+S3method(rbind, BlockedInfinitySparseMatrix)
+
 S3method(t, InfinitySparseMatrix)
 S3method(t, BlockedInfinitySparseMatrix)
 

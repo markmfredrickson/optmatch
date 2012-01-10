@@ -8,26 +8,20 @@ context("exactMatch function")
 
 test_that("Exact Match on Factors", {
   n <- 16
-  Z <- rep(c(0,1), n/2)
-  my.names <- paste(rep(c("C", "T"), n/2), 1:16, sep = "")
+  Z <- rep(c(0,1), each = n/2)
+  my.names <- c(LETTERS[1:(n/2)], letters[(26 - n/2 + 1):26])
   names(Z) <- my.names
 
   W <- rnorm(16)
-  B <- c(rep(0, n/2), rep(1, n/2))
+  B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, W, B)
 
   res <- exactMatch(B, treatment = Z) # factor, factor implementation
 
-  # the resulting matrix should be block diagonal
-  m0 <- matrix(0, nrow = n/4, ncol = n/4)
-  mInf <- matrix(Inf, nrow = n/4, ncol = n/4)
+  # the resulting matrix should be block diagonal with 32 non-inf entries 
 
-  tmp1 <- cbind(m0, mInf)
-  tmp2 <- cbind(mInf, m0)
-  m <- rbind(tmp1, tmp2)
-
-  expect_equivalent(as.matrix(res), m)
   expect_equal(dim(res), c(8,8))
+  expect_equal(length(res), 32)
 
   expect_error(exactMatch(B, rep(1:(n/4), 4)))
   expect_error(exactMatch(B, c(Z, 0)))
@@ -177,4 +171,29 @@ test_that("t() maintains stratification", {
 
   expect_equal(length(findSubproblems(em)), 4)
   expect_equal(length(findSubproblems(em.t)), 4)
+})
+
+test_that("Cbind/rbind an exact match", {
+  n <- 16
+  Z <- rep(c(0,1), each = n/2)
+  my.names <- c(LETTERS[1:(n/2)], letters[(26 - n/2 + 1):26])
+  names(Z) <- my.names
+
+  W <- rnorm(16)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, W, B)
+
+  res <- exactMatch(B, treatment = Z) # factor, factor implementation
+  
+  mc <- matrix(c(rep(1, n/2), rep(2, n/2)), ncol = 2,
+    dimnames = list(letters[(26 - n/2 + 1):26], c("new.1", "new.2")))
+
+  res.cbind <- cbind(res, mc)
+  expect_equal(dim(res.cbind), c(n/2, n/2 + 2))
+
+  mr <- t(mc)
+  colnames(mr) <- LETTERS[1:(n/2)]
+  res.rbind <- rbind(res, mr)
+  expect_equal(dim(res.rbind), c(n/2 + 2, n/2))
+  
 })
