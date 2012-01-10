@@ -129,21 +129,23 @@ test_that("cbinding ISMs and matrices", {
   colnames(m) <- c("C", "D")
   A <- as.InfinitySparseMatrix(m)
 
-  res.AA <- cbind(A, A)
+  # Expect warnings for duplicate column names
+  expect_warning(res.AA <- cbind(A, A))
   expect_equal(length(res.AA), 6)
   expect_equal(dim(res.AA), c(2, 4))
 
-  res.Am <- cbind(A, m)
+  # and the names should be uniquified (that's a word, really!)
+  expect_equal(length(unique(colnames(res.AA))), 4)
+  
+  # same for matrices
+  expect_warning(res.Am <- cbind(A, m))
   expect_equal(res.Am, res.AA)
   
+  # flipped name order shouldn't matter
   m2 <- m
   rownames(m2) <- c("B", "A")
-  res.Am2 <- cbind(A, m2)
-  m3 <- matrix(c(1,Inf,2,3, Inf, 1, 3,2), nrow = 2)
-  dimnames(m3) <- list(treated = c("A", "B"),
-                       control = c("C", "D", "C", "D"))
-  expect_equal(as.matrix(res.Am2), m3)
-
+  expect_warning(res.Am2 <- cbind(A, m2))
+  
   m4 <- matrix(1, nrow = 2, ncol = 3)
   rownames(m4) <- c("A", "C")
   colnames(m4) <- c("X", "Y", "Z")
@@ -153,7 +155,7 @@ test_that("cbinding ISMs and matrices", {
   rownames(m5) <- c("A", "B", "C")
   colnames(m5) <- c("X", "Y")
   expect_error(cbind(A, m5))
-
+ 
 })
 
 test_that("rbinding ISMs and matrices", {
@@ -162,21 +164,22 @@ test_that("rbinding ISMs and matrices", {
   colnames(m) <- c("C", "D")
   A <- as.InfinitySparseMatrix(m)
 
-  res.AA <- rbind(A, A)
+  # Expect warnings for duplicate row names
+  expect_warning(res.AA <- rbind(A, A))
   expect_equal(length(res.AA), 6)
   expect_equal(dim(res.AA), c(4,2))
+
+  # and the names should be uniquified (that's a word, really!)
+  expect_equal(length(unique(rownames(res.AA))), 4)
 
   res.Am <- rbind(A, m)
   expect_equal(res.Am, res.AA)
   
+  # flipped column names should not matter
   m2 <- m
   colnames(m2) <- c("D", "C")
-  res.Am2 <- rbind(A, m2)
-  m3 <- matrix(c(1,Inf,2,3,2,3,1,Inf), ncol = 2)
-  dimnames(m3) <- list(treated = c("A", "B", "A", "B"),
-                       control = c("C", "D"))
-  expect_equal(as.matrix(res.Am2), m3)
-
+  expect_warning(res.Am2 <- rbind(A, m2))
+  
   m4 <- matrix(1, nrow = 2, ncol = 2)
   rownames(m4) <- c("A", "B")
   colnames(m4) <- c("X", "Y")

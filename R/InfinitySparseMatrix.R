@@ -238,7 +238,7 @@ cbind.InfinitySparseMatrix <- function(x, y, ...) {
     rows = c(x@rows, yorder),
     cols = c(x@cols, y@cols + xcols),
     rownames = c(x@rownames),
-    colnames = c(x@colnames, y@colnames)
+    colnames = make.unique(c(x@colnames, y@colnames))
   )
   return(z)
 
@@ -275,7 +275,7 @@ rbind.InfinitySparseMatrix <- function(x, y, ...) {
     c(x@.Data, y@.Data),
     rows = c(x@rows, y@rows + xrows),
     cols = c(x@cols, yorder),
-    rownames = c(x@rownames, y@rownames),
+    rownames = make.unique(c(x@rownames, y@rownames)),
     colnames = c(x@colnames)
   )
   return(z)
