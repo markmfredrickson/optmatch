@@ -287,6 +287,8 @@ t.InfinitySparseMatrix <- function(x) {
                            colnames = x@rownames, rownames = x@colnames)
 }
 
+setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(object)) })
+
 ################################################################################
 # Blocked Infinity Sparse Matrix
 # Just like an ISM, but keeps track of which group a unit is in
@@ -341,3 +343,8 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   # demote the blocked representation to a regular ISM and call the usual cbind method
   rbind(as.InfinitySparseMatrix(x), y, ...)
 }
+
+# Splits out the blocked matrix into its consitutent parts
+setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
+
+
