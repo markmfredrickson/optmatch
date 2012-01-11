@@ -92,7 +92,7 @@ that covary. A better choice might be to use the so called (squared)
 The default argument for `inv.scale.matrix` is the inverse covariance matrix
 of the data. The distance is calculated as:
 
-  (T - C)^T S^(-1) (T - C)^T
+    (T - C)^T S^(-1) (T - C)^T
 
 So you can see how other scale matrices can be used.
 
@@ -101,8 +101,9 @@ the covariates and computing the difference distance for each treated and
 control pair. To make this process easier, `mdist` has methods for `glm`
 objects (and for big data problems, `bigglm` objects):
 
-    distances$propensity <- mdist(glm(z ~ w1 + w2, data = W, family =
-      binomial()))
+    propensity.model <- glm(z ~ w1 + w2, data = W, family =
+      binomial())
+    distances$propensity <- mdist(propensity.model)
 
 The final convenience method of `mdist` is using an arbitrary function.  When
 called, this function will receive a two `data.frame`s each of length `nt *
@@ -116,7 +117,7 @@ infinity if the units differ on `w2` and the difference of `w1` otherwise:
     example.function <- function(t, c) {
       ifelse(t$w2 == c$w2, abs(t$w1 - c$w1), Inf)  
     }
-    distances$w1diff <- mdist(example.function, data = W, z = W$z)
+    distances$fn <- mdist(example.function, data = W, z = W$z)
 
 This final example shows useful property of distance specification: treated
 and control pairs that have infinite distance will never be matched! We will
@@ -125,12 +126,118 @@ section.
 
 ### Combining and editing distances
 
+We have created several representations of the matching problem, using
+Euclidean distance, Mahalanobis distance, the estimated propensity score, and
+an arbitrary function. We can combine these distances into single metric using
+standard arithmetic functions:
+
+    distances$all <- with(distances, euclid2 + mahal + propensity + fn)
+
+In a previous example, we used a function to compute conditional values:
+infinity, if two units had different values of `w2`; the difference of `w1`
+otherwise. `optmatch` has several functions that follow this basic pattern:
+infinity, under some condition; zero otherwise. Since distances can be added,
+we can recreate the results of the function based `mdist` call:
+
+    tmp <- sqrt(mdist(z ~ w1, data = W, inv.scale.matrix = 1))
+    distances$exact <- tmp + exactMatch(z ~ w2, data = W)
+    all(distances$fn == as.matrix(distances$exact))
+
+The `exactMatch` function creates "stratified" matching problems, in which
+there are subgroups that are completely separate. Such matching problems are
+often much easier to solve than problems where a treated unit could be
+connected to any control unit.
+
+The use of `as.matrix` in the comparison is because the results of
+`exactMatch` are a special kind of matrix that only records the finite entries
+and ignores any entries that would otherwise be infinity. In our small
+example, this does same much time or space, but in bigger problems, where many
+treatment-control pairs are disallowed, these data type can be a huge help.
+
+There is another method for creating reduced matching problems. The `caliper`
+function compares each entry in an existing distance specification and
+disallows any that are larger than a specified value. For example, we can trim
+our previous combined distance to anything smaller than the median value:
+
+    distances$median.caliper <- caliper(distances$all, median(distances$all))
+    distances$all.trimmed <- with(distances, all + median.caliper)
+
+Like the `exactMatch` function, the results of `caliper` used the sparse
+matrix representation mentioned above, so can be very efficient for large,
+sparse problems.
+
 ### Speeding up computation
+
+In addition to the space advantages of only storing the finite entries in a
+sparse matrix, the results of `exactMatch` and `caliper` can be used to speed
+up computation of *new* distances. The `mdist` function that we saw earlier
+has an argument called `exclusions` that helps filter the resulting
+computation to only interesting pairs. Here, interesting is defined as a pair
+that as a finite entry in a distance matrix. Since `exactMatch` and `caliper`
+use finite entries denote valid pairs, they make excellent sources of
+`exclusions` argument.
+
+Instead of creating the entire Euclidean distance matrix and *then* filtering
+out cross-strata matches, we use the results of `exactMatch` to compute only
+the interesting cases:
+
+    tmp <- exactMatch(z ~ w2, data = W) # same as before
+    distances$exact2 <- sqrt(mdist(z ~ w1, data = W, inv.scale.matrix = 1,
+    exclusions = tmp))
+    identical(distances$exact2, distances$exact)
+
+Users of previous versions of `optmatch` may notice that the `exclusions`
+argument is similar to the old `structure.formula` argument. Like
+`exclusions`, `structure.formula` focused distance on within strata pairs.
+Unlike `structure.formula`, the `exclusions` argument allows using *any*
+distance specification as an argument, those created with `caliper`. For
+example, here is the Mahalanobis distance computed only for units that differ
+by less than one on the propensity score.
+
+    distances$mahal.trimmed <- mdist(z ~ w1 + w2, data = W,
+      exclusions = caliper(mdist(propensity.model), width = 1))
 
 ### Generating the match
 
-### Evaluating candidate matches
+Now that we have generated several distances specifications, let's put them to
+use. Here is the simplest way to evaluate all distances specifications:
 
+    matches <- lapply(distances, fullmatch)
+
+The result of the matching process is a named factor, where the names
+correspond to the units (both treated and control) and the levels of the
+factors are the matched groups.
+
+The `fullmatch` function as several arguments for fine tuning the allowed
+ratio of treatment to control units in a match, and how much of the pool to
+throw away as unmatchable. One common pattern for these arguments are pairs:
+one treated to one control unit. Not every distance specification is amendable
+to this pattern (e.g. when there are more treated units than control units in
+`exactMatch` created stratum). However, it can be done with the Mahalanobis
+distance matrix we created earlier:
+
+    mahal.match <- pairmatch(distances$mahal)
+
+Like `fullmatch`, `pairmatch` also allows fine tuning the ratio of matches to
+allow larger groupings. It is can be helpful as it computes what percentage of
+the group to throw away, giving better odds of successfully finding a matching
+solution.
+
+Once one has generated a match, you may wish to view the results. The results
+of calls to `fullmatch` or `pairmatch` produce `optmatch` objects (specialized
+factors). This object has a special option to the `print` method which groups
+the units by factor level:
+
+    print(mahal.match, grouped = T)
+
+If you wish to join the match factor back to the original `data.frame`, you
+cannot simply appending it using `cbind` it to the original data, as the
+ordering of the names may have changed. We recommend the following method:
+
+    W.matched <- cbind(W, matches = mahal.match[row.names(W)])
+
+This will make sure that the names match between the original data and the
+final match.
 
 ##  Using a development version of Optmatch
 
