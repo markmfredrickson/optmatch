@@ -3,7 +3,7 @@
 ################################################################################
 
 R: OPTMATCH_TIMESTAMP
-	R_PROFILE=loadLocal.R R -q --no-save 
+	R_PROFILE=interactive.R R -q --no-save 
 	
 .local:
 	mkdir .local
