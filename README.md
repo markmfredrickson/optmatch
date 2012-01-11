@@ -133,6 +133,19 @@ standard arithmetic functions:
 
     distances$all <- with(distances, euclid2 + mahal + propensity + fn)
 
+You may find it convenient to work in smaller pieces at first and then stitch
+the results together into a bigger distance. The `rbind` and `cbind` functions let us
+add additional treated and control entries to a distance specification for
+each of the existing control and treated units, respectively. For example, we
+might want to combine a Mahalanobis score for units `n` through `s` with a
+propensity score for units `t` through `z`:
+
+    W.n.to.s <- W[c(LETTERS[1:13], letters[14:19]),]
+    W.t.to.z <- W[c(LETTERS[1:13], letters[20:26]),]
+    mahal.n.to.s <- mdist(z ~ w1 + w2, data = W)
+    ps.t.to.z <- mdist(glm(z ~ w1 + w2, data = W.t.to.z, family = binomial()))
+    distances$combined <- cbind(mahal.n.to.s, ps.t.to.z)
+
 In a previous example, we used a function to compute conditional values:
 infinity, if two units had different values of `w2`; the difference of `w1`
 otherwise. `optmatch` has several functions that follow this basic pattern:
