@@ -1,3 +1,6 @@
+2011-06-02
+	* Bumped maximum size of matrices and number of arcs. Was 100000 units
+	and 10000000 connections. Now 200000 and 40000000 respectively.
 2011-05-05
 	* adding support for standardization.scale=NULL in pscore.dist, mdist.glm, mdist.bigglm
 2011-03-15
