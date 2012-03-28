@@ -17,11 +17,10 @@ if (!is.numeric(f) | f>1 | f<0) stop("f must be a number in [0,1]")
 # Check requirements for invoking RELAX4 fortran routine
 # if (!is.loaded(symbol.For("relaxalg"))) stop("library relax4s.so not loaded")
 
-if ((sum(finiteind) + sum(dim(distance.matrix))) > (4e+7-2) )
+if ((sum(finiteind) + sum(dim(distance.matrix))) > (1e+7-2) )
   stop(paste('matrix arg to fmatch may have only',
-             4e+7, "-(nrows+ncols+2) finite entries;",
-             sum(finiteind) + sum(dim(distance.matrix)) - 4e+7 -2, 'too many',
-             "; see the structure.fmla argument to the mdist function for help splitting up your problem into smaller sub-problems."),
+             1e+7, "-(nrows+ncols+2) finite entries;",
+             sum(finiteind) + sum(dim(distance.matrix)) - 1e+7 -2, 'too many'),
        call.=FALSE)
 if (any(as.integer(distance.matrix[finiteind])!=distance.matrix[finiteind] | 
 	distance.matrix[finiteind]<0)) 
