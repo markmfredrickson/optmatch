@@ -1,3 +1,8 @@
+2012-04-01 Version 0.7-3
+	* `print.optmatch` now takes an additional `grouped = TRUE` parameter to
+	which prints out a table of the groups with the members.
+	* Corrected several small warnings in from R CHECK, including suggesting the
+	biglm package.
 2011-05-05
 	* adding support for standardization.scale=NULL in pscore.dist, mdist.glm, mdist.bigglm
 2011-03-15
