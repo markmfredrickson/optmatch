@@ -46,19 +46,15 @@ the identity matrix will result in squared Euclidean distance.}
   \item{...}{Additional method arguments.}
 }
 \details{
-  The \code{function} method takes a function of two arguments. When called,
-  this function will receive a two \code{data.frame}s each of length \code{nt *
-  nc}, where \code{nt} is the number of treated units and \code{nc} is the
-  number of control units. The first argument is represents the treated units,
-  while the second represents the control units. Combined the two vectors
-  represents every possible treated-control pair. While this might sound
-  complicated at first, it is quite easy to use. For example, the simple
+  The \code{function} method takes as its \code{x} argument a function of two arguments.
+  This function should in turn expect two arguments, a \code{data.frame} carrying information
+  about treatment group members and a \code{data.frame} carrying information about control units. 
+  The \code{function} method also expects a \code{z} argument, a vector indicating whether each unit is in the treated
+  or control groups; on the basis of this vector the \code{data} argument is what is chopped up and fed
+  to the function passed to \code{mdist} as argument \code{x}. While this might sound
+  complicated at first, it's quite flexible and, once you're used to it, easy to use. For example, the simple
   1-dimensional distance of treated and control units can be implemented as:
-  \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z = rep(c(T,F),10), data = d)}.
-
-  The \code{z} argument is a vector indicating whether a unit is in the treated
-  or control groups. The \code{data} argument is what is chopped up and fed
-  to the function.  
+  \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z = rep(c(T,F),10), data = d)}.  See also additional examples below.  
 
   The formula method produces, by default, a Mahalanobis distance specification
   based on the formula \code{treatment ~ var1 + var2 + ... }, where
