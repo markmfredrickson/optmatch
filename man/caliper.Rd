@@ -26,7 +26,7 @@ caliper(width, ..., exclude = c(), penalty = Inf)
   \code{width} provides the size of the caliper, the allowable distance for
   matching. The unit of width will depend on the additional arguments, used 
   to create a basic distance matrix using \code{\link{mdist}}. There must be at least one such argument, 
-\code{\link{mdist}}'s \code{x}.For a
+\code{\link{mdist}}'s \code{x}. For a
   formula \code{x} argument, width will be in units of the selected covariate(s), specifically squared 
 Mahalanobis distances on those covariates; see Details of \code{\link{mdist}}.
   For instance, with a formula with a single, non-categorical covariate on its right hand side, 
