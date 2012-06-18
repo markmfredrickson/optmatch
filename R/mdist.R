@@ -67,7 +67,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
     }
     ans <- lapply(split(data, ss), doit,...)
   } else {
-    ans <- list(m1 = doit(data,...))
+    ans <- list(m = doit(data,...))
   }
 
   attr(ans, 'row.names') <- row.names(data)

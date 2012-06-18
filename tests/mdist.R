@@ -30,6 +30,10 @@ result.fmla <- mdist(fmla, data = nuclearplants)
 test(inherits(result.fmla, "optmatch.dlist"), "Should be a optmatch object")
 test(length(result.fmla) == 1)
 
+result.fmla2 <- mdist(fmla, ~pt, data = nuclearplants)
+test(inherits(result.fmla2, "optmatch.dlist"), "Should be a optmatch object")
+test(length(result.fmla2) == 2)
+
 ### Function Tests ###
 
 # first, a simpler version of scalar diffs
@@ -126,19 +130,36 @@ bgps <- bigglm(fmla, data=nuclearplants, family=binomial() )
 shouldError(mdist(bgps, structure.fmla=pr ~ 1))
 shouldError(mdist(bgps, data=nuclearplants))
 result.bigglm1 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants)
-result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
+result.bigglm1a <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
                         standardization.scale=sd)
-result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
+result.bigglm1b <- mdist(bgps, structure.fmla=pr ~ 1, data=nuclearplants,
                         standardization.scale=NULL)
+result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ pt, data=nuclearplants)
 }
 
 ### Jake found a bug 2010-06-14
 ### Issue appears to be a missing row.names/class
 
-jb.sdiffs <- function(treatments, controls) {
- abs(outer(treatments$t1, controls$t1, `-`))
-}
-
 absdist1 <- mdist(sdiffs, structure.fmla = pr ~ 1|pt, data = nuclearplants)
 test(length(pairmatch(absdist1)) > 0)
 
+### Check that distances combine as they should
+### (a joint test of mdist and Ops.optmatch.dlist)
+### Distances without subclasses:
+test(inherits(result.glm + result.fmla, "optmatch.dlist"),
+     "Should be a optmatch object")
+test(inherits(result.glm + result.function, "optmatch.dlist"),
+     "Should be a optmatch object")
+if (require("biglm"))
+test(inherits(result.glm + result.bigglm1, "optmatch.dlist"),
+     "Should be a optmatch object")
+
+
+### Distances embodying subclassification:
+test(inherits(result.glm2 + result.fmla2, "optmatch.dlist"),
+     "Should be a optmatch object")
+test(inherits(result.glm2 + result.function.a, "optmatch.dlist"),
+     "Should be a optmatch object")
+if (require("biglm"))
+test(inherits(result.glm2 + result.bigglm2, "optmatch.dlist"),
+     "Should be a optmatch object")
