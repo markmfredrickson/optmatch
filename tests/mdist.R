@@ -47,7 +47,7 @@ test(all(dim(result.function) == c(10,22)), "Function not returning right sized 
 test(identical(optmatch:::parseFmla(y ~ a | group), lapply(c("y", "a", "group"), as.name)))
 test(identical(optmatch:::parseFmla(y ~ a), c(as.name("y"), as.name("a"), NULL)))
 
-test(!is.null(rownames(result.function$m1)) && all(rownames(result.function$m1) %in% rownames(nuclearplants[nuclearplants$pr == 1,])))
+test(!is.null(rownames(result.function$m)) && all(rownames(result.function$m) %in% rownames(nuclearplants[nuclearplants$pr == 1,])))
 
 result.function.a <- mdist(sdiffs, pr ~ 1 | pt, nuclearplants)
 result.function.b <- mdist(sdiffs, pr ~ pt, nuclearplants)
