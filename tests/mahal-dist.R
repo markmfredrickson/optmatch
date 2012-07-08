@@ -14,3 +14,29 @@ mahal.dist(pr~date+cum.n.q, nuclear)
 mahal.dist(~date+cum.n.q, nuclear, pr~pt)
 ### should give error, incorrect mode
 try(mahal.dist(as.factor(pr)~cap, nuclear))
+
+### should be OK:
+mahal.dist(pr~date, nuclear, inverse.cov=diag(1))
+### should complain about inverse.cov's lack of dimnames (but not give error)
+mahal.dist(pr~date+cum.n, nuclear, inverse.cov=diag(2))
+### same thing w/o complaint:
+mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
+                                     dimnames=list(c("date","cum.n"),c("date","cum.n")))
+           )
+### also OK:
+mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
+                                     dimnames=list(c("dateTRUE","cum.n"),c("dateTRUE","cum.n")))
+           )
+
+### but this should stop the show:
+try(
+    mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
+                                     dimnames=list(c("cum.n","date"),c("date","cum.n")))
+               )
+)
+### and this should be another showstopper:
+try(
+    mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
+                                     dimnames=list(c("cum.n","date"),c("cum.n","date")))
+               )
+)

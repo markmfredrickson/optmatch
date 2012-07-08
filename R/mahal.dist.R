@@ -59,16 +59,26 @@ if (is.null(inverse.cov))
        icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
        dimnames(icv) <- dnx[2:1]
     }
-stopifnot(is.matrix(icv),
-          dim(icv)[1]==dim(icv)[2],
-          all.equal(dimnames(icv)[[1]],dimnames(icv)[[2]]),
-          all.equal(dimnames(icv)[[1]],dimnames(dfr)[[2]]))
+## stopifnot(all.equal(dimnames(icv)[[1]],dimnames(dfr)[[2]]))
   } else
 {
-stopifnot(is.matrix(inverse.cov),
-          dim(inverse.cov)[1]==dim(inverse.cov)[2],
-          all.equal(dimnames(inverse.cov)[[1]],dimnames(inverse.cov)[[2]]),
-          all.equal(dimnames(inverse.cov)[[1]],dimnames(dfr)[[2]]))
+  if (!is.matrix(inverse.cov) || dim(inverse.cov)[1]!=dim(inverse.cov)[2] ||
+      (!is.null(dimnames(inverse.cov)) &&
+       !isTRUE(all.equal(dimnames(inverse.cov)[[1]],dimnames(inverse.cov)[[2]]))
+       )
+      ) stop("inverse.cov must be a square symmetric matrix.")
+
+  if (dim(inverse.cov)[1]!=dim(dfr)[2]) stop("dimension of inverse.cov must match number of data terms.")
+  if (!is.null(dimnames(inverse.cov)) &&
+      !isTRUE(all.equal(dimnames(inverse.cov)[[1]],dimnames(dfr)[[2]]))
+      )
+    {
+      icvnm <- gsub("TRUE$", "", dimnames(inverse.cov)[[1]])
+      dfrnm <- gsub("TRUE$", "", dimnames(dfr)[[2]])
+      if (!isTRUE(all.equal(icvnm, dfrnm)))    stop("dimnames of inverse.cov don't match names of data terms") 
+    }
+  if (is.null(dimnames(inverse.cov)) & dim(inverse.cov)[1] > 1) warning("inverse.cov lacks dimnames so I can't confirm it's aligned with data terms.")
+  
 icv <- inverse.cov
 }
 attr(structure.fmla, 'generation.increment') <- 1
