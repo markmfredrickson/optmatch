@@ -69,8 +69,23 @@ caliper(.2,ppty))        # give your width first.
 ppty.dist <- mdist(ppty) 
 identical(caliper(ppty.dist, width = .2), pptycaliper)
 
-### caliper on the Mahalanobis distance
-caliper(width = 3, pr ~ t1 + t2, data = nuclearplants)             
+### caliper of 1.5 on the _squared_ Mahalanobis distance
+caliper(width = 1.5, pr ~ t1 + t2,
+  data = subset(nuclearplants, subset=(pt==1)))             
+
+### caliper of 1.5 on the Mahalanobis distance
+caliper(width = 1.5^2, pr ~ t1 + t2,
+  data = subset(nuclearplants, subset=(pt==1)))             
+
+
+### caliper of .6 on date, in its original units (here, years):
+caliper(width=.6^2, pr ~ date, inverse.cov=diag(1),
+  data = subset(nuclearplants, subset=(pt==1)))
+
+### caliper of .6 on date, in pooled sd's of date:
+caliper(width=.6^2, pr ~ date, 
+  data = subset(nuclearplants, subset=(pt==1)))
+
 
 ### Mahalanobis distance matching with a caliper
 ### of 1 pooled SD in the propensity score:
