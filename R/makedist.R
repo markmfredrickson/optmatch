@@ -75,6 +75,10 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
 
   res <- replace(res, 1:length(res), dists)
 
+  # we'll use the names later to put the match vector in a nice order
+  # including all names, even those "excluded" out of existence
+  attr(res, "order") <- namefn(data)
+
   return(res)
 }
 
