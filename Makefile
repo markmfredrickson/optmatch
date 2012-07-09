@@ -9,7 +9,7 @@ R: OPTMATCH_TIMESTAMP
 	mkdir .local
 
 OPTMATCH_TIMESTAMP: .local R/* tests/* inst/tests/*
-	R --vanilla CMD Install --library=.local .
+	R --vanilla CMD Install --no-multiarch --library=.local .
 	date > OPTMATCH_TIMESTAMP
 
 autotest: OPTMATCH_TIMESTAMP
