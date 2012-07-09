@@ -125,7 +125,7 @@ test_that("Z can be a numeric, logical, or two level factor", {
 })
 
 test_that("Include original name order information", {
-  df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
+  df <- data.frame(z = rep(c(0,1), 5), b = rep(c(0,1), each = 5), y = rnorm(10))
   df$w <- df$y + rnorm(10)
   rownames(df) <- letters[1:10]
 
@@ -145,4 +145,12 @@ test_that("Include original name order information", {
   expect_equal(res.v, res.df)
   expect_equal(attr(res.v, "order"), rownames(df))
 
+  # repeat above but with an ISM
+  # we get an ISM by using exclusions
+
+  test.exclusions <- exactMatch(z ~ b, data = df)
+
+  res <- makedist(df$z, df, f, exclusions = test.exclusions)
+
+  expect_equal(attr(res.v, "order"), rownames(df))
 })
