@@ -12,8 +12,8 @@ OPTMATCH_TIMESTAMP: .local R/* tests/* inst/tests/*
 	R --vanilla CMD Install --no-multiarch --library=.local .
 	date > OPTMATCH_TIMESTAMP
 
-autotest: OPTMATCH_TIMESTAMP
-	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); auto_test('./R', './inst/tests', 'summary')"
+test: OPTMATCH_TIMESTAMP
+	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
 build:
 	R --vanilla CMD Build .
