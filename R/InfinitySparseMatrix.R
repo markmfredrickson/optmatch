@@ -75,6 +75,9 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
                                 rownames = rownames(from),
                                 colnames = colnames(from),
                                 dimension = dims)
+
+  # copy the original data order, if any from the matrix
+  attr(x, "order") <- attr(from, "order")
   return(x)
 })
 
@@ -142,6 +145,14 @@ function(e1, e2) {
   tmp@.Data <- res
   tmp@cols <- e1@cols[idx1]
   tmp@rows <- e1@rows[idx1]
+  
+  # if either has an order, use the first
+  if (!is.null(attr(e1, "order"))) {
+    attr(tmp, "order") <- attr(e1, "order") 
+  } else {
+    attr(tmp, "order") <- attr(e2, "order") 
+  }
+
   return(tmp)
 })
 

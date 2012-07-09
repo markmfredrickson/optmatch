@@ -136,3 +136,26 @@ test_that("Reversion Test: Proper labeling of NAs", {
   expect_true(!all(is.na(res[-3])))
 
 })
+
+test_that("Results are in 'data order'", {
+  df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
+  df$w <- df$y + rnorm(10)
+  rownames(df) <- letters[1:10]
+
+  # mahal based ISM object
+  m <- mdist(z ~ x + y + w, data = df)
+
+  # make g unmatchable
+  m[, "g"] <- Inf
+
+  res <- fullmatch(m)
+
+  expect_equal(names(res), rownames(df))
+
+  mm <- as.InfinitySparseMatrix(m)
+
+  res <- fullmatch(mm)
+
+  expect_equal(names(res), rownames(df))
+  
+})

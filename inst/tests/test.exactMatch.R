@@ -197,3 +197,21 @@ test_that("Cbind/rbind an exact match", {
   expect_equal(dim(res.rbind), c(n/2 + 2, n/2))
   
 })
+
+test_that("Exact match contains proper order", {
+  n <- 16
+  Z <- rep(c(0,1), each = n/2)
+  my.names <- c(LETTERS[1:(n/2)], letters[(26 - n/2 + 1):26])
+  names(Z) <- my.names
+
+  W <- rnorm(16)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, W, B)
+
+  res <- exactMatch(B, treatment = Z) # factor, factor implementation
+
+  expect_equal(my.names, attr(res, "order"))
+
+  res <- exactMatch(Z ~ B, data = test.data)
+  
+})

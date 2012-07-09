@@ -232,5 +232,35 @@ test_that("BlockedISM addition", {
     "BlockedInfinitySparseMatrix")
 })
 
+################################################################################
+# Tests about data ordering (i.e. order of original mdist() call)
+################################################################################
+
+test_that("Order attribute is maintained during arith", {
+  df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
+  df$w <- df$y + rnorm(10)
+  rownames(df) <- letters[1:10]
+
+  # mahal based ISM object
+  m <- mdist(z ~ x + y + w, data = df)  
+  
+  expect_true(!is.null(attr(m, "order")))
+
+  mm <- as.InfinitySparseMatrix(m)
+  
+  expect_true(!is.null(attr(mm, "order")))
+
+  expect_true(!is.null(attr(m + mm, "order")))
+  expect_true(!is.null(attr(mm + m, "order")))
+
+  # now zap m's order attrib
+  attr(m, "order") <- NULL
+
+  expect_true(!is.null(attr(m + mm, "order")))
+  expect_true(!is.null(attr(mm + m, "order")))
+
+  # both ISMs
+  expect_true(!is.null(attr(mm + mm, "order")))
+})
 
 

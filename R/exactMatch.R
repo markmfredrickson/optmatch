@@ -46,6 +46,8 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- x
   names(tmp@groups) <- nms
+
+  attr(tmp, "order") <- nms
   return(tmp)
 })
 
