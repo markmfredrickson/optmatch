@@ -323,6 +323,13 @@ function(e1, e2) {
     tmp@groups <- e2@groups  
   }
 
+  # if either has an order, use the first
+  if (!is.null(attr(e1, "order"))) {
+    attr(tmp, "order") <- attr(e1, "order") 
+  } else {
+    attr(tmp, "order") <- attr(e2, "order") 
+  }
+
   return(tmp)
 })
 
@@ -333,6 +340,13 @@ function(e1, e2) {
   tmp <- callGeneric(e1, as(e2, "InfinitySparseMatrix"))
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- e2@groups
+
+  if (!is.null(attr(e1, "order"))) {
+    attr(tmp, "order") <- attr(e1, "order") 
+  } else {
+    attr(tmp, "order") <- attr(e2, "order") 
+  }
+
   return(tmp)
 })
 
@@ -341,6 +355,9 @@ t.BlockedInfinitySparseMatrix <- function(x) {
   tmp <- t.InfinitySparseMatrix(x)
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- x@groups
+
+  attr(tmp, "order") <- attr(x, "order")
+
   return(tmp)
 }
 
