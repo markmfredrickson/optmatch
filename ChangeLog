@@ -1,3 +1,7 @@
+2012-07-23 Version 0.7-4
+	* Arithmetic operations on optmatch.dlist objects allows for different names
+	  of the subproblems, provided each subproblem has the same matrix format.
+	* Various documentation fixes.
 2012-04-01 Version 0.7-3
 	* `print.optmatch` now takes an additional `grouped = TRUE` parameter to
 	which prints out a table of the groups with the members.
