@@ -158,8 +158,16 @@ test(inherits(result.glm + result.bigglm1, "optmatch.dlist"),
 ### Distances embodying subclassification:
 test(inherits(result.glm2 + result.fmla2, "optmatch.dlist"),
      "Should be a optmatch object")
+
 test(inherits(result.glm2 + result.function.a, "optmatch.dlist"),
      "Should be a optmatch object")
+
+tmp <- result.glm2[1]
+class(tmp) <- c("optmatch.dlist", 'list')
+
+shouldError(inherits(tmp + result.function.a, "optmatch.dlist"),
+     "Should be a optmatch object")
+
 if (require("biglm"))
 test(inherits(result.glm2 + result.bigglm2, "optmatch.dlist"),
      "Should be a optmatch object")

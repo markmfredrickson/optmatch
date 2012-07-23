@@ -34,9 +34,27 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     if (!any(is.na(rn12rn2)) && any(diff(rn12rn2)<0)) stop("arguments\' row names inconsistently ordered")
     if (!any(is.na(rn22rn1)) && any(diff(rn22rn1)<0)) stop("arguments\' row names inconsistently ordered")
     
-    if (!setequal(sc1,sc2) ) stop("dlist names don\'t match")
+    # the proper behavior is:
+    # - make sure the two objects have same length
+    # - in each item, make sure the row and column names are the same
+    # if either is not met, fail
 
-     e2 <- e2[sc1]
+    if (setequal(sc1,sc2)) {
+      # if they have the same names, great. proceed, perhaps reording e2 
+      e2 <- e2[sc1]
+    } else {
+      if (length(sc1) != length(sc2)) {
+        stop("arguments must have equal number of subproblems")  
+      }
+      
+      k <- length(sc1) 
+      for (i in 1:k) {
+        if (!identical(dimnames(e1[[i]]), dimnames(e2[[i]]))) {
+          stop("arguments must have identically named subproblem matrices")  
+        }  
+      }
+    }
+
      
      dm11 <- lapply(e1, function(x) {if (is.null(dim(x))) {length(x)} else {dim(x)[1]}})
      dm11 <- unlist(dm11)
@@ -60,7 +78,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     
     if (nchar(.Method[1]) )
       {
-      for (j in sc1)
+      for (j in 1:length(e1))
         {
           left <- e1[[j]]
           if (!unary) {
@@ -82,7 +100,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     {
       if (nchar(.Method[2]))
         {
-      for (j in sc2)
+      for (j in 1:length(e2))
         {
           right <- e2[[j]]
           left <- e1
