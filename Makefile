@@ -47,5 +47,8 @@ $(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* dem
 check: $(PKG).tar.gz
 	R --vanilla CMD Check --as-cran --no-multiarch $(PKG).tar.gz
 
-
+release: check
+	git tag -a $(VERSION)
+	@echo "Upload $(PKG) to cran.r-project.org/incoming"
+	@echo "Email to CRAN@R-project.org, subject: 'CRAN submission optmatch $(VERSION)'"
 
