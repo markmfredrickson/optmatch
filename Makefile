@@ -24,16 +24,25 @@ clean:
 
 VERSION=0.7-3
 RELEASE_DATE=`date +%Y-%m-%d`
+PKG=optmatch_$(VERSION)
 
-# depend on the makefile so that updates to the version number will force a rebuild of DESCRIPTION
-DESCRIPTION: DESCRIPTION.template Makefile
-	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > DESCRIPTION
+# depend on the makefile so that updates to the version number will force a rebuild
+# `git archive` doesn't export unarchived directories, so we export a .tar and untar it
+$(PKG): Makefile
+	rm -rf $(PKG)
+	mkdir $(PKG)
+	git archive --format=tar HEAD > $(PKG)/export.tar
+	cd $(PKG) && tar xf export.tar
+	rm $(PKG)/export.tar
 
-optmatch_$(VERSION).tar.gz: DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f
-	R --vanilla CMD Build .
+$(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
+	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
-check: optmatch_$(VERSION).tar.gz
-	R --vanilla CMD Check --no-multiarch optmatch_$(VERSION).tar.gz
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f
+	R --vanilla CMD Build $(PKG)
+
+check: $(PKG).tar.gz
+	R --vanilla CMD Check --no-multiarch $(PKG).tar.gz
 
 
 
