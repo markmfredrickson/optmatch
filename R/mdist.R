@@ -23,6 +23,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
     stop("Both data and the structure formula are required for
     computing mdists from functions.")
   }
+  if (!exists("cl")) cl <- match.call()
   theFun <- match.fun(x)
   parsedFmla <- parseFmla(structure.fmla)
 
@@ -83,6 +84,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
 # mdist method: formula
 mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
   mf <- match.call(expand.dots=FALSE)
+  if (!exists("cl")) cl <- match.call()
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
@@ -138,6 +140,7 @@ update.formula(fmla, structure.fmla)
 # mdist method: glm
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
+  if (!exists("cl")) cl <- match.call()
   ans <- pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
   attr(ans, "call") <- cl
   ans
@@ -175,6 +178,7 @@ mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.
     stop("structure.fmla argument required with bigglms.
 (Use form 'structure.fmla=<treatment.variable> ~ 1'
  for no stratification before matching)")
+  if (!exists("cl")) cl <- match.call()
 
 theps <- predict(x, data, type='link', se.fit=FALSE)
 if (length(theps)!=dim(data)[1])
