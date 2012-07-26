@@ -1,6 +1,6 @@
 Package: optmatch
-Version: 0.7-5
-Date: 2012-07-23
+Version: VERSION 
+Date: DATE
 Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu> and Mark Fredrickson <mark.m.fredrickson@gmail.com>,
   with embedded Fortran code due to Dimitri P. Bertsekas

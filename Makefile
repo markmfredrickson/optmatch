@@ -24,4 +24,12 @@ check: build
 clean:
 	git clean
 
+### Package release scripts ###
+VERSION=0.7-3
+RELEASE_DATE=`date +%Y-%m-%d`
+
+DESCRIPTION: DESCRIPTION.template
+	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > DESCRIPTION
+
+
 
