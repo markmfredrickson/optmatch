@@ -52,3 +52,8 @@ test(all(result$m["B",] == 0))
 a <-mdist(pr ~ t1 + t2, data = nuclearplants)
 b <- caliper(.5, pr ~ t1 + t2, data = nuclearplants)
 test(identical(attributes(stripCall(a)), attributes(stripCall(b))))
+
+
+### Updating
+update(b, structure.fmla=pr~pt)
+update(caliper(1.5, glm(pr~t1+t2+pt, data=nuclearplants, family=binomial)), structure.fmla=pr~pt)
