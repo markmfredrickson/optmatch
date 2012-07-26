@@ -104,7 +104,7 @@ For covariate balance information, load the RItools package and
 pass a (glm) propensity model to summary() as a second argument.
 > require('RItools')
 Loading required package: RItools
-Package SparseM (0.91) loaded.
+Package SparseM (0.96) loaded.
 	   To cite, see citation("SparseM")
 
 > summary(psfm, propensity.model='foo')
