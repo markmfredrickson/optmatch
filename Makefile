@@ -22,14 +22,15 @@ clean:
 
 ### Package release scripts ###
 
-VERSION=0.7-3
+VERSION=0.7-4
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 PREVENT_RELEASE=.git* Makefile DESCRIPTION.template interactive.R
 
 # depend on the makefile so that updates to the version number will force a rebuild
 # `git archive` doesn't export unarchived directories, so we export a .tar and untar it
-$(PKG): Makefile
+# the code must be checked in to force a new export
+$(PKG): Makefile .git/logs/HEAD
 	rm -rf $(PKG)
 	mkdir $(PKG)
 	git archive --format=tar HEAD > $(PKG)/export.tar
@@ -40,11 +41,11 @@ $(PKG): Makefile
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
 	R --vanilla CMD Build $(PKG)
 
 check: $(PKG).tar.gz
-	R --vanilla CMD Check --no-multiarch $(PKG).tar.gz
+	R --vanilla CMD Check --as-cran --no-multiarch $(PKG).tar.gz
 
 
 
