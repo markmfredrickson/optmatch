@@ -5,8 +5,8 @@ Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu> and Mark Fredrickson <mark.m.fredrickson@gmail.com>,
   with embedded Fortran code due to Dimitri P. Bertsekas
   <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Ben B. Hansen <optmatch@ctools.umich.edu>
-Depends: R (>= 2.6.0)
+Maintainer: Mark M. Fredrickson <optmatch@ctools.umich.edu>
+Depends: R (>= 2.8.0)
 Suggests: boot, RItools, biglm
 Description: Functions for optimal matching, including full matching
 License: file LICENSE
