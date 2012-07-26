@@ -1,9 +1,9 @@
 mdist <- function(x, structure.fmla = NULL, ...) {
   cl <- match.call()
-  val <- UseMethod("mdist", x)
-  attr(val, "call") <- cl
-  val
+  UseMethod("mdist", x)
 }
+getCall.optmatch.dlist <- function(x, ...) attr(x, "call") 
+
 
 # mdist method: optmatch.dlist
 mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
@@ -73,6 +73,8 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
   }
 
   attr(ans, 'row.names') <- row.names(data)
+  attr(ans, "call") <- cl
+
   class(ans) <- c('optmatch.dlist', 'list')
   return(ans)
 }
@@ -111,7 +113,9 @@ mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...
   mf <- eval(mf, parent.frame())
 
 ###  return(mf)
-  mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  ans <- mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  attr(ans, "call") <- cl
+  ans
 }
 
 isThereAPipe <- function(fmla)
@@ -134,7 +138,9 @@ update.formula(fmla, structure.fmla)
 # mdist method: glm
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
-  pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  ans <- pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  attr(ans, "call") <- cl
+  ans
 }
 
 # parsing formulas for creating mdists
@@ -188,8 +194,10 @@ abs(outer(as.vector(treatments$tHePs),
 as.vector(controls$tHePs), `-`))
 }
 
-mdist(psdiffs, structure.fmla=structure.fmla,
+ans <- mdist(psdiffs, structure.fmla=structure.fmla,
       data=Data)
+  attr(ans, "call") <- cl
+  ans
 }
 
 

@@ -1,6 +1,7 @@
 useDynLib(optmatch)
 
 export(fullmatch, pairmatch, makedist, pscore.dist, mahal.dist, matched.distances, matched, matchfailed, unmatched, maxControlsCap, minControlsCap, relaxinfo, stratumStructure, caliper, mdist, fill.NAs)
+importFrom(stats, getCall)
 
 S3method(print, optmatch)
 S3method(summary, optmatch)
