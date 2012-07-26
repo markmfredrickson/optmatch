@@ -38,7 +38,9 @@ result.fmla2 <- mdist(fmla, ~pt, data = nuclearplants)
 test(inherits(result.fmla2, "optmatch.dlist"), "Should be a optmatch object")
 test(length(result.fmla2) == 2)
 
+### Can the results be updated?
 test(identical(stripCall(result.glm2), stripCall(update(result.glm, structure.fmla=~pt))))
+test(identical(stripCall(result.fmla2), stripCall(update(result.fmla, structure.fmla=~pt))))
 
 ### Function Tests ###
 
@@ -59,6 +61,9 @@ result.function.a <- mdist(sdiffs, pr ~ 1 | pt, nuclearplants)
 result.function.b <- mdist(sdiffs, pr ~ pt, nuclearplants)
 
 test(identical(stripCall(result.function.a), stripCall(result.function.b)), "Two ways to specify groupings")
+
+### Check of updating:
+test(identical(stripCall(result.function.b), stripCall(update(result.function,structure.fmla=pr~pt))))
 
 shouldError <- function(expr, msg = "Exception should be thrown") {
   r <- try(expr, silent = T)
