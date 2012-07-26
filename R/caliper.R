@@ -1,5 +1,5 @@
 caliper <- function(width, ..., exclude = c(), penalty = Inf) {
-
+  cl <- match.call()  
   start <- mdist(...) # returns an optmatch.dlist object
 
   # pseudo:
@@ -15,7 +15,7 @@ caliper <- function(width, ..., exclude = c(), penalty = Inf) {
   # after mapplying, res becomes a plain list, make it a dlist
   class(res) <- list("optmatch.dlist", "list")
   attributes(res) <- attributes(start)
-
+  attr(res, "call") <- cl
   return(res)
 }
 

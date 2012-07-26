@@ -13,6 +13,11 @@ shouldError <- function(expr, msg = "Exception should be thrown") {
   }
 }
 
+stripCall <- function(obj) {
+  attr(obj, "call") <- NULL
+  obj
+}
+
 ### Basic test of caliper function ###
 data(nuclearplants)
 
@@ -44,6 +49,11 @@ test(all(result$m["A",] == 0))
 test(all(result$m["B",] == 0))
 
 ### Calipers should have same attributes as normal matches ###
-a <- mdist(pr ~ t1 + t2, data = nuclearplants)
+a <-mdist(pr ~ t1 + t2, data = nuclearplants)
 b <- caliper(.5, pr ~ t1 + t2, data = nuclearplants)
-test(identical(attributes(a), attributes(b)))
+test(identical(attributes(stripCall(a)), attributes(stripCall(b))))
+
+
+### Updating
+update(b, structure.fmla=pr~pt)
+update(caliper(1.5, glm(pr~t1+t2+pt, data=nuclearplants, family=binomial)), structure.fmla=pr~pt)

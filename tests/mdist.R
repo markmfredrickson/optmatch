@@ -5,6 +5,10 @@ test <- function(t, m = "Test Failed!") {
     stop(m)
   } 
 }
+stripCall <- function(obj) {
+  attr(obj, "call") <- NULL
+  obj
+}
 
 ### Data ###
 
@@ -34,6 +38,10 @@ result.fmla2 <- mdist(fmla, ~pt, data = nuclearplants)
 test(inherits(result.fmla2, "optmatch.dlist"), "Should be a optmatch object")
 test(length(result.fmla2) == 2)
 
+### Can the results be updated?
+test(identical(stripCall(result.glm2), stripCall(update(result.glm, structure.fmla=~pt))))
+test(identical(stripCall(result.fmla2), stripCall(update(result.fmla, structure.fmla=~pt))))
+
 ### Function Tests ###
 
 # first, a simpler version of scalar diffs
@@ -52,7 +60,10 @@ test(!is.null(rownames(result.function$m)) && all(rownames(result.function$m) %i
 result.function.a <- mdist(sdiffs, pr ~ 1 | pt, nuclearplants)
 result.function.b <- mdist(sdiffs, pr ~ pt, nuclearplants)
 
-test(identical(result.function.a, result.function.b), "Two ways to specify groupings")
+test(identical(stripCall(result.function.a), stripCall(result.function.b)), "Two ways to specify groupings")
+
+### Check of updating:
+test(identical(stripCall(result.function.b), stripCall(update(result.function,structure.fmla=pr~pt))))
 
 shouldError <- function(expr, msg = "Exception should be thrown") {
   r <- try(expr, silent = T)
@@ -91,12 +102,12 @@ combined.fmla <- pr ~ t1 + t2 | pt
 result.main <- mdist(main.fmla, structure.fmla = strat.fmla, data = nuclearplants)
 result.combined <- mdist(combined.fmla, data = nuclearplants)
 
-test(identical(result.main, result.combined))
+test(identical(stripCall(result.main), stripCall(result.combined)))
 
 ### Informatively insist that one of formulas specify the treatment group
 shouldError(mdist(~t1+t2, structure.fmla=~pt, data=nuclearplants))
-test(identical(mdist(pr~t1+t2, structure.fmla=~pt, data=nuclearplants),
-               mdist(~t1+t2, structure.fmla=pr~pt, data=nuclearplants))
+test(identical(stripCall(mdist(pr~t1+t2, structure.fmla=~pt, data=nuclearplants)),
+               stripCall(mdist(~t1+t2, structure.fmla=pr~pt, data=nuclearplants)))
      )
 ### Finding "data" when it isn't given as an argument
 ### Caveats:
@@ -142,6 +153,8 @@ result.bigglm2 <- mdist(bgps, structure.fmla=pr ~ pt, data=nuclearplants)
 
 absdist1 <- mdist(sdiffs, structure.fmla = pr ~ 1|pt, data = nuclearplants)
 test(length(pairmatch(absdist1)) > 0)
+
+
 
 ### Check that distances combine as they should
 ### (a joint test of mdist and Ops.optmatch.dlist)

@@ -1,6 +1,9 @@
 mdist <- function(x, structure.fmla = NULL, ...) {
+  cl <- match.call()
   UseMethod("mdist", x)
 }
+getCall.optmatch.dlist <- function(x, ...) attr(x, "call") 
+
 
 # mdist method: optmatch.dlist
 mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
@@ -20,7 +23,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
     stop("Both data and the structure formula are required for
     computing mdists from functions.")
   }
-
+  if (!exists("cl")) cl <- match.call()
   theFun <- match.fun(x)
   parsedFmla <- parseFmla(structure.fmla)
 
@@ -71,6 +74,8 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
   }
 
   attr(ans, 'row.names') <- row.names(data)
+  attr(ans, "call") <- cl
+
   class(ans) <- c('optmatch.dlist', 'list')
   return(ans)
 }
@@ -79,6 +84,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
 # mdist method: formula
 mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
   mf <- match.call(expand.dots=FALSE)
+  if (!exists("cl")) cl <- match.call()
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
@@ -109,7 +115,9 @@ mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...
   mf <- eval(mf, parent.frame())
 
 ###  return(mf)
-  mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  ans <- mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  attr(ans, "call") <- cl
+  ans
 }
 
 isThereAPipe <- function(fmla)
@@ -132,7 +140,10 @@ update.formula(fmla, structure.fmla)
 # mdist method: glm
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
-  pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  if (!exists("cl")) cl <- match.call()
+  ans <- pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  attr(ans, "call") <- cl
+  ans
 }
 
 # parsing formulas for creating mdists
@@ -167,6 +178,7 @@ mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.
     stop("structure.fmla argument required with bigglms.
 (Use form 'structure.fmla=<treatment.variable> ~ 1'
  for no stratification before matching)")
+  if (!exists("cl")) cl <- match.call()
 
 theps <- predict(x, data, type='link', se.fit=FALSE)
 if (length(theps)!=dim(data)[1])
@@ -186,8 +198,10 @@ abs(outer(as.vector(treatments$tHePs),
 as.vector(controls$tHePs), `-`))
 }
 
-mdist(psdiffs, structure.fmla=structure.fmla,
+ans <- mdist(psdiffs, structure.fmla=structure.fmla,
       data=Data)
+  attr(ans, "call") <- cl
+  ans
 }
 
 
