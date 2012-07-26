@@ -22,7 +22,7 @@ clean:
 
 ### Package release scripts ###
 
-VERSION=0.7-4
+VERSION=0.7-5
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 PREVENT_RELEASE=.git* Makefile DESCRIPTION.template interactive.R
