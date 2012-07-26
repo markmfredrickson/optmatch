@@ -1,5 +1,8 @@
 mdist <- function(x, structure.fmla = NULL, ...) {
-  UseMethod("mdist", x)
+  cl <- match.call()
+  val <- UseMethod("mdist", x)
+  attr(val, "call") <- cl
+  val
 }
 
 # mdist method: optmatch.dlist
@@ -20,7 +23,6 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
     stop("Both data and the structure formula are required for
     computing mdists from functions.")
   }
-
   theFun <- match.fun(x)
   parsedFmla <- parseFmla(structure.fmla)
 
