@@ -3,9 +3,10 @@
 ### method. Missingness indicators are added for each column that is
 ### imputed.
 
-fill.NAs <- function(x, data = NULL) {
+fill.NAs <- function(x, data = NULL, all.covs=FALSE) {
   # if x is present alone, it must be a data.frame
   # if x is present with data, x is a formula
+  # all.covs is logical indicating whether or not we want a response variable 
 
   if (is.null(data)) {
     if (!is.data.frame(x) && !is.matrix(x)) {
@@ -15,8 +16,14 @@ fill.NAs <- function(x, data = NULL) {
     data <- as.data.frame(x) # in case it is a matrix
     
     # swap the arguments around
-    response <- colnames(data)[1] # the name of the response var    
-    x <- as.formula(paste("~. -", response)) # a quick hack to make a formula that is the data, should probably eval col names
+    if(!all.covs){
+	    response <- colnames(data)[1] # the name of the response var    
+    
+	    x <- as.formula(paste("~. -", response)) # a quick hack to make a formula that is the data, should probably eval col names
+    }
+    if(all.covs){
+	    x <- as.formula(~.)
+    }
 
   } else {
     if (inherits(x, "formula")) {
@@ -63,8 +70,12 @@ fill.NAs <- function(x, data = NULL) {
   # NB: fill.column.numeric is hard coded as value of model.matrix is always numeric. no need for a generic fn.
   modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
 
+  if(!all.covs){
   result <- cbind(data[response], modmat, NA.columns)
-
+  }
+  if(all.covs){
+	  result <- cbind(modmat,NA.columns)
+  }
   return(result)
   
 } 
