@@ -1,6 +1,6 @@
 
-R version 2.13.0 (2011-04-13)
-Copyright (C) 2011 The R Foundation for Statistical Computing
+R version 2.14.2 (2012-02-29)
+Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i386-apple-darwin9.8.0/i386 (32-bit)
 
@@ -23,15 +23,12 @@ You're loading optmatch, by Ben Hansen, a package for flexible
  and optimal matching.  Important license information:
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
- Bertsekas' AUCTION algorithm and code.
- Bertsekas and Tseng freely permit their software to be used for
- research purposes, but non-research uses, including the use of it
+ Bertsekas' AUCTION algorithm and code.  Using the software
  to 'satisfy in any part commercial delivery requirements to
- government or industry,' require a special agreement with them.
- By extension, this requirement applies to any use of the 
- fullmatch() function. (If you are using another package that has
- loaded optmatch, then you will probably be using fullmatch indirectly.)
- For more information, enter relaxinfo() at the command line
+ government or industry' requires a special agreement with
+ Dr. Bertsekas. For more information, enter
+ relaxinfo() at the command line.
+
 > data(plantdist)
 > fullmatch(1 * (plantdist < 10)) # make plantdist < 10 numeric, not logical
   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T 

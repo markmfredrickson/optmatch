@@ -32,7 +32,7 @@
   to this distance, it is allowed kept; otherwise, the pair is discarded from future
   matching. The default comparison of ``equal or less than can'' be changed to any other
   comparison function using the \code{comparison} argument.
-
+  
   If you wish to exclude specific units from the caliper requirements, pass the names of 
   these units in the \code{exclude} argument. These units will be allowed to match any other
   unit.
