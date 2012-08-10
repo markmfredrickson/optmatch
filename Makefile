@@ -2,41 +2,21 @@
 ### Useful tasks for developing, automating release process
 ################################################################################
 
-### Interactive use and testing targets ###
-
-R: OPTMATCH_TIMESTAMP
+R: .local/optmatch/INSTALLED
 	R_PROFILE=interactive.R R -q --no-save 
-	
-.local:
-	mkdir .local
-
-OPTMATCH_TIMESTAMP: .local R/* tests/* inst/tests/*
-	R --vanilla CMD Install --no-multiarch --library=.local .
-	date > OPTMATCH_TIMESTAMP
-
-test: OPTMATCH_TIMESTAMP
-	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
-
-clean:
-	git clean
 
 ### Package release scripts ###
 
 VERSION=0.7-6
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
-PREVENT_RELEASE=.git* Makefile DESCRIPTION.template interactive.R
 
 # depend on the makefile so that updates to the version number will force a rebuild
 # `git archive` doesn't export unarchived directories, so we export a .tar and untar it
 # the code must be checked in to force a new export
-$(PKG): Makefile .git/logs/HEAD
+$(PKG): Makefile R/* tests/*  man/*
 	rm -rf $(PKG)
-	mkdir $(PKG)
-	git archive --format=tar HEAD > $(PKG)/export.tar
-	cd $(PKG) && tar xf export.tar
-	rm $(PKG)/export.tar
-	cd $(PKG) && rm -rf $(PREVENT_RELEASE)
+	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile --exclude=DESCRIPTION.template --exclude=interactive.R . $(PKG)
 
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
@@ -52,3 +32,15 @@ release: check
 	@echo "Upload $(PKG) to cran.r-project.org/incoming"
 	@echo "Email to CRAN@R-project.org, subject: 'CRAN submission optmatch $(VERSION)'"
 
+# depend on this file to decide if we need to install the local version
+.local/optmatch/INSTALLED: $(PKG).tar.gz
+	mkdir -p .local
+	R --vanilla CMD Install --no-multiarch --library=.local $(PKG).tar.gz
+	echo `date` > .local/optmatch/INSTALLED
+
+# test is just the internal tests, not the full R CMD Check
+test: .local/optmatch/INSTALLED
+	R --vanilla -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
+
+clean:
+	git clean -xfd
