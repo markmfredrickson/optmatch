@@ -71,13 +71,24 @@ test_that("Results pass to lm()", {
 
 })
 
-test_that("Response not imputed", {
+test_that("Response not imputed by default", {
     
   #### Do not impute response, only covariates
   naresponse.df <- data.frame(Y = c(1, 2, 3, NA, 5), X = c(10, 20, NA, 40, 50))
   imputed.response <- fill.NAs(Y ~ X, naresponse.df)
   expect_true(any(is.na(imputed.response$Y)))
   expect_true(!any(is.na(imputed.response$X)))
+
+  #### Impute when all.covs = T
+  
+  # formula style
+  imputed.all <- fill.NAs(Y ~ X, naresponse.df, all.covs = T)
+  expect_true(!any(is.na(imputed.all)))
+
+  # model frame style
+  imputed.all <- fill.NAs(naresponse.df, all.covs = T)
+  expect_true(!any(is.na(imputed.all)))
+
 })
 
 test_that("Transform, then impute", {

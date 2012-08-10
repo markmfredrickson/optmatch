@@ -12,7 +12,7 @@
 }
 
 \usage{
-  fill.NAs(x, data = NULL)
+  fill.NAs(x, data = NULL, all.covs = FALSE)
 
 }
 
@@ -21,6 +21,10 @@
     a formula (in which case data must be a data.frame)}
 
   \item{data}{If x is a formula, this must be a data.frame. Otherise it will be ignored.}
+
+  \item{all.covs}{Should the response variable be imputed? For formula
+  \code{x}, this is the variable on the left hand side. For \code{data.frame}
+  \code{x}, the response is considered the first column. }
 }
 
 \details{
@@ -39,7 +43,13 @@
   object and \code{fill.NAs} will fill every column. Alternatively, you can pass a \code{formula} and
   a \code{data.frame}. Fill-in  will only be applied to columns specifically used in the formula. Prior to
   fill-in, any functions in the formula will be expanded. If any arguments to the functions are \code{NA},
-  the function value will also be \code{NA} and subject to fill-in.}
+  the function value will also be \code{NA} and subject to fill-in.
+  
+  By default, \code{fill.NAs} does not impute the response variable. This is to
+  encourage more sophisticated imputation schemes when the response is a
+  treatment indicator in a matching problem. This behavior can be overridden by
+  setting \code{all.covs = TRUE}.
+}
 
 \value{
   A \code{data.frame} with all \code{NA} values replaced with mean values
@@ -47,7 +57,7 @@
   missing values. Suitable for directly passing to \code{\link{lm}} or other
   model building functions to build propensity scores. 
 }
-\author{ Mark M. Fredrickson} %Ben B. Hansen
+\author{ Mark M. Fredrickson and Jake Bowers }
 
 \references{
   von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
