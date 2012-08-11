@@ -1,4 +1,5 @@
-R version 2.14.2 (2012-02-29)
+
+R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i386-apple-darwin9.8.0/i386 (32-bit)
@@ -18,9 +19,7 @@ Type 'q()' to quit R.
 > ### maxControlsCap
 > require('optmatch')
 Loading required package: optmatch
-Loading required package: testthat
-You're loading optmatch, by Ben Hansen, a package for flexible
- and optimal matching.  Important license information:
+You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
  Bertsekas' AUCTION algorithm and code.  Using the software
@@ -84,3 +83,6 @@ attr(,"comparable.num.matched.pairs")
 attr(,"comparable.num.matched.pairs")
 [1] 0
 > 
+> proc.time()
+   user  system elapsed 
+  2.624   0.127   6.264 

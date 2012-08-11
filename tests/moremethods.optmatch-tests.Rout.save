@@ -1,4 +1,5 @@
-R version 2.14.2 (2012-02-29)
+
+R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i386-apple-darwin9.8.0/i386 (32-bit)
@@ -16,9 +17,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(optmatch)
-Loading required package: testthat
-You're loading optmatch, by Ben Hansen, a package for flexible
- and optimal matching.  Important license information:
+You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
  Bertsekas' AUCTION algorithm and code.  Using the software
@@ -303,12 +302,12 @@ X Y
   A   B   C   D   E 
 1.1 1.2 1.3 1.4 1.4 
 > attributes(plantsfm)
-$levels
-[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
-
 $names
  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S"
 [20] "T" "U" "V" "W" "X" "Y" "Z"
+
+$levels
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
 
 $exceedances
          1 
@@ -432,3 +431,6 @@ X Y
   U   V   W   X   Y   Z 
 1.6 1.5 1.5 1.7 1.7 1.6 
 > 
+> proc.time()
+   user  system elapsed 
+  1.390   0.084   1.530 

@@ -1,5 +1,5 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i386-apple-darwin9.8.0/i386 (32-bit)
@@ -18,10 +18,7 @@ Type 'q()' to quit R.
 
 > require('optmatch')
 Loading required package: optmatch
-<<<<<<< HEAD
-Loading required package: testthat
-You're loading optmatch, by Ben Hansen, a package for flexible
- and optimal matching.  Important license information:
+You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
  Bertsekas' AUCTION algorithm and code.  Using the software
@@ -136,7 +133,7 @@ Percentiles of matched distances:
 0.0110 0.0577 0.1600 0.1660 
 Balance test overall result:
   chisquare df p.value
-       9.48  9   0.394
+       2.29  9   0.986
 > summary(psfm, psm)
 Matching failed in subclasses containing 14 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
@@ -153,7 +150,7 @@ Percentiles of matched distances:
 0.0110 0.0577 0.1600 0.1660 
 Balance test overall result:
   chisquare df p.value
-       9.48  9   0.394
+       2.29  9   0.986
 > psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
 +             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
 +             family=binomial, data=nuclearplants)
@@ -174,5 +171,8 @@ Percentiles of matched distances:
 0.0419 0.7450 1.5300 1.6600 
 Balance test overall result:
   chisquare df p.value
-          8  8   0.433
+       9.17  9   0.422
 > 
+> proc.time()
+   user  system elapsed 
+  2.389   0.111   2.758 
