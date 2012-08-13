@@ -42,11 +42,10 @@ summary.optmatch <- function(object,
     }
 
     so$balance <- xBalance(fmla = formula(propensity.model),
-                   strata=object[!mfd, drop=TRUE],
-                     data = expand.model.frame(propensity.model,
-                       all.vars(formula(propensity.model)),
-                       na.expand=TRUE)[!mfd,],
-                   report=c('adj.means', 'z.scores', 'chisquare.test'))
+                           strata = object[!mfd, drop=TRUE],
+                           data = model.frame(propensity.model)[!mfd,],
+                           report = c('adj.means', 'z.scores', 'chisquare.test'))
+
   } else if (!is.null(propensity.model)) so$warnings <-
     c(so$warnings,
       list("For covariate balance information, load the RItools package and\npass a (glm) propensity model to summary() as a second argument.")
