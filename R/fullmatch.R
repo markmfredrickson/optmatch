@@ -109,6 +109,18 @@ fullmatch <- function(distance,
   # a helper to handle a single matching problem. all args required. 
   # input error checking happens in the public fullmatch function.
   .fullmatch <- function(d, mnctl, mxctl, omf) {
+    
+    # if the subproblem is completely empty, short circuit
+    if (length(d) == 0 || all(is.infinite(d))) {
+      x <- dim(d)
+      cells.a <- rep(NA, x[1])
+      cells.b <- rep(NA, x[2])
+      names(cells.a) <- rownames(d)
+      names(cells.b) <- colnames(d)
+      tmp <- list(cells = c(cells.a, cells.b), maxerr = -1)
+      return(tmp) 
+    }
+
     ncol <- dim(d)[2]
     nrow <- dim(d)[1]
 

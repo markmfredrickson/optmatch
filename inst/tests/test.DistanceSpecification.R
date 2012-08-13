@@ -134,5 +134,20 @@ test_that("Validating DistSpecs", {
   expect_equal(mode(m2), "character")
 
   expect_error(validDistanceSpecifcation(m2))
-  expect_error(validDistanceSpecifcation(as.InfinitySparseMatrix(m2)))
+
+  # conversion to ism would raise an error for m2:
+  expect_error(as.InfinitySparseMatrix(m2))
+
+  # nor can we assign character data to an ism)
+  m2.ism <- as.InfinitySparseMatrix(m)
+  expect_error(m2.ism@.Data <- letters[1:4])
+
+  # all Inf is valid
+  m3 <- matrix(Inf, nrow = 3, ncol = 4)
+  rownames(m3) <- LETTERS[1:3]
+  colnames(m3) <- letters[23:26]
+
+  expect_true(validDistanceSpecifcation(m3))
+  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m3)))
+
 })

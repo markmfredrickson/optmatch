@@ -63,6 +63,10 @@ setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
 # })
 
 setAs("matrix", "InfinitySparseMatrix", function(from) { 
+  if (!is.numeric(from)) {
+    stop("matrix must be numeric")  
+  }
+
   dims <- dim(from) ; nrow <- dims[1] ; ncol <- dims[2]  
   finite <- is.finite(from)
   

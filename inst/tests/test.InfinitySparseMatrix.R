@@ -33,6 +33,10 @@ test_that("ISM Basics", {
   expect_equivalent(as(D, "matrix"), y)
   expect_equivalent(A, as(m, "InfinitySparseMatrix"))
 
+  # should not be able to convert non-numeric matrices
+  charmat <- matrix(letters[1:4], nrow = 2, dimnames = list(c(1,2), c(3,4)))
+  expect_error(as.InfinitySparseMatrix(charmat))
+
 })
 
 test_that("ISM Handles Names", {

@@ -159,3 +159,22 @@ test_that("Results are in 'data order'", {
   expect_equal(names(res), rownames(df))
   
 })
+
+test_that("Complete Inf matrices/ISMs => all NA optmatch object", {
+  # Issue 15: https://github.com/markmfredrickson/optmatch/issues/15
+
+  m <- matrix(Inf, nrow = 3, ncol = 4)
+  rownames(m) <- LETTERS[1:3]
+  colnames(m) <- letters[23:26]
+
+  res.m <- fullmatch(m)
+
+  expect_true(all(is.na(res.m)))
+
+  ism <- as.InfinitySparseMatrix(m)
+
+  res.ism <- fullmatch(ism)
+
+  expect_true(all(is.na(res.ism)))
+  
+})

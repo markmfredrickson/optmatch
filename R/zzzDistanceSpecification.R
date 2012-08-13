@@ -118,10 +118,6 @@ function(distance, stopOnProblem = TRUE) {
   # for matrices we check with is.numeric
   valid <- valid & is.numeric(distance)
 
-  # for ISMs, non-numeric input can be turned into a zero length vector
-  # luckily for us, this should be true of matrices as well.
-  valid <- valid & length(distance) > 0
-
   if (stopOnProblem & !valid) {
     stop("Distance must be numeric.")  
   }
