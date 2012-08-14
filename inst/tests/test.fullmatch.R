@@ -138,17 +138,25 @@ test_that("Reversion Test: Proper labeling of NAs", {
 })
 
 test_that("Results are in 'data order'", {
+  # https://github.com/markmfredrickson/optmatch/issues/14
+  
   df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
   df$w <- df$y + rnorm(10)
-  rownames(df) <- letters[1:10]
+  rownames(df) <- letters[1:10][sample(1:10)]
 
   # mahal based ISM object
   m <- mdist(z ~ x + y + w, data = df)
 
-  # make g unmatchable
-  m[, "g"] <- Inf
+  # make the first control unit unmatchable
+  m[, 1] <- Inf
 
   res <- fullmatch(m)
+
+  expect_equal(names(res), rownames(df))
+
+  # shuffle the order of the distance matrix
+  m2 <- m[sample(1:5),]
+  res <- fullmatch(m2)
 
   expect_equal(names(res), rownames(df))
 
