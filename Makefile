@@ -44,3 +44,5 @@ test: .local/optmatch/INSTALLED
 
 clean:
 	git clean -xfd
+
+package: $(PKG).tar.gz
