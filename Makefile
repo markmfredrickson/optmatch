@@ -16,12 +16,19 @@ PKG=optmatch_$(VERSION)
 # the code must be checked in to force a new export
 $(PKG): Makefile R/* tests/* inst/tests/* man/*
 	rm -rf $(PKG)
-	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile --exclude=DESCRIPTION.template --exclude=interactive.R . $(PKG)
+	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
+		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
+		--exclude=interactive.R . $(PKG)
 
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
+$(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION
+	mkdir -p $(PKG)/man
+	R -e "library(roxygen2); roxygenize('$(PKG)')"
+	cat NAMESPACE.static >> $(PKG)/NAMESPACE
+
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
 	R --vanilla CMD Build $(PKG)
 
 check: $(PKG).tar.gz
