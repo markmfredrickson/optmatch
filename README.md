@@ -268,26 +268,62 @@ overwrite your existing installation.
 
 You must have the Fortran extensions for package building included. These can
 be had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
-[Windows](http://cran.r-project.org/bin/windows/Rtools/).
+[Windows](http://cran.r-project.org/bin/windows/Rtools/). You will also need a
+copy of GNU `make` to create the package from source (standard on Linux,
+included with [Apple's developer tools](http://developer.apple.com), included
+with the [Cygwin](http://www.cygwin.com/) UNIX tools for Windows).
 
-In `R`, you will need to install and load the `devtools` package:
+In `R`, you will need to install and load the `roxygen2` package:
 
-    > install.packages("devtools")
-    > library("devtools")
+    > install.packages("roxygen2")
 
-Next, pick a location to install the package. For example, I created a
-directory called `~/R/optmatch.demo/` (`~` is short for my home directory on a
-UNIX system). For this session, we will set the library path to look in this
-location first and install the package there:
+You will need to download the branch you wish to install. You can navigate to
+the [Optmatch project page](http://github.com/markmfredrickson/optmatch) to
+find the branch you wish to use. Switch to the proper branch and use the zip
+download button. Unzip the package. In a terminal window:
 
-    > .libPaths("~/R/optmatch.demo/") # <- your path here
-    > install_github("optmatch", user = "markmfredrickson", branch = "s4")
+    $ cd /path/to/package
+    $ make package
 
-The function `install_github` will load the package automatically. In the
-future, if you wish load the downloaded version of `optmatch` in a new `R`
-session you can use this one-liner:
+This should build a `optmatch_VERSION.tar.gz` file. You can install it in a
+local directory (for example `~/R/optmatch.demo`) using:
 
-    > library("optmatch", lib.loc = "~/R/optmatch.demo") # <- your path here
+    $ mkdir -p ~/R/optmatch.demo
+    $ R CMD Install --no-multiarch --library=~/R/optmatch.demo ./optmatch_VERSION.tar.gz
 
+You can then load the library in `R` using:
 
+    > library("optmatch", lib.loc = "~/R/optmatch.demo") 
+
+### Developing for Optmatch
+
+We welcome patches to add features, fix bugs, or otherwise improve the package.
+To develop `optmatch`, you will need to have a working installation of `git`
+and all the software mentioned in the previous section. Instead of downloading
+the source directly, fork the project and github and clone a working copy from
+your forked project:
+
+    $ git clone git@github.com:YOURUSERNAME/optmatch.git
+
+We prefer changes that include unit tests demonstrating the problem or showing
+how the new feature should be added. The test suite uses the
+[testthat](http://github.com/hadley/test_that) package to write and run tests.
+See the `inst/tests` directory for examples. To run the test suite, use:
+
+    $ make test
+
+New features should include documentation. We prefer inline
+[Roxygen](http://roxygen.org/) style documentation to raw `.Rd` files. Any
+`Makefile` task that builds the package will create the documentation. These
+tasks are also useful for development:
+
+- `R`: starts up an interactive session with `optmatch` loaded.
+- `check`: runs `R CMD Check` on a built package
+- `package`: creates a `tar.gz` of the package
+
+If you need to edit the `DESCRIPTION` file (e.g. to add a suggested package),
+edit `DESCRIPTION.template` instead. This file is used during the build process
+to insert the version and date information.
+
+When your change is ready, make a pull request on github.
 
