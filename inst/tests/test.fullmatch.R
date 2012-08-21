@@ -165,6 +165,14 @@ test_that("Results are in 'data order'", {
   res <- fullmatch(mm, data = df)
 
   expect_equal(names(res), rownames(df))
+
+  # not supplying a data argument is grounds for a warning
+  expect_warning(fullmatch(mm), "data")
+
+  # data argument should have useful names attached
+  tmp <- as.matrix(df)
+  rownames(tmp) <- colnames(tmp) <- NULL
+  expect_warning(fullmatch(mm, data = tmp), "names")
   
 })
 

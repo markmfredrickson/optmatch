@@ -11,6 +11,11 @@ fullmatch <- function(distance,
     stop("argument \'distance\' must be a DistanceSpecification object")      
   }
 
+  if (is.null(data)) {
+    warning("Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.")  
+  }
+
   # we expect the following to be defined for the distance object
   # put any functions in this list that are called directly on distance
   methods <- c("dim", "dimnames", "prepareMatching", "subproblems",
