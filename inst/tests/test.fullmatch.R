@@ -144,6 +144,9 @@ test_that("Results are in 'data order'", {
   df$w <- df$y + rnorm(10)
   rownames(df) <- letters[1:10][sample(1:10)]
 
+  # add some NAs to the df:
+  df[3, "y"] <- NA
+
   # mahal based ISM object
   m <- mdist(z ~ x + y + w, data = df)
 
