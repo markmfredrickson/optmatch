@@ -39,7 +39,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   problem.size <- narcs + nt + nc
 
   # these "soft" limits are backed by "hard" limits in the Fortran code itself
-  if (problem.size > (1e+7-2)) {
+  if (problem.size > getMaxProblemSize()) {
       stop(paste('matrix arg to fmatch may have only',
                  1e+7, "-(nrows+ncols+2) finite entries;",
                  problem.size - 1e+7 - 2, 'too many'),
