@@ -28,13 +28,6 @@ makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix 
 
   optmatch.obj <- as.factor(optmatch.obj)
   names(optmatch.obj) <- unlist(sapply(matching, names)) 
-  
-  order <- attr(distance, "order")
-  if(is.null(order)) {
-    order <- 1:length(optmatch.obj)
-  }
-
-  optmatch.obj <- optmatch.obj[order]
 
   class(optmatch.obj) <- c("optmatch", "factor")
 

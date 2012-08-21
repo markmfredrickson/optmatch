@@ -79,9 +79,6 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
                                 rownames = rownames(from),
                                 colnames = colnames(from),
                                 dimension = dims)
-
-  # copy the original data order, if any from the matrix
-  attr(x, "order") <- attr(from, "order")
   return(x)
 })
 
@@ -149,14 +146,6 @@ function(e1, e2) {
   tmp@.Data <- res
   tmp@cols <- e1@cols[idx1]
   tmp@rows <- e1@rows[idx1]
-  
-  # if either has an order, use the first
-  if (!is.null(attr(e1, "order"))) {
-    attr(tmp, "order") <- attr(e1, "order") 
-  } else {
-    attr(tmp, "order") <- attr(e2, "order") 
-  }
-
   return(tmp)
 })
 
@@ -327,13 +316,6 @@ function(e1, e2) {
     tmp@groups <- e2@groups  
   }
 
-  # if either has an order, use the first
-  if (!is.null(attr(e1, "order"))) {
-    attr(tmp, "order") <- attr(e1, "order") 
-  } else {
-    attr(tmp, "order") <- attr(e2, "order") 
-  }
-
   return(tmp)
 })
 
@@ -344,13 +326,6 @@ function(e1, e2) {
   tmp <- callGeneric(e1, as(e2, "InfinitySparseMatrix"))
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- e2@groups
-
-  if (!is.null(attr(e1, "order"))) {
-    attr(tmp, "order") <- attr(e1, "order") 
-  } else {
-    attr(tmp, "order") <- attr(e2, "order") 
-  }
-
   return(tmp)
 })
 
@@ -359,9 +334,6 @@ t.BlockedInfinitySparseMatrix <- function(x) {
   tmp <- t.InfinitySparseMatrix(x)
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- x@groups
-
-  attr(tmp, "order") <- attr(x, "order")
-
   return(tmp)
 }
 

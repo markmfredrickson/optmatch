@@ -150,19 +150,19 @@ test_that("Results are in 'data order'", {
   # make the first control unit unmatchable
   m[, 1] <- Inf
 
-  res <- fullmatch(m)
+  res <- fullmatch(m, data = df)
 
   expect_equal(names(res), rownames(df))
 
   # shuffle the order of the distance matrix
   m2 <- m[sample(1:5),]
-  res <- fullmatch(m2)
+  res <- fullmatch(m2, data = df)
 
   expect_equal(names(res), rownames(df))
 
   mm <- as.InfinitySparseMatrix(m)
 
-  res <- fullmatch(mm)
+  res <- fullmatch(mm, data = df)
 
   expect_equal(names(res), rownames(df))
   
