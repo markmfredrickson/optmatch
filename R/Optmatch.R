@@ -13,17 +13,20 @@
 #' information relating to the quality of the match.
 #' 
 #' @param distance A \code{DistanceSpecificaton} object used to create the
-#' match.
+#'  match.
 #' @param solutions A list of the results of the matching, one list(cells,
-#' maxErr) object per subproblem.
-#' @call call The call to full/pairmatch to be displayed later.
+#'  maxErr) object per subproblem.
+#' @param call The call to full/pairmatch to be displayed later.
+#' @param data An object from which \code{names} or \code{row.names} will
+#'  provide the order of the items in the match.
 #' @return \code{optmatch} object
 #' 
 #' @seealso \code{\link{summary.optmatch}}
 
 makeOptmatch <- function(distance, 
                          solutions, 
-                         call) 
+                         call,
+                         data = NULL) 
 { 
   # pull out just the matching vectors
   matching <- lapply(solutions, function(x) { x$cells })
@@ -44,6 +47,31 @@ makeOptmatch <- function(distance,
 
   optmatch.obj <- as.factor(optmatch.obj)
   names(optmatch.obj) <- unlist(sapply(matching, names)) 
+
+  # we try to get the order as row names, straight names, and finally from the
+  # value of the data argument.
+  optorder <- NULL
+  if(!is.null(data)) {
+    optorder <- row.names(data)  
+
+    if (is.null(optorder)) {
+      optorder <- names(data)  
+    }
+
+    if (is.null(optorder) & is.vector(data)) {
+      optorder <- as.character(data)  
+    }
+
+    if (is.null(optorder)) {
+      # if we are here, the user tried to pass data, but we couldn't get names
+      warning("Unable to find appropriate names in 'data' argument.")
+    }
+  }
+
+  if (!is.null(optorder)) {
+    optmatch.obj <- optmatch.obj[optorder]
+    names(optmatch.obj) <- optorder
+  }
 
   class(optmatch.obj) <- c("optmatch", "factor")
 

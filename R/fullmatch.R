@@ -2,7 +2,8 @@ fullmatch <- function(distance,
     min.controls = 0, 
     max.controls = Inf, 
     omit.fraction = NULL, 
-    tol = .001) {
+    tol = .001,
+    data = NULL) {
 
   ### Checking Input ###
   
@@ -152,7 +153,7 @@ fullmatch <- function(distance,
   
   solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
 
-  return(makeOptmatch(distance, solutions, match.call()))
+  return(makeOptmatch(distance, solutions, match.call(), data))
 }
 
 
