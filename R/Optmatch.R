@@ -5,9 +5,25 @@
 
 ####### Object Creation #########
 
-makeOptmatch <- function(distance, # a DistanceSpecification obj (e.g. a matrix or ISM)
-                         solutions, # the results of calling SubDivStrat on multiple strata
-                         call) # the result of match.call() 
+#' (Internal) Create \code{optmatch} objects, the result of matching.
+#'
+#' This internal function is used to create the final output of the matching
+#' functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
+#' \code{optmatch} object descends from a \code{factor}, but contains additional
+#' information relating to the quality of the match.
+#' 
+#' @param distance A \code{DistanceSpecificaton} object used to create the
+#' match.
+#' @param solutions A list of the results of the matching, one list(cells,
+#' maxErr) object per subproblem.
+#' @call call The call to full/pairmatch to be displayed later.
+#' @return \code{optmatch} object
+#' 
+#' @seealso \code{\link{summary.optmatch}}
+
+makeOptmatch <- function(distance, 
+                         solutions, 
+                         call) 
 { 
   # pull out just the matching vectors
   matching <- lapply(solutions, function(x) { x$cells })
