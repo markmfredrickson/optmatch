@@ -66,3 +66,20 @@ test_that("Compute omit fraction based on reachable treated units", {
   
 
 })
+
+test_that("Pass additional arguments to fullmatch", {
+  df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
+  df$w <- df$y + rnorm(10)
+  rownames(df) <- letters[1:10][sample(1:10)]
+
+  # mahal based ISM object
+  m <- mdist(z ~ x + y + w, data = df)
+ 
+  expect_warning(pairmatch(m), "data") # no 'data' argument
+
+  # raise warnings to error level to make sure any warnings get caught
+  oldopts <- options(warn = 2)
+  pairmatch(m, data = df)
+  options(oldopts)
+
+})

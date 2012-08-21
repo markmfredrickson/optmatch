@@ -1,4 +1,4 @@
-pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE) {
+pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) {
 
   # Should this checking be pushed to fullmatch to avoid duplication?
   if (!is(distance, "DistanceSpecification")) {
@@ -55,8 +55,10 @@ pairmatch <- function(distance, controls=1, tol=0.001, remove.unmatchables=FALSE
     stop('not enough controls in some subclasses')
   }
   
-  fullmatch(distance=distance, min.controls=controls,
-    max.controls=controls, omit.fraction=omf,
-    tol=tol)
+  fullmatch(distance = distance, 
+            min.controls = controls,
+            max.controls = controls, 
+            omit.fraction = omf,
+            ...)
 }
 
