@@ -110,6 +110,11 @@
 #' sum of discrepancies for all treatments and controls placed
 #' into the same matched sets.
 #'
+#' @param data Optional \code{data.frame} or \code{vector} to use to get order
+#' of the final matchng factor. Useful to pass if you want to combine a match
+#' (using, e.g., \code{cbind}) with the data that were used to generate it (for
+#' example, in a propensity score matching).
+#'
 #' @return optmatch A factor like matching indicator.
 #'
 #' @references
