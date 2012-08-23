@@ -14,7 +14,7 @@ PKG=optmatch_$(VERSION)
 # depend on the makefile so that updates to the version number will force a rebuild
 # `git archive` doesn't export unarchived directories, so we export a .tar and untar it
 # the code must be checked in to force a new export
-$(PKG): Makefile R/* tests/* inst/tests/* man/*
+$(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
 	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \

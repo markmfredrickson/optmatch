@@ -18,7 +18,7 @@ setFeasibilityConstants <- function() {
 #'
 #' @seealso \code{\link{options}}
 #' @return logical
-#' @examples getMaxProblemSize() > 1 & getMaxProblemSize() < 1e100
+#' @examples optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
 getMaxProblemSize <- function() {
   tmp <- options("optmatch_max_problem_size")[[1]]
   if (is.null(tmp[[1]])) {
