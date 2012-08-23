@@ -29,7 +29,7 @@ $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
 $(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
-	R --vanilla CMD Build $(PKG)
+	R --vanilla CMD build $(PKG)
 
 check: $(PKG).tar.gz
 	R --vanilla CMD Check --as-cran --no-multiarch $(PKG).tar.gz
