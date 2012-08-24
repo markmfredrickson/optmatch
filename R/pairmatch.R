@@ -5,26 +5,7 @@
 #' units to controls that minimizes the sum of discrepancies.
 #' 
 #' This is a wrapper to \code{\link{fullmatch}}; see its documentation for
-#' more information.
-#' 
-#' code{fullmatch} tries to guess the
-#' order in which units would have been given in a data frame, and to
-#' order the factor that it returns accordingly.  If the dimnames of
-#' \code{distance}, or the matrices it lists, are not simply row numbers
-#' of the data frame you're working with, then you should compare the
-#' names of fullmatch's output to your row names in order to be sure
-#' things are in the proper order.  You can relieve yourself of these
-#' worries by using \code{\link{mdist}} to produce the distances, as
-#' it passes the ordering of units to \code{fullmatch}, which then uses
-#' it to order its outputs.
-#' 
-#'  The value of \code{tol} can have a substantial effect on
-#' computation time; with smaller values, computation takes longer.
-#' Not every tolerance can be met, and how small a tolerance is too small
-#' varies with the machine and with the details of the problem.  If
-#' \code{fullmatch} can't guarantee that the tolerance is as small as the
-#' given value of argument \code{tol}, then matching proceeds but a
-#' warning is issued.
+#' more information, especially on addiitonal arguments to pass.
 #' 
 #' If \code{remove.unmatchables} is \code{FALSE}, then if there are
 #' unmatchable treated units then the matching as a whole will fail and
@@ -67,8 +48,12 @@
 #' Matrix \code{distance}, or the matrix elements of \code{distance},
 #' must have row and column names. 
 #' @param controls The number of controls to be matched to each treatment
-#' @param tol Tolerance -- see \code{\link{fullmatch}} for details. 
 #' @param remove.unmatchables Should treatment group members for which there are no eligible controls be removed prior to matching?
+#' @param ... Additional arguments to pass to \code{\link{fullmatch}}.
+#' It is strongly suggested that you pass a \code{data} argument.
+#' It is
+#' an error to pass \code{min.controls}, \code{max.controls},
+#' or \code{omit.fraction} as \code{pairmatch} must set these values.
 #' @return \code{optmatch}, a factor like matching indicator
 #' @references
 #' Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{Optimal full matching
@@ -88,6 +73,15 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
 
   if (!all(floor(controls) == controls) | !all(controls > 0)) {
     stop("Minimum controls must be greater than treated units")  
+  }
+
+  # Check that max/min.controls and omit.fraction is not passed in ...
+  dots <- names(match.call(expand.dots = TRUE))[-1] # first is always ""
+  not.allowed <- c("min.controls", "max.controls", "omit.fraction")
+  found <- not.allowed %in% dots
+  if (any(found)) {
+    stop("Invalid argument(s) to pairmatch: ", paste(not.allowed[found],
+      collapse = ", "))   
   }
 
   subprobs <- findSubproblems(distance)

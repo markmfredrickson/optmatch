@@ -82,4 +82,13 @@ test_that("Pass additional arguments to fullmatch", {
   pairmatch(m, data = df)
   options(oldopts)
 
+  # it is an error to pass any of the following: max.controls, min.controls.
+  # omit.fraction
+  expect_error(pairmatch(m, data = df, max.controls = 2), 
+               "Invalid argument\\(s\\) to pairmatch: max\\.controls")
+  expect_error(pairmatch(m, data = df, min.controls = 2), 
+               "Invalid argument\\(s\\) to pairmatch: min\\.controls")
+  expect_error(pairmatch(m, data = df, omit.fraction = 2), 
+               "Invalid argument\\(s\\) to pairmatch: omit\\.fraction")
+
 })
