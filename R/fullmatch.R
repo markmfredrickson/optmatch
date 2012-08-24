@@ -111,7 +111,8 @@
 #' into the same matched sets.
 #'
 #' @param data Optional \code{data.frame} or \code{vector} to use to get order
-#' of the final matchng factor. Useful to pass if you want to combine a match
+#' of the final matchng factor (by \code{row.names} or \code{names},
+#' respectively). Useful to pass if you want to combine a match
 #' (using, e.g., \code{cbind}) with the data that were used to generate it (for
 #' example, in a propensity score matching).
 #'
