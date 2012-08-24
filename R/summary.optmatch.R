@@ -1,4 +1,4 @@
-
+q
 summary.optmatch <- function(object, 
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
@@ -41,12 +41,47 @@ summary.optmatch <- function(object,
       warning("This propensity seems to have been fit with 'model=FALSE'.\nI'm reconstructing the data set as best I can, but I might fail,\nor get a different data set than the one behind propensity.model.\nTo be sure, re-fit your propensity.model with 'model = TRUE'.")  
     }
 
+    # we need to handle the different ways of creating glm objects
+    # 1: glm(Z ~ f(X), data = mydata)
+    # 2: glm(Z ~ f(X)) # uses environment
+    # 3: glm(fill.NAs(Z ~ f(x), data = mydata))
+    # each stores its data in different places.
+
+    modelData <- NULL # be explicit for safety
+    if (!is.null(propensity.model$data)) {
+      na.behavior <- FALSE
+
+      # if (inherits(propensity.model$data, "environment")) {
+      # 
+      #   modelData <- expand.model.frame(propensity.model,
+      #       all.vars(formula(propensity.model)),
+      #       envir = propensity.model$data,
+      #       na.expand=TRUE)
+      # }       
+
+      # if (inherits(propensity.model$data, "data.frame")) {
+      #   modelData <- expand.model.frame(propensity.model,
+      #       all.vars(formula(propensity.model)),
+      #       na.expand=TRUE)
+      # }
+      modelData <- get_all_vars(propensity.model, data = propensity.model$data)
+
+    } else {
+      # case 3
+      modelData <- propensity.model$model
+      na.behavior <- TRUE
+    }
+
+    if (is.null(modelData)) {
+      stop("summary.optmatch does not know how to process this type of model. Please file a bug report at https://github.com/markmfredrickson/optmatch/issues showing how you created your glm model.")  
+    }
+
     so$balance <- xBalance(fmla = formula(propensity.model),
-                   strata=object[!mfd, drop=TRUE],
-                     data = expand.model.frame(propensity.model,
-                       all.vars(formula(propensity.model)),
-                       na.expand=TRUE)[!mfd,],
-                   report=c('adj.means', 'z.scores', 'chisquare.test'))
+                           strata = object[!mfd, drop=TRUE],
+                           data = modelData[!mfd,],
+                           report = c('adj.means', 'z.scores', 'chisquare.test'),
+                           na.rm = na.behavior) 
+
   } else if (!is.null(propensity.model)) so$warnings <-
     c(so$warnings,
       list("For covariate balance information, load the RItools package and\npass a (glm) propensity model to summary() as a second argument.")
