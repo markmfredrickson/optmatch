@@ -49,21 +49,8 @@ summary.optmatch <- function(object,
 
     modelData <- NULL # be explicit for safety
     if (!is.null(propensity.model$data)) {
+      # cases 1 and 2
       na.behavior <- FALSE
-
-      # if (inherits(propensity.model$data, "environment")) {
-      # 
-      #   modelData <- expand.model.frame(propensity.model,
-      #       all.vars(formula(propensity.model)),
-      #       envir = propensity.model$data,
-      #       na.expand=TRUE)
-      # }       
-
-      # if (inherits(propensity.model$data, "data.frame")) {
-      #   modelData <- expand.model.frame(propensity.model,
-      #       all.vars(formula(propensity.model)),
-      #       na.expand=TRUE)
-      # }
       modelData <- get_all_vars(propensity.model, data = propensity.model$data)
 
     } else {
@@ -75,10 +62,17 @@ summary.optmatch <- function(object,
     if (is.null(modelData)) {
       stop("summary.optmatch does not know how to process this type of model. Please file a bug report at https://github.com/markmfredrickson/optmatch/issues showing how you created your glm model.")  
     }
+    
+    strata <- object[!mfd, drop=TRUE]
+    data <- modelData[!mfd,]
+
+    if (length(strata) != dim(data)[1]) {
+      stop("'summary' method unable to recreate data. Consider passing 'data' argument to 'pairmatch' or 'fullmatch'.")  
+    }
 
     so$balance <- xBalance(fmla = formula(propensity.model),
-                           strata = object[!mfd, drop=TRUE],
-                           data = modelData[!mfd,],
+                           strata = strata,
+                           data = data,
                            report = c('adj.means', 'z.scores', 'chisquare.test'),
                            na.rm = na.behavior) 
 
