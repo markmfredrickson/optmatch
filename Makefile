@@ -23,7 +23,7 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
-$(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION
+$(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static
 	mkdir -p $(PKG)/man
 	R -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
