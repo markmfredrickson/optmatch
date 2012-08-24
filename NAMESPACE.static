@@ -1,7 +1,6 @@
 useDynLib(optmatch)
 
-export(fullmatch, 
-       pairmatch, 
+export(
        matched.distances, 
        matched, 
        matchfailed, 
