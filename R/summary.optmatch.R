@@ -1,4 +1,3 @@
-q
 summary.optmatch <- function(object, 
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
