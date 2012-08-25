@@ -1,7 +1,7 @@
 data(nuclearplants)
 ### Full matching on a Mahalanobis distance
 mhd  <- mdist(pr ~ t1 + t2, data = nuclearplants)
-( fm1 <- fullmatch(mhd, nuclearplants) )
+( fm1 <- fullmatch(mhd, data = nuclearplants) )
 summary(fm1)
 ### Full matching with restrictions
 ( fm2 <- fullmatch(mhd, min=.5, max=4, data = nuclearplants) )
