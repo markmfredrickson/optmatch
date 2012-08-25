@@ -14,20 +14,17 @@
 #' treatment units.  (In this case matching can still fail, if there is
 #' too much competition for certain controls; if you find yourself in
 #' that situation you should consider full matching, which necessarily
-#' finds a match for everyone with an eligible match somewhere.)  }
-#' \value{Primarily, a named vector of class \code{c('optmatch',
-#' 'factor')}.  Elements of this vector correspond to members of the
+#' finds a match for everyone with an eligible match somewhere.)  
+  
+#' The units of the \code{optmatch} object returned correspond to members of the
 #' treatment and control groups in reference to which the matching
 #' problem was posed, and are named accordingly; the names are taken from
-#' the row and column names of \code{distance}.  Each element of the
+#' the row and column names of \code{distance} (with possible additions from
+#' the optonal \code{data} argument).  Each element of the
 #' vector is the concatenation of: (i) a character abbreviation of
 #' \code{subclass.indices}, if that argument was given, or the string
 #' '\code{m}' if it was not; (ii) the string \code{.}; and (iii) a
-#' nonnegative integer or the string \code{NA}.  In this last place,
-#' positive whole numbers indicate placement of the unit into a matched
-#' set, a number beginning with zero indicates a unit that was not
-#' matched, and \code{NA} indicates that all or part of the matching
-#' problem given to \code{fullmatch} was found to be infeasible.
+#' nonnegative integer. Unmatched units have \code{NA} entries.
 #' Secondarily, \code{fullmatch} returns various data about the matching
 #' process and its result, stored as attributes of the named vector which
 #' is its primary output.  In particular, the \code{exceedances}
@@ -60,7 +57,7 @@
 #' and related designs via network flows}, \emph{Journal of Computational
 #' and Graphical Statistics}, \bold{15}, 609--627.   
 #' 
-#' @seealso \code{\link{matched}}, \code{\link{caliper}}, \code{\link{fullmatch}}} 
+#' @seealso \code{\link{matched}}, \code{\link{caliper}}, \code{\link{fullmatch}} 
 #' @example inst/examples/pairmatch.R
 #' @keywords nonparametric optimize
 #' @export
