@@ -21,7 +21,6 @@ importFrom(stats, getCall)
 ### S3 Stuff
 
 S3method(print, optmatch)
-S3method(summary, optmatch)
 S3method("[", optmatch)
 S3method(print, summary.optmatch)
 S3method(dim, InfinitySparseMatrix)

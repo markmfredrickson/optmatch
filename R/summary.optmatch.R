@@ -1,3 +1,19 @@
+#' Display matching related statistics
+#'
+#' This summary function quantifies \code{optmatch} objects (the result of
+#' \code{\link{fullmatch}} or \code{\link{pairmatch}} on the effective sample
+#' size, the distribution of distances between matched units, and how well the
+#' match reduces average differences.
+#'
+#' @param object The \code{optmatch} object to summarize.
+#' @param propensity.model An optional propensity model (the result of a call to \code{glm}) to use when summarizing the match. If this object is passed and the \code{RItools} package is loaded, an additional chi-squared test will be performed on the average differences between treated and control units on each variable used in the model. See the \code{xBalance} function in the \code{RItools} package for more details.
+#' @param ... Additional arguments to pass to \code{xBalance} when also passing a propensity model.
+#' @param min.controls To minimize the the display of a groups with many treated and few controls, all groups with more than 5 treated units will be summarized as \dQuote{5+}. This is the reciprocal of the default value (1/5 = 0.2). Lower this value to see more groups.
+#' @param max.controls Like \code{min.controls} sets maximum group sized displayed with respect to the nubmer of controls. Raise this value to see more groups.
+#' @param quantiles A points in the ECDF at which the distances between units will be displayed.
+#' @return \code{optmatch.summary}
+#' @method summary optmatch
+#' @S3method summary optmatch
 summary.optmatch <- function(object, 
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
