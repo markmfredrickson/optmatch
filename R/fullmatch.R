@@ -23,8 +23,6 @@
 #' the details of the problem.  If \code{fullmatch} can't guarantee that the
 #' tolerance is as small as the given value of argument \code{tol}, then
 #' matching proceeds but a warning is issued.  
-#' 
- 
 #'
 #' @param distance A matrix of nonnegative discrepancies, each indicating the
 #' permissibility and desirability of matching the unit corresponding to its row
@@ -89,29 +87,7 @@
 #' (using, e.g., \code{cbind}) with the data that were used to generate it (for
 #' example, in a propensity score matching).
 #'
-#' @return optmatch Primarily, a named vector of class \code{c('optmatch', 'factor')}.
-#' Elements of this vector correspond to members of the treatment and control
-#' groups in reference to which the matching problem was posed, and are named
-#' accordingly; the names are taken from the row and column names of
-#' \code{distance}.  Each element of the vector is either \code{NA}, indicating
-#' unavailability of any suitable matches for that element, or the
-#' concatenation of: (i) a character abbreviation of the name of the subclass
-#' (as encouded using \code{\link{exactMatch}}) (ii) the string \code{.}; and
-#' (iii) a nonnegative integer.  In this last place, positive whole numbers
-#' indicate placement of the unit into a matched set and \code{NA} indicates
-#' that all or part of the matching problem given to \code{fullmatch} was found
-#' to be infeasible.  The functions \code{\link{matched}},
-#' \code{\link{unmatched}}, and \code{\link{matchfailed}} distinguish these
-#' scenarios.
-#'
-#' Secondarily, \code{fullmatch} returns various data about the matching
-#' process and its result, stored as attributes of the named vector which is
-#' its primary output.  In particular, the \code{exceedances} attribute gives
-#' upper bounds, not necessarily sharp, for the amount by which the sum of
-#' distances between matched units in the result of \code{fullmatch} exceeds
-#' the least possible sum of distances between matched units in a feasible
-#' solution to the matching problem given to \code{fullmatch}.  (Such a bound
-#' is also printed by \code{print.optmatch} and \code{summary.optmatch}.) 
+#' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups. 
 #'
 #' @references
 #'  Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{ Optimal full matching and related designs via network flows}, 

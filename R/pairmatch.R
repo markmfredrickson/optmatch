@@ -51,7 +51,7 @@
 #' It is
 #' an error to pass \code{min.controls}, \code{max.controls},
 #' or \code{omit.fraction} as \code{pairmatch} must set these values.
-#' @return \code{optmatch}, a factor like matching indicator
+#' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups. 
 #' @references
 #' Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{Optimal full matching
 #' and related designs via network flows}, \emph{Journal of Computational

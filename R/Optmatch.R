@@ -2,6 +2,39 @@
 # Optmatch Class: the result of calling fullmatch()
 ################################################################################
 
+#' Optmatch Class
+#'
+#' The \code{optmatch} class describes the results of an optimal full matching
+#' (using either \code{\link{fullmatch}} or \code{\link{pairmatch}}). For the
+#' most part, these objects can be treated as \code{factors}.
+#'
+#' \code{optmatch} objects descend from \code{factor}.
+#' Elements of this vector correspond to members of the treatment and control
+#' groups in reference to which the matching problem was posed, and are named
+#' accordingly; the names are taken from the row and column names of
+#' \code{distance}.  Each element of the vector is either \code{NA}, indicating
+#' unavailability of any suitable matches for that element, or the
+#' concatenation of: (i) a character abbreviation of the name of the subclass
+#' (as encouded using \code{\link{exactMatch}}) (ii) the string \code{.}; and
+#' (iii) a nonnegative integer.  In this last place, positive whole numbers
+#' indicate placement of the unit into a matched set and \code{NA} indicates
+#' that all or part of the matching problem given to \code{fullmatch} was found
+#' to be infeasible.  The functions \code{\link{matched}},
+#' \code{\link{unmatched}}, and \code{\link{matchfailed}} distinguish these
+#' scenarios.
+#'
+#' Secondarily, \code{fullmatch} returns various data about the matching
+#' process and its result, stored as attributes of the named vector which is
+#' its primary output.  In particular, the \code{exceedances} attribute gives
+#' upper bounds, not necessarily sharp, for the amount by which the sum of
+#' distances between matched units in the result of \code{fullmatch} exceeds
+#' the least possible sum of distances between matched units in a feasible
+#' solution to the matching problem given to \code{fullmatch}.  (Such a bound
+#' is also printed by \code{print.optmatch} and \code{summary.optmatch}.)
+#' @rdname optmatch
+#' @name optmatch
+#' @alias optmatch-class
+NA
 
 ####### Object Creation #########
 
@@ -22,7 +55,6 @@
 #' @return \code{optmatch} object
 #' 
 #' @seealso \code{\link{summary.optmatch}}
-
 makeOptmatch <- function(distance, 
                          solutions, 
                          call,

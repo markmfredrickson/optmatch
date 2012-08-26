@@ -1,7 +1,6 @@
 #' Display matching related statistics
 #'
-#' This summary function quantifies \code{optmatch} objects (the result of
-#' \code{\link{fullmatch}} or \code{\link{pairmatch}} on the effective sample
+#' The summary function quantifies \code{optmatch} objects on the effective sample
 #' size, the distribution of distances between matched units, and how well the
 #' match reduces average differences.
 #'
@@ -14,6 +13,7 @@
 #' @return \code{optmatch.summary}
 #' @method summary optmatch
 #' @S3method summary optmatch
+#' @rdname optmatch
 summary.optmatch <- function(object, 
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
