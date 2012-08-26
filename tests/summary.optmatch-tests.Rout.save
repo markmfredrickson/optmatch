@@ -40,11 +40,15 @@ sum(matched.distances)=0
 Percentiles of matched distances:
   0%  50%  95% 100% 
    0    0    0    0 
+Warning message:
+In fullmatch(1 * (plantdist < 10)) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
 > ## Not run as it would cause an error: summary(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
 > data(nuclearplants)
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 > psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
-> psfm <- fullmatch(psd + caliper(psd, 0.25))
+> psfm <- fullmatch(psd + caliper(psd, 0.25), data = nuclearplants)
 > summary(psfm)
 Matching failed in subclasses containing 14 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
@@ -64,7 +68,7 @@ Percentiles of matched distances:
 > #                   exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
 > # summary(pspm)
 > psd[1,] <- psd[1,] + rep(100,22)
-> summary(pairmatch(psd, controls=2))
+> summary(pairmatch(psd, controls=2, data = nuclearplants))
 Matching failed in subclasses containing 2 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
@@ -155,7 +159,7 @@ Balance test overall result:
 +             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
 +             family=binomial, data=nuclearplants)
 > psd2 <- mdist(psm2, standardization.scale = sd)
-> summary(pairmatch(psd2), propensity.model=psm2)
+> summary(pairmatch(psd2, data = nuclearplants), propensity.model=psm2)
 Matching failed in subclasses containing 12 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
 Structure of matched sets:
@@ -175,4 +179,4 @@ Balance test overall result:
 > 
 > proc.time()
    user  system elapsed 
-  2.389   0.111   2.758 
+  2.671   0.151   7.607 
