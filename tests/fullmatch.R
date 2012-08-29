@@ -4,7 +4,7 @@ data(plantdist)
 fullmatch(1 * (plantdist < 10)) # make plantdist < 10 numeric, not logical
 
 data(nuclearplants)
-mhd2 <- mdist(pr ~ date + cum.n, data = nuclearplants, 
+mhd2 <- match_on(pr ~ date + cum.n, data = nuclearplants, 
               exclusions = exactMatch(pr ~ pt, data = nuclearplants))
 # the previous version of optmatch used fullmatch(mhd2 < 1)
 # this is the equivalent using an ISM (logical operators treat them as numeric

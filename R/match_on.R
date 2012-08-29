@@ -2,9 +2,15 @@
 # Mdist: distance matrix creation functions
 ################################################################################
 
-setGeneric("mdist", def = function(x, exclusions = NULL, ...)  standardGeneric("mdist"))
+#' Create treated to control distances for matching problems
+#' 
+#' @param x An object defining how to create the distances
+#' @param exclusions A \code{\link{DistanceSpecification}} such as the result of \code{\link{exactMatch}}. Finite entries indicate which distances to create.
+#' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
+#' @export
+setGeneric("match_on", def = function(x, exclusions = NULL, ...)  standardGeneric("match_on"))
 
-setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = NULL, ...) {
+setMethod("match_on", "function", function(x, exclusions = NULL, z = NULL, data = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
@@ -16,8 +22,8 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 })
 
 
-# mdist method: formula
-setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
+# match_on method: formula
+setMethod("match_on", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
                                        inv.scale.matrix = NULL, COV = cov, ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
@@ -87,8 +93,8 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
 
 })
 
-# mdist method: glm
-setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
+# match_on method: glm
+setMethod("match_on", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
 {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
@@ -110,15 +116,15 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
         (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
 }
 
-# mdist method: bigglm
-setMethod("mdist", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
+# match_on method: bigglm
+setMethod("match_on", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
 {
   if (is.null(data)) {
-    stop("data argument is required for computing mdists from bigglms")
+    stop("data argument is required for computing match_ons from bigglms")
   }
 
   if (!is.data.frame(data)) {
-    stop("mdist doesn't understand data arguments that aren't data frames.")
+    stop("match_on doesn't understand data arguments that aren't data frames.")
   }
 
   theps <- predict(x, data, type = 'link', se.fit = FALSE)
@@ -149,29 +155,29 @@ are there missing values in data?")
 })
 
 
-### mdist method: numeric.
-### (mdist can't work with numeric vectors at present,
+### match_on method: numeric.
+### (match_on can't work with numeric vectors at present,
 ### but it can return an informative error message).
 
-setMethod("mdist", "numeric", function(x, exclusions = NULL, ...)
+setMethod("match_on", "numeric", function(x, exclusions = NULL, ...)
 {
 
-  stop("No mdist method for numerics.
-  Consider using mdist(z ~ ps | strata, data = your.data)
+  stop("No match_on method for numerics.
+  Consider using match_on(z ~ ps | strata, data = your.data)
   where ps is your numeric vector, z is your treatment assignment,
   and strata (optional) indicates a stratification variable, all
   columns in your.data")
 
 })
 
-# mdist methods for DistanceSpecifications
+# match_on methods for DistanceSpecifications
 # apparently the class union is less important than the true
 # type, so the numeric method above gets in the way
-setMethod("mdist", "InfinitySparseMatrix", function(x, exclusions = NULL, ...) {
+setMethod("match_on", "InfinitySparseMatrix", function(x, exclusions = NULL, ...) {
   return(x)
 }) # just return the argument
 
-setMethod("mdist", "matrix", function(x, exclusions = NULL, ...) {
+setMethod("match_on", "matrix", function(x, exclusions = NULL, ...) {
   return(x)
 }) # just return the argument
 

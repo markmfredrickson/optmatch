@@ -23,7 +23,7 @@ as.InfinitySparseMatrix(x)
   \item{x}{A matrix to be converted to an \code{InfinitySparseMatrix}.}
 }
 \details{
-  Usually, users will create distance specification using \code{\link{mdist}}, \code{\link{caliper}}, or
+  Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
   \code{\link{exactMatch}}, but these functions are useful to generate sparse matching problems directly.
   If the data are already in a matrix form, use \code{as.InfinitySparseMatrix}. If you have the
   finite entries in a vector format, use \code{makeInfinitySparseMatrix}
@@ -35,7 +35,7 @@ to \code{\link{fullmatch}} or \code{\link{pairmatch}}}
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
-\code{\link{mdist}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
+\code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 }
 \examples{
   example.matrix <- matrix(c(1,2,Inf, 3,Inf,4, Inf,Inf,Inf), byrow = TRUE, nrow = 3,

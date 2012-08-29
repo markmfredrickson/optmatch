@@ -28,7 +28,7 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
  relaxinfo() at the command line.
 
 > data(nuclear, package="boot")
-> mdist(pr ~ cap, data = nuclear)
+> match_on(pr ~ cap, data = nuclear)
          control
 treatment          1           2           4          6            7          8
        3  3.95852869 0.000000000 0.000000000 8.41111160 1.635923e+00 10.2413535
@@ -77,7 +77,7 @@ treatment        26        27           28         29
        30 1.6494147 0.5507930 1.170515e-01 0.00000000
        31 4.1064984 0.0000000 1.600211e-01 0.55079301
        32 1.6494147 0.5507930 1.170515e-01 0.00000000
-> mdist(pr ~ cap, data = nuclear,
+> match_on(pr ~ cap, data = nuclear,
 +            inv.scale.matrix = matrix(1,1,1, dimnames=list("cap", "cap")))
          control
 treatment      1      2      4      6     7      8    10     11    12     13
@@ -115,7 +115,7 @@ treatment    28     29
        30  4225      0
        31  5776  19881
        32  4225      0
-> mdist(pr ~ date + cum.n, data = nuclear)
+> match_on(pr ~ date + cum.n, data = nuclear)
          control
 treatment          1         2           4          6          7          8
        3   4.1066172  0.000000  3.04790077  0.3278118 0.70846152 1.59968268
@@ -164,7 +164,7 @@ treatment          26         27          28          29
        30  9.98948462  0.3525588  0.51536468  0.00000000
        31 13.81383376  0.0000000  0.02429209  0.35255881
        32  9.98948462  0.3525588  0.51536468  0.00000000
-> mdist(pr ~ date + cum.n, data = nuclear, exclusions = exactMatch(pr ~ pt, data = nuclear))
+> match_on(pr ~ date + cum.n, data = nuclear, exclusions = exactMatch(pr ~ pt, data = nuclear))
 $`0`
        control
 treated         1         2         4          6          7          8
@@ -212,7 +212,7 @@ treated        27         28        29
 
 > 
 > if ( (require(splines)) )
-+   mdist(pr ~ ns(date,df=3) + cum.n, data = nuclear)
++   match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear)
 Loading required package: splines
          control
 treatment         1         2          4         6          7           8
@@ -264,7 +264,7 @@ treatment         26        27         28         29
        32 15.0171317  7.104341  9.8294536  0.0000000
 > 
 > if (require(splines))
-+   mdist(pr ~ ns(date,df=3) + cum.n, data = nuclear, exactMatch(pr ~ pt, data = nuclear)
++   match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear, exactMatch(pr ~ pt, data = nuclear)
 + )
 $`0`
        control
@@ -312,7 +312,7 @@ treated       27        28       29
      32 7.104341 9.8294536 0.000000
 
 > cum.n.q <- cut(nuclear$cum.n, quantile(nuclear$cum.n), include.lowest=TRUE)
-> mdist(pr ~ date + cum.n.q, data = nuclear)
+> match_on(pr ~ date + cum.n.q, data = nuclear)
          control
 treatment         1         2           4          6          7        8
        3   6.630460  0.000000 10.71828666  0.6766820 10.4168199 2.309583
@@ -361,7 +361,7 @@ treatment         26        27        28          29
        30 11.4657851  0.653938 13.804324  0.00000000
        31 14.7561671  0.000000 11.606556  0.65393798
        32 11.4657851  0.653938 13.804324  0.00000000
-> mdist(pr ~ date + cum.n.q, data = nuclear, exclusions = exactMatch(pr~pt, data = nuclear))
+> match_on(pr ~ date + cum.n.q, data = nuclear, exclusions = exactMatch(pr~pt, data = nuclear))
 $`0`
        control
 treated        1         2         4          6          7        8          10
@@ -400,7 +400,7 @@ treated       27       28       29
 
 > 
 > ### should give error, incorrect mode
-> try(mdist(as.factor(pr) ~ cap, data = nuclear))
+> try(match_on(as.factor(pr) ~ cap, data = nuclear))
          control
 treatment          1           2           4          6            7          8
        3  3.95852869 0.000000000 0.000000000 8.41111160 1.635923e+00 10.2413535

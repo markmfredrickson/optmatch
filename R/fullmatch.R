@@ -10,7 +10,7 @@
 #' matches, with smaller discrepancies indicating more desirable matches.  Matrix
 #' \code{distance} must have row and column names.
 #'   
-#' Consider using \code{\link{mdist}} to generate the distances. This generic
+#' Consider using \code{\link{match_on}} to generate the distances. This generic
 #' function as several useful methods for handling propensity score models,
 #' computing Mahalanobis distances (and other arbitrary distances), and using
 #' user supplied functions. These distances can also be combined with those
@@ -27,7 +27,7 @@
 #' @param distance A matrix of nonnegative discrepancies, each indicating the
 #' permissibility and desirability of matching the unit corresponding to its row
 #' (a 'treatment') to the unit corresponding to its column (a 'control'); or,
-#' better, a distance specification as produced by \code{\link{mdist}}.
+#' better, a distance specification as produced by \code{\link{match_on}}.
 #'
 #' @param min.controls The minimum ratio of controls to treatments that is to
 #' be permitted within a matched set: should be nonnegative and finite.  If

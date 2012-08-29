@@ -11,7 +11,7 @@ test_that("Caliper return values", {
                               control = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
-  # use the Mahalanobis distance mdist method
+  # use the Mahalanobis distance match_on method
   result <- caliper(A, 2)
   expect_is(result, "DistanceSpecification")
   
@@ -27,7 +27,7 @@ test_that("Caliper exclusion", {
                               control = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
-  # use the Mahalanobis distance mdist method
+  # use the Mahalanobis distance match_on method
   result <- caliper(A, 2, exclude = c("B"))
 
 

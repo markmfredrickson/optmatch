@@ -10,7 +10,6 @@ export(
        relaxinfo, 
        stratumStructure, 
        caliper, 
-       mdist, 
        fill.NAs,
        exactMatch,
        makeInfinitySparseMatrix,

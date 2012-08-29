@@ -21,7 +21,7 @@ test_that("Basic Matches", {
   position <- rep(1:4, each = 4)  
   z <- rep(0:1, 8)
   names(z) <- letters[1:16]
-  dist <- mdist(z ~ position, inv.scale.matrix = diag(1))
+  dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
   
   res.mat <- fullmatch(dist)
   res.ism <- fullmatch(as.InfinitySparseMatrix(dist))
@@ -148,7 +148,7 @@ test_that("Results are in 'data order'", {
   df[3, "y"] <- NA
 
   # mahal based ISM object
-  m <- mdist(z ~ x + y + w, data = df)
+  m <- match_on(z ~ x + y + w, data = df)
 
   # make the first control unit unmatchable
   m[, 1] <- Inf

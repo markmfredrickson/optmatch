@@ -39,7 +39,7 @@
 #' each indicating the permissibility and desirability of matching the unit 
 #' corresponding to its row (a 'treatment') to the unit
 #' corresponding to its column (a 'control'); or a list of such matrices
-#' made using \code{\link{mdist}}.  Finite
+#' made using \code{\link{match_on}}.  Finite
 #' discrepancies indicate permissible matches, with smaller
 #' discrepancies indicating more desirable matches. 
 #' Matrix \code{distance}, or the matrix elements of \code{distance},

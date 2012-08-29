@@ -63,7 +63,7 @@
   von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
     \emph{Sociological Methodlogy}, \bold{39}(1), 265 -- 291.}
     
-\seealso{\code{\link{mdist}}, \code{\link{lm}}}
+\seealso{\code{\link{match_on}}, \code{\link{lm}}}
 
 \examples{
 
@@ -96,7 +96,7 @@ family=binomial))
 
 ### produce a matrix of propensity distances based on the propensity model 
 ### with fill-in and flagging. Then perform pair matching on it:
-pairmatch(mdist(np.glm))
+pairmatch(match_on(np.glm))
 
 }
 

@@ -1,7 +1,7 @@
 ### maxControlsCap
 require('optmatch')
 data(nuclearplants)
-mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants, 
+mhd2a <- match_on(pr ~ date + cum.n, data = nuclearplants, 
               exclusions = exactMatch(pr ~ pt, data = nuclearplants))
 mhd2a <- t(mhd2a)
 
