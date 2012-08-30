@@ -1,6 +1,6 @@
 useDynLib(optmatch)
 
-export(
+export(mdist,
        matched.distances, 
        matched, 
        matchfailed, 
@@ -18,6 +18,10 @@ export(
 importFrom(stats, getCall)
 
 ### S3 Stuff
+S3method(Ops, optmatch.dlist)
+S3method(abs, optmatch.dlist)
+S3method(print, optmatch.dlist)
+S3method(getCall, optmatch.dlist)
 
 S3method(print, optmatch)
 S3method("[", optmatch)
@@ -31,6 +35,13 @@ S3method(cbind, BlockedInfinitySparseMatrix)
 S3method(rbind, BlockedInfinitySparseMatrix)
 S3method(t, InfinitySparseMatrix)
 S3method(t, BlockedInfinitySparseMatrix)
+
+S3method(mdist, glm)
+S3method(mdist, optmatch.dlist)
+S3method(mdist, formula)
+S3method(mdist, "function")
+S3method(mdist, numeric)
+S3method(mdist, bigglm)
 
 ### S4 Stuff
 
