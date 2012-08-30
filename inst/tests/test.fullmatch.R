@@ -197,3 +197,22 @@ test_that("Complete Inf matrices/ISMs => all NA optmatch object", {
   expect_true(all(is.na(res.ism)))
   
 })
+
+test_that("Both mdist and match_on objects accepted", {
+  # this test depends on mdist and match_on tests passing
+  # it will probably fail if those fail
+
+  n <- 14
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, X2, B)
+
+  model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
+  res.mdist <- fullmatch(mdist(model))
+  res.mon <- fullmatch(match_on(model))
+
+  expect_equal(res.mdist, res.mon) 
+  
+})

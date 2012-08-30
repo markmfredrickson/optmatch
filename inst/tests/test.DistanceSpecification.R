@@ -121,19 +121,19 @@ test_that("Validating DistSpecs", {
   # nameless matrices are not valid:
   m <- matrix(1:4, nrow = 2)
 
-  expect_error(validDistanceSpecifcation(m))
-  expect_error(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+  expect_error(validDistanceSpecification(m))
+  expect_error(validDistanceSpecification(as.InfinitySparseMatrix(m)))
 
   dimnames(m) <- list(1:2, 3:4)
-  expect_true(validDistanceSpecifcation(m))
-  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+  expect_true(validDistanceSpecification(m))
+  expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m)))
 
   # matrices/isms must be numeric
   m2 <- matrix(letters[1:4], nrow = 2)
   dimnames(m2) <- list(1:2, 3:4)
   expect_equal(mode(m2), "character")
 
-  expect_error(validDistanceSpecifcation(m2))
+  expect_error(validDistanceSpecification(m2))
 
   # conversion to ism would raise an error for m2:
   expect_error(as.InfinitySparseMatrix(m2))
@@ -147,7 +147,7 @@ test_that("Validating DistSpecs", {
   rownames(m3) <- LETTERS[1:3]
   colnames(m3) <- letters[23:26]
 
-  expect_true(validDistanceSpecifcation(m3))
-  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m3)))
+  expect_true(validDistanceSpecification(m3))
+  expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m3)))
 
 })

@@ -6,7 +6,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
 
   # check if it is valid distance specification, 
   # if not through an error message explaining the issue
-  validDistanceSpecifcation(distance, stopOnProblem = TRUE)
+  validDistanceSpecification(distance, stopOnProblem = TRUE)
 
   # if we get this far, the distspec is valid, and findSubproblems
   # will generate a list of also valid distspecs.

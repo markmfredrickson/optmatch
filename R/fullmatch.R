@@ -113,7 +113,7 @@ fullmatch <- function(distance,
 
   ### Checking Input ###
   
-  if (!is(distance, "DistanceSpecification")) {
+  if (!validDistanceSpecification(distance)) {
     stop("argument \'distance\' must be a DistanceSpecification object")      
   }
 

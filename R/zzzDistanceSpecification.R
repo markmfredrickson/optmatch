@@ -100,29 +100,35 @@ findSubproblems <- function(d) {
 
 } 
 
-### Validating and error checking for DistanceSpecification objects
-setGeneric("validDistanceSpecifcation", function(distance, stopOnProblem = TRUE)
-  standardGeneric("validDistanceSpecifcation"))
-
-# for now, only one method for all DistSpec objects (matrix, ISM, BISM)
-setMethod("validDistanceSpecifcation", "DistanceSpecification", 
-function(distance, stopOnProblem = TRUE) {
+#' (Internal) Validate that objects are valid distance specifications.
+#'
+#' The functions \code{\link{fullmatch}} and \code{\link{pairmatch}} create optimal matchings of treated and control units given a matrix (or similar representation) of distances between treated and control units. These distance specifications must implement certain generic functions. This function checks that all necessary methods exist and the object can be used to specify distances in a way that the matching functions can use.
+#'
+#' @param distance The object to test.
+#' @param stopOnProblem If \code{TRUE} (default) the function will raise an error for invalid objects. Otherwise, it returns a logical.
+#' @return logical
+validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
   valid <- TRUE # innocent until proven guilty
 
   valid <- valid & !is.null(dimnames(distance))
 
   if (stopOnProblem & !valid) {
-    stop("Distance must have dimnames. Rows are treated, columns are control.")  
+    stop("Invalid distance: object must have dimnames. Rows are treated, columns are control.")  
+  }
+  
+  valid <- valid & hasMethod(subproblems, class(distance))
+
+  if (stopOnProblem & !valid) {
+    stop("Invalid distance: object does not have a 'subproblems' method.")  
   }
 
   # for matrices we check with is.numeric
   valid <- valid & is.numeric(distance)
 
   if (stopOnProblem & !valid) {
-    stop("Distance must be numeric.")  
+    stop("Invalid distance: object must be numeric.")  
   }
 
   return(valid)
-})
-
+}
 
