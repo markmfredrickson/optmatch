@@ -1,3 +1,5 @@
+setOldClass(c("optmatch.dlist", "list"))
+
 mdist <- function(x, structure.fmla = NULL, ...) {
   cl <- match.call()
   UseMethod("mdist", x)

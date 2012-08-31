@@ -130,3 +130,20 @@ test_that("Jake found a bug 2010-06-14", {
  
 })
 
+test_that("General optmatch.dlist tests", {
+  # test data: 8 arcs (2 pairs unmatchable in each subgroup)
+  m1 <- m2 <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+
+  colnames(m1) <- c("A", "B", "C")
+  rownames(m1) <- c("D", "E")
+
+  colnames(m2) <- c("f", "g", "h")
+  rownames(m2) <- c('i', "j")
+
+  odl <- list(m1 = m1, m2 = m2)
+  class(odl) <- c("optmatch.dlist", "list")
+
+  expect_equal(dim(odl), c(4,6))
+
+  expect_equal(dimnames(odl), list(treated = c("D", "E", "i", 'j'), control = c("A", "B", "C", "f", "g", "h")))
+})

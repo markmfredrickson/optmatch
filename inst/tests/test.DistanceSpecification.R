@@ -151,3 +151,25 @@ test_that("Validating DistSpecs", {
   expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m3)))
 
 })
+
+test_that("optmatch.dlist => nodes and arcs", {
+  
+  # test data: 8 arcs (2 pairs unmatchable in each subgroup)
+  m1 <- m2 <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+
+  colnames(m1) <- c("A", "B", "C")
+  rownames(m1) <- c("D", "E")
+
+  colnames(m2) <- c("f", "g", "h")
+  rownames(m2) <- c('i', "j")
+
+  odl <- list(m1 = m1, m2 = m2)
+  class(odl) <- c("optmatch.dlist", "list")
+
+  odl.result <- prepareMatching(odl)
+  expect_equal(dim(odl.result), c(8, 3))
+  expect_equal(unique(odl.result$treated), as.factor(c("D", "E", "i", "j")))
+  expect_equal(unique(odl.result$control), as.factor(c("A", "B", "C", "f", "g", "h")))
+
+
+})

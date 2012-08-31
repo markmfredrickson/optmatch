@@ -113,27 +113,15 @@ fullmatch <- function(distance,
 
   ### Checking Input ###
   
-  if (!validDistanceSpecification(distance)) {
-    stop("argument \'distance\' must be a DistanceSpecification object")      
-  }
+  # this will throw an error if not valid
+  validDistanceSpecification(distance)
 
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")  
   }
 
-  # we expect the following to be defined for the distance object
-  # put any functions in this list that are called directly on distance
-  methods <- c("dim", "dimnames", "prepareMatching", "subproblems",
-    "is.numeric")
-  dist.class <- class(distance)
-  lapply(methods, function(m) {
-    if (!hasMethod(m, dist.class)) {
-      # skip the FUN = ... in the call stack
-      stop(paste("argument \'distance\' must have a", m, "method."), call. = F)  
-    }
-  })
-
+  # note: we might want to move these checks to validDistSpec
   dnms <- dimnames(distance)
   if (is.null(dnms) | is.null(dnms[[1]]) | is.null(dnms[[2]])) {
     stop("argument \'distance\' must have dimnames") 
@@ -148,14 +136,10 @@ fullmatch <- function(distance,
 
   # note: this next _should_ be unnecessary, the objects should do this
   # but better safe than sorry
-  if (!identical(dim(distance), c(length(nmtrt), length(nmctl)))) {
+  if (!isTRUE(all.equal(dim(distance), c(length(nmtrt), length(nmctl))))) {
     stop("argument \'distance\' dimensions do not match row and column names")  
   }
 
-  # distances and other args must be numeric
-  if (!is.numeric(distance)) {
-    stop("argument \'distance\' must be numeric")  
-  }
   if (!is.numeric(min.controls)) {
     stop("argument \'min.controls\' must be numeric")  
   }

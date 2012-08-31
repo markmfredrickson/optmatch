@@ -63,10 +63,7 @@
 #' @export
 pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) {
 
-  # Should this checking be pushed to fullmatch to avoid duplication?
-  if (!is(distance, "DistanceSpecification")) {
-    stop("argument \'distance\' must be a DistanceSpecification")
-  }
+  validDistanceSpecification(distance) # will stop() on error
 
   if (!all(floor(controls) == controls) | !all(controls > 0)) {
     stop("Minimum controls must be greater than treated units")  
