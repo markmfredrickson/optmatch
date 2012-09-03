@@ -210,9 +210,11 @@ test_that("Both mdist and match_on objects accepted", {
   test.data <- data.frame(Z, X1, X2, B)
 
   model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
-  res.mdist <- fullmatch(mdist(model))
+  tmp <- mdist(model)
+  names(tmp) <- c(1) # mdist adds an 'm' to the front by default
+  res.mdist <- fullmatch(tmp)
   res.mon <- fullmatch(match_on(model))
 
-  expect_equal(res.mdist, res.mon) 
+  expect_equivalent(res.mdist, res.mon) 
   
 })

@@ -146,4 +146,19 @@ test_that("General optmatch.dlist tests", {
   expect_equal(dim(odl), c(4,6))
 
   expect_equal(dimnames(odl), list(treated = c("D", "E", "i", 'j'), control = c("A", "B", "C", "f", "g", "h")))
+
+  matrix.expected <- matrix(c(1,Inf,Inf,Inf, 1,2,Inf,Inf, 2,Inf,Inf,Inf,
+                            Inf,Inf,1,Inf, Inf,Inf,1,2, Inf,Inf,2,Inf),
+                            nrow = 4, ncol = 6,
+                            dimnames = list(treated = c("D", "E", "i", "j"),
+                                         control = c("A", "B", "C", "e", "f", "g")))
+
+  expect_equivalent(as.matrix(odl), matrix.expected)
+
+  subset.expected <- matrix(c(1, Inf, 1, Inf, Inf, 2), nrow = 2, ncol = 3,
+    dimnames = list(treated = c("D", "i"), control = c("A", "B", "h")))
+
+  expect_equal(subset(odl, subset = c(T,F,T,F), select = c(T,T,F,F,F,T)), subset.expected)
+
 })
+

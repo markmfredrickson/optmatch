@@ -139,3 +139,20 @@ dimnames.optmatch.dlist <- function(x) {
   return(Reduce(function(x,y) {list(treated = c(x$treated, y[[1]]), control =
   c(x$control, y[[2]]))}, dnms, list(treated = c(), control = c())))
 }
+
+as.matrix.optmatch.dlist <- function(x, ...) {
+  xdim <- dim(x)
+  tmp <- matrix(Inf, nrow = xdim[1], ncol = xdim[2], dimnames = dimnames(x))
+
+  for (i in 1:length(x)) {
+    submatrix <- x[[i]]
+    subrows <- rownames(submatrix)
+    subcols <- colnames(submatrix)
+    tmp[subrows, subcols] <- submatrix
+  }
+  return(tmp)  
+}
+
+subset.optmatch.dlist <- function(x, subset, select, ...) {
+  subset(as.matrix(x), subset, select, ...)  
+}
