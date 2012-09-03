@@ -59,17 +59,30 @@ function(x, ...) {
   rhs <- strsplit(parts[3], "\\+")[[1]] # ~ X1 + I(X2 == 2) =>  c("X1 ", " I(X2 == 2)")
   k <- length(rhs)
 
+  bigzb <- fmla2treatedblocking(x, ...)
+  previous <- rep(NA, dim(bigzb)[1]) # we store good subgroups here
+
   for(i in 1:k) {
     fmla <- as.formula(paste(lhs, "~", paste(rhs[1:i], collapse = "+")),
                        env = attr(x, ".Environment")) 
   
     # generate a data.frame of treatment status and the blocking factor:
     z.b <- fmla2treatedblocking(fmla, ...)
+  
+    # we create a new factor that includes all previous levels.
+    B <- factor(z.b$B, levels = c(levels(previous), levels(z.b$B)))
+    B[!is.na(previous)] <- previous[!is.na(previous)]
+    B <- factor(B) # toss unused levels
+    
+    arcs <- tapply(z.b$Z, list(B), function(grp) { sum(grp) * sum(1 - grp) })
+    good <- arcs < getMaxProblemSize()
 
-    arcs <- aggregate(z.b$Z, by = list(z.b$B), function(grp) { sum(grp) * sum(1 - grp) })$x
-    if (all(arcs < getMaxProblemSize())) {
-      return(exactMatch(fmla, ...))  
+    if (all(good[!is.na(good)])) { # some levels may be NAs
+      names(B) <- rownames(z.b)
+      return(exactMatch(B, z.b$Z))  
     }
+
+    previous <- factor(B, levels = names(arcs)[good])
   }
 
   stop("Unable to create sufficiently small problem. Please provide more stratifying variables.")

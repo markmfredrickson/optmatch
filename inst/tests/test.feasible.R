@@ -36,16 +36,17 @@ test_that("Problems bigger than the max are not feasible", {
 
 test_that("minExactMatch creates minimal exact match", {
   # no subproblem can be bigger than 8x8
-  oldopts <- options("optmatch_max_problem_size" = 36) 
+  oldopts <- options("optmatch_max_problem_size" = 37) 
 
   df <- data.frame(Z = rep(c(1,0), 16),
-                   E1 = rep(c(1,0), each = 16), # cuts size in 1/2, too big still
+                   E1 = rep(c(1,1,0,0,0,0,0,0), each = 4), # cuts size in 1/2, too big still
                    E2 = rep(c(1,1,0,0), 8),
                    E3 = rep(c(1,1,1,1,0,0,0,0), 4))
   
   res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
 
-  expect_equal(length(findSubproblems(res)), 4) # uses E1 and E2, not E3
+  expect_equal(length(findSubproblems(res)), 3) # uses E1 and partial E2, not E3
+  expect_true(all(table(res@groups) %in% c(8, 12)))
 
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")
