@@ -159,6 +159,15 @@ function(e1, e2) {
   callGeneric(as.InfinitySparseMatrix(e1), e2)
 })
 
+setMethod("Arith", signature(e1 = "optmatch.dlist", e2 = "InfinitySparseMatrix"), 
+function(e1, e2) {
+  callGeneric(as.matrix(e1), e2)
+})
+
+setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "optmatch.dlist"), 
+function(e1, e2) {
+  callGeneric(e1, as.matrix(e2))
+})
 
 
 ################################################################################
