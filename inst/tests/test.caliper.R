@@ -58,3 +58,21 @@ test_that("Caliper respects groups", {
   # here is the real test, can we combine the two to firewall the failure?
   # expect_equal(sum(is.na(f(m + em))), 4)
 })
+
+test_that("calipers for optmatch.dlist", {
+  m1 <- m2 <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+
+  colnames(m1) <- c("A", "B", "C")
+  rownames(m1) <- c("D", "E")
+
+  colnames(m2) <- c("f", "g", "h")
+  rownames(m2) <- c('i', "j")
+
+  odl <- list(m1 = m1, m2 = m2)
+  class(odl) <- c("optmatch.dlist", "list")
+ 
+  cal.res <- caliper(odl, 1.5)
+
+  expect_true(inherits(cal.res, "InfinitySparseMatrix")) # gets promoted 
+  expect_equal(length(cal.res), 4) # two entries in each block are less than 1.5
+})

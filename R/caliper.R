@@ -20,3 +20,8 @@ setMethod("caliper", "matrix",
 function(x, width = 1, exclude = c(), compare = `<=`) {
   caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare)  
 })
+
+setMethod("caliper", "optmatch.dlist",
+function(x, width = 1, exclude = c(), compare = `<=`) {
+  caliper(as.matrix(x), width = width, exclude = exclude, compare = compare)  
+})
