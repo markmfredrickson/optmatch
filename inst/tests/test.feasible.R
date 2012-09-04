@@ -54,4 +54,44 @@ test_that("minExactMatch creates minimal exact match", {
   setFeasibilityConstants() # reset the values to make sure that other tests pass
 })
 
+test_that("find size of caliper result", {
+  
+  # start with the helper function that computes the maximum number of comparisons
+  scores <- c(1:5, seq(6, 22, by = 2)) 
+  z <- rep(c(1,0), 7)
 
+  # shuffle them so they are not in any useful order prior
+  rndorder <- sample(1:14)
+  scores <- scores[rndorder]
+  z <- z[rndorder]
+
+  # treated: controls within caliper
+  # 1: 2
+  # 3: 2, 4
+  # 5: 4,6
+  # 8: 6,10
+  # 12: 10, 14
+  # 16: 14, 18
+  # 20: 18, 22
+  # => Total: 13
+  expect_equal(caliperSize(scores, z, 2), 13)
+  
+  # treated: controls within caliper
+  # 1: 2, 4
+  # 3: 2, 4, 6
+  # 5: 2, 4, 6
+  # 8: 6, 10
+  # 12: 10, 14
+  # 16: 14, 18
+  # 20: 18, 22
+  # => Total: 16
+  expect_equal(caliperSize(scores, z, 3), 16)
+  
+  # include every one! (7 * 7 = 49)
+  expect_equal(caliperSize(scores, z, 100), 49)
+
+  # include no one
+  expect_equal(caliperSize(scores, z, 0), 0)
+
+
+})

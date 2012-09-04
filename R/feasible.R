@@ -108,3 +108,45 @@ fmla2treatedblocking <- function(x, ...) {
   df <- data.frame(Z = treatment, B = blocking)
   return(df)
 }
+
+#' (Internal) Determines how many other units fall within a caliper distance
+#'
+#' The matching functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
+#' have a maximum problem size, based on the number of comparisons between treated
+#' and control units. For a completely dense problem, in which every treated units
+#' is compared to every control unit there are \code{length(treated) *
+#' length(control)} comparisons. A caliper restricts which comparisons are valid,
+#' disallowing matches of treated and control pairs that are too far apart. A
+#' caliper can significantly decrease the size of a matching problem. The
+#' \code{caliperSize} function reports exactly who many valid treated-control
+#' comparisons remain after applying a caliper of the given width.
+#' 
+#' @param scores A numeric vector of scores providing 1-D position of units
+#' @param z Treatment indicator vector
+#' @param width Width of caliper
+#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+caliperSize <- function(scores, z, width) {
+  z <- toZ(z)
+  treated <- scores[z]
+  control <- scores[!z]
+
+  # first try on the algorithm: naive comparisons
+
+  sum(sapply(treated, function(x) { 
+    sum(control >= (x - width) & control <= (x + width))  
+  }))
+
+  ## saving this stuff for a sliding window implementation of the algorithm
+  # treated <- sort(treated)
+  # control <- sort(control)
+
+  # # the caliper starts at window.low and goes to window.high
+  # window.low <- treated[1] - width
+  # window.hight <- treated[1] + width
+ 
+  # # these are indexes into the sorted controls vector
+  # control.start <- 0
+  # control.end <- 0
+
+
+}
