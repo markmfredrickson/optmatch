@@ -130,23 +130,51 @@ caliperSize <- function(scores, z, width) {
   treated <- scores[z]
   control <- scores[!z]
 
-  # first try on the algorithm: naive comparisons
-
-  sum(sapply(treated, function(x) { 
-    sum(control >= (x - width) & control <= (x + width))  
-  }))
-
-  ## saving this stuff for a sliding window implementation of the algorithm
-  # treated <- sort(treated)
-  # control <- sort(control)
-
-  # # the caliper starts at window.low and goes to window.high
-  # window.low <- treated[1] - width
-  # window.hight <- treated[1] + width
- 
-  # # these are indexes into the sorted controls vector
-  # control.start <- 0
-  # control.end <- 0
-
-
+  # the following uses findInterval, which requires a sorted vector
+  # there may be a speed increase in pulling out the guts of that function and calling them directly
+  control <- sort(control)
+  width <- width + .Machine$double.eps^0.5 # to turn findInterval into <= on the upper end
+  sum(sapply(treated, function(x) {
+    # use the machine double to so the interval will include items of exact x + width
+    tmp <- findInterval(c(x - width,
+                          x + width), control)
+    return(tmp[2] - tmp[1])
+  })) 
+  
 }
+# small <- data.frame(y = sample.int(100, 1000, replace = T), z = rep(c(1,0), 500))
+# medium <- data.frame(y = sample.int(1000,10000, replace = T), z = rep(c(1,0), 5000))
+# big <- data.frame(y = sample.int(10000,100000, replace = T), z = rep(c(1,0), 50000))
+# 
+# system.time(optmatch:::caliperSize(small$y, small$z, 10))
+# system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
+# system.time(optmatch:::caliperSize(big$y, big$z, 1000))
+#
+# navie algorithm timings
+# 1.6 GHZ Intel Core Duo, 2 GB RAM (used one process, memory did not seem to be an issue)
+# 
+# > system.time(optmatch:::caliperSize(small$y, small$z, 10))
+#    user  system elapsed 
+#   0.030   0.003   0.034 
+# > system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
+#    user  system elapsed 
+#   2.259   0.011   2.286 
+# > system.time(optmatch:::caliperSize(big$y, big$z, 1000))
+# ^C ... this was taking a long time.
+# Timing stopped at: 171.166 29.095 209.98 
+#
+# scaling is much worse than linear. Probably n^2.
+#
+# New version, 2 core 2GHZ i7, 8GB RAM
+# > system.time(optmatch:::caliperSize(small$y, small$z, 10))
+#    user  system elapsed 
+#   0.013   0.002   0.016 
+# > system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
+#    user  system elapsed 
+#   0.332   0.001   0.333 
+# > system.time(optmatch:::caliperSize(big$y, big$z, 1000))
+#    user  system elapsed 
+#  29.820   1.584  31.406
+#
+# Not exactly linear, but not bad!
+
