@@ -123,9 +123,13 @@ fmla2treatedblocking <- function(x, ...) {
 #' 
 #' @param scores A numeric vector of scores providing 1-D position of units
 #' @param z Treatment indicator vector
-#' @param width Width of caliper
+#' @param width Width of caliper, must be positive
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperSize <- function(scores, z, width) {
+  if (width <= 0) {
+    stop("Invalid caliper width. Width must be positive.")
+  }
+  
   z <- toZ(z)
   treated <- scores[z]
   control <- scores[!z]
@@ -177,4 +181,35 @@ caliperSize <- function(scores, z, width) {
 #  29.820   1.584  31.406
 #
 # Not exactly linear, but not bad!
+
+#' (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
+#' 
+#' @param scores A numeric vector of scores providing 1-D position of units
+#' @param z Treatment indicator vector
+#' @param width Width of caliper, must be positive.
+#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+caliperUpperBound <- function(scores, z, width) {
+
+  if (width <= 0) {
+    stop("Invalid caliper width. Width must be positive.")
+  }
+
+  z <- toZ(z)
+  bins <- seq(min(scores) - width, max(scores) + width, by = width)
+  treated <- scores[z]
+  control <- scores[!z]
+
+  # the `cut` docs indicate this funciton is faster to get the counts
+  control.counts <- hist(control, breaks = bins, plot = FALSE)$counts
+ 
+  where.treated <- findInterval(treated, bins)
+  upper.bound <- 0
+  for (i in where.treated) {
+    a <- control.counts[i - 1] 
+    b <- control.counts[i + 1] 
+    upper.bound <- upper.bound + control.counts[i] + ifelse(is.na(a), 0, a) + ifelse(is.na(b), 0, b)
+  }
+  
+  return(upper.bound)
+}
 

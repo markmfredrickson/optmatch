@@ -91,7 +91,21 @@ test_that("find size of caliper result", {
   expect_equal(caliperSize(scores, z, 100), 49)
 
   # include no one
-  expect_equal(caliperSize(scores, z, 0), 0)
+  expect_error(caliperSize(scores, z, 0), "Invalid caliper width")
+  
+  # a quicker upper bound test of the caliper size.
+  # goal of tests: the upper bound should be less than the max and more than the true value
 
+  res <- caliperUpperBound(scores, z, 3)
+  expect_true(res >= 16 & res <= 49)
+
+  res <- caliperUpperBound(scores, z, 2)
+  expect_true(res >= 13 & res <= 49)
+
+  # include every one! (7 * 7 = 49)
+  expect_equal(caliperUpperBound(scores, z, 100), 49)
+
+  # include no one
+  expect_error(caliperUpperBound(scores, z, 0), "Invalid caliper width")
 
 })
