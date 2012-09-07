@@ -124,27 +124,34 @@ fmla2treatedblocking <- function(x, ...) {
 #' @param scores A numeric vector of scores providing 1-D position of units
 #' @param z Treatment indicator vector
 #' @param width Width of caliper, must be positive
+#' @param structure Grouping factor to use in computation
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
-caliperSize <- function(scores, z, width) {
+caliperSize <- function(scores, z, width, structure = NULL) {
   if (width <= 0) {
     stop("Invalid caliper width. Width must be positive.")
   }
   
-  z <- toZ(z)
-  treated <- scores[z]
-  control <- scores[!z]
-
-  # the following uses findInterval, which requires a sorted vector
-  # there may be a speed increase in pulling out the guts of that function and calling them directly
-  control <- sort(control)
-  width <- width + .Machine$double.eps^0.5 # to turn findInterval into <= on the upper end
-  sum(sapply(treated, function(x) {
-    # use the machine double to so the interval will include items of exact x + width
-    tmp <- findInterval(c(x - width,
-                          x + width), control)
-    return(tmp[2] - tmp[1])
-  })) 
+  if (is.null(structure)) {
+    z <- toZ(z)
+    treated <- scores[z]
+    control <- scores[!z]
   
+    # the following uses findInterval, which requires a sorted vector
+    # there may be a speed increase in pulling out the guts of that function and calling them directly
+    control <- sort(control)
+    width <- width + .Machine$double.eps^0.5 # to turn findInterval into <= on the upper end
+    return(sum(sapply(treated, function(x) {
+      # use the machine double to so the interval will include items of exact x + width
+      tmp <- findInterval(c(x - width,
+                            x + width), control)
+      return(tmp[2] - tmp[1])
+    }))) 
+  }
+
+  # structure is supplied. split up the problem in to blocks and solve those
+  results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperSize(x$scores, x$z, width) })
+  return(sum(results))
+    
 }
 # small <- data.frame(y = sample.int(100, 1000, replace = T), z = rep(c(1,0), 500))
 # medium <- data.frame(y = sample.int(1000,10000, replace = T), z = rep(c(1,0), 5000))

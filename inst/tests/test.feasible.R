@@ -59,11 +59,13 @@ test_that("find size of caliper result", {
   # start with the helper function that computes the maximum number of comparisons
   scores <- c(1:5, seq(6, 22, by = 2)) 
   z <- rep(c(1,0), 7)
+  b <- rep(c(1,0), each = 7)
 
   # shuffle them so they are not in any useful order prior
   rndorder <- sample(1:14)
   scores <- scores[rndorder]
   z <- z[rndorder]
+  b <- b[rndorder]
 
   # treated: controls within caliper
   # 1: 2
@@ -108,4 +110,12 @@ test_that("find size of caliper result", {
   # include no one
   expect_error(caliperUpperBound(scores, z, 0), "Invalid caliper width")
 
+  ### structure argument defines which units are matchable
+  # NB: the groups defined by b are: 1,2,3,4,5,6,8 ; 10,12,14,16,18,20,22
+  # so when the caliper width is 2, there are 12 possible matches
+  # when caliper = 3, 15 possible
+  # when caliper is very large, 3 * 4 + 4 * 2 = 24`
+  expect_equal(caliperSize(scores, z, 2, structure = b), 12)
+  expect_equal(caliperSize(scores, z, 3, structure = b), 15)
+  expect_equal(caliperSize(scores, z, 100, structure = b), 24)
 })
