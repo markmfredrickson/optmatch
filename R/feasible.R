@@ -31,20 +31,20 @@ getMaxProblemSize <- function() {
 #'
 #' The \code{\link{exactMatch}} function creates a smaller matching problem by
 #' stratifying observations into smaller groups. For a problem that is larger
-#' than #' maximum allowed size, #' \code{minExatMatch} provides a way to find the
-#' smallest exact matching problem #' that will allow for matching.
+#' than maximum allowed size, \code{minExatMatch} provides a way to find the
+#' smallest exact matching problem that will allow for matching.
 #'
 #' @param x The object for dispatching.
 #' @param ... Additional arguments for methods.
-#' @return DistanceSpecification As would be returned by \code{\link{exactMatch}}.
+#' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
 #' @export
 setGeneric("minExactMatch", function(x, ...) standardGeneric("minExactMatch"))
 
 #' The \code{formula} method takes a an argument of the form \code{Z ~ X1 + X2}, where
 #' \code{Z} is indicates treatment or control status, and \code{X1} and \code{X2} are variables
-#' can be converted to factors. Any additional arguments are passed to \code{\link{model.frame}}.
+#' can be converted to factors. Any additional arguments are passed to \code{\link{model.frame}} 
+#' (e.g., a \code{data} argument containing \code{Z}, \code{X1}, and \code{X2}).
 #' 
-#' @param data A data.frame containing the variables in the formula \code{x}.
 #’ @rdname minExactMatch-methods
 setMethod("minExactMatch",
           signature = c("formula"),
@@ -79,7 +79,7 @@ function(x, ...) {
 
     if (all(good[!is.na(good)])) { # some levels may be NAs
       names(B) <- rownames(z.b)
-      return(exactMatch(B, z.b$Z))  
+      return(B)  
     }
 
     previous <- factor(B, levels = names(arcs)[good])

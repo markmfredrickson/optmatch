@@ -45,8 +45,8 @@ test_that("minExactMatch creates minimal exact match", {
   
   res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
 
-  expect_equal(length(findSubproblems(res)), 3) # uses E1 and partial E2, not E3
-  expect_true(all(table(res@groups) %in% c(8, 12)))
+  expect_equal(length(levels(res)), 3) # uses E1 and partial E2, not E3
+  expect_true(all(table(res) %in% c(8, 12)))
 
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")
