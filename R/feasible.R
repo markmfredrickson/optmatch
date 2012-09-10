@@ -242,15 +242,23 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 #' @param structure Optional factor variable that groups the scores, as would
 #' be used by \code{\link{exactMatch}}. Including structure allows for wider
 #' calipers.
+#' @param exact A logical indicating if the exact problem size should be
+#' computed (\code{exact = TRUE}) or if a more computationlly efficient upper
+#' bound should be used instead (\code{exact = FALSE}). The upper bound may lead
+#' to narrower calipers, even if wider calipers would have sufficed using the
+#' exact method.
 #' @return numeric The value of the largest caliper that creates a feasible
 #' problem. If no such caliper exists in \code{widths}, an error will be
 #' generated.
 #' @export
-maxCaliper <- function(scores, z, widths, structure = NULL) {
+maxCaliper <- function(scores, z, widths, structure = NULL, exact = TRUE) {
   widths <- sort(widths, decreasing = T)
+
+  f <- caliperUpperBound
+  if (exact) { f <- caliperSize}
   
   for (w in widths) {
-    if(caliperSize(scores, z, w, structure = structure) <= getMaxProblemSize()){
+    if(f(scores, z, w, structure = structure) <= getMaxProblemSize()){
       return(w)
     } 
   }

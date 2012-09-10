@@ -145,6 +145,11 @@ test_that("find size of caliper result", {
   # introduce a structure argument, a factor indicating groups
   # as seen in the tests above, with b, a caliper of 3 is exactly wide enough
   expect_equal(maxCaliper(scores, z, 5:1, structure = b), 3)
+
+  # move this down so that the upper bound for width = 2 is too high (15)
+  options("optmatch_max_problem_size" = 14)
+  # use the upper bound, rather than the exact computation method, to get a caliper value
+  expect_equal(maxCaliper(scores, z, 5:1, exact = FALSE), 1)
   
   # play nice with other tests
   setFeasibilityConstants()
