@@ -129,4 +129,21 @@ test_that("find size of caliper result", {
 
   expect_equal(caliperUpperBound(scores, z, 100, structure = b), 24)
 
+  # minCaliper: finds the caliper first caliiper size (from a left-to-right seq) that
+  # will be feasible, ie. use fewer arcs than required
+
+  # a caliper with width 2 has 13 arcs, 3 would be too wide
+  oldopts <- options("optmatch_max_problem_size" = 14)  
+  expect_equal(maxCaliper(scores, z, 5:1), 2)
+
+  # if 2 is missing, pick the next best
+  expect_equal(maxCaliper(scores, z, c(5,4,3,1, 0.25)), 1)
+
+  # since 2 isn't included, an error should be generated
+  expect_error(maxCaliper(scores, z, 5:3), "caliper size")
+
+
+  
+  # play nice with other tests
+  setFeasibilityConstants()
 })

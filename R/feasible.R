@@ -226,3 +226,29 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
   return(sum(results))
 }
 
+#' Find the maximum caliper width that will create a feasible problem.
+#'
+#' Larger calipers permit more possible matches between treated and control
+#' groups, which can be better for creating matches with larger effective sample
+#' sizes. The downside is that wide calipers may make the matching problem too big
+#' for processor or memory contraints. \code{maxCaliper} attempts to find a
+#' caliper value, for a given vector of scores and a treatment indicator, that
+#' will be possible given the maximum problem size constraints imposed by
+#' \code{\link{fullmatch}} and \code{\link{pairmatch}}.
+#'
+#' @param scores A numeric vector of scores providing 1-D position of units
+#' @param z Treatment indicator vector
+#' @param widths A vector of caliper widths to try, will be sorted largest to smallest.
+#' @return numeric The value of the largest caliper that creates a feasible problem. If no such caliper exists in \code{widths}, an error will be generated.
+#' @export
+maxCaliper <- function(scores, z, widths) {
+  widths <- sort(widths, decreasing = T)
+  
+  for (w in widths) {
+    if(caliperSize(scores, z, w) <= getMaxProblemSize()){
+      return(w)
+    } 
+  }
+  
+ stop("Insufficiently small caliper size. Please consider smaller values.")
+}
