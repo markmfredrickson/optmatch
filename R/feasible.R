@@ -239,13 +239,18 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 #' @param scores A numeric vector of scores providing 1-D position of units
 #' @param z Treatment indicator vector
 #' @param widths A vector of caliper widths to try, will be sorted largest to smallest.
-#' @return numeric The value of the largest caliper that creates a feasible problem. If no such caliper exists in \code{widths}, an error will be generated.
+#' @param structure Optional factor variable that groups the scores, as would
+#' be used by \code{\link{exactMatch}}. Including structure allows for wider
+#' calipers.
+#' @return numeric The value of the largest caliper that creates a feasible
+#' problem. If no such caliper exists in \code{widths}, an error will be
+#' generated.
 #' @export
-maxCaliper <- function(scores, z, widths) {
+maxCaliper <- function(scores, z, widths, structure = NULL) {
   widths <- sort(widths, decreasing = T)
   
   for (w in widths) {
-    if(caliperSize(scores, z, w) <= getMaxProblemSize()){
+    if(caliperSize(scores, z, w, structure = structure) <= getMaxProblemSize()){
       return(w)
     } 
   }
