@@ -195,28 +195,34 @@ caliperSize <- function(scores, z, width, structure = NULL) {
 #' @param z Treatment indicator vector
 #' @param width Width of caliper, must be positive.
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
-caliperUpperBound <- function(scores, z, width) {
+caliperUpperBound <- function(scores, z, width, structure = NULL) {
 
   if (width <= 0) {
     stop("Invalid caliper width. Width must be positive.")
   }
 
-  z <- toZ(z)
-  bins <- seq(min(scores) - width, max(scores) + width, by = width)
-  treated <- scores[z]
-  control <- scores[!z]
+  if (is.null(structure)) {
+    z <- toZ(z)
+    bins <- seq(min(scores) - width, max(scores) + width, by = width)
+    treated <- scores[z]
+    control <- scores[!z]
 
-  # the `cut` docs indicate this funciton is faster to get the counts
-  control.counts <- hist(control, breaks = bins, plot = FALSE)$counts
+    # the `cut` docs indicate this funciton is faster to get the counts
+    control.counts <- hist(control, breaks = bins, plot = FALSE)$counts
  
-  where.treated <- findInterval(treated, bins)
-  upper.bound <- 0
-  for (i in where.treated) {
-    a <- control.counts[i - 1] 
-    b <- control.counts[i + 1] 
-    upper.bound <- upper.bound + control.counts[i] + ifelse(is.na(a), 0, a) + ifelse(is.na(b), 0, b)
+    where.treated <- findInterval(treated, bins)
+    upper.bound <- 0
+    for (i in where.treated) {
+      a <- control.counts[i - 1] 
+      b <- control.counts[i + 1] 
+      upper.bound <- upper.bound + control.counts[i] + ifelse(is.na(a), 0, a) + ifelse(is.na(b), 0, b)
+    }
+    
+    return(upper.bound)
   }
-  
-  return(upper.bound)
+
+  # structure is not null if we get this far
+  results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperUpperBound(x$scores, x$z, width) })
+  return(sum(results))
 }
 

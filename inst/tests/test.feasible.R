@@ -118,4 +118,15 @@ test_that("find size of caliper result", {
   expect_equal(caliperSize(scores, z, 2, structure = b), 12)
   expect_equal(caliperSize(scores, z, 3, structure = b), 15)
   expect_equal(caliperSize(scores, z, 100, structure = b), 24)
+
+  # likewise for caliperUpperBound, structure argument
+  # however, the structure now suggests that the max is 12 per level
+  res <- caliperUpperBound(scores, z, 2)
+  expect_true(res >= 12 & res <= 24)
+
+  res <- caliperUpperBound(scores, z, 3)
+  expect_true(res >= 15 & res <= 24)
+
+  expect_equal(caliperUpperBound(scores, z, 100, structure = b), 24)
+
 })
