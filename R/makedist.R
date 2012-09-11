@@ -47,6 +47,11 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
     # matrices have column major order
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
+    
+    if (nc * nr > getMaxProblemSize()) {
+      warning("Matching problem too large. Consider passing an 'exclusions'
+      argument. See 'mdist', 'exactMatch', and 'caliper' documentation for details.")  
+    }
 
   } else {
     # with a exclusions, make a copy and only fill in the finite entries of exclusions
@@ -61,6 +66,17 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
     controlids <- res@colnames[res@cols]
 
     # TODO: check that the rownames, colnames of exclusions match data
+    subprobs <- findSubproblems(exclusions)
+    issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail 
+    for (s in subprobs) {
+      issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
+    }
+   
+    if(issue.warning) {
+      warning("Matching problem too large, even with included 'exclusions'
+          argument. You should try to exclude more treated-control comparisons.
+          See 'exactMatch' and 'caliper' documentation for details.")  
+    }
   }
 
   # it would be nice if we could abstract this, like with subset(data, z),
