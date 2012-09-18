@@ -51,6 +51,12 @@ test_that("minExactMatch creates minimal exact match", {
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")
 
+  # minExactMatch can also take a caliper width and a set of scores
+  minExactMatch(Z ~ E1 + E2, data = df, scores = rnorm(32), width = 1)
+
+  # if you pass one, you must pass both arguments
+  expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, scores = rnorm(32)), "width")
+  expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, width = 1), "scores")
   setFeasibilityConstants() # reset the values to make sure that other tests pass
 })
 

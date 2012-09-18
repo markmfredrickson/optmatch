@@ -34,26 +34,30 @@ getMaxProblemSize <- function() {
 #' than maximum allowed size, \code{minExatMatch} provides a way to find the
 #' smallest exact matching problem that will allow for matching.
 #'
-#' @param x The object for dispatching.
-#' @param ... Additional arguments for methods.
-#' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
-#' @export
-setGeneric("minExactMatch", function(x, ...) standardGeneric("minExactMatch"))
-
-#' The \code{formula} method takes a an argument of the form \code{Z ~ X1 + X2}, where
+#' \code{x} is a formula of the form \code{Z ~ X1 + X2}, where
 #' \code{Z} is indicates treatment or control status, and \code{X1} and \code{X2} are variables
 #' can be converted to factors. Any additional arguments are passed to \code{\link{model.frame}} 
 #' (e.g., a \code{data} argument containing \code{Z}, \code{X1}, and \code{X2}).
 #' 
-#’ @rdname minExactMatch-methods
-setMethod("minExactMatch",
-          signature = c("formula"),
-function(x, ...) {
+#' The the arguments \code{scores} and \code{width} must be passed together.
+#' The function will apply the caliper implied by the scores and the width while
+#' also adding in blocking factors.
+#'
+#' @param x The object for dispatching.
+#' @param scores Optional vector of scores that will be checked against a caliper width.
+#' @param width Optional width of a caliper to place on the scores.
+#' @param ... Additional arguments for methods.
+#' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
+minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
   parts <- as.character(x) # character vector of the form c("~", "Z", "X1 + X2")
 
   if (length(parts) != 3) {
     stop("Formula must be of the form Z ~ X1 + X2 + ...")  
   }
+
+  if ((is.null(scores) && !is.null(width) || (!is.null(scores) && is.null(width)))) {
+    stop("You must pass both 'scores' and 'width' arguments")
+  } 
 
   lhs <- parts[2]
   rhs <- strsplit(parts[3], "\\+")[[1]] # ~ X1 + I(X2 == 2) =>  c("X1 ", " I(X2 == 2)")
@@ -86,7 +90,7 @@ function(x, ...) {
   }
 
   stop("Unable to create sufficiently small problem. Please provide more stratifying variables.")
-})
+}
 
 #' (Internal) A helper function to turn formulas into treatment and blocking variables
 #'
