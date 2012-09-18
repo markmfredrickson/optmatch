@@ -48,6 +48,7 @@ getMaxProblemSize <- function() {
 #' @param width Optional width of a caliper to place on the scores.
 #' @param ... Additional arguments for methods.
 #' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
+#' @export
 minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
   parts <- as.character(x) # character vector of the form c("~", "Z", "X1 + X2")
 
@@ -77,8 +78,13 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
     B <- factor(z.b$B, levels = c(levels(previous), levels(z.b$B)))
     B[!is.na(previous)] <- previous[!is.na(previous)]
     B <- factor(B) # toss unused levels
-    
-    arcs <- tapply(z.b$Z, list(B), function(grp) { sum(grp) * sum(1 - grp) })
+   
+    if (!is.null(scores)) {
+      arcs <- caliperSize(scores, z.b$Z, width, structure = B) 
+    } else {
+      arcs <- tapply(z.b$Z, list(B), function(grp) { sum(grp) * sum(1 - grp) })
+    }
+
     good <- arcs < getMaxProblemSize()
 
     if (all(good[!is.na(good)])) { # some levels may be NAs
@@ -154,7 +160,7 @@ caliperSize <- function(scores, z, width, structure = NULL) {
 
   # structure is supplied. split up the problem in to blocks and solve those
   results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperSize(x$scores, x$z, width) })
-  return(sum(results))
+  return(results)
     
 }
 # small <- data.frame(y = sample.int(100, 1000, replace = T), z = rep(c(1,0), 500))
@@ -262,7 +268,7 @@ maxCaliper <- function(scores, z, widths, structure = NULL, exact = TRUE) {
   if (exact) { f <- caliperSize}
   
   for (w in widths) {
-    if(f(scores, z, w, structure = structure) <= getMaxProblemSize()){
+    if(all(f(scores, z, w, structure = structure) <= getMaxProblemSize())) {
       return(w)
     } 
   }

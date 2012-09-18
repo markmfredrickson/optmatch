@@ -51,12 +51,18 @@ test_that("minExactMatch creates minimal exact match", {
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")
 
+  scores <- rep(1:8,4)
   # minExactMatch can also take a caliper width and a set of scores
-  minExactMatch(Z ~ E1 + E2, data = df, scores = rnorm(32), width = 1)
+  minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 1)
 
   # if you pass one, you must pass both arguments
-  expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, scores = rnorm(32)), "width")
+  expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, scores = scores), "width")
   expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, width = 1), "scores")
+
+  # the caliper whould allow the problem to be feasible, without using E2
+  res <- minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 0.5) # very narrow caliper
+  expect_equal(length(levels(res)), 2) # goal: only split on E1
+
   setFeasibilityConstants() # reset the values to make sure that other tests pass
 })
 
@@ -121,9 +127,9 @@ test_that("find size of caliper result", {
   # so when the caliper width is 2, there are 12 possible matches
   # when caliper = 3, 15 possible
   # when caliper is very large, 3 * 4 + 4 * 2 = 24`
-  expect_equal(caliperSize(scores, z, 2, structure = b), 12)
-  expect_equal(caliperSize(scores, z, 3, structure = b), 15)
-  expect_equal(caliperSize(scores, z, 100, structure = b), 24)
+  expect_equal(sum(caliperSize(scores, z, 2, structure = b)), 12)
+  expect_equal(sum(caliperSize(scores, z, 3, structure = b)), 15)
+  expect_equal(sum(caliperSize(scores, z, 100, structure = b)), 24)
 
   # likewise for caliperUpperBound, structure argument
   # however, the structure now suggests that the max is 12 per level
@@ -149,8 +155,12 @@ test_that("find size of caliper result", {
   expect_error(maxCaliper(scores, z, 5:3), "caliper size")
 
   # introduce a structure argument, a factor indicating groups
-  # as seen in the tests above, with b, a caliper of 3 is exactly wide enough
-  expect_equal(maxCaliper(scores, z, 5:1, structure = b), 3)
+  # even a very wide caliper is helped by the structure. without b, this would take a caliper of 3 
+  expect_equal(maxCaliper(scores, z, 5:1, structure = b), 5)
+
+  # tighten down the problem size to require a smaller caliper
+  options("optmatch_max_problem_size" = 10)
+  expect_equal(maxCaliper(scores, z, 5:1, structure = b), 4)
 
   # move this down so that the upper bound for width = 2 is too high (15)
   options("optmatch_max_problem_size" = 14)
@@ -191,3 +201,4 @@ test_that("mdist does not allow too large problems (via makedist fn)", {
   setFeasibilityConstants() 
   
 })
+
