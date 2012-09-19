@@ -7,7 +7,8 @@ library(testthat)
 context("mdist function")
 
 test_that("Distances from glms", {
-  
+  # note: mdist.glm uses mdist.numeric, so if these tests fail, check that as well.
+
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -191,3 +192,23 @@ test_that("Jake found a bug 2010-06-14", {
  
 })
 
+test_that("Numeric: simple differences of scores", {
+  # note: the propensity score method depends on this method as well, so if
+  # those tests start failing, check here.
+
+  scores <- rep(7, 10)
+  z <- rep(c(0,1), 5)
+  names(z) <- names(scores) <- letters[1:10]
+
+  expect_true(all(mdist(scores, z) == 0))
+
+  expect_true(all(mdist(z * 2, z) == 2))
+
+  expect_true(all(mdist(z * -2, z) == 2))
+
+  # proper errors 
+  expect_error(mdist(scores), "treatment")
+  expect_error(mdist(scores, z = c(1,2)), "length")
+  expect_error(mdist(c(1,2,3,4), c(0,1,0,1)), "names")
+
+})

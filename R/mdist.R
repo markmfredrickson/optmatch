@@ -100,9 +100,7 @@ setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale =
 
   lp.adj <- x$linear.predictors/pooled.sd
 
-  f <- function(t, c) { abs(t - c) }
-  
-  makedist(z, lp.adj, f, exclusions)
+  mdist(lp.adj, z = z, exclusions = exclusions, ...)
 })
 
 szn.scale <- function(x, Tx, standardizer = mad, ...) {
@@ -149,19 +147,26 @@ are there missing values in data?")
 })
 
 
-### mdist method: numeric.
-### (mdist can't work with numeric vectors at present,
-### but it can return an informative error message).
-
-setMethod("mdist", "numeric", function(x, exclusions = NULL, ...)
+# TODO: make this real roxygen
+# Returns the absolute difference for treated and control units computed using
+# the vector of scores \code{x}.
+#
+# @param z Vector of treatment assignments for each unit in \code{x}. Either
+#   \code{x} or \code{z} must have names.
+setMethod("mdist", "numeric", function(x, z, exclusions = NULL, ...)
 {
+  if(is.null(z) || missing(z)) {
+    stop("You must supply a treatment indicator, 'z', when using the numeric mdist method.")
+  }
 
-  stop("No mdist method for numerics.
-  Consider using mdist(z ~ ps | strata, data = your.data)
-  where ps is your numeric vector, z is your treatment assignment,
-  and strata (optional) indicates a stratification variable, all
-  columns in your.data")
+  if(length(z) != length(x)) {
+    stop("The scores, 'x', and the treatment vector, 'z', must be the same length.")
+  }
 
+  z <- toZ(z)
+
+  f <- function(t, c) { abs(t - c) }
+  makedist(z, x, f, exclusions)
 })
 
 # mdist methods for DistanceSpecifications
