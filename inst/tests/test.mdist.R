@@ -196,9 +196,9 @@ test_that("Numeric: simple differences of scores", {
   # note: the propensity score method depends on this method as well, so if
   # those tests start failing, check here.
 
-  scores <- rep(7, 10)
-  z <- rep(c(0,1), 5)
-  names(z) <- names(scores) <- letters[1:10]
+  scores <- rep(7, 12)
+  z <- rep(c(0,1), 6)
+  names(z) <- names(scores) <- letters[1:12]
 
   expect_true(all(mdist(scores, z) == 0))
 
@@ -211,4 +211,32 @@ test_that("Numeric: simple differences of scores", {
   expect_error(mdist(scores, z = c(1,2)), "length")
   expect_error(mdist(c(1,2,3,4), c(0,1,0,1)), "names")
 
+  # pass a caliper width, limits the comparisons that are going to be made.
+  # the scores are going to be computed using abs diff, we can use the tools
+  # developed in feasible.R
+
+  scores <- rep(1:3, each = 4)
+  names(scores) <- letters[1:12]
+
+  # first, test the helper function scoreCaliper that generates the list of allowed comparisons.
+  scres <- scoreCaliper(scores, z, 1)
+  # mdist(scores, z) shows that there are 8 comparisons of size 2
+  expect_equal(length(scres), 28)
+  # every entry should be zero, the mdist function will compute the actual differences
+  expect_equal(sum(scres), 0)
+  # repeating above using non-integer values
+  expect_equal(length(scoreCaliper(scores/3, z, 1/3)), 28)
+
+  # try it as a matrix
+  expect_equivalent(as.matrix(scres), matrix(c(0,0,0,0,Inf,Inf,
+                                               0,0,0,0,Inf,Inf,
+                                               rep(0, 6),
+                                               rep(0, 6),
+                                               Inf, Inf, 0,0,0,0,
+                                               Inf,Inf,0,0,0,0), nrow = 6, ncol = 6))
+
+  # repeat with mdist
+  expect_equal(length(mdist(scores, z, caliper = 1)), 28) # 6 * 6 - 8
+  expect_equal(length(mdist(scores, z, caliper = 1.5)), 28)
+  
 })

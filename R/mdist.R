@@ -153,7 +153,10 @@ are there missing values in data?")
 #
 # @param z Vector of treatment assignments for each unit in \code{x}. Either
 #   \code{x} or \code{z} must have names.
-setMethod("mdist", "numeric", function(x, z, exclusions = NULL, ...)
+# @param caliper The width of a caliper to fit on the difference of scores.
+#   This can improve efficiency versus first creating all the differences and
+#   then filtering out those entries that are larger than the caliper.
+setMethod("mdist", "numeric", function(x, z, exclusions = NULL, caliper = NULL, ...)
 {
   if(is.null(z) || missing(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric mdist method.")
@@ -165,9 +168,54 @@ setMethod("mdist", "numeric", function(x, z, exclusions = NULL, ...)
 
   z <- toZ(z)
 
+  if(!is.null(caliper)) {
+    allowed <- scoreCaliper(x, z, caliper)
+    
+    if (!is.null(exclusions)) {
+      exclusions <- exclusions + allowed
+    } else {
+      exclusions <- allowed
+    }
+  }
+  
   f <- function(t, c) { abs(t - c) }
   makedist(z, x, f, exclusions)
 })
+
+#' (Internal) Helper function to create an InfinitySparseMatrix from a set of scores, a treatment indicator, and a caliper width.
+#'
+#' @param x The scores, a vector indicating the 1-D location of each unit.
+#' @param z The treatment assignment vector (same length as \code{x})
+#' @param caliper The width of the caliper with respect to the scores \code{x}.
+#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to \code{\link{mdist}} as an \code{exclusions} argument.
+scoreCaliper <- function(x, z, caliper) {
+  z <- toZ(z)
+
+  treated <- x[z]
+  k <- length(treated)
+  control <- x[!z]
+
+  # the following uses findInterval, which requires a sorted vector
+  # there may be a speed increase in pulling out the guts of that function and calling them directly
+  control <- sort(control)
+  caliper.eps <- caliper + .Machine$double.eps # to turn findInterval into <= on the upper end
+  
+  treatedids <- c()
+  controlids <- c()
+  
+  mxc <- length(control)
+  starts <- findInterval(treated - caliper.eps, control) + 1
+  stops <- findInterval(treated + caliper.eps, control)
+  
+
+  for (i in 1:k) {
+    tmp <- seq(starts[i], stops[i])
+    controlids <- c(controlids, tmp)
+    treatedids <- c(treatedids, rep(i, length(tmp)))
+  }
+
+  makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
+}
 
 # mdist methods for DistanceSpecifications
 # apparently the class union is less important than the true
