@@ -200,16 +200,16 @@ test_that("Numeric: simple differences of scores", {
   z <- rep(c(0,1), 6)
   names(z) <- names(scores) <- letters[1:12]
 
-  expect_true(all(mdist(scores, z) == 0))
+  expect_true(all(mdist(scores, z = z) == 0))
 
-  expect_true(all(mdist(z * 2, z) == 2))
+  expect_true(all(mdist(z * 2, z = z) == 2))
 
-  expect_true(all(mdist(z * -2, z) == 2))
+  expect_true(all(mdist(z * -2, z = z) == 2))
 
   # proper errors 
   expect_error(mdist(scores), "treatment")
   expect_error(mdist(scores, z = c(1,2)), "length")
-  expect_error(mdist(c(1,2,3,4), c(0,1,0,1)), "names")
+  expect_error(mdist(c(1,2,3,4), z = c(0,1,0,1)), "names")
 
   # pass a caliper width, limits the comparisons that are going to be made.
   # the scores are going to be computed using abs diff, we can use the tools
@@ -236,7 +236,14 @@ test_that("Numeric: simple differences of scores", {
                                                Inf,Inf,0,0,0,0), nrow = 6, ncol = 6))
 
   # repeat with mdist
-  expect_equal(length(mdist(scores, z, caliper = 1)), 28) # 6 * 6 - 8
-  expect_equal(length(mdist(scores, z, caliper = 1.5)), 28)
+  expect_equal(length(mdist(scores, z = z, caliper = 1)), 28) # 6 * 6 - 8
+  expect_equal(length(mdist(scores, z = z, caliper = 1.5)), 28)
   
+  # combine the caliper width with an exclusions argument
+  b <- rep(1:3, 4)
+  ez <- exactMatch(z ~ b)
+  
+  res <- mdist(scores, z = z, caliper = 1, exclusions = ez)
+  expect_equal(length(res), 9) 
+
 })

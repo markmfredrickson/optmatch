@@ -156,9 +156,9 @@ are there missing values in data?")
 # @param caliper The width of a caliper to fit on the difference of scores.
 #   This can improve efficiency versus first creating all the differences and
 #   then filtering out those entries that are larger than the caliper.
-setMethod("mdist", "numeric", function(x, z, exclusions = NULL, caliper = NULL, ...)
+setMethod("mdist", "numeric", function(x, exclusions = NULL, z, caliper = NULL, ...)
 {
-  if(is.null(z) || missing(z)) {
+  if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric mdist method.")
   }
 
