@@ -198,18 +198,22 @@ scoreCaliper <- function(x, z, caliper) {
   # the following uses findInterval, which requires a sorted vector
   # there may be a speed increase in pulling out the guts of that function and calling them directly
   control <- sort(control)
-  caliper.eps <- caliper + .Machine$double.eps # to turn findInterval into <= on the upper end
   
   treatedids <- c()
   controlids <- c()
   
-  mxc <- length(control)
-  starts <- findInterval(treated - caliper.eps, control) + 1
-  stops <- findInterval(treated + caliper.eps, control)
+  # NB: for reasons unknown, you must add the double.eps in the function
+  # call, saving it in a variable (e.g. width.eps <- width +
+  # .Machine$double.eps) will not work.
+  # The use of double.eps is to get a <= treated <= b intervals 
+
+  stops <- findInterval(treated + caliper + .Machine$double.eps, control)
+  starts <- length(control) - findInterval(-(treated - caliper -
+                                             .Machine$double.eps), rev(-control))
   
 
   for (i in 1:k) {
-    tmp <- seq(starts[i], stops[i])
+    tmp <- seq(starts[i] + 1, stops[i])
     controlids <- c(controlids, tmp)
     treatedids <- c(treatedids, rep(i, length(tmp)))
   }

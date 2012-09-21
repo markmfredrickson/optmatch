@@ -149,13 +149,11 @@ caliperSize <- function(scores, z, width, structure = NULL) {
     # the following uses findInterval, which requires a sorted vector
     # there may be a speed increase in pulling out the guts of that function and calling them directly
     control <- sort(control)
-    width <- width + .Machine$double.eps^0.5 # to turn findInterval into <= on the upper end
-    return(sum(sapply(treated, function(x) {
-      # use the machine double to so the interval will include items of exact x + width
-      tmp <- findInterval(c(x - width,
-                            x + width), control)
-      return(tmp[2] - tmp[1])
-    }))) 
+
+    stops <- findInterval(treated + width + .Machine$double.eps, control)
+    starts <- length(control) - findInterval(-(treated - width -
+                                               .Machine$double.eps), rev(-control))
+    return(sum(stops - starts))
   }
 
   # structure is supplied. split up the problem in to blocks and solve those
