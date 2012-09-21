@@ -244,6 +244,14 @@ test_that("Numeric: simple differences of scores", {
   ez <- exactMatch(z ~ b)
   
   res <- mdist(scores, z = z, caliper = 1, exclusions = ez)
-  expect_equal(length(res), 9) 
+  expect_equal(length(res), 9)
+
+  # next test includes treated and control units that are excluded entirely
+  # with caliper = 1
+  scores2 <- c(scores, -50, 100, 200, -100)
+  z2 <- c(z, 1,0,1,0)
+  names(scores2) <- names(z2) <- letters[1:(length(scores2))]
+  res <- mdist(scores2, z = z2, caliper = 1)
+  expect_equal(length(res), 28) # effectively same result as without the new units
 
 })

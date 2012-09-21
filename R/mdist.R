@@ -211,11 +211,12 @@ scoreCaliper <- function(x, z, caliper) {
   starts <- length(control) - findInterval(-(treated - caliper -
                                              .Machine$double.eps), rev(-control))
   
-
   for (i in 1:k) {
-    tmp <- seq(starts[i] + 1, stops[i])
-    controlids <- c(controlids, tmp)
-    treatedids <- c(treatedids, rep(i, length(tmp)))
+    if (starts[i] < length(control) && stops[i] > 0 && starts[i] < stops[i]) {
+      tmp <- seq(starts[i] + 1, stops[i])
+      controlids <- c(controlids, tmp)
+      treatedids <- c(treatedids, rep(i, length(tmp)))
+    }
   }
 
   makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
