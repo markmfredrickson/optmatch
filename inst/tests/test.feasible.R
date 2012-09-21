@@ -64,6 +64,11 @@ test_that("minExactMatch creates minimal exact match", {
   expect_equal(length(levels(res)), 2) # goal: only split on E1
 
   setFeasibilityConstants() # reset the values to make sure that other tests pass
+
+  # don't oversplit: e.g. I(E1 + E2)
+  res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df)
+  expect_equal(length(levels(res)), 3)
+
 })
 
 test_that("find size of caliper result", {

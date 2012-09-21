@@ -50,9 +50,8 @@ getMaxProblemSize <- function() {
 #' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
 #' @export
 minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
-  parts <- as.character(x) # character vector of the form c("~", "Z", "X1 + X2")
 
-  if (length(parts) != 3) {
+  if (length(x) < 3) {
     stop("Formula must be of the form Z ~ X1 + X2 + ...")  
   }
 
@@ -60,8 +59,10 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
     stop("You must pass both 'scores' and 'width' arguments")
   } 
 
-  lhs <- parts[2]
-  rhs <- strsplit(parts[3], "\\+")[[1]] # ~ X1 + I(X2 == 2) =>  c("X1 ", " I(X2 == 2)")
+  parts <- rownames(attr(terms(x), "factors"))
+
+  lhs <- parts[1]
+  rhs <- parts[-1]
   k <- length(rhs)
 
   bigzb <- fmla2treatedblocking(x, ...)
