@@ -10,7 +10,7 @@
 #' matches, with smaller discrepancies indicating more desirable matches.  Matrix
 #' \code{distance} must have row and column names.
 #'   
-#' Consider using \code{\link{mdist}} to generate the distances. This generic
+#' Consider using \code{\link{match_on}} to generate the distances. This generic
 #' function as several useful methods for handling propensity score models,
 #' computing Mahalanobis distances (and other arbitrary distances), and using
 #' user supplied functions. These distances can also be combined with those
@@ -27,7 +27,7 @@
 #' @param distance A matrix of nonnegative discrepancies, each indicating the
 #' permissibility and desirability of matching the unit corresponding to its row
 #' (a 'treatment') to the unit corresponding to its column (a 'control'); or,
-#' better, a distance specification as produced by \code{\link{mdist}}.
+#' better, a distance specification as produced by \code{\link{match_on}}.
 #'
 #' @param min.controls The minimum ratio of controls to treatments that is to
 #' be permitted within a matched set: should be nonnegative and finite.  If
@@ -113,27 +113,15 @@ fullmatch <- function(distance,
 
   ### Checking Input ###
   
-  if (!is(distance, "DistanceSpecification")) {
-    stop("argument \'distance\' must be a DistanceSpecification object")      
-  }
+  # this will throw an error if not valid
+  validDistanceSpecification(distance)
 
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")  
   }
 
-  # we expect the following to be defined for the distance object
-  # put any functions in this list that are called directly on distance
-  methods <- c("dim", "dimnames", "prepareMatching", "subproblems",
-    "is.numeric")
-  dist.class <- class(distance)
-  lapply(methods, function(m) {
-    if (!hasMethod(m, dist.class)) {
-      # skip the FUN = ... in the call stack
-      stop(paste("argument \'distance\' must have a", m, "method."), call. = F)  
-    }
-  })
-
+  # note: we might want to move these checks to validDistSpec
   dnms <- dimnames(distance)
   if (is.null(dnms) | is.null(dnms[[1]]) | is.null(dnms[[2]])) {
     stop("argument \'distance\' must have dimnames") 
@@ -148,14 +136,10 @@ fullmatch <- function(distance,
 
   # note: this next _should_ be unnecessary, the objects should do this
   # but better safe than sorry
-  if (!identical(dim(distance), c(length(nmtrt), length(nmctl)))) {
+  if (!isTRUE(all.equal(dim(distance), c(length(nmtrt), length(nmctl))))) {
     stop("argument \'distance\' dimensions do not match row and column names")  
   }
 
-  # distances and other args must be numeric
-  if (!is.numeric(distance)) {
-    stop("argument \'distance\' must be numeric")  
-  }
   if (!is.numeric(min.controls)) {
     stop("argument \'min.controls\' must be numeric")  
   }

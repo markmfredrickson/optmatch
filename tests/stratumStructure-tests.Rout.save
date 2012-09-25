@@ -51,7 +51,7 @@ attr(,"comparable.num.matched.pairs")
 [1] 10.16667
 > 
 > data(nuclearplants)
-> psd <- mdist(glm(pr~.-(pr+cost), family=binomial(),
+> psd <- match_on(glm(pr~.-(pr+cost), family=binomial(),
 +                        data=nuclearplants),
 +              standardization.scale = sd) # sd was standard in < 0.7-2
 > stratumStructure(fullmatch(psd))
@@ -73,7 +73,7 @@ In fullmatch(psd/(psd < 0.25)) :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > 
-> psd2 <- mdist(glm(pr~.-(pr+cost), family=binomial(),
+> psd2 <- match_on(glm(pr~.-(pr+cost), family=binomial(),
 +                        data=nuclearplants),
 +               standardization.scale = sd,
 +               within = exactMatch(pr ~ pt, nuclearplants))

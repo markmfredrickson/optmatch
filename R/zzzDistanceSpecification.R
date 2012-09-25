@@ -2,6 +2,10 @@
 ### Objects for specifying distances, methods to manipulate them
 ################################################################################
 
+# mdist.R provides some S3/S4 stuff for the optmatch.dlist class
+#' @include mdist.R 
+NULL
+
 # The following objects are valid DistanceSpecifications, that is, they layout
 # how treatment and control units are related.
 
@@ -49,6 +53,13 @@ setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
   
 })
 
+setMethod("prepareMatching", "optmatch.dlist", 
+function(distances) {
+  Reduce(rbind, lapply(distances, function(grp) {
+    prepareMatching(grp) # should be a matrix object  
+  }))  
+})
+
 
 ### subproblems: a DistanceSpecification may be split into smaller blocks
 ### returns false if there are no more subproblems, returns a list otherwise
@@ -88,6 +99,8 @@ function(distances) {
   return(ftmp)
 })
 
+setMethod("subproblems", "optmatch.dlist", function(distances) distances)
+
 # a helper to get all the subproblems from the implied tree of a DS
 findSubproblems <- function(d) {
   res <- subproblems(d)
@@ -100,29 +113,58 @@ findSubproblems <- function(d) {
 
 } 
 
-### Validating and error checking for DistanceSpecification objects
-setGeneric("validDistanceSpecifcation", function(distance, stopOnProblem = TRUE)
-  standardGeneric("validDistanceSpecifcation"))
+#' (Internal) Validate that objects are valid distance specifications.
+#'
+#' The functions \code{\link{fullmatch}} and \code{\link{pairmatch}} create optimal matchings of treated and control units given a matrix (or similar representation) of distances between treated and control units. These distance specifications must implement certain generic functions. This function checks that all necessary methods exist and the object can be used to specify distances in a way that the matching functions can use.
+#'
+#' @param distance The object to test.
+#' @param stopOnProblem If \code{TRUE} (default) the function will raise an error for invalid objects. Otherwise, it returns a logical.
+#' @return logical
+validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
+  klass <- class(distance)[1] # in case there are multiple class names
 
-# for now, only one method for all DistSpec objects (matrix, ISM, BISM)
-setMethod("validDistanceSpecifcation", "DistanceSpecification", 
-function(distance, stopOnProblem = TRUE) {
-  valid <- TRUE # innocent until proven guilty
+  # we expect the following to be defined for the distance object
+  # put any functions in this list that are called directly on distance
+  methods <- c("dim", "dimnames", "prepareMatching", "subproblems")
+  lapply(methods, function(m) {
+    if (!hasMethod(m, klass)) {
+      # skip the FUN = ... in the call stack
+      if (stopOnProblem) {
+        stop(paste("Invalid distance: object must have a", m, "method."), call. = F)  
+      } else {
+        return(FALSE)  
+      }
+    }
+  })
 
-  valid <- valid & !is.null(dimnames(distance))
 
-  if (stopOnProblem & !valid) {
-    stop("Distance must have dimnames. Rows are treated, columns are control.")  
+  if (is.null(dimnames(distance))) {
+    if (stopOnProblem) {
+      stop("Invalid distance: object must have dimnames. Rows are treated, columns are control.")  
+    }
+    return(FALSE)
+  }
+  
+  sbprobs <- findSubproblems(distance)
+
+  for(i in length(sbprobs)) {
+    # for matrices we check with is.numeric
+  
+    if (!is.numeric(sbprobs[[i]])) {
+      if (stopOnProblem) {
+        stop("Invalid distance: object must be numeric.")  
+      }
+      return(FALSE)
+    }
   }
 
-  # for matrices we check with is.numeric
-  valid <- valid & is.numeric(distance)
-
-  if (stopOnProblem & !valid) {
-    stop("Distance must be numeric.")  
+  if(!hasMethod(dim, class(distance)[1])) {
+    if (stopOnProblem) {
+      stop("Invalid distance: object must have dim method")  
+    }
+    return(FALSE)
   }
 
-  return(valid)
-})
-
+  return(TRUE)
+}
 

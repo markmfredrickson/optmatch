@@ -60,12 +60,12 @@ In fullmatch(distance = distance, min.controls = controls, max.controls = contro
     to be the same as your original data.
 > 
 > data(nuclearplants)
-> # in both of mdist calls below use sd to maintain backwards compatibility with
-> # pscore.dist, which used sd by default. mdist has used mad as the std. scale
-> # since it was added to the package, so the use of mdist should be consistent
+> # in both of match_on calls below use sd to maintain backwards compatibility with
+> # pscore.dist, which used sd by default. match_on has used mad as the std. scale
+> # since it was added to the package, so the use of match_on should be consistent
 > # for users going forward.
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-> psd <- mdist(psm, standardization.scale = sd)
+> psd <- match_on(psm, standardization.scale = sd)
 > pairmatch(psd, controls=2, data = nuclearplants)
    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
  1.7  1.9  1.2 1.10  1.4 <NA>  1.8  1.2  1.6  1.6  1.7  1.3  1.3  1.5  1.4  1.1 
@@ -73,11 +73,11 @@ In fullmatch(distance = distance, min.controls = controls, max.controls = contro
  1.2  1.7  1.1  1.8  1.4  1.9 1.10 1.10  1.6  1.8  1.9 <NA>  1.5  1.1  1.3  1.5 
 > 
 > # Also not run: again an error would be thrown (which R CMD CHECK does not like)
-> # pairmatch(caliper(mdist(psm, standardization.scale = sd,
+> # pairmatch(caliper(match_on(psm, standardization.scale = sd,
 > #   within = exactMatch(pr ~ pt, data =
 > #   nuclearplants)), width=2)) # Fails in subclass '1'
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.587   0.032   0.598 
+  0.602   0.032   0.614 

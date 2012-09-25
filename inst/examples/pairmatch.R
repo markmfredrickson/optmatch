@@ -1,13 +1,13 @@
 data(nuclearplants) 
 
 ### Pair matching on a Mahalanobis distance 
-mhd <- mdist(pr ~ t1 + t2, data = nuclearplants) 
+mhd <- match_on(pr ~ t1 + t2, data = nuclearplants) 
 ( pm1 <- pairmatch(mhd) ) 
 summary(pm1) 
 
 ### Pair matching within a propensity score caliper.  
 ppty <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants) 
-( pm2 <- pairmatch(mhd + caliper(mdist(ppty), 2)) ) 
+( pm2 <- pairmatch(mhd + caliper(match_on(ppty), 2)) ) 
 summary(pm2)
 
 ### Propensity balance assessment. Requires RItools package.
@@ -18,7 +18,7 @@ tm <- pairmatch(mhd, controls = 2)
 summary(tm)
 
 ### Creating a data frame with the matched sets attached.
-### mdist(), caliper() and the like cooperate with pairmatch()
+### match_on(), caliper() and the like cooperate with pairmatch()
 ### to make sure observations are in the proper order:
 all.equal(names(tm), row.names(nuclearplants))
 ### So our data frame including the matched sets is just

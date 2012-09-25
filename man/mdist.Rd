@@ -1,13 +1,5 @@
 \name{mdist}
 \alias{mdist}
-\alias{mdist-methods}
-\alias{mdist,bigglm-method}
-\alias{mdist,formula-method}
-\alias{mdist,function-method}
-\alias{mdist,glm-method}
-\alias{mdist,InfinitySparseMatrix-method}
-\alias{mdist,matrix-method}
-\alias{mdist,numeric-method}
 \title{Create matching distances}
 \description{
   A generic function, with several supplied methods, for creating
@@ -16,60 +8,50 @@
   \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 }
 \usage{
-mdist(x, within = NULL, ...)
-
-\S4method{mdist}{function}(x, within = NULL, z = NULL, data = NULL, ...) 
-
-\S4method{mdist}{formula}(x, within = NULL, data = NULL, subset = NULL, inv.scale.matrix = NULL, COV = cov, ...)
-
-\S4method{mdist}{glm}(x, within = NULL, standardization.scale = mad, ...)
-
-\S4method{mdist}{bigglm}(x, within = NULL, data = NULL, standardization.scale = mad, ...)
-
-\S4method{mdist}{numeric}(x, within = NULL, z, caliper = NULL, ...)
-
-\S4method{mdist}{InfinitySparseMatrix}(x, within = NULL, ...)
-
-\S4method{mdist}{matrix}(x, within = NULL, ...)
+  mdist(x, structure.fmla = NULL, ...)
 }
 \arguments{
-  \item{x}{The object to use as the basis for dispatch to the specialized methods}
-  \item{within}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper}) that defines for which entries values should be computed. This can significantly speed up computation for sparse matching problems.}
-  \item{z}{A vector indicating the whether the entries in \code{data} are in the treated or control groups.}
-  \item{data}{A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.}
-  \item{subset}{A subset of the data to use in creating the distance specification.}
-  \item{inv.scale.matrix}{A matrix that scales the distance computation. The default Mahalanobis distance scales the squared Euclidean distance by
-the inverse of the covariance matrix. Other scale matrices can be supplied, for example,
-the identity matrix will result in squared Euclidean distance.}
-  \item{COV}{A covariance computing function that can be supplied to the \code{formula} method.}
-  \item{standardization.scale}{Standardizes the data based on the median absolute deviation (by default).}
-  \item{caliper} A scalar numeric value that will be used to trim down the
-  comparisons to only those that are less than the caliper value. Use of this
-  argument \code{y <- mdist(scores, z = z, caliper = 2)} is generally more efficient than \code{x <- mdist(scores, z); y <- x +
-  caliper(x, 2)}.
-  \item{...}{Additional method arguments.}
+  \item{x}{The object to use as the basis for forming the mdist.
+  Methods exist for formulas, functions, and generalized linear models.}
+  \item{structure.fmla}{A formula denoting the treatment variable on the 
+  left hand side and an optional grouping expression on the right hand side. For
+  example, \code{z ~ 1} indicates no grouping. \code{z ~ s} subsets the data only
+  computing distances within the subsets formed by \code{s}. See method
+  notes, below, for
+  additional formula options.}
+  \item{...}{Additional method arguments. Most methods require a 'data' argument.}
 }
 \details{
-  The \code{function} method takes as its \code{x} argument a function of two arguments.
-  This function should in turn expect two arguments, a \code{data.frame} carrying information
-  about treatment group members and a \code{data.frame} carrying information about control units. 
-  The \code{function} method also expects a \code{z} argument, a vector indicating whether each unit is in the treated
-  or control groups; on the basis of this vector the \code{data} argument is what is chopped up and fed
-  to the function passed to \code{mdist} as argument \code{x}. While this might sound
-  complicated at first, it's quite flexible and, once you're used to it, easy to use. For example, the simple
-  1-dimensional distance of treated and control units can be implemented as:
-  \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z = rep(c(T,F),10), data = d)}.  See also additional examples below.  
+  The \code{mdist} method provides three ways to construct a matching distance
+  (ie, a distance matrix or suitably organized list of such matrices):
+  guided by a function, by a fitted model, or by a formula.  The class
+  of the first argument given to \code{mdist} determines which of these
+  methods is invoked.
 
-  The formula method produces, by default, a Mahalanobis distance specification
-  based on the formula \code{treatment ~ var1 + var2 + ... }, where
-  \code{treatment} within = NULLs the treatment indicator. A Mahalanobis
-  distance scales the squared Euclidean distance by the inverse of the
-  covariance matrix. Other scale matrices can be supplied, for example, the
-  identity matrix will result in squared Euclidean distance. If you wish to use
-  an alternative function to compute the covariance, pass it in the \code{COV}
-  argument.
+  The \code{mdist.function} method takes a function of two arguments. When
+  called, this function will receive the treatment observations as the first argument
+  and the control observations as the second argument. As an example, the following
+  computes the raw differences between values of \code{t1} for treatment
+  units (here, nuclear plants with \code{pr==1}) and controls (here,
+  plants with \code{pr==0}), returning the result as
+  a distance matrix:
+  \code{sdiffs <- function(treatments, controls) {
+      abs(outer(treatments$t1, controls$t1, `-`))
+    }
+  }
 
-  An \code{glm} method takes an argument of class \code{glm} as
+  The \code{mdist.function} method does similar things as the
+  earlier optmatch function \code{\link{makedist}}, although the
+  interface is a bit different.
+  
+  The \code{mdist.formula} method computes the squared Mahalanobis
+  distance between observations, with the right-hand side of the formula
+  determining which variables contribute to the Mahalanobis distance. If
+  matching is to be done within strata, the stratification can be
+  communicated using either the \code{structure.fmla} argument (e.g. \code{~ grp}) or as part of
+  the main formula (e.g. \code{z ~ x1 + x2 | grp}).
+
+  An \code{mdist.glm} method takes an argument of class \code{glm} as
   first argument.  It assumes that this object is a fitted propensity
   model, extracting distances on the linear propensity score (logits of
   the estimated conditional probabilities) and, by default, rescaling the distances
@@ -77,22 +59,20 @@ the identity matrix will result in squared Euclidean distance.}
   (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
   changed to the actual s.d., or rescaling can be skipped entirely, by
   setting argument \code{standardization.scale} to \code{sd} or
-  \code{NULL}, respectively.)  The \code{bigglm}
+  \code{NULL}, respectively.)  A \code{mdist.bigglm}
   method works analogously with \code{bigglm} objects, created by
   the \code{bigglm} function from package \sQuote{biglm}, which can
-  handle bigger data sets than the ordinary glm function can. 
-
-  The \code{numeric} method is simply a placeholder that returns an error
-  message and some helpful suggestions on how to create distance matrices, as
-  there is no obvious way to create distance matrix from just a numeric vector.
-
-  The \code{matrix} and \code{InfinitySparseMatrix} just return their arguments as these objects are already valid distance specifications.
+  handle bigger data sets than the ordinary glm function can.  In
+  contrast with \code{mdist.glm} it requires additional \code{data} and
+  \code{structure.fmla} arguments.  (If you have enough data to have to
+  use \code{bigglm}, then you'll probably have to subgroup before
+  matching to avoid memory problems. So you'll have to use the
+  \code{structure.fmla} argument anyway.)
 }
 \value{
-  Object of the class union \code{DistanceSpecification} (either a
-  \code{matrix} or a \code{InfinitySparseMatrix} or derived class), which is
-  suitable to be given as \code{distance} argument to \code{\link{fullmatch}}
-  or \code{\link{pairmatch}}. 
+  Object of class \code{optmatch.dlist}, which is suitable to be given
+  as \code{distance} argument to \code{\link{fullmatch}} or
+  \code{\link{pairmatch}}. For more information, see \code{\link{pscore.dist}}
 
 }
 \author{ Mark M. Fredrickson} %Ben B. Hansen
@@ -104,7 +84,8 @@ the identity matrix will result in squared Euclidean distance.}
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{\code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{caliper}}, \code{\link{exactMatch}}}
+\seealso{ \code{\link{makedist}}, \code{\link{mahal.dist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
+          \code{\link{pscore.dist}}}
 \examples{
 data(nuclearplants)
 mdist.examples <- list()
@@ -131,18 +112,17 @@ mdist.examples$mh1 <- mdist(pr ~ t1 + t2, data = nuclearplants)
 ### Absolute differences on a scalar:
 
 sdiffs <- function(treatments, controls) {
-  abs(treatments$t1 - controls$t1)
+  abs(outer(treatments$t1, controls$t1, `-`))
 }
 
-(absdist <- mdist(sdiffs, z = nuclearplants$pr, data = nuclearplants, 
-                  within = exactMatch(pr ~ pt, nuclearplants)))
+(absdist <- mdist(sdiffs, structure.fmla = pr ~ 1, data = nuclearplants))
 
 ### Pair matching on the variable `t1`:
 pairmatch(absdist)
 
 
 ### Propensity score matching within subgroups:
-mdist.examples$ps3 <- mdist(aGlm, exactMatch(pr ~ pt, nuclearplants))
+mdist.examples$ps3 <- mdist(aGlm, structure.fmla=~pt)
 fullmatch(mdist.examples$ps3)
 
 ### Propensity score matching with a propensity score caliper:
@@ -150,8 +130,9 @@ mdist.examples$pscal <- mdist.examples$ps1 + caliper(mdist.examples$ps1, 1)
 fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
 
 ### A Mahalanobis distance for matching within subgroups:
-mdist.examples$mh2 <- mdist(pr ~ t1 + t2 , data = nuclearplants,
-                            within = exactMatch(pr ~ pt, nuclearplants))
+mdist.examples$mh2 <- mdist(pr ~ t1 + t2 | pt, data = nuclearplants)
+all.equal(mdist.examples$mh2,
+          mdist(pr ~ t1 + t2, structure.fmla = ~ pt, data = nuclearplants))
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:

@@ -17,14 +17,14 @@
 \S4method{caliper}{matrix}(x, width = 1, exclude = c(), compare = `<=`)
 }
 \arguments{
-  \item{x}{A distance specification created with \code{\link{mdist}} or similar.}
+  \item{x}{A distance specification created with \code{\link{match_on}} or similar.}
   \item{width}{The width of the caliper: how wide of a margin to allow in matches.}
   \item{exclude}{A character vector of observations (corresponding to row and column names) to exclude from the caliper.}
   \item{compare}{A function that decides that whether two observations are with the caliper. The default is \code{`<=`}. \code{`<`} is a common alternative.}
 }
 \details{
   \code{caliper} is a generic function with methods for any of the allowed distance
-  specifications: user created matrices, the results of \code{\link{mdist}}, the results
+  specifications: user created matrices, the results of \code{\link{match_on}}, the results
   of \code{\link{exactMatch}}, or combinations (using \code{`+`}) of these objects.
 
   \code{width} provides the size of the caliper, the allowable distance for
@@ -55,7 +55,7 @@
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{\code{\link{exactMatch}}, \code{\link{mdist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
+\seealso{\code{\link{exactMatch}}, \code{\link{match_on}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
 
 \examples{
 data(nuclearplants)
@@ -63,20 +63,20 @@ data(nuclearplants)
 
 ### Caliper  of .2 pooled SDs in the propensity score
 ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
-ppty.dist <- mdist(ppty)
+ppty.dist <- match_on(ppty)
 
 as.matrix(pptycaliper <- caliper(ppty.dist, width = .2)) 
 
 ### caliper on the Mahalanobis distance
-as.matrix(caliper(mdist(pr ~ t1 + t2, data = nuclearplants), width = 3))
+as.matrix(caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3))
 
 ### Combining a Mahalanobis distance matching with a caliper
 ### of 1 pooled SD in the propensity score:
 as.matrix(mhd.pptyc <- caliper(ppty.dist, width = 1) +
-          mdist(pr ~ t1 + t2, data = nuclearplants))
+          match_on(pr ~ t1 + t2, data = nuclearplants))
 pairmatch(mhd.pptyc)
 
 ### Excluding observations from caliper requirements:
-as.matrix(caliper(mdist(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f")))
+as.matrix(caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f")))
 }
 \keyword{nonparametric }% at least one, from doc/KEYWORDS

@@ -176,7 +176,7 @@ test_that("find size of caliper result", {
   setFeasibilityConstants()
 })
 
-test_that("mdist does not allow too large problems (via makedist fn)", {
+test_that("match_on does not allow too large problems (via makedist fn)", {
   X <- rnorm(100)
   Z <- rep(c(0,1), 50)
   B <- rep(c(0,1), each = 50)
@@ -184,24 +184,24 @@ test_that("mdist does not allow too large problems (via makedist fn)", {
   # expected behavior:
   # exactMatch should create BlockedISMs of any size, as they can be strung
   # together to form smaller problems.
-  # mdist, on the other hand, should give a warning when creating a match that
+  # match_on, on the other hand, should give a warning when creating a match that
   # is too large, with a hint to use the within argument
   oldopts <- options(warn = 2, "optmatch_max_problem_size" = 25 * 25 + 1)
 
   # expect no error/warning
   blocking <- exactMatch(Z ~ B)
   # this should be ok
-  mdist(Z ~ X, within = blocking)
+  match_on(Z ~ X, within = blocking)
   options(warn = 0) # back to normal warning behavior
 
   # give a warning that suggests the within argument
-  expect_warning(mdist(Z ~ X), "within")
+  expect_warning(match_on(Z ~ X), "within")
 
   # make the max problem smaller, and the warnining should pop up for blocked
   # problems
   options("optmatch_max_problem_size" = 25 * 25 - 1)
-  expect_warning(mdist(Z ~ X))
-  expect_warning(mdist(Z ~ X, within = blocking), "within")
+  expect_warning(match_on(Z ~ X))
+  expect_warning(match_on(Z ~ X, within = blocking), "within")
 
   setFeasibilityConstants() 
   

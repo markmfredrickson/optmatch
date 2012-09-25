@@ -39,7 +39,7 @@
 #' each indicating the permissibility and desirability of matching the unit 
 #' corresponding to its row (a 'treatment') to the unit
 #' corresponding to its column (a 'control'); or a list of such matrices
-#' made using \code{\link{mdist}}.  Finite
+#' made using \code{\link{match_on}}.  Finite
 #' discrepancies indicate permissible matches, with smaller
 #' discrepancies indicating more desirable matches. 
 #' Matrix \code{distance}, or the matrix elements of \code{distance},
@@ -63,10 +63,7 @@
 #' @export
 pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) {
 
-  # Should this checking be pushed to fullmatch to avoid duplication?
-  if (!is(distance, "DistanceSpecification")) {
-    stop("argument \'distance\' must be a DistanceSpecification")
-  }
+  validDistanceSpecification(distance) # will stop() on error
 
   if (!all(floor(controls) == controls) | !all(controls > 0)) {
     stop("Minimum controls must be greater than treated units")  

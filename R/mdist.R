@@ -1,235 +1,465 @@
-################################################################################
-# Mdist: distance matrix creation functions
-################################################################################
+setOldClass(c("optmatch.dlist", "list"))
 
-setGeneric("mdist", def = function(x, within = NULL, ...)  standardGeneric("mdist"))
+mdist <- function(x, structure.fmla = NULL, ...) {
+  cl <- match.call()
+  UseMethod("mdist", x)
+}
+getCall.optmatch.dlist <- function(x, ...) attr(x, "call") 
 
-setMethod("mdist", "function", function(x, within = NULL, z = NULL, data = NULL, ...) {
 
-  if (is.null(data) | is.null(z)) {
-    stop("Data and treatment indicator arguments are required.")
+# mdist method: optmatch.dlist
+mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
+  return(x)
+} # just return the argument
+
+# mdist method: function
+# for the function method, both data and structure fmla are required
+# api change from makedist: I think it would make more sense to have
+# the function take two data.frames: the treatments in this stratum
+# and the controls in the stratum. It could then return the matrix of
+# mdists, which the rest of the function would markup with rownames
+# etc.
+mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
+
+  if (is.null(data) || is.null(structure.fmla)) {
+    stop("Both data and the structure formula are required for
+    computing mdists from functions.")
+  }
+  if (!exists("cl")) cl <- match.call()
+  theFun <- match.fun(x)
+  parsedFmla <- parseFmla(structure.fmla)
+
+  if(is.null(parsedFmla[[1]])) {
+    stop("Treatment variable required")
   }
 
-  theFun <- match.fun(x)
+  if((identical(parsedFmla[[2]], 1) && is.null(parsedFmla[3])) ||
+     (length(parsedFmla[[2]]) > 1)) {
+    stop("Please specify the grouping as either: z ~ grp or z ~ 1 | grp")
+  }
 
-  makedist(z, data, theFun, within)
-})
+  treatmentvar <- parsedFmla[[1]]
 
+  if(is.null(parsedFmla[3][[1]])) { # I swear subscripting is incomprehensible!
+    strata <- parsedFmla[[2]]
+  } else {
+    strata <- parsedFmla[[3]]
+  }
+
+
+  # split up the dataset by parts
+  # call optmatch.dlist maker function on parts, names
+
+    # create a function to produce one distance matrix
+  doit <- function(data,...) {
+     # indicies are created per chunk to split out treatment and controls
+     indices <- data[as.character(treatmentvar)] == 1
+     treatments <- data[indices,]
+     controls <- data[!indices,]
+     distances <- theFun(treatments, controls, ...)
+
+     colnames(distances) <- rownames(controls)
+     rownames(distances) <- rownames(treatments)
+
+     return(distances)
+  }
+
+  if (!(identical(strata, 1))) {
+    if(is.factor(eval(strata, data))){
+      ss <- eval(strata, data) ##to preserve existing labels/levels
+    } else {
+      ss <- factor(eval(strata, data), labels = 'm')
+    }
+    ans <- lapply(split(data, ss), doit,...)
+  } else {
+    ans <- list(m = doit(data,...))
+  }
+
+  attr(ans, 'row.names') <- row.names(data)
+  attr(ans, "call") <- cl
+
+  class(ans) <- c('optmatch.dlist', 'list')
+  return(ans)
+}
 
 # mdist method: formula
-setMethod("mdist", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
-                                       inv.scale.matrix = NULL, COV = cov, ...) {
-  if (length(x) != 3) {
-    stop("Formula must have a left hand side.")  
-  }
-
-  mf <- match.call(expand.dots = FALSE)
+mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
+  mf <- match.call(expand.dots=FALSE)
+  if (!exists("cl")) cl <- match.call()
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
-  names(mf)[names(mf) == "x"] <- "formula"
+  names(mf)[names(mf)=="x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
+
+  if (length(x)==2)
+      if (!is.null(structure.fmla) && length(structure.fmla)==3)
+          x <- update.formula(structure.fmla, x) else
+  stop("If you give mdist() a formula, it needs to have a left hand side\nin order for mdist.formula() to figure out who is to be matched to whom.",
+       call.=FALSE)
+
+  if (isThereAPipe(x)) {
+      if (!is.null(structure.fmla))
+          warning("I see a pipe, a '|', in the formula you gave as primary argument to mdist().\n So I'm using what's to the right of it in lieu of the RHS of the\n'structure.fmla' argument that you've also given.", call.=FALSE)
+      parsed <- parseFmla(x)
+    # this block occurs if the grouping factor is present
+    # e.g. z ~ x1 + x2 | grp
+    if (!is.null(unlist(parsed[3]))) {
+      xenv <- environment(x)
+      x <- as.formula(paste(as.character(parsed[1:2]), collapse = "~"))
+      environment(x) <- xenv
+      structure.fmla <- as.formula(paste("~", parsed[[3]]))
+    }
+  }
+  mf$formula <-  makeJoinedFmla(x, structure.fmla)
   mf <- eval(mf, parent.frame())
 
-  if (dim(mf)[2] < 2) {
-    stop("Formula must have a right hand side with at least one variable.")   
-  }
+###  return(mf)
+  ans <- mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  attr(ans, "call") <- cl
+  ans
+}
 
-  data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
+isThereAPipe <- function(fmla)
+{
+    inherits(fmla, "formula") && length(fmla) == 3 && length(fmla[[3]])==3 && fmla[[3]][[1]] == as.name("|")
+}
+# One big formula from a formula plus astructure formula -- for use w/ model.frame
+makeJoinedFmla <- function(fmla, structure.fmla)
+{
+    if (is.null(structure.fmla)) return(fmla)
+    stopifnot(inherits(fmla, "formula"), inherits(structure.fmla, "formula"),
+              length(fmla)==3)
 
-  z <- toZ(mf[,1])
-  names(z) <- rownames(mf)
-  
-  if (!is.null(inv.scale.matrix)) {
-    # TODO: error check the inv.cov matrix to make sure it is safe
-    # should match dimension of mf
-  } else {
-    # default inv.scale.matrix is the inverse covariance matrix
-    # the extra as.matrix() is that if there is only one variable, it will be
-    # a matrix not a vector
-    mt <- COV(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-    mc <- COV(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+l <- length(structure.fmla)
+structure.fmla[[l]] <- as.call(c(as.name("+"), as.name("."), structure.fmla[[l]]))
 
-    inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
-
-    # the old mahal.dist wrapped the solve in a try() and used this if there
-    # was failure. Is this a common issue? I'm waiting for a failure case
-    # before turning this code on (and with adjustments to the different
-    # variable names, etc.
-    # 
-    # if (inherits(icv,"try-error"))
-    # {
-    #    dnx <- dimnames(cv)
-    #    s <- svd(cv)
-    #    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-    #    if (!any(nz))
-    #      stop("covariance has rank zero")
-
-    #    icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-    #    dimnames(icv) <- dnx[2:1]
-    # }
-
-  }
-
-  f <- function(treated, control) {
-    n <- dim(treated)[1]
-    tmp <- numeric(n) 
-    for (i in 1:n) {
-      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% inv.scale.matrix %*% as.matrix(treated[i,] - control[i,])
-    }
-    return(tmp)
-  }
-
-
-
-  makedist(z, data, f, within)
-
-})
+update.formula(fmla, structure.fmla)
+}
 
 # mdist method: glm
-setMethod("mdist", "glm", function(x, within = NULL, standardization.scale = mad, ...)
+mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
-  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
-  z <- x$y > 0
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1 
+  if (!exists("cl")) cl <- match.call()
+  ans <- pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  attr(ans, "call") <- cl
+  ans
+}
+
+# parsing formulas for creating mdists
+parseFmla <- function(fmla) {
+
+  treatment <- fmla[[2]]
+  rhs <- fmla[[3]]
+  if (length(rhs) == 3 && rhs[[1]] == as.name("|")) {
+    covar <- rhs[[2]]
+    group <- rhs[[3]]
+
   } else {
-    szn.scale(x$linear.predictors, z ,standardization.scale)
+    covar <- rhs
+    group <- NULL
   }
 
-  lp.adj <- x$linear.predictors/pooled.sd
+  return(c(treatment, covar, group))
 
-  mdist(lp.adj, z = z, within = within, ...)
-})
-
-szn.scale <- function(x, Tx, standardizer = mad, ...) {
-  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 + 
-        (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
 }
+
 
 # mdist method: bigglm
-setMethod("mdist", "bigglm", function(x, within = NULL, data = NULL, standardization.scale = mad, ...)
+mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.scale=mad, ...)
 {
-  if (is.null(data)) {
+  if (is.null(data))
     stop("data argument is required for computing mdists from bigglms")
-  }
 
-  if (!is.data.frame(data)) {
+  if (!is.data.frame(data))
     stop("mdist doesn't understand data arguments that aren't data frames.")
-  }
 
-  theps <- predict(x, data, type = 'link', se.fit = FALSE)
+  if (is.null(structure.fmla) | !inherits(structure.fmla, 'formula'))
+    stop("structure.fmla argument required with bigglms.
+(Use form 'structure.fmla=<treatment.variable> ~ 1'
+ for no stratification before matching)")
+  if (!exists("cl")) cl <- match.call()
 
-  if (length(theps) != dim(data)[1]) {
-    stop("predict.bigglm() returns a vector of the wrong length;
+theps <- predict(x, data, type='link', se.fit=FALSE)
+if (length(theps)!=dim(data)[1])
+stop("predict.bigglm() returns a vector of the wrong length;
 are there missing values in data?")
-  }
-
-  # this makes heavy use of the bigglm terms object, the original formula
-  # if this implementation detail changes in later versions of bigglm,
-  # look here for the problem.
-
-  Data <-  model.frame(x$terms, data = data)
-  z <- Data[, 1]
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else { 
-    szn.scale(theps, z, standardizer=standardization.scale,...)
-  }
-  
-  psdiffs <- function(treatments, controls) {
-    abs(treatments - controls) / pooled.sd
-  }
-  
-  makedist(z, theps, psdiffs, within)
-      
-})
 
 
-# TODO: make this real roxygen
-# Returns the absolute difference for treated and control units computed using
-# the vector of scores \code{x}.
-#
-# @param z Vector of treatment assignments for each unit in \code{x}. Either
-#   \code{x} or \code{z} must have names.
-# @param caliper The width of a caliper to fit on the difference of scores.
-#   This can improve efficiency versus first creating all the differences and
-#   then filtering out those entries that are larger than the caliper.
-setMethod("mdist", "numeric", function(x, within = NULL, z, caliper = NULL, ...)
-{
-  if(missing(z) || is.null(z)) {
-    stop("You must supply a treatment indicator, 'z', when using the numeric mdist method.")
-  }
+Data <-  model.frame(structure.fmla, data=data)
+treatmentvar <- as.character(structure.fmla[[2]])
+pooled.sd <- if (is.null(standardization.scale)) 1 else
+szn.scale(theps, Data[[treatmentvar]], standardizer=standardization.scale,...)
 
-  if(length(z) != length(x)) {
-    stop("The scores, 'x', and the treatment vector, 'z', must be the same length.")
-  }
+Data$tHePs <- theps/pooled.sd
 
-  z <- toZ(z)
-
-  if(!is.null(caliper)) {
-    allowed <- scoreCaliper(x, z, caliper)
-    
-    if (!is.null(within)) {
-      within <- within + allowed
-    } else {
-      within <- allowed
-    }
-  }
-  
-  f <- function(t, c) { abs(t - c) }
-  makedist(z, x, f, within)
-})
-
-#' (Internal) Helper function to create an InfinitySparseMatrix from a set of scores, a treatment indicator, and a caliper width.
-#'
-#' @param x The scores, a vector indicating the 1-D location of each unit.
-#' @param z The treatment assignment vector (same length as \code{x})
-#' @param caliper The width of the caliper with respect to the scores \code{x}.
-#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to \code{\link{mdist}} as an \code{within} argument.
-scoreCaliper <- function(x, z, caliper) {
-  z <- toZ(z)
-
-  treated <- x[z]
-  k <- length(treated)
-  control <- x[!z]
-
-  # the following uses findInterval, which requires a sorted vector
-  # there may be a speed increase in pulling out the guts of that function and calling them directly
-  control <- sort(control)
-  
-  treatedids <- c()
-  controlids <- c()
-  
-  # NB: for reasons unknown, you must add the double.eps in the function
-  # call, saving it in a variable (e.g. width.eps <- width +
-  # .Machine$double.eps) will not work.
-  # The use of double.eps is to get a <= treated <= b intervals 
-
-  stops <- findInterval(treated + caliper + .Machine$double.eps, control)
-  starts <- length(control) - findInterval(-(treated - caliper -
-                                             .Machine$double.eps), rev(-control))
-  
-  for (i in 1:k) {
-    if (starts[i] < length(control) && stops[i] > 0 && starts[i] < stops[i]) {
-      tmp <- seq(starts[i] + 1, stops[i])
-      controlids <- c(controlids, tmp)
-      treatedids <- c(treatedids, rep(i, length(tmp)))
-    }
-  }
-
-  makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
+psdiffs <- function(treatments, controls) {
+abs(outer(as.vector(treatments$tHePs),
+as.vector(controls$tHePs), `-`))
 }
 
-# mdist methods for DistanceSpecifications
-# apparently the class union is less important than the true
-# type, so the numeric method above gets in the way
-setMethod("mdist", "InfinitySparseMatrix", function(x, within = NULL, ...) {
-  return(x)
-}) # just return the argument
+ans <- mdist(psdiffs, structure.fmla=structure.fmla,
+      data=Data)
+  attr(ans, "call") <- cl
+  ans
+}
 
-setMethod("mdist", "matrix", function(x, within = NULL, ...) {
-  return(x)
-}) # just return the argument
+
+### mdist method: numeric.
+### (mdist can't work with numeric vectors at present,
+### but it can return an informative error message).
+
+mdist.numeric <- function(x, structure.fmla = NULL, trtgrp=NULL, ...) {
+  stop("No method exists for 'numeric' objects. See 'mdist.formula' for an alternative.")
+}
+
+makedistOptmatchDlist <- function(structure.fmla, data,
+                     fn=function(trtvar, dat, ...){
+                       matrix(0, sum(trtvar), sum(!trtvar),
+                              dimnames=list(names(trtvar)[trtvar],
+                                names(trtvar)[!trtvar]))},
+                     ...)
+  {
+  if (!attr(terms(structure.fmla), "response")>0) 
+    stop("structure.fmla must specify a treatment group variable")
+  fn <- match.fun(fn)
+
+### WHEN THIS FUNCTION IS WRAPPED TO, THIS IS HOW INFO ABOUT WHICH
+### GENERATION PARENT FRAME structure.fmla IS TO BE EVALUATED IN IS PASSED
+  pframe.generation <- 1
+  if (!is.null(attr(structure.fmla, "generation.increment")))
+    pframe.generation <- pframe.generation +
+      attr(structure.fmla, "generation.increment")
+  
+  zpos <- attr(terms(structure.fmla), "response")
+  vars <- eval(attr(terms(structure.fmla), "variables"), data, 
+             parent.frame(n=pframe.generation))
+  zzz <- vars[[zpos]]
+  if (!is.numeric(zzz) & !is.logical(zzz))
+    stop("treatment variable (LHS of structure.fmla) must be numeric or logical")
+  if (any(is.na(zzz)))
+      stop("NAs not allowed in treatment variable (LHS of structure.fmla)")
+  if (all(zzz>0))
+    stop("there are no controls (LHS of structure.fmla >0)")
+  if (all(zzz<=0))
+    stop("there are no treatment group members (LHS of structure.fmla <=0)")
+
+  zzz <- (zzz>0)
+  vars <- vars[-zpos]
+  names(zzz) <- row.names(data)
+if (length(vars)>0)
+  {
+  ss <- interaction(vars, drop=TRUE)
+} else ss <- factor(zzz>=0, labels="m")
+  ans <- tapply(zzz, ss, FUN=fn,
+                dat=data, ..., simplify=FALSE)
+  FUNchk <- unlist(lapply(ans,
+                          function(x){!is.matrix(x) & !is.vector(x)}))
+  if (any(FUNchk)) { stop("fn should always return matrices")}
+
+  mdms <- split(zzz,ss)
+  NMFLG <- FALSE
+
+  for (ii in (1:length(ans)))
+  {
+    dn1 <- names(mdms[[ii]])[mdms[[ii]]]
+    dn2 <- names(mdms[[ii]])[!mdms[[ii]]]
+    if (is.null(dim(ans[[ii]])))
+      {
+      if (length(dn1)>1 & length(dn2)>1)
+        { stop("fn should always return matrices")}
+      if (length(ans[[ii]])!=max(length(dn1), length(dn2)))
+        { stop(paste("unuseable fn value for stratum", names(ans)[ii]))}
+      
+      if (is.null(names(ans[[ii]])))
+          {
+           ans[[ii]] <-  matrix(ans[[ii]], length(dn1), length(dn2),
+                         dimnames=list(dn1,dn2))
+         } else
+        { if (length(dn1)>1)
+            {
+              ans[[ii]] <- matrix(ans[[ii]],length(dn1), 1,
+                                 dimnames=list(names(ans[[ii]]), dn2))
+            } else {
+              ans[[ii]] <- matrix(ans[[ii]], 1, length(dn2),
+                                 dimnames=list(dn1, names(ans[[ii]])))
+            }
+        }
+      } else {
+      if (!all(dim(ans[[ii]])==c(length(dn1), length(dn2))))
+        { stop(paste("fn value has incorrect dimension at stratum",
+                     names(ans)[ii])) }
+      if (is.null(dimnames(ans[[ii]])))
+        {
+          dimnames(ans[[ii]]) <- list(dn1, dn2)
+          NMFLG <- TRUE
+        } else {
+          if (!all(dn1%in%dimnames(ans[[ii]])[[1]]) |
+              !all(dn2%in%dimnames(ans[[ii]])[[2]]) )
+            { stop(paste(
+                    "dimnames of fn value don't match unit names in stratum",
+                         names(ans)[ii])) }
+        }
+      
+      }
+  }
+
+  if (NMFLG){
+warning("fn value not given dimnames; assuming they are list(names(trtvar)[trtvar], names(trtvar)[!trtvar])")}
+
+  
+  attr(ans, 'row.names') <- names(zzz)
+  class(ans) <- c('optmatch.dlist', 'list')
+  ans
+  }
+
+mahal.dist <- function(distance.fmla, data, structure.fmla=NULL, inverse.cov=NULL)
+  {
+    
+if (is.null(structure.fmla))
+  {
+  if (!attr(terms(distance.fmla,data=data), "response")>0) 
+    stop("either distance.fmla or structure.fmla must specify a treatment group variable")
+  structure.fmla <- update.formula(distance.fmla, .~1,data=data)
+  structure.fmla <- terms.formula(structure.fmla, data=data)
+} else
+{
+    if (!attr(terms(structure.fmla,data=data), "response")>0 &
+        !attr(terms(distance.fmla,data=data), "response")>0)
+      stop("either distance.fmla or structure.fmla must specify a treatment group variable")
+
+    if (!attr(terms(structure.fmla,data=data), "response")>0)
+      {
+      lhs <- as.character(distance.fmla[[2]])
+      structure.fmla <- update.formula(structure.fmla,
+                                       paste(lhs, '~.', sep=''))
+      structure.fmla <- terms.formula(structure.fmla, data=data)
+      }
+  }
+distance.fmla <- update.formula(distance.fmla, ~-1+.,data=data)
+distance.fmla <- terms(distance.fmla, data=data)
+ds.vars <-all.vars(distance.fmla)
+if (length(ds.vars)<2) stop("No variables on RHS of distance.fmla")
+
+inp <- parse(text=paste("list(", paste(ds.vars, collapse = ","), ")")) # from def of get_all_vars()
+
+dfr <- model.matrix(distance.fmla, #model.frame(distance.fmla,data))
+                    structure(eval(inp, data, parent.frame()),
+                              names=as.character(ds.vars)))
+sf.vars <- all.vars(structure.fmla)
+sf.vars <- sf.vars[!(sf.vars%in% names(dfr))]
+sf.vars <- sf.vars[sf.vars %in% names(data)]
+
+if (is.null(inverse.cov))
+  {
+    zpos <- attr(terms(structure.fmla,data=data), "response")
+    vars <- eval(attr(terms(structure.fmla,data=data), "variables"), data, 
+                 parent.frame())
+    zz <- vars[[zpos]]
+    if (!(is.numeric(zz) || is.logical(zz)))
+      stop("Treatment variable should be logical or numeric")
+    zz <- zz > 0
+    
+  cv <- cov(dfr[as.logical(zz), ,drop=FALSE])*(sum(zz)-1)/(length(zz)-2)
+  cv <- cv + cov(dfr[!zz,,drop=FALSE])*(sum(!zz)-1)/(length(zz)-2)
+  icv <- try( solve(cv), silent=TRUE)
+  if (inherits(icv,"try-error"))
+    {
+       dnx <- dimnames(cv)
+       s <- svd(cv)
+       nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+       if (!any(nz))
+         stop("covariance has rank zero")
+
+       icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+       dimnames(icv) <- dnx[2:1]
+    }
+## stopifnot(all.equal(dimnames(icv)[[1]],dimnames(dfr)[[2]]))
+  } else
+{
+  if (!is.matrix(inverse.cov) || dim(inverse.cov)[1]!=dim(inverse.cov)[2] ||
+      (!is.null(dimnames(inverse.cov)) &&
+       !isTRUE(all.equal(dimnames(inverse.cov)[[1]],dimnames(inverse.cov)[[2]]))
+       )
+      ) stop("inverse.cov must be a square symmetric matrix.")
+
+  if (dim(inverse.cov)[1]!=dim(dfr)[2]) stop("dimension of inverse.cov must match number of data terms.")
+  if (!is.null(dimnames(inverse.cov)) &&
+      !isTRUE(all.equal(dimnames(inverse.cov)[[1]],dimnames(dfr)[[2]]))
+      )
+    {
+      icvnm <- gsub("TRUE$", "", dimnames(inverse.cov)[[1]])
+      dfrnm <- gsub("TRUE$", "", dimnames(dfr)[[2]])
+      if (!isTRUE(all.equal(icvnm, dfrnm)))    stop("dimnames of inverse.cov don't match names of data terms") 
+    }
+  if (is.null(dimnames(inverse.cov)) & dim(inverse.cov)[1] > 1) warning("inverse.cov lacks dimnames so I can't confirm it's aligned with data terms.")
+  
+icv <- inverse.cov
+}
+attr(structure.fmla, 'generation.increment') <- 1
+
+ln.dfr <- dim(dfr)[2]
+dfr <- data.frame(dfr, data[sf.vars], row.names=row.names(data))
+dimnames(icv) <- list(names(dfr)[1:ln.dfr], names(dfr)[1:ln.dfr])
+
+makedistOptmatchDlist(structure.fmla, dfr,
+         fn=optmatch.mahalanobis, inverse.cov=icv)
+  }
+
+
+
+optmatch.mahalanobis <- function(trtvar, dat, inverse.cov)
+  {  
+  myMH <- function(Tnms, Cnms, inv.cov, data) {
+   stopifnot(!is.null(dimnames(inv.cov)[[1]]), 
+             all.equal(dimnames(inv.cov)[[1]], dimnames(inv.cov)[[2]]),
+             all(dimnames(inv.cov)[[1]] %in% names(data)))
+   covars <- dimnames(inv.cov)[[1]]
+   xdiffs <- as.matrix(data[Tnms,covars])
+   xdiffs <- xdiffs - as.matrix(data[Cnms,covars])
+   rowSums((xdiffs %*% inv.cov) * xdiffs)
+ }
+
+te <- try(ans <- outer(names(trtvar)[trtvar], names(trtvar)[!trtvar],
+               FUN=myMH, inv.cov=inverse.cov, data=dat), silent=TRUE)
+
+if (inherits(te, 'try-error'))
+  {
+    if (substr(unclass(te),1,29)!="Error: cannot allocate vector")
+      stop(unclass(te))
+ans <- matrix(0,sum(trtvar), sum(!trtvar))
+
+  cblocks <- 1
+while (inherits(te, 'try-error') &&
+       substr(unclass(te),1,29)=="Error: cannot allocate vector" &&
+       (sum(!trtvar)/cblocks)>1)
+  {
+cblocks <- cblocks*2
+bsz <- ceiling(sum(!trtvar)/cblocks)
+trtvar.ctlnms <-
+  split(names(trtvar)[!trtvar],
+        rep(1:cblocks,rep(bsz, cblocks))[1:sum(!trtvar)]
+        )
+te <- try(lapply(trtvar.ctlnms,
+                 function(ynms) outer(names(trtvar)[trtvar],ynms,
+                                      FUN=myMH, inv.cov=inverse.cov,
+                                      data=dat) ), silent=TRUE )
+###for (ii in seq(sum(!trtvar), 1, by=bsz) )
+###  {
+###    ans[,max((ii-bsz+1),1):ii] <-
+###      outer(names(trtvar)[trtvar],
+###           trtvar.ctlnms[max((ii-bsz+1),1):ii],
+###            FUN=myMH, inv.cov=inverse.cov, data=dat)
+###  }, silent=TRUE)
+}
+if (inherits(te, 'try-error') )
+      {stop(unclass(te)) } else ans <- unlist(te)
+          
+  }
+dim(ans) <- c(sum(trtvar), sum(!trtvar))
+
+  dimnames(ans) <- list(names(trtvar)[trtvar], names(trtvar)[!trtvar])
+  ans
+  }
 

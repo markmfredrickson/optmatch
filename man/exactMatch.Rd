@@ -47,14 +47,14 @@
 \author{Mark M. Fredrickson}
 
 
-\seealso{\code{\link{caliper}}, \code{\link{mdist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
+\seealso{\code{\link{caliper}}, \code{\link{match_on}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
 
 \examples{
 data(nuclearplants)
 
 ### First generate a standard propensity score
 ppty <- glm(pr~.-(pr+cost), family = binomial(), data = nuclearplants)
-ppty.distances <- mdist(ppty)
+ppty.distances <- match_on(ppty)
 
 ### Only allow matches within the partial turn key plants
 pt.em <- exactMatch(pr ~ pt, data = nuclearplants)

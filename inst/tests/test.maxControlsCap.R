@@ -24,7 +24,7 @@ test_that("basics", {
 
 test_that("Testing input", {
   # must pass a dist spec
-  expect_error(maxControlsCap(1:10), "Distance must be a DistanceSpecification \\(see mdist\\)") # had to use \\( as the string is treated as a regex
+  expect_error(maxControlsCap(1:10), "Distance must be a DistanceSpecification") # had to use \\( as the string is treated as a regex
 
   # if min.controls is a vector, it must be named the same as the name of the subproblems
   Z <- rep(c(0,1), 8)
@@ -42,7 +42,7 @@ test_that("Correct output", {
   # borrowing from the R CMD Check tests to nail down proper output.
   data(nuclearplants, env = parent.env()) 
 
-  mhd2a <- t(mdist(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants))
+  mhd2a <- t(match_on(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants))
   res.mxcc <- maxControlsCap(mhd2a + caliper(mhd2a, 3))
 
   expect_equivalent(res.mxcc$strictest.feasible.max.controls, c(1,1))

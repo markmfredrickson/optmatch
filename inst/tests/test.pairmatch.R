@@ -39,7 +39,7 @@ test_that("Omit fraction computed per subproblem", {
   psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
   em <- exactMatch(pr ~ pt, data = nuclearplants)
   
-  res.pm <- pairmatch(mdist(psm) + em)
+  res.pm <- pairmatch(match_on(psm) + em)
   
   expect_true(!all(is.na(res.pm)))
 })
@@ -73,7 +73,7 @@ test_that("Pass additional arguments to fullmatch", {
   rownames(df) <- letters[1:10][sample(1:10)]
 
   # mahal based ISM object
-  m <- mdist(z ~ x + y + w, data = df)
+  m <- match_on(z ~ x + y + w, data = df)
  
   expect_warning(pairmatch(m), "data") # no 'data' argument
 

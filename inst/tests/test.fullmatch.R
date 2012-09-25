@@ -21,7 +21,7 @@ test_that("Basic Matches", {
   position <- rep(1:4, each = 4)  
   z <- rep(0:1, 8)
   names(z) <- letters[1:16]
-  dist <- mdist(z ~ position, inv.scale.matrix = diag(1))
+  dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
   
   res.mat <- fullmatch(dist)
   res.ism <- fullmatch(as.InfinitySparseMatrix(dist))
@@ -148,7 +148,7 @@ test_that("Results are in 'data order'", {
   df[3, "y"] <- NA
 
   # mahal based ISM object
-  m <- mdist(z ~ x + y + w, data = df)
+  m <- match_on(z ~ x + y + w, data = df)
 
   # make the first control unit unmatchable
   m[, 1] <- Inf
@@ -195,5 +195,26 @@ test_that("Complete Inf matrices/ISMs => all NA optmatch object", {
   res.ism <- fullmatch(ism)
 
   expect_true(all(is.na(res.ism)))
+  
+})
+
+test_that("Both mdist and match_on objects accepted", {
+  # this test depends on mdist and match_on tests passing
+  # it will probably fail if those fail
+
+  n <- 14
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, X2, B)
+
+  model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
+  tmp <- mdist(model)
+  names(tmp) <- c(1) # mdist adds an 'm' to the front by default
+  res.mdist <- fullmatch(tmp)
+  res.mon <- fullmatch(match_on(model))
+
+  expect_equivalent(res.mdist, res.mon) 
   
 })

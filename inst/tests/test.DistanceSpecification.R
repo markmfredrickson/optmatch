@@ -98,7 +98,7 @@ test_that("Subproblems", {
   position <- rep(1:4, each = 4)  
   z <- rep(0:1, 8)
   names(z) <- letters[1:16]
-  dist <- mdist(z ~ position, inv.scale.matrix = diag(1))
+  dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
   allin <- exactMatch(rep(1, 16), z)
   
   res.allin <- findSubproblems(dist + allin)
@@ -121,19 +121,19 @@ test_that("Validating DistSpecs", {
   # nameless matrices are not valid:
   m <- matrix(1:4, nrow = 2)
 
-  expect_error(validDistanceSpecifcation(m))
-  expect_error(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+  expect_error(validDistanceSpecification(m))
+  expect_error(validDistanceSpecification(as.InfinitySparseMatrix(m)))
 
   dimnames(m) <- list(1:2, 3:4)
-  expect_true(validDistanceSpecifcation(m))
-  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m)))
+  expect_true(validDistanceSpecification(m))
+  expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m)))
 
   # matrices/isms must be numeric
   m2 <- matrix(letters[1:4], nrow = 2)
   dimnames(m2) <- list(1:2, 3:4)
   expect_equal(mode(m2), "character")
 
-  expect_error(validDistanceSpecifcation(m2))
+  expect_error(validDistanceSpecification(m2))
 
   # conversion to ism would raise an error for m2:
   expect_error(as.InfinitySparseMatrix(m2))
@@ -147,7 +147,29 @@ test_that("Validating DistSpecs", {
   rownames(m3) <- LETTERS[1:3]
   colnames(m3) <- letters[23:26]
 
-  expect_true(validDistanceSpecifcation(m3))
-  expect_true(validDistanceSpecifcation(as.InfinitySparseMatrix(m3)))
+  expect_true(validDistanceSpecification(m3))
+  expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m3)))
+
+})
+
+test_that("optmatch.dlist => nodes and arcs", {
+  
+  # test data: 8 arcs (2 pairs unmatchable in each subgroup)
+  m1 <- m2 <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
+
+  colnames(m1) <- c("A", "B", "C")
+  rownames(m1) <- c("D", "E")
+
+  colnames(m2) <- c("f", "g", "h")
+  rownames(m2) <- c('i', "j")
+
+  odl <- list(m1 = m1, m2 = m2)
+  class(odl) <- c("optmatch.dlist", "list")
+
+  odl.result <- prepareMatching(odl)
+  expect_equal(dim(odl.result), c(8, 3))
+  expect_equal(unique(odl.result$treated), as.factor(c("D", "E", "i", "j")))
+  expect_equal(unique(odl.result$control), as.factor(c("A", "B", "C", "f", "g", "h")))
+
 
 })

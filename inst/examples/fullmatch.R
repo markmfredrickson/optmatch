@@ -1,6 +1,6 @@
 data(nuclearplants)
 ### Full matching on a Mahalanobis distance
-mhd  <- mdist(pr ~ t1 + t2, data = nuclearplants)
+mhd  <- match_on(pr ~ t1 + t2, data = nuclearplants)
 ( fm1 <- fullmatch(mhd, data = nuclearplants) )
 summary(fm1)
 ### Full matching with restrictions
@@ -13,7 +13,7 @@ summary(fm3)
 ppty <- glm(pr~.-(pr+cost), family=binomial(), data = nuclearplants)
 ### Note that units without counterparts within the
 ### caliper are automatically dropped.
-( fm4 <- fullmatch(mhd + caliper(mdist(ppty), 1), data = nuclearplants) )
+( fm4 <- fullmatch(mhd + caliper(match_on(ppty), 1), data = nuclearplants) )
 summary(fm4)
 
 ### Propensity balance assessment. Requires RItools package.
