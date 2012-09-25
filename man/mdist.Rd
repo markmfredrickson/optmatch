@@ -16,25 +16,25 @@
   \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 }
 \usage{
-mdist(x, exclusions = NULL, ...)
+mdist(x, within = NULL, ...)
 
-\S4method{mdist}{function}(x, exclusions = NULL, z = NULL, data = NULL, ...) 
+\S4method{mdist}{function}(x, within = NULL, z = NULL, data = NULL, ...) 
 
-\S4method{mdist}{formula}(x, exclusions = NULL, data = NULL, subset = NULL, inv.scale.matrix = NULL, COV = cov, ...)
+\S4method{mdist}{formula}(x, within = NULL, data = NULL, subset = NULL, inv.scale.matrix = NULL, COV = cov, ...)
 
-\S4method{mdist}{glm}(x, exclusions = NULL, standardization.scale = mad, ...)
+\S4method{mdist}{glm}(x, within = NULL, standardization.scale = mad, ...)
 
-\S4method{mdist}{bigglm}(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
+\S4method{mdist}{bigglm}(x, within = NULL, data = NULL, standardization.scale = mad, ...)
 
-\S4method{mdist}{numeric}(x, exclusions = NULL, ...)
+\S4method{mdist}{numeric}(x, within = NULL, z, caliper = NULL, ...)
 
-\S4method{mdist}{InfinitySparseMatrix}(x, exclusions = NULL, ...)
+\S4method{mdist}{InfinitySparseMatrix}(x, within = NULL, ...)
 
-\S4method{mdist}{matrix}(x, exclusions = NULL, ...)
+\S4method{mdist}{matrix}(x, within = NULL, ...)
 }
 \arguments{
   \item{x}{The object to use as the basis for dispatch to the specialized methods}
-  \item{exclusions}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper}) that defines for which entries values should be computed. This can significantly speed up computation for sparse matching problems.}
+  \item{within}{An optional distance specification (perhaps created by \code{exactMatch} or \code{caliper}) that defines for which entries values should be computed. This can significantly speed up computation for sparse matching problems.}
   \item{z}{A vector indicating the whether the entries in \code{data} are in the treated or control groups.}
   \item{data}{A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.}
   \item{subset}{A subset of the data to use in creating the distance specification.}
@@ -43,6 +43,10 @@ the inverse of the covariance matrix. Other scale matrices can be supplied, for 
 the identity matrix will result in squared Euclidean distance.}
   \item{COV}{A covariance computing function that can be supplied to the \code{formula} method.}
   \item{standardization.scale}{Standardizes the data based on the median absolute deviation (by default).}
+  \item{caliper} A scalar numeric value that will be used to trim down the
+  comparisons to only those that are less than the caliper value. Use of this
+  argument \code{y <- mdist(scores, z = z, caliper = 2)} is generally more efficient than \code{x <- mdist(scores, z); y <- x +
+  caliper(x, 2)}.
   \item{...}{Additional method arguments.}
 }
 \details{
@@ -58,7 +62,7 @@ the identity matrix will result in squared Euclidean distance.}
 
   The formula method produces, by default, a Mahalanobis distance specification
   based on the formula \code{treatment ~ var1 + var2 + ... }, where
-  \code{treatment} iexclusions = NULLs the treatment indicator. A Mahalanobis
+  \code{treatment} within = NULLs the treatment indicator. A Mahalanobis
   distance scales the squared Euclidean distance by the inverse of the
   covariance matrix. Other scale matrices can be supplied, for example, the
   identity matrix will result in squared Euclidean distance. If you wish to use
@@ -131,7 +135,7 @@ sdiffs <- function(treatments, controls) {
 }
 
 (absdist <- mdist(sdiffs, z = nuclearplants$pr, data = nuclearplants, 
-                  exclusions = exactMatch(pr ~ pt, nuclearplants)))
+                  within = exactMatch(pr ~ pt, nuclearplants)))
 
 ### Pair matching on the variable `t1`:
 pairmatch(absdist)
@@ -147,7 +151,7 @@ fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
 
 ### A Mahalanobis distance for matching within subgroups:
 mdist.examples$mh2 <- mdist(pr ~ t1 + t2 , data = nuclearplants,
-                            excludes = exactMatch(pr ~ pt, nuclearplants))
+                            within = exactMatch(pr ~ pt, nuclearplants))
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:

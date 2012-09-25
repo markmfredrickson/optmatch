@@ -2,7 +2,7 @@
 R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-apple-darwin9.8.0/i386 (32-bit)
+Platform: x86_64-apple-darwin12.0.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -76,7 +76,7 @@ In fullmatch(psd/(psd < 0.25)) :
 > psd2 <- mdist(glm(pr~.-(pr+cost), family=binomial(),
 +                        data=nuclearplants),
 +               standardization.scale = sd,
-+               exclusions = exactMatch(pr ~ pt, nuclearplants))
++               within = exactMatch(pr ~ pt, nuclearplants))
 > stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1))
 1:0 1:1 0:1 
   7   3  19 
@@ -136,4 +136,4 @@ In stratumStructure(as.integer(fac), tvec) :
 > 
 > proc.time()
    user  system elapsed 
-  1.803   0.111   4.141 
+  0.628   0.032   0.641 

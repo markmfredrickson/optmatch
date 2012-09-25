@@ -65,7 +65,7 @@ test_that("Distances from formulas", {
 
   # excluding matches combined with a formula
   stratify <- exactMatch(Z ~ B)
-  res.strat <- mdist(Z ~ X1 + X2, exclusions = stratify)
+  res.strat <- mdist(Z ~ X1 + X2, within = stratify)
   expect_is(res.strat, "InfinitySparseMatrix")
   expect_equal(length(res.strat), 2 * (n/4)^2)
 
@@ -239,11 +239,11 @@ test_that("Numeric: simple differences of scores", {
   expect_equal(length(mdist(scores, z = z, caliper = 1)), 28) # 6 * 6 - 8
   expect_equal(length(mdist(scores, z = z, caliper = 1.5)), 28)
   
-  # combine the caliper width with an exclusions argument
+  # combine the caliper width with an within argument
   b <- rep(1:3, 4)
   ez <- exactMatch(z ~ b)
   
-  res <- mdist(scores, z = z, caliper = 1, exclusions = ez)
+  res <- mdist(scores, z = z, caliper = 1, within = ez)
   expect_equal(length(res), 9)
 
   # next test includes treated and control units that are excluded entirely

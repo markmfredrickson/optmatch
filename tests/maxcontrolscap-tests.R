@@ -2,7 +2,7 @@
 require('optmatch')
 data(nuclearplants)
 mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants, 
-              exclusions = exactMatch(pr ~ pt, data = nuclearplants))
+              within = exactMatch(pr ~ pt, data = nuclearplants))
 mhd2a <- t(mhd2a)
 
 mhd2a.caliper <- mhd2a + caliper(mhd2a, 3)

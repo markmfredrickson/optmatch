@@ -18,6 +18,6 @@ pairmatch(psd, controls=2, data = nuclearplants)
 
 # Also not run: again an error would be thrown (which R CMD CHECK does not like)
 # pairmatch(caliper(mdist(psm, standardization.scale = sd,
-#   exclusions = exactMatch(pr ~ pt, data =
+#   within = exactMatch(pr ~ pt, data =
 #   nuclearplants)), width=2)) # Fails in subclass '1'
 

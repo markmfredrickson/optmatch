@@ -22,7 +22,7 @@ test_that("Checking input", {
   expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, `-`))
 })
 
-test_that("No exclusions => dense matrix", {
+test_that("No within => dense matrix", {
   data <- c(1:5, 2:9)
   names(data) <- letters[1:13]
   z <- c(rep(0, 5), rep(1, 8))
@@ -60,33 +60,33 @@ test_that("Mask => ISM result", {
   lower <- cbind(matrix(Inf, nrow = 2, ncol = 2), lower.right)
   m <- rbind(upper, lower)
 
-  test.exclusions <- exactMatch(z ~ b, data = data)
+  test.within <- exactMatch(z ~ b, data = data)
 
-  res <- makedist(data$z, data, yminus, exclusions = test.exclusions)
+  res <- makedist(data$z, data, yminus, within = test.within)
 
-  expect_equal(length(res), length(test.exclusions))
+  expect_equal(length(res), length(test.within))
 
   expect_equivalent(as.matrix(res), m)
 
-  # exclusionss should match the data on treatment and control names
+  # withins should match the data on treatment and control names
   data2 <- data
   rownames(data2) <- letters[11:20]
-  test.exclusions.bad <- exactMatch(z ~ b, data = data2)
+  test.within.bad <- exactMatch(z ~ b, data = data2)
   
-  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad))
 
   # repeat previous test with bad row and column names respectively
   data3 <- data
   rownames(data3) <- c("foo", rownames(data[-1,]))
-  test.exclusions.bad.treat <- exactMatch(z ~ b, data = data3)
+  test.within.bad.treat <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad.treat))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat))
 
   data4 <- data
   rownames(data3) <- c(rownames(data)[1:9], "bar")
-  test.exclusions.bad.cntrl <- exactMatch(z ~ b, data = data3)
+  test.within.bad.cntrl <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, exclusions = test.exclusions.bad.cntrl))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl))
 
 })
 

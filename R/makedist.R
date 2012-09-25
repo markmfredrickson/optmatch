@@ -5,7 +5,7 @@
 # an internal function to handle the heavy lifting
 # z is a treatment indicator for the data
 # 
-makedist <- function(z, data, distancefn, exclusions = NULL) {
+makedist <- function(z, data, distancefn, within = NULL) {
   # conversion and error checking handled by toZ
   z <- toZ(z)
   
@@ -37,8 +37,8 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
   }
 
-  if (is.null(exclusions)) {
-    # without a exclusions, make a dense matrix    
+  if (is.null(within)) {
+    # without a within, make a dense matrix    
     nc <- length(cns)
     nr <- length(rns)
     
@@ -49,31 +49,31 @@ makedist <- function(z, data, distancefn, exclusions = NULL) {
     controlids <- rep(cns, each = nr)
     
     if (nc * nr > getMaxProblemSize()) {
-      warning("Matching problem too large. Consider passing an 'exclusions'
+      warning("Matching problem too large. Consider passing an 'within'
       argument. See 'mdist', 'exactMatch', and 'caliper' documentation for details.")  
     }
 
   } else {
-    # with a exclusions, make a copy and only fill in the finite entries of exclusions
-    res <- exclusions
+    # with a within, make a copy and only fill in the finite entries of within
+    res <- within
     
-    if (!all(exclusions@rownames %in% rns) | !(all(rns %in% exclusions@rownames)) |
-        !all(exclusions@colnames %in% cns) | !(all(cns %in% exclusions@colnames))) {
-      stop("Row and column names of exclusions must match those of the data.")  
+    if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
+        !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
+      stop("Row and column names of within must match those of the data.")  
     }
 
     treatmentids <- res@rownames[res@rows]
     controlids <- res@colnames[res@cols]
 
-    # TODO: check that the rownames, colnames of exclusions match data
-    subprobs <- findSubproblems(exclusions)
+    # TODO: check that the rownames, colnames of within match data
+    subprobs <- findSubproblems(within)
     issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail 
     for (s in subprobs) {
       issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
     }
    
     if(issue.warning) {
-      warning("Matching problem too large, even with included 'exclusions'
+      warning("Matching problem too large, even with included 'within'
           argument. You should try to exclude more treated-control comparisons.
           See 'exactMatch' and 'caliper' documentation for details.")  
     }

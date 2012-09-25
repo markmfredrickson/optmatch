@@ -8,7 +8,7 @@ psd <- mdist(psm, standardization.scale = sd) # backwards compatible to 0.7-2
 psfm <- fullmatch(psd + caliper(psd, 0.25), data = nuclearplants)
 summary(psfm)
 ## not run as it causes an error in a subclass
-# pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, exclusions =
+# pspm <- pairmatch(caliper(mdist(psm, standarization.scale = sd, within =
 #                   exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
 # summary(pspm)
 psd[1,] <- psd[1,] + rep(100,22)

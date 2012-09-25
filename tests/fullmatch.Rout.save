@@ -41,7 +41,7 @@ In fullmatch(1 * (plantdist < 10)) :
 > 
 > data(nuclearplants)
 > mhd2 <- mdist(pr ~ date + cum.n, data = nuclearplants, 
-+               exclusions = exactMatch(pr ~ pt, data = nuclearplants))
++               within = exactMatch(pr ~ pt, data = nuclearplants))
 > # the previous version of optmatch used fullmatch(mhd2 < 1)
 > # this is the equivalent using an ISM (logical operators treat them as numeric
 > # vectors)

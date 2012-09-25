@@ -2,9 +2,9 @@
 # Mdist: distance matrix creation functions
 ################################################################################
 
-setGeneric("mdist", def = function(x, exclusions = NULL, ...)  standardGeneric("mdist"))
+setGeneric("mdist", def = function(x, within = NULL, ...)  standardGeneric("mdist"))
 
-setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = NULL, ...) {
+setMethod("mdist", "function", function(x, within = NULL, z = NULL, data = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
@@ -12,12 +12,12 @@ setMethod("mdist", "function", function(x, exclusions = NULL, z = NULL, data = N
 
   theFun <- match.fun(x)
 
-  makedist(z, data, theFun, exclusions)
+  makedist(z, data, theFun, within)
 })
 
 
 # mdist method: formula
-setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset = NULL, 
+setMethod("mdist", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
                                        inv.scale.matrix = NULL, COV = cov, ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
@@ -83,12 +83,12 @@ setMethod("mdist", "formula", function(x, exclusions = NULL, data = NULL, subset
 
 
 
-  makedist(z, data, f, exclusions)
+  makedist(z, data, f, within)
 
 })
 
 # mdist method: glm
-setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale = mad, ...)
+setMethod("mdist", "glm", function(x, within = NULL, standardization.scale = mad, ...)
 {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
@@ -100,7 +100,7 @@ setMethod("mdist", "glm", function(x, exclusions = NULL, standardization.scale =
 
   lp.adj <- x$linear.predictors/pooled.sd
 
-  mdist(lp.adj, z = z, exclusions = exclusions, ...)
+  mdist(lp.adj, z = z, within = within, ...)
 })
 
 szn.scale <- function(x, Tx, standardizer = mad, ...) {
@@ -109,7 +109,7 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
 }
 
 # mdist method: bigglm
-setMethod("mdist", "bigglm", function(x, exclusions = NULL, data = NULL, standardization.scale = mad, ...)
+setMethod("mdist", "bigglm", function(x, within = NULL, data = NULL, standardization.scale = mad, ...)
 {
   if (is.null(data)) {
     stop("data argument is required for computing mdists from bigglms")
@@ -142,7 +142,7 @@ are there missing values in data?")
     abs(treatments - controls) / pooled.sd
   }
   
-  makedist(z, theps, psdiffs, exclusions)
+  makedist(z, theps, psdiffs, within)
       
 })
 
@@ -156,7 +156,7 @@ are there missing values in data?")
 # @param caliper The width of a caliper to fit on the difference of scores.
 #   This can improve efficiency versus first creating all the differences and
 #   then filtering out those entries that are larger than the caliper.
-setMethod("mdist", "numeric", function(x, exclusions = NULL, z, caliper = NULL, ...)
+setMethod("mdist", "numeric", function(x, within = NULL, z, caliper = NULL, ...)
 {
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric mdist method.")
@@ -171,15 +171,15 @@ setMethod("mdist", "numeric", function(x, exclusions = NULL, z, caliper = NULL, 
   if(!is.null(caliper)) {
     allowed <- scoreCaliper(x, z, caliper)
     
-    if (!is.null(exclusions)) {
-      exclusions <- exclusions + allowed
+    if (!is.null(within)) {
+      within <- within + allowed
     } else {
-      exclusions <- allowed
+      within <- allowed
     }
   }
   
   f <- function(t, c) { abs(t - c) }
-  makedist(z, x, f, exclusions)
+  makedist(z, x, f, within)
 })
 
 #' (Internal) Helper function to create an InfinitySparseMatrix from a set of scores, a treatment indicator, and a caliper width.
@@ -187,7 +187,7 @@ setMethod("mdist", "numeric", function(x, exclusions = NULL, z, caliper = NULL, 
 #' @param x The scores, a vector indicating the 1-D location of each unit.
 #' @param z The treatment assignment vector (same length as \code{x})
 #' @param caliper The width of the caliper with respect to the scores \code{x}.
-#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to \code{\link{mdist}} as an \code{exclusions} argument.
+#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to \code{\link{mdist}} as an \code{within} argument.
 scoreCaliper <- function(x, z, caliper) {
   z <- toZ(z)
 
@@ -225,11 +225,11 @@ scoreCaliper <- function(x, z, caliper) {
 # mdist methods for DistanceSpecifications
 # apparently the class union is less important than the true
 # type, so the numeric method above gets in the way
-setMethod("mdist", "InfinitySparseMatrix", function(x, exclusions = NULL, ...) {
+setMethod("mdist", "InfinitySparseMatrix", function(x, within = NULL, ...) {
   return(x)
 }) # just return the argument
 
-setMethod("mdist", "matrix", function(x, exclusions = NULL, ...) {
+setMethod("mdist", "matrix", function(x, within = NULL, ...) {
   return(x)
 }) # just return the argument
 
