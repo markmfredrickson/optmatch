@@ -164,11 +164,7 @@ treatment          26         27          28          29
        30  9.98948462  0.3525588  0.51536468  0.00000000
        31 13.81383376  0.0000000  0.02429209  0.35255881
        32  9.98948462  0.3525588  0.51536468  0.00000000
-<<<<<<< HEAD
-> mdist(pr ~ date + cum.n, data = nuclear, within = exactMatch(pr ~ pt, data = nuclear))
-=======
-> match_on(pr ~ date + cum.n, data = nuclear, exclusions = exactMatch(pr ~ pt, data = nuclear))
->>>>>>> match_on
+> match_on(pr ~ date + cum.n, data = nuclear, within = exactMatch(pr ~ pt, data = nuclear))
 $`0`
        control
 treated         1         2         4          6          7          8
@@ -365,11 +361,7 @@ treatment         26        27        28          29
        30 11.4657851  0.653938 13.804324  0.00000000
        31 14.7561671  0.000000 11.606556  0.65393798
        32 11.4657851  0.653938 13.804324  0.00000000
-<<<<<<< HEAD
-> mdist(pr ~ date + cum.n.q, data = nuclear, within = exactMatch(pr~pt, data = nuclear))
-=======
-> match_on(pr ~ date + cum.n.q, data = nuclear, exclusions = exactMatch(pr~pt, data = nuclear))
->>>>>>> match_on
+> match_on(pr ~ date + cum.n.q, data = nuclear, within = exactMatch(pr~pt, data = nuclear))
 $`0`
        control
 treated        1         2         4          6          7        8          10
@@ -460,4 +452,4 @@ treatment        26        27           28         29
 > 
 > proc.time()
    user  system elapsed 
-  0.851   0.044   0.872 
+  0.838   0.044   0.857 

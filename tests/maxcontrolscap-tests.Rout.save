@@ -29,13 +29,8 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
  relaxinfo() at the command line.
 
 > data(nuclearplants)
-<<<<<<< HEAD
-> mhd2a <- mdist(pr ~ date + cum.n, data = nuclearplants, 
-+               within = exactMatch(pr ~ pt, data = nuclearplants))
-=======
 > mhd2a <- match_on(pr ~ date + cum.n, data = nuclearplants, 
-+               exclusions = exactMatch(pr ~ pt, data = nuclearplants))
->>>>>>> match_on
++               within = exactMatch(pr ~ pt, data = nuclearplants))
 > mhd2a <- t(mhd2a)
 > 
 > mhd2a.caliper <- mhd2a + caliper(mhd2a, 3)
@@ -114,4 +109,4 @@ In fullmatch(mhd2a + caliper(mhd2a, 2), max = 1/2) :
 > 
 > proc.time()
    user  system elapsed 
-  0.959   0.038   0.977 
+  1.105   0.033   1.130 
