@@ -76,7 +76,7 @@ setGeneric("match_on", def = function(x, within = NULL, ...)  standardGeneric("m
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
 #' @rdname match_on-methods
-#' @aliases match_on,function,ANY-method
+#' @aliases match_on,function-method
 setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
@@ -96,6 +96,7 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 #' the identity matrix will result in squared Euclidean distance.
 #' @param COV A covariance computing function. The default is \code{\link{cov}}
 #' @rdname match_on-methods
+#' @aliases match_on,formula-method
 setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
                                        inv.scale.matrix = NULL, COV = cov, ...) {
   if (length(x) != 3) {
@@ -168,6 +169,7 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
 
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @rdname match_on-methods
+#' @aliases match_on,glm-method
 setMethod("match_on", "glm", function(x, within = NULL, standardization.scale = mad, ...)
 {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
@@ -191,6 +193,7 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
 }
 
 #' @rdname match_on-methods
+#' @aliases match_on,bigglm-method
 setMethod("match_on", "bigglm", function(x, within = NULL, data = NULL, standardization.scale = mad, ...)
 {
   if (is.null(data)) {
@@ -228,19 +231,16 @@ are there missing values in data?")
       
 })
 
-
-### match_on method: numeric.
-### (match_on can't work with numeric vectors at present,
-### but it can return an informative error message).
-
-# Returns the absolute difference for treated and control units computed using
-# the vector of scores \code{x}.
-#
-# @param z Vector of treatment assignments for each unit in \code{x}. Either
-#   \code{x} or \code{z} must have names.
-# @param caliper The width of a caliper to fit on the difference of scores.
-#   This can improve efficiency versus first creating all the differences and
-#   then filtering out those entries that are larger than the caliper.
+#' Returns the absolute difference for treated and control units computed using
+#' the vector of scores \code{x}.
+#'
+#' @param z Vector of treatment assignments for each unit in \code{x}. Either
+#'   \code{x} or \code{z} must have names.
+#' @param caliper The width of a caliper to fit on the difference of scores.
+#'   This can improve efficiency versus first creating all the differences and
+#'   then filtering out those entries that are larger than the caliper.
+#' @rdname match_on-methods
+#' @aliases match_on,numeric-method
 setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, ...) {
 
   if(missing(z) || is.null(z)) {
@@ -310,11 +310,13 @@ scoreCaliper <- function(x, z, caliper) {
 # apparently the class union is less important than the true
 # type, so the numeric method above gets in the way
 #' @rdname match_on-methods
+#' @aliases match_on,InfinitySparseMatrix-method
 setMethod("match_on", "InfinitySparseMatrix", function(x, within = NULL, ...) {
   return(x)
 }) # just return the argument
 
 #' @rdname match_on-methods
+#' @aliases match_on,matrix-method
 setMethod("match_on", "matrix", function(x, within = NULL, ...) {
   return(x)
 }) # just return the argument
