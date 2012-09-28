@@ -18,7 +18,7 @@ test_that("Caliper return values", {
   expect_equal(result@.Data, c(0,0))
 
   # make sure that matrix input does same thing
-  expect_equal(caliper(A, 2), caliper(m, 2))
+  expect_equivalent(caliper(A, 2), caliper(m, 2))
 })
 
 test_that("Caliper exclusion", {
@@ -75,4 +75,19 @@ test_that("calipers for optmatch.dlist", {
 
   expect_true(inherits(cal.res, "InfinitySparseMatrix")) # gets promoted 
   expect_equal(length(cal.res), 4) # two entries in each block are less than 1.5
+})
+
+test_that("update() caliper objects", {
+  Z <- rep(c(0,1), each = 10)
+  S <- rep(1:10 * 2, 2)
+  names(Z) <- names(S) <- letters[1:20]
+
+  basic <- caliper(match_on(S, z = Z), 2)
+  expect_equal(length(basic), 28)
+
+  S <- rep(1:10 * 3, 2)
+  names(S) <- letters[1:20]
+  updated <- update(basic)
+  expect_equal(length(updated), 10)
+
 })

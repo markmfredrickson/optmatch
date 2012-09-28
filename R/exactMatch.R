@@ -3,7 +3,11 @@
 ################################################################################
 
 setGeneric("exactMatch", 
-  def = function(x, ...) standardGeneric("exactMatch"))
+  def = function(x, ...) {
+    tmp <- standardGeneric("exactMatch")
+    tmp@call <- match.call()
+    return(tmp) 
+})
 
 setMethod(exactMatch, "vector", function(x, treatment) {
   if (length(x) != length(treatment)) {

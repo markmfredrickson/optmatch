@@ -56,7 +56,7 @@ test_that("Exact match on formula", {
   expect_equal(dim(res), c(8,8))
 
   res.data <- exactMatch(Z ~ B, data = test.data)
-  expect_equal(res.data, res)
+  expect_equivalent(res.data, res)
 
   # combine mulitiple factors into a single factor
   B2 <- rep(c(0,1), 4, each = 2)
@@ -84,7 +84,7 @@ test_that("Use proper environment or data.frame", {
   res.envir <- exactMatch(Z ~ B)
   res.df <- exactMatch(a ~ c, data = test.data)
 
-  expect_identical(res.envir, res.df)
+  expect_equivalent(res.envir, res.df)
   
 })
 
@@ -114,7 +114,7 @@ test_that("Makes correct mask", {
   mask.fac <- exactMatch(A, Y)
   expect_equal(length(mask.fac), 12)
 
-  expect_identical(mask.df, mask.fac)
+  expect_equivalent(mask.df, mask.fac)
   
 })
 
@@ -196,4 +196,16 @@ test_that("Cbind/rbind an exact match", {
   res.rbind <- rbind(res, mr)
   expect_equal(dim(res.rbind), c(n/2 + 2, n/2))
   
+})
+
+test_that("exactMatch objs can be update()'d", {
+  Z <- rep(c(0,1), 8)
+  B <- rep(letters[1:4], each = 4)
+
+  simple <- exactMatch(Z ~ B)
+  expect_equal(length(levels(simple@groups)), 4) 
+
+  B <- rep(letters[1:2], each = 8)
+  updated <- update(simple)
+  expect_equal(length(levels(updated@groups)), 2) 
 })

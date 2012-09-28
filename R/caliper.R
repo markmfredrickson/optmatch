@@ -50,8 +50,14 @@ NA
 #' @export
 #' @docType methods
 #' @rdname caliper-methods
-setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`)
-  standardGeneric("caliper"))
+setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`) {
+
+  tmp <- standardGeneric("caliper")
+  if (isS4(tmp)) {
+    tmp@call <- match.call()
+  }
+  return(tmp)
+})
 
 #' @rdname caliper-methods
 #' @aliases caliper,InfinitySparseMatrix-method
