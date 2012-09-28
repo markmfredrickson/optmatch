@@ -9,14 +9,20 @@
 # To get a matrix like:
 # 1   2
 # Inf 3
+
+# for the OptionalCall data type 
+#' @include DenseMatrix.R 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
 setClass("InfinitySparseMatrix", 
   representation(cols = "numeric", rows = "numeric", dimension = "numeric",
-    colnames = "OptionalCharacter", rownames = "OptionalCharacter"),
+    colnames = "OptionalCharacter", rownames = "OptionalCharacter",
+    call = "OptionalCall"),
   contains = "numeric")
 
 # using a maker function for now, probably should be an initialize function
-makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL, rownames = NULL, dimension = NULL) {
+makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL,
+                                     rownames = NULL, dimension = NULL, 
+                                     call = NULL) {
   if (!all.equal(length(data), length(cols), length(rows))) {
     stop("Data and column/row ids must be vectors of the same length")  
   }
@@ -35,7 +41,7 @@ makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL, rownames
 
 
   return(new("InfinitySparseMatrix", data, cols = cols, rows = rows, colnames = colnames, rownames =
-    rownames, dimension = dimension))
+    rownames, dimension = dimension, call = call))
 }
 
 ### Basic Matrix-like Operations and Conversions ###

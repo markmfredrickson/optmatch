@@ -42,7 +42,8 @@ makedist <- function(z, data, distancefn, within = NULL) {
     nc <- length(cns)
     nr <- length(rns)
     
-    res <- matrix(0, nrow = nr, ncol = nc, dimnames = list(treatment = rns, control = cns))
+    res <- new("DenseMatrix", matrix(0, nrow = nr, ncol = nc, dimnames =
+                                     list(treatment = rns, control = cns)))
     
     # matrices have column major order
     treatmentids <- rep(rns, nc)

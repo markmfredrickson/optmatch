@@ -71,7 +71,13 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
-setGeneric("match_on", def = function(x, within = NULL, ...)  standardGeneric("match_on"))
+setGeneric("match_on", def = function(x, within = NULL, ...) {
+
+  tmp <- standardGeneric("match_on")
+  tmp@call <- match.call()
+  return(tmp)
+
+})
 
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.

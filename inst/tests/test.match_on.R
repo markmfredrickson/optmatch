@@ -38,7 +38,7 @@ test_that("Distances from formulas", {
 
   # test pulling from the environment, like lm does
   result.envir <- match_on(Z ~ X1 + X2 + B)
-  expect_equal(result.fmla, result.envir)
+  expect_equivalent(result.fmla, result.envir)
 
   expect_error(match_on(~ X1 + X2, data = test.data))
   expect_error(match_on(Z ~ 1, data = test.data))
@@ -46,10 +46,10 @@ test_that("Distances from formulas", {
   # checking diferent classes of responses
   res.one <- match_on(Z ~ X1) 
   res.logical <- match_on(as.logical(Z) ~ X1)
-  expect_identical(res.one, res.logical)
+  expect_equivalent(res.one, res.logical)
 
   res.factor <- match_on(as.factor(Z) ~ X1)
-  expect_identical(res.one, res.factor)
+  expect_equivalent(res.one, res.factor)
 
   # specifying distances
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
@@ -167,7 +167,7 @@ test_that("Bigglm distances", {
 
     # compare to glm
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
-    expect_equal(res.bg, res.glm) 
+    expect_equivalent(res.bg, res.glm) 
   }
 })
 
@@ -253,4 +253,47 @@ test_that("Numeric: simple differences of scores", {
   res <- match_on(scores2, z = z2, caliper = 1)
   expect_equal(length(res), 28) # effectively same result as without the new units
 
+})
+
+
+test_that("update() of match_on created objects", {
+  Z <- rep(c(1,0), 10)
+  X1 <- rep(c(1,3), 10)
+  X2 <- rep(c(1,5), 10)
+  B <- rep(c(1,2), each = 10)
+
+  names(Z) <- names(X1) <- names(X2) <- names(B) <- letters[1:20]
+
+  # first, with dense problems
+  basic <- match_on(X1, z = Z)
+  use.x2 <- update(basic, x = X2)
+  expect_true(all(basic == 2))
+  expect_true(all(use.x2 == 4))
+
+  X1 <- X2
+  expect_true(all((update(basic) - use.x2) == 0))
+
+  # next, with sparse problems
+  X1 <- rep(c(1,3), 10)
+  names(X1) <- letters[1:20]
+
+  basic <- match_on(X1, z = Z, within = exactMatch(Z ~ B))
+  use.x2 <- update(basic, x = X2)
+  expect_true(all(basic == 2))
+  expect_true(all(use.x2 == 4))
+
+  X1 <- X2
+  expect_true(all((update(basic) - use.x2) == 0))
+
+  # now create a distspec with addition, update should error
+  X1 <- rep(c(1,3), 10)
+  names(X1) <- letters[1:20]
+
+  stratified <- match_on(X1, z = Z, within = exactMatch(Z ~ B))
+  unstratified <- match_on(X1, z = Z)
+  em <- exactMatch(Z ~ B)
+
+  expect_equivalent(stratified, unstratified + em)
+
+  expect_error(update(unstratified + em, x = X2))
 })

@@ -34,7 +34,7 @@ test_that("No within => dense matrix", {
 
   expect_equal(dim(res), c(8, 5))
   expect_is(res, "matrix")
-  expect_equivalent(res, m)
+  expect_equivalent(as.matrix(res), m)
 
   # same basic test, with a data frame
   data.df <- data.frame(a = data, xyz = 1:13)
@@ -42,7 +42,7 @@ test_that("No within => dense matrix", {
 
   res.df <- makedist(z, data.df, aminus)
   expect_equal(res.df, res)
-  expect_equivalent(res.df, m)
+  expect_equivalent(as.matrix(res.df), m)
 })
 
 test_that("Mask => ISM result", {
