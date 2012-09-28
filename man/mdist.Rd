@@ -41,7 +41,7 @@
   }
 
   The \code{mdist.function} method does similar things as the
-  earlier optmatch function \code{\link{makedist}}, although the
+  earlier optmatch function \code{makedist}, although the
   interface is a bit different.
   
   The \code{mdist.formula} method computes the squared Mahalanobis
@@ -72,7 +72,7 @@
 \value{
   Object of class \code{optmatch.dlist}, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. For more information, see \code{\link{pscore.dist}}
+  \code{\link{pairmatch}}. 
 
 }
 \author{ Mark M. Fredrickson} %Ben B. Hansen
@@ -84,8 +84,8 @@
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{ \code{\link{makedist}}, \code{\link{mahal.dist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
-          \code{\link{pscore.dist}}}
+\seealso{ \code{\link{fullmatch}}, \code{\link{pairmatch}},
+\code{\link{match_on}}}
 \examples{
 data(nuclearplants)
 mdist.examples <- list()

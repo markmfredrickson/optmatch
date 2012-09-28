@@ -203,6 +203,9 @@ caliperSize <- function(scores, z, width, structure = NULL) {
 #' @param scores A numeric vector of scores providing 1-D position of units
 #' @param z Treatment indicator vector
 #' @param width Width of caliper, must be positive.
+#' @param structure Optional factor variable that groups the scores, as would
+#' be used by \code{\link{exactMatch}}. Including structure allows for wider
+#' calipers.
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperUpperBound <- function(scores, z, width, structure = NULL) {
 

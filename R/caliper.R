@@ -1,3 +1,6 @@
+#' @include InfinitySparseMatrix.R
+NA
+
 #' Prepare matching distances suitable for matching within calipers.
 #'
 #' Encodes calipers, or maximum allowable distances within which to
@@ -31,7 +34,7 @@
 #'
 #' @example inst/examples/caliper.R
 #'
-#' @keyword nonparametric
+#' @keywords nonparametric
 #' 
 #' @param x A distance specification created with \code{\link{match_on}} or similar.
 #' @param width The width of the caliper: how wide of a margin to allow in matches.

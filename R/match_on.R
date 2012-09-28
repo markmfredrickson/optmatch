@@ -53,11 +53,11 @@
 #'
 #' 
 #' @param x An object defining how to create the distances
-#' @param within A \code{\link{DistanceSpecification}} such as the result
+#' @param within A \code{\link{DistanceSpecification-class}} such as the result
 #' of \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #' which distances to create. Including this argument can significantly speed up
 #' computation for sparse matching problems.
-#' @return Object of the class union \code{DistanceSpecification} (either a
+#' @return Object of the class union \code{DistanceSpecification-class} (either a
 #' \code{matrix} or a \code{InfinitySparseMatrix} or derived class), which is
 #' suitable to be given as \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}. 

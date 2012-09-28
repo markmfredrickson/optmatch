@@ -33,7 +33,7 @@
 #' is also printed by \code{print.optmatch} and \code{summary.optmatch}.)
 #' @rdname optmatch
 #' @name optmatch
-#' @alias optmatch-class
+#' @aliases optmatch-class
 NA
 
 ####### Object Creation #########
