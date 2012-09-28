@@ -90,4 +90,17 @@ test_that("update() caliper objects", {
   updated <- update(basic)
   expect_equal(length(updated), 10)
 
+  # now repeat with optmatch.dlist objects
+  Z <- rep(c(0,1), each = 10)
+  S <- rep(1:10 * 2, 2)
+  names(Z) <- names(S) <- letters[1:20]
+  optdl <- caliper(mdist(Z ~ S, data = data.frame(Z, S)), 0.11)
+  
+  # however, results will be ISMs
+  expect_equal(length(optdl), 28)
+
+  optdl.updated <- update(optdl, width = .001)
+
+  expect_equal(length(optdl.updated), 10)
+
 })

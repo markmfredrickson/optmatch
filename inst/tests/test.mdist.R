@@ -163,3 +163,15 @@ test_that("General optmatch.dlist tests", {
 
 })
 
+test_that("update() optmatch.dlist objects", {
+  test.data <- data.frame(Z = rep(c(0,1), 10),
+                          X1 = 1:20,
+                          B = rep(c(0,1), each = 10))
+
+  basic <- mdist(Z ~ X1, data = test.data, structure.fmla = ~ B)
+  expect_equal(length(basic), 2)
+
+  test.data$B <- rep(1:5, each = 4)
+  updated <- update(basic)
+  expect_equal(length(updated), 5)
+})

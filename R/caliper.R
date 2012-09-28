@@ -53,9 +53,7 @@ NA
 setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`) {
 
   tmp <- standardGeneric("caliper")
-  if (isS4(tmp)) {
-    tmp@call <- match.call()
-  }
+  tmp@call <- match.call()
   return(tmp)
 })
 
