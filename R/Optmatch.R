@@ -78,7 +78,9 @@ makeOptmatch <- function(distance,
         }, grpnames, matching), f = c)
 
   optmatch.obj <- as.factor(optmatch.obj)
-  names(optmatch.obj) <- unlist(sapply(matching, names)) 
+  subproblems <- as.factor(unlist(mapply(function(label, group) { rep(label, length(group)) }, grpnames, matching)))
+  names(optmatch.obj) <- names(subproblems) <- unlist(sapply(matching, names))
+
 
   # we try to get the order as row names, straight names, and finally from the
   # value of the data argument.
@@ -103,6 +105,7 @@ makeOptmatch <- function(distance,
   if (!is.null(optorder)) {
     optmatch.obj <- optmatch.obj[optorder]
     names(optmatch.obj) <- optorder
+    subproblems <- subproblems[optorder]
   }
 
   class(optmatch.obj) <- c("optmatch", "factor")
@@ -116,6 +119,8 @@ makeOptmatch <- function(distance,
   attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
   # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
   attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
+
+  attr(optmatch.obj, "subproblem") <- subproblems
   
   return(optmatch.obj)
 }

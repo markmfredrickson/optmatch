@@ -137,24 +137,27 @@ test_that("Reversion Test: Proper labeling of NAs", {
 
   # also, entirely failing problems should be labeled with NAs, not subgroup.NA
   # https://github.com/markmfredrickson/optmatch/issues/22
-  scores <- c(rep(1, 8), 1,1,1,1,1,10,10,10) 
-  B <- c(rep(1, 8), rep(2, 8))
-  Z <- rep(rep(c(0,1), each = 4), 2)
+  scores <- c(10,1,10,10,10,10,10,10,10, 1,1,1,1,1,10,10,10) 
+  B <- c(rep(1, 9), rep(2, 8))
+  Z <- c(rep(c(0,1), each = 4), 0, rep(c(0,1), each = 4))
 
-  names(scores) <- names(B) <- names(Z) <- letters[1:16]
+  names(scores) <- names(B) <- names(Z) <- letters[1:17]
 
   d <- match_on(scores, z = Z, within = exactMatch(Z ~ B))
   res <- pairmatch(caliper(d, 2))
 
-  expect_equal(sum(is.na(res)), 8)
+  expect_equal(sum(is.na(res)), 9)
   
   # repeat using an optmatch.dlist object, just in case...
-  od <- list(matrix(0, nrow = 4, ncol = 4, dimnames = list(letters[1:4], letters[5:8])),
-             matrix(c(0,0,0,0, rep(Inf, 12)), byrow = T, nrow = 4, ncol = 4, dimnames = list(letters[9:12], letters[13:16])))
+  od <- list(matrix(c(0,0,0,0, Inf,Inf,Inf,Inf, rep(0, 12)), nrow = 4, ncol = 5, dimnames = list(letters[1:4], letters[5:9])),
+             matrix(c(0,0,0,0, rep(Inf, 12)), byrow = T, nrow = 4, ncol = 4, dimnames = list(letters[10:13], letters[14:17])))
 
   class(od) <- c("optmatch.dlist", "list")
   
-  expect_equal(sum(is.na(pairmatch(od))), 8)
+  expect_equal(sum(is.na(pairmatch(od))), 9)
+
+  # while we're at it, check that match failed only indicates that 1 level failed
+  expect_equal(sum(matchfailed(pairmatch(od))), 8)
 })
 
 test_that("Results are in 'data order'", {
