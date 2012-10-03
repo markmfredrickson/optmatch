@@ -135,6 +135,26 @@ test_that("Reversion Test: Proper labeling of NAs", {
   expect_true(is.na(res[[3]])) # improperly labeled as "1.NA"
   expect_true(!all(is.na(res[-3])))
 
+  # also, entirely failing problems should be labeled with NAs, not subgroup.NA
+  # https://github.com/markmfredrickson/optmatch/issues/22
+  scores <- c(rep(1, 8), 1,1,1,1,1,10,10,10) 
+  B <- c(rep(1, 8), rep(2, 8))
+  Z <- rep(rep(c(0,1), each = 4), 2)
+
+  names(scores) <- names(B) <- names(Z) <- letters[1:16]
+
+  d <- match_on(scores, z = Z, within = exactMatch(Z ~ B))
+  res <- pairmatch(caliper(d, 2))
+
+  expect_equal(sum(is.na(res)), 8)
+  
+  # repeat using an optmatch.dlist object, just in case...
+  od <- list(matrix(0, nrow = 4, ncol = 4, dimnames = list(letters[1:4], letters[5:8])),
+             matrix(c(0,0,0,0, rep(Inf, 12)), byrow = T, nrow = 4, ncol = 4, dimnames = list(letters[9:12], letters[13:16])))
+
+  class(od) <- c("optmatch.dlist", "list")
+  
+  expect_equal(sum(is.na(pairmatch(od))), 8)
 })
 
 test_that("Results are in 'data order'", {
