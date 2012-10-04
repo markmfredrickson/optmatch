@@ -26,7 +26,7 @@ summary.optmatch <- function(object,
 ## overall balance -- xBalance()
   so <- list()
   so$thematch <- object
-  so$matching.failed <- mfd <- matchfailed(object)
+  so$matching.failed <- mfd <- is.na(object)
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
