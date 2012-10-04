@@ -1,4 +1,5 @@
 #' @include InfinitySparseMatrix.R
+#' @include DenseMatrix.R
 NA
 
 #' Prepare matching distances suitable for matching within calipers.

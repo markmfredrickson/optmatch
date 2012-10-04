@@ -12,6 +12,8 @@
 
 # for the OptionalCall data type 
 #' @include DenseMatrix.R 
+NA
+
 setClassUnion("OptionalCharacter", c("character", "NULL"))
 setClass("InfinitySparseMatrix", 
   representation(cols = "numeric", rows = "numeric", dimension = "numeric",
