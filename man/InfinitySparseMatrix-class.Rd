@@ -41,6 +41,8 @@ however, users will prefer the helper function \code{\link{makeInfinitySparseMat
     \item{\code{dimension}:}{Object of class \code{"numeric"}: A two element vector of height and width. }
     \item{\code{colnames}:}{Object of class \code{"OptionalCharacter"}: Names of the columns. }
     \item{\code{rownames}:}{Object of class \code{"OptionalCharacter"}: Names of the rows. }
+    \item{\code{call}:}{Object of class \code{"OptionalCall"}: Functions may
+    store the calls used to create the matrix in this slot. }
   }
 }
 \section{Extends}{

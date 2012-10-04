@@ -10,9 +10,7 @@ export(mdist,
        relaxinfo, 
        stratumStructure, 
        fill.NAs,
-       exactMatch,
-       makeInfinitySparseMatrix,
-       as.InfinitySparseMatrix)
+       exactMatch)
 
 importFrom(stats, getCall)
 

@@ -77,10 +77,11 @@ getZfromMatch <- function(m) {
 #' effective sample size decreases.
 #'
 #' @param x An \code{optmatch} object, the result of
-#' \code{\link{fullmatch}} or \code{\link{pairmatch}.
+#' \code{\link{fullmatch}} or \code{\link{pairmatch}}.
 #' @param z A treatment indicator, a vector the same length as \code{match}.
 #' This is only required if the \code{match} object does not contain the
 #' contrast.group' attribute.
+#' @return The equivalent number of pairs in this match.
 effectiveSampleSize <- function(x, z = NULL) {
   if (is.null(z)) {
     z <- getZfromMatch(x)
