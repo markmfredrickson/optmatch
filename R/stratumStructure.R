@@ -10,7 +10,11 @@ if (inherits(stratum, "optmatch") & is.null(attr(stratum, "contrast.group")) & i
 if (inherits(stratum, "optmatch") & !is.null(attr(stratum, "contrast.group")) & !is.null(trtgrp))
   warning("ignoring second argument to stratumStructure")
 
-tgp <- getZfromMatch(stratum)
+if (is.null(trtgrp)) {
+  tgp <- getZfromMatch(stratum)
+} else {
+  tgp <- trtgrp
+}
 
 if (!any(tgp<=0) | !any(tgp>0))
    warning("No variation in (trtgrp>0); was this intended?")
@@ -20,7 +24,7 @@ stopifnot(is.numeric(min.controls), is.numeric(max.controls))
 if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
 if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-comp.num.matched.pairs <- effectiveSampleSize(stratum)
+comp.num.matched.pairs <- effectiveSampleSize(stratum, tgp)
 
 stratum <- as.integer(as.factor(stratum))
 if (any(is.na(stratum)))
@@ -88,6 +92,9 @@ effectiveSampleSize <- function(x, z = NULL) {
   }
 
   wasMatched <- !is.na(x)
+
+  if (!any(wasMatched)) { return(0) }
+  
   totals <- table(x[wasMatched], z[wasMatched])
 
   sum(2/(1/totals[,1] + 1/totals[,2]))

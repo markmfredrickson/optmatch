@@ -45,3 +45,9 @@ test_that("Helper functions to compute small bits about matches", {
 
   expect_equal(effectiveSampleSize(tmp, Z), 8)
 })
+
+
+test_that("Correct output for full failures", {
+  expect_equal(effectiveSampleSize(rep(NA, 10), rep(c(T,F), 5)), 0)
+
+})
