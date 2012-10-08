@@ -41,7 +41,7 @@ NA
 #' @param width The width of the caliper: how wide of a margin to allow in matches.
 #' @param exclude (Optional) A character vector of observations (corresponding to row and column names) to exclude from the caliper.
 #' @param compare A function that decides that whether two observations are with the caliper. The default is \code{`<=`}. \code{`<`} is a common alternative.
-#' @return   Object of class \code{DistanceSpecification}, which is suitable to be given
+#' @return A matrix like object that is suitable to be given
 #' as \code{distance} argument to \code{\link{fullmatch}} or
 #' \code{\link{pairmatch}}. The caliper will be only zeros and \code{Inf} values,
 #' indicating a possible match or no possible match, respectively.

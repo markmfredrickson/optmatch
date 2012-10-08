@@ -4,6 +4,7 @@
 \alias{exactMatch-methods}
 \alias{exactMatch,formula-method}
 \alias{exactMatch,vector-method}
+\alias{BlockedInfinitySparseMatrix-class}
 \title{Generate an exact matching set of subproblems}
 \description{
   An exact match is one based on a factor. Within a level, all observations are allowed to be matched.
@@ -38,7 +39,7 @@
   \code{\link{lm}}.
 }
 \value{
-  Object of class \code{DistanceSpecification}, which is suitable to be given
+  A matrix like object, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
   \code{\link{pairmatch}}. The exact match will be only zeros and \code{Inf} values,
   indicating a possible match or no possible match, respectively. It can be added to

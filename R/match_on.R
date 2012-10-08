@@ -55,6 +55,8 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
+#' @aliases DistanceSpecification-class
+#' @aliases InfinitySparseMatrix-class
 setGeneric("match_on", def = function(x, within = NULL, ...) {
 
   tmp <- standardGeneric("match_on")
