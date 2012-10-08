@@ -10,9 +10,14 @@
 # 1   2
 # Inf 3
 
-# for the OptionalCall data type 
-#' @include DenseMatrix.R 
+# for the OptionalCall data type
+#' @include DenseMatrix.R
 NA
+
+# NB: this use of setOldClass also appears in mdist.R; I tried using @include
+# in an roxygen block, but couldn't get it to properly order the files. Having
+# two calls to setOldClass does not appear to have any harm.
+setOldClass(c("optmatch.dlist", "list"))
 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
 setClass("InfinitySparseMatrix", 
@@ -80,7 +85,7 @@ dim.InfinitySparseMatrix <- function(x) {
   return(x@dimension)
 }
 
-setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
+as.matrix.InfinitySparseMatrix <- function(x) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
   v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(treated = x@rownames, control = x@colnames))
 
@@ -91,7 +96,7 @@ setMethod("as.matrix", "InfinitySparseMatrix", function(x) {
   }
 
   return(v)
-})
+}
 
 setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
 
@@ -124,6 +129,8 @@ as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 
 # dimnames implementation
 
+#' @rdname makeInfinitySparseMatrix
+#' @aliases dimnames,InfinitySparseMatrix-method
 setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   if (is.null(x@rownames) & is.null(x@colnames)) {
     return(NULL) 
@@ -131,6 +138,8 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   list(treated = x@rownames, control = x@colnames)
 })
 
+#' @rdname makeInfinitySparseMatrix
+#' @aliases dimnames<-,InfinitySparseMatrix-method 
 setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   if (length(value) != 2) {
     # message copied from matrix method
@@ -139,23 +148,6 @@ setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   x@rownames <- value[[1]]
   x@colnames <- value[[2]]
   x
-})
-setMethod("colnames<-", "InfinitySparseMatrix", function(x, value) {
-    x@colnames <- value
-    return(x)
-})
-
-setMethod("colnames", "InfinitySparseMatrix", function(x) {
-  return(x@colnames)  
-})
-
-setMethod("rownames<-", "InfinitySparseMatrix", function(x, value) {
-    x@rownames <- value
-    return(x)
-})
-
-setMethod("rownames", "InfinitySparseMatrix", function(x) {
-  return(x@rownames)  
 })
 
 ################################################################################

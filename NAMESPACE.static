@@ -46,4 +46,3 @@ S3method(mdist, bigglm)
 ### S4 Stuff
 
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix, DistanceSpecification)
-exportMethods(as.matrix, colnames, rownames)
