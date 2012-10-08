@@ -98,3 +98,13 @@ test_that("Match carries info about subproblems", {
   expect_equivalent(B, attr(match, "subproblem"))
 
 })
+
+test_that("Indicating failing subproblems", {
+  Z <- rep(c(0,1), 8)
+  B <- as.factor(rep(c(1,2), each = 8))
+  names(Z) <- names(B) <- letters[1:16]
+  match <- pairmatch(exactMatch(Z ~ B), data = Z) # assure data order by passing Z
+  
+  expect_equal(sum(subproblemSuccess(match)), 2)
+  expect_true(all(names(subproblemSuccess(match)) %in%  c("1", "2")))
+})
