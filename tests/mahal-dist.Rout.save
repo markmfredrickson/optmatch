@@ -29,6 +29,7 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
 
 > data(nuclear, package="boot")
 > match_on(pr ~ cap, data = nuclear)
+An object of class "DenseMatrix"
          control
 treatment          1           2           4          6            7          8
        3  3.95852869 0.000000000 0.000000000 8.41111160 1.635923e+00 10.2413535
@@ -77,8 +78,12 @@ treatment        26        27           28         29
        30 1.6494147 0.5507930 1.170515e-01 0.00000000
        31 4.1064984 0.0000000 1.600211e-01 0.55079301
        32 1.6494147 0.5507930 1.170515e-01 0.00000000
+Slot "call":
+match_on(x = pr ~ cap, data = nuclear)
+
 > match_on(pr ~ cap, data = nuclear,
 +            inv.scale.matrix = matrix(1,1,1, dimnames=list("cap", "cap")))
+An object of class "DenseMatrix"
          control
 treatment      1      2      4      6     7      8    10     11    12     13
        3  142884      0      0 303601 59049 369664 74529 255025 75625 286225
@@ -115,7 +120,12 @@ treatment    28     29
        30  4225      0
        31  5776  19881
        32  4225      0
+Slot "call":
+match_on(x = pr ~ cap, data = nuclear, inv.scale.matrix = matrix(1, 
+    1, 1, dimnames = list("cap", "cap")))
+
 > match_on(pr ~ date + cum.n, data = nuclear)
+An object of class "DenseMatrix"
          control
 treatment          1         2           4          6          7          8
        3   4.1066172  0.000000  3.04790077  0.3278118 0.70846152 1.59968268
@@ -164,6 +174,9 @@ treatment          26         27          28          29
        30  9.98948462  0.3525588  0.51536468  0.00000000
        31 13.81383376  0.0000000  0.02429209  0.35255881
        32  9.98948462  0.3525588  0.51536468  0.00000000
+Slot "call":
+match_on(x = pr ~ date + cum.n, data = nuclear)
+
 > match_on(pr ~ date + cum.n, data = nuclear, within = exactMatch(pr ~ pt, data = nuclear))
 $`0`
        control
@@ -214,6 +227,7 @@ treated        27         28        29
 > if ( (require(splines)) )
 +   match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear)
 Loading required package: splines
+An object of class "DenseMatrix"
          control
 treatment         1         2          4         6          7           8
        3  12.473140  0.000000 10.8541429  5.896388  7.6468736  6.87090239
@@ -262,6 +276,9 @@ treatment         26        27         28         29
        30 15.0171317  7.104341  9.8294536  0.0000000
        31 20.5861556  0.000000  0.2299599  7.1043411
        32 15.0171317  7.104341  9.8294536  0.0000000
+Slot "call":
+match_on(x = pr ~ ns(date, df = 3) + cum.n, data = nuclear)
+
 > 
 > if (require(splines))
 +   match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear, exactMatch(pr ~ pt, data = nuclear)
@@ -313,6 +330,7 @@ treated       27        28       29
 
 > cum.n.q <- cut(nuclear$cum.n, quantile(nuclear$cum.n), include.lowest=TRUE)
 > match_on(pr ~ date + cum.n.q, data = nuclear)
+An object of class "DenseMatrix"
          control
 treatment         1         2           4          6          7        8
        3   6.630460  0.000000 10.71828666  0.6766820 10.4168199 2.309583
@@ -361,6 +379,9 @@ treatment         26        27        28          29
        30 11.4657851  0.653938 13.804324  0.00000000
        31 14.7561671  0.000000 11.606556  0.65393798
        32 11.4657851  0.653938 13.804324  0.00000000
+Slot "call":
+match_on(x = pr ~ date + cum.n.q, data = nuclear)
+
 > match_on(pr ~ date + cum.n.q, data = nuclear, within = exactMatch(pr~pt, data = nuclear))
 $`0`
        control
@@ -401,6 +422,7 @@ treated       27       28       29
 > 
 > ### should give error, incorrect mode
 > try(match_on(as.factor(pr) ~ cap, data = nuclear))
+An object of class "DenseMatrix"
          control
 treatment          1           2           4          6            7          8
        3  3.95852869 0.000000000 0.000000000 8.41111160 1.635923e+00 10.2413535
@@ -449,7 +471,10 @@ treatment        26        27           28         29
        30 1.6494147 0.5507930 1.170515e-01 0.00000000
        31 4.1064984 0.0000000 1.600211e-01 0.55079301
        32 1.6494147 0.5507930 1.170515e-01 0.00000000
+Slot "call":
+match_on(x = as.factor(pr) ~ cap, data = nuclear)
+
 > 
 > proc.time()
    user  system elapsed 
-  0.838   0.044   0.857 
+  1.029   0.032   1.047 

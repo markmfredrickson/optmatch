@@ -2,7 +2,7 @@
 R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-apple-darwin9.8.0/i386 (32-bit)
+Platform: x86_64-apple-darwin12.0.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -355,6 +355,11 @@ X Y
 4 8 
 
 
+$subproblem
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+Levels: 1
+
 $class
 [1] "optmatch" "factor"  
 
@@ -441,4 +446,4 @@ X Y
 > 
 > proc.time()
    user  system elapsed 
-  1.544   0.109   3.754 
+  0.758   0.030   0.771 
