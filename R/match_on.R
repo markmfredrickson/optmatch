@@ -9,57 +9,41 @@
 #' Using these matrices, 
 #' \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
 #'
-#' The \code{function} method takes as its \code{x} argument a function of two
-#' arguments.  This function should in turn expect two arguments, a
-#' \code{data.frame} carrying information about treatment group members and a
-#' \code{data.frame} carrying information about control units.  The
-#' \code{function} method also expects a \code{z} argument, a vector indicating
-#' whether each unit is in the treated or control groups; on the basis of this
-#' vector the \code{data} argument is what is chopped up and fed to the function
-#' passed to \code{mdist} as argument \code{x}. While this might sound complicated
-#' at first, it's quite flexible and, once you're used to it, easy to use. For
-#' example, the simple 1-dimensional distance of treated and control units can be
-#' implemented as: \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z =
-#' rep(c(T,F),10), data = d)}.  See also additional examples below.  
+#' All \code{match_on} methods provide the same basic output: a matrix (or
+#' similar) object with treated units on the rows and control units on the
+#' columns. Each cell [i,j] then indicates the distance from a treated unit i to
+#' control unit j. Entries that are \code{Inf} are said to be un-matchable. Such
+#' units are guaranteed to never be in a matched set. For problems with many
+#' \code{Inf} entries, so called sparse matching problems, \code{match_on} uses a
+#' special data type that is more space efficient than a standard R \code{matrix}.
+#' When problems are not sparse (i.e. dense), \code{match_on} uses the standard
+#' \code{matrix} type.
 #'
-#' The formula method produces, by default, a Mahalanobis distance specification
-#' based on the formula \code{treatment ~ var1 + var2 + ... }, where
-#' \code{treatment} iwithin = NULLs the treatment indicator. A Mahalanobis
-#' distance scales the squared Euclidean distance by the inverse of the
-#' covariance matrix. Other scale matrices can be supplied, for example, the
-#' identity matrix will result in squared Euclidean distance. If you wish to use
-#' an alternative function to compute the covariance, pass it in the \code{COV}
-#' argument.
+#' \code{match_on} methods differ on the types of arguments they take, making
+#' the function a one-stop location of many different ways of specifing matches:
+#' using functions, formulas, models, and even simple scores. Many of the methods
+#' require additional arguments, detailed below. All methods take a \code{within}
+#' argument, a distance specification made using \code{\link{exactMatch}} or
+#' \code{\link{caliper}} (or some additive combination of these or other distance
+#' creating functions). All \code{match_on} methods will
+#' use the finite entries in the \code{within} argument as a guide for producing
+#' the new distance. Any entry that is \code{Inf} in \code{within} will be
+#' \code{Inf} in the distance matrix returned by \code{match_on}. This argument
+#' can reduce the processing time needed to compute sparse distance matrices.
 #'
-#' An \code{glm} method takes an argument of class \code{glm} as
-#' first argument.  It assumes that this object is a fitted propensity
-#' model, extracting distances on the linear propensity score (logits of
-#' the estimated conditional probabilities) and, by default, rescaling the distances
-#' by the reciprocal of the pooled s.d. of treatment- and control-group propensity scores.
-#' (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
-#' changed to the actual s.d., or rescaling can be skipped entirely, by
-#' setting argument \code{standardization.scale} to \code{sd} or
-#' \code{NULL}, respectively.)  The \code{bigglm}
-#' method works analogously with \code{bigglm} objects, created by
-#' the \code{bigglm} function from package \sQuote{biglm}, which can
-#' handle bigger data sets than the ordinary glm function can. 
-#'
-#' The \code{numeric} method is simply a placeholder that returns an error
-#' message and some helpful suggestions on how to create distance matrices, as
-#' there is no obvious way to create distance matrix from just a numeric vector.
-#'
-#' The \code{matrix} and \code{InfinitySparseMatrix} just return their
-#' arguments as these objects are already valid distance specifications.
-#'
+#' The \code{match_on} function is similar to the older, but still supplied,
+#' \code{\link{mdist}} function. Future development will concentrate on
+#' \code{match_on}, but \code{mdist} is still supplied for users familiar with the
+#' interface. For the most part, the two functions can be used interchangeably by
+#' users.
 #' 
 #' @param x An object defining how to create the distances
-#' @param within A \code{\link{DistanceSpecification-class}} such as the result
+#' @param within A valid distance specification, such as the result
 #' of \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #' which distances to create. Including this argument can significantly speed up
 #' computation for sparse matching problems.
-#' @return Object of the class union \code{DistanceSpecification-class} (either a
-#' \code{matrix} or a \code{InfinitySparseMatrix} or derived class), which is
-#' suitable to be given as \code{distance} argument to \code{\link{fullmatch}}
+#' @return A distance specification (a matrix or similar object) which is
+#' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}. 
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
@@ -79,6 +63,19 @@ setGeneric("match_on", def = function(x, within = NULL, ...) {
 
 })
 
+#' @details The \code{function} method takes as its \code{x} argument a function of two
+#' arguments: a
+#' \code{data.frame} carrying information about treatment group members and a
+#' \code{data.frame} carrying information about control units.  The
+#' \code{function} method also expects a \code{z} argument, a vector indicating
+#' whether each unit is in the treated or control groups; on the basis of this
+#' vector the \code{data} argument is what is chopped up and fed to the function
+#' passed to \code{mdist} as argument \code{x}. While this might sound complicated
+#' at first, it's quite flexible and, once you're used to it, easy to use. For
+#' example, the simple 1-dimensional distance of treated and control units can be
+#' implemented as: \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z =
+#' rep(c(T,F),10), data = d)}.  See also additional examples below.  
+#'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
 #' @rdname match_on-methods
@@ -95,6 +92,14 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 })
 
 
+#' @details The formula method produces, by default, a Mahalanobis distance specification
+#' based on the formula \code{Z ~ X1 + X2 + ... }, where
+#' \code{Z}  the treatment indicator. A Mahalanobis
+#' distance scales the squared Euclidean distance by the inverse of the
+#' covariance matrix. Other scale matrices can be supplied, for example, the
+#' identity matrix will result in squared Euclidean distance. If you wish to use
+#' an alternative function to compute the covariance, pass it in the \code{COV}
+#' argument.
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param inv.scale.matrix A matrix that scales the distance computation. The
 #' default Mahalanobis distance scales the squared Euclidean distance by
@@ -173,6 +178,15 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
 
 })
 
+#' @details The \code{glm} method accepts a fitted propensity
+#' model, extracts distances on the linear propensity score (logits of
+#' the estimated conditional probabilities), and rescales the distances
+#' by the reciprocal of the pooled s.d. of treatment- and control-group propensity scores.
+#' (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
+#' changed to the actual s.d., or rescaling can be skipped entirely, by
+#' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.) 
+#' The resulting distance matrix is the absolute difference between treated and control units on the rescaled propensity scores.
+#'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @rdname match_on-methods
 #' @aliases match_on,glm-method
@@ -198,6 +212,11 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
         (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
 }
 
+#' @details The \code{bigglm}
+#' method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
+#' the \code{bigglm} function from package \sQuote{biglm}, which can
+#' handle bigger data sets than the ordinary glm function can.
+#'
 #' @rdname match_on-methods
 #' @aliases match_on,bigglm-method
 setMethod("match_on", "bigglm", function(x, within = NULL, data = NULL, standardization.scale = mad, ...)
@@ -237,7 +256,7 @@ are there missing values in data?")
       
 })
 
-#' Returns the absolute difference for treated and control units computed using
+#' @details The \code{numeric} method returns the absolute difference for treated and control units computed using
 #' the vector of scores \code{x}.
 #'
 #' @param z Vector of treatment assignments for each unit in \code{x}. Either
@@ -312,9 +331,14 @@ scoreCaliper <- function(x, z, caliper) {
 
   makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
 }
+
 # match_on methods for DistanceSpecifications
 # apparently the class union is less important than the true
 # type, so the numeric method above gets in the way
+
+#' @details The \code{matrix} and \code{InfinitySparseMatrix} just return their
+#' arguments as these objects are already valid distance specifications.
+#' 
 #' @rdname match_on-methods
 #' @aliases match_on,InfinitySparseMatrix-method
 setMethod("match_on", "InfinitySparseMatrix", function(x, within = NULL, ...) {
