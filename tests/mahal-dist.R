@@ -1,8 +1,6 @@
 require('optmatch')
 data(nuclear, package="boot")
 match_on(pr ~ cap, data = nuclear)
-match_on(pr ~ cap, data = nuclear,
-           inv.scale.matrix = matrix(1,1,1, dimnames=list("cap", "cap")))
 match_on(pr ~ date + cum.n, data = nuclear)
 match_on(pr ~ date + cum.n, data = nuclear, within = exactMatch(pr ~ pt, data = nuclear))
 

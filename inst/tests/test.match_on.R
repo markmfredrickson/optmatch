@@ -51,15 +51,16 @@ test_that("Distances from formulas", {
   res.factor <- match_on(as.factor(Z) ~ X1)
   expect_equivalent(res.one, res.factor)
 
-  # specifying distances
-  euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
-  z <- as.logical(Z)
-  euclid <- euclid[z, !z]
-  # there are 3 columns x1, x2, b, so diag(3) is the identity matrix
-  # also, match_on returns euclidean distance squared, so square the reference
-  # result
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, inv.scale.matrix = diag(3)) - euclid^2) <
-    .00001)) # there is some rounding error, but it is small
+  # these changes were discarded
+  # # specifying distances
+  # euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
+  # z <- as.logical(Z)
+  # euclid <- euclid[z, !z]
+  # # there are 3 columns x1, x2, b, so diag(3) is the identity matrix
+  # # also, match_on returns euclidean distance squared, so square the reference
+  # # result
+  # expect_true(all(abs(match_on(Z ~ X1 + X2 + B, inv.scale.matrix = diag(3)) - euclid^2) <
+  #   .00001)) # there is some rounding error, but it is small
 
 
   # excluding matches combined with a formula

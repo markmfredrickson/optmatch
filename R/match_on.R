@@ -103,15 +103,14 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 #' an alternative function to compute the covariance, pass it in the \code{COV}
 #' argument.
 #' @param subset A subset of the data to use in creating the distance specification.
-#' @param inv.scale.matrix A matrix that scales the distance computation. The
-#' default Mahalanobis distance scales the squared Euclidean distance by
-#' the inverse of the covariance matrix. Other scale matrices can be supplied, for example,
-#' the identity matrix will result in squared Euclidean distance.
-#' @param COV A covariance computing function. The default is \code{\link{cov}}
+#' @param f A function that takes two arguments (a treatment indicator vector
+#' and the model matrix implied by the formula) and returns a new function that
+#' operates on allowed treated and control units. See the function method of
+#' \code{match_on} for details on the returned function.
 #' @rdname match_on-methods
 #' @aliases match_on,formula-method
 setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
-                                       inv.scale.matrix = NULL, COV = cov, ...) {
+                                       f = .mahalanobisDistance, ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
   }
@@ -134,36 +133,34 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
   
-  if (!is.null(inv.scale.matrix)) {
-    # TODO: error check the inv.cov matrix to make sure it is safe
-    # should match dimension of mf
-  } else {
-    # default inv.scale.matrix is the inverse covariance matrix
-    # the extra as.matrix() is that if there is only one variable, it will be
-    # a matrix not a vector
-    mt <- COV(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-    mc <- COV(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+  makedist(z, data, f(z, data), within)
 
-    inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
+})
 
-    # the old mahal.dist wrapped the solve in a try() and used this if there
-    # was failure. Is this a common issue? I'm waiting for a failure case
-    # before turning this code on (and with adjustments to the different
-    # variable names, etc.
-    # 
-    # if (inherits(icv,"try-error"))
-    # {
-    #    dnx <- dimnames(cv)
-    #    s <- svd(cv)
-    #    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-    #    if (!any(nz))
-    #      stop("covariance has rank zero")
+.mahalanobisDistance <- function(z, data) {
 
-    #    icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-    #    dimnames(icv) <- dnx[2:1]
-    # }
+  mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+  mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
 
-  }
+  inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
+
+  # the old mahal.dist wrapped the solve in a try() and used this if there
+  # was failure. Is this a common issue? I'm waiting for a failure case
+  # before turning this code on (and with adjustments to the different
+  # variable names, etc.
+  # 
+  # if (inherits(icv,"try-error"))
+  # {
+  #    dnx <- dimnames(cv)
+  #    s <- svd(cv)
+  #    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+  #    if (!any(nz))
+  #      stop("covariance has rank zero")
+
+  #    icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+  #    dimnames(icv) <- dnx[2:1]
+  # }
+
 
   f <- function(treated, control) {
     n <- dim(treated)[1]
@@ -174,11 +171,8 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
     return(tmp)
   }
 
-
-
-  makedist(z, data, f, within)
-
-})
+  return(f)
+}
 
 #' @details The \code{glm} method accepts a fitted propensity
 #' model, extracts distances on the linear propensity score (logits of
