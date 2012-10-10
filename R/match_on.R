@@ -174,6 +174,20 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
   return(f)
 }
 
+.euclideanDistance <- function(z, data) {
+
+  f <- function(treated, control) {
+    n <- dim(treated)[1]
+    tmp <- numeric(n) 
+    for (i in 1:n) {
+      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*%  as.matrix(treated[i,] - control[i,])
+    }
+    return(tmp)
+  }
+
+  return(f)
+}
+
 #' @details The \code{glm} method accepts a fitted propensity
 #' model, extracts distances on the linear propensity score (logits of
 #' the estimated conditional probabilities), and rescales the distances
