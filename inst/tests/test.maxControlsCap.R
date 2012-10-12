@@ -43,7 +43,7 @@ test_that("Correct output", {
   data(nuclearplants, env = parent.env()) 
 
   mhd2a <- t(match_on(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants))
-  res.mxcc <- maxControlsCap(mhd2a + caliper(mhd2a, 3))
+  res.mxcc <- maxControlsCap(mhd2a + caliper(mhd2a, sqrt(3)))
 
   expect_equivalent(res.mxcc$strictest.feasible.max.controls, c(1,1))
   

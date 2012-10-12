@@ -56,7 +56,7 @@ test_that("Distances from formulas", {
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, f = .euclideanDistance) - euclid^2) <
+  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, f = .euclideanDistance) - euclid) <
     .00001)) # there is some rounding error, but it is small
 
 

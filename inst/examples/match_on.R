@@ -8,7 +8,7 @@ match_on.examples$ps1 <- match_on(aGlm)
 ### create a distance from them.  (Useful when importing propensity
 ### scores from an external program.)
 plantsPS <- predict(aGlm)
-match_on.examples$ps2 <- match_on(pr~plantsPS, data=nuclearplants)^(1/2)
+match_on.examples$ps2 <- match_on(pr~plantsPS, data=nuclearplants)
 ### Full matching on the propensity score.
 fullmatch(match_on.examples$ps1, data = nuclearplants)
 fullmatch(match_on.examples$ps2, data = nuclearplants)

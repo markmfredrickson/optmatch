@@ -168,7 +168,7 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
     for (i in 1:n) {
       tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% inv.scale.matrix %*% as.matrix(treated[i,] - control[i,])
     }
-    return(tmp)
+    return(sqrt(tmp))
   }
 
   return(f)
@@ -182,7 +182,7 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
     for (i in 1:n) {
       tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*%  as.matrix(treated[i,] - control[i,])
     }
-    return(tmp)
+    return(sqrt(tmp))
   }
 
   return(f)
