@@ -7,19 +7,20 @@ context("Makedist tests")
 
 test_that("Checking input", {
   # Z should have exactly two levels
-  expect_error(makedist(rep(1,10), rep(1,10), identity))
-  expect_error(makedist(rep(0,10), rep(1,10), identity))
-  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity))
+  expect_error(makedist(rep(1,10), rep(1,10), identity), "Treatment")
+  expect_error(makedist(rep(0,10), rep(1,10), identity), "Treatment")
+  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity), "Treatment")
 
   # Z and data should be same length
-  expect_error(makedist(rep(c(1,0), 5), c(1,2,3), identity))
-  expect_error(makedist(rep(c(1,0), 5), data.frame(c(1,2,3), c(4,5,6))))
+  expect_error(makedist(rep(c(1,0), 5), c(1,2,3), identity), "length")
+  expect_error(makedist(rep(c(1,0), 5), data.frame(c(1,2,3), c(4,5,6))),
+               "length")
 
   # no NA's in Z
-  expect_error(makedist(c(NA, 1, 0, 1, 0), c(1,2,3,4,5), identity))
+  expect_error(makedist(c(NA, 1, 0, 1, 0), c(1,2,3,4,5), identity), "NA")
 
   # Z and/or data should have rownames
-  expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, `-`))
+  expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, `-`), "names")
 })
 
 test_that("No within => dense matrix", {
@@ -73,20 +74,23 @@ test_that("Mask => ISM result", {
   rownames(data2) <- letters[11:20]
   test.within.bad <- exactMatch(z ~ b, data = data2)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad),
+               "names")
 
   # repeat previous test with bad row and column names respectively
   data3 <- data
   rownames(data3) <- c("foo", rownames(data[-1,]))
   test.within.bad.treat <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat),
+               "names")
 
   data4 <- data
   rownames(data3) <- c(rownames(data)[1:9], "bar")
   test.within.bad.cntrl <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl),
+               "names")
 
 })
 
@@ -121,6 +125,6 @@ test_that("Z can be a numeric, logical, or two level factor", {
   expect_identical(res.one, res.factor)
   
   Y <- rep(1:4, n/4)
-  expect_error(makedist(as.factor(Y), X1, `-`))
+  expect_error(makedist(as.factor(Y), X1, `-`), "Treatment")
 })
 
