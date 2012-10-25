@@ -80,15 +80,7 @@ makedist <- function(z, data, distancefn, within = NULL) {
     }
   }
 
-  # it would be nice if we could abstract this, like with subset(data, z),
-  # I am unaware of a function that will do that.
-
-  if (is.vector(data)) {
-    dists <- distancefn(data[treatmentids], data[controlids])    
-  } else {
-    dists <- distancefn(data[treatmentids,, drop = FALSE], 
-                        data[controlids,, drop = FALSE])          
-  }
+  dists <- distancefn(cbind(treatmentids, controlids), data)
 
   res <- replace(res, 1:length(res), dists)
 

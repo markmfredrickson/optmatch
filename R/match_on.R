@@ -65,19 +65,21 @@ setGeneric("match_on", def = function(x, within = NULL, ...) {
 
 })
 
-#' @details The \code{function} method takes as its \code{x} argument a function of two
-#' arguments: a
-#' \code{data.frame} carrying information about treatment group members and a
-#' \code{data.frame} carrying information about control units.  The
-#' \code{function} method also expects a \code{z} argument, a vector indicating
-#' whether each unit is in the treated or control groups; on the basis of this
-#' vector the \code{data} argument is what is chopped up and fed to the function
-#' passed to \code{mdist} as argument \code{x}. While this might sound complicated
-#' at first, it's quite flexible and, once you're used to it, easy to use. For
-#' example, the simple 1-dimensional distance of treated and control units can be
-#' implemented as: \code{d <- 1:20 ; names(d) <- letters[1:20] ; mdist(`-`, z =
-#' rep(c(T,F),10), data = d)}.  See also additional examples below.  
-#'
+#' @details The \code{function} method takes as its \code{x} argument a
+#' function of two arguments: \code{index} and \code{data}. The \code{data}
+#' argument will be the same as the \code{data} argument passed directly to
+#' \code{match_on}. The \code{index} argument is a matrix of two columns,
+#' representing the pairs of treated and control units that are valid comparisons
+#' (given any \code{within} arguments). The first column is the row name or id of
+#' the treated unit in the \code{data} object. The second column is the id for the
+#' control unit, again in the \code{data} object. For each of these pairs, the
+#' function should return the distance between the treated unit and control unit.
+#' This may sound complicated, but is simple to use. For example, a function that
+#' returned the absolute difference between to units using a vector of data would
+#' be 
+#' \code{f <- function(index, data) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
+#' (Note: This simple case is precisely handled by the \code{numeric} method.)
+#' 
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
 #' @rdname match_on-methods
@@ -162,27 +164,20 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
   # }
 
 
-  f <- function(treated, control) {
-    n <- dim(treated)[1]
-    tmp <- numeric(n) 
-    for (i in 1:n) {
-      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*% inv.scale.matrix %*% as.matrix(treated[i,] - control[i,])
-    }
-    return(sqrt(tmp))
+  f <- function(index, data) {
+    sqrt(apply(index, 1, function(pair) {
+      t(as.matrix(data[pair[1],] - data[pair[2],])) %*% inv.scale.matrix %*% as.matrix(data[pair[1],] - data[pair[2],])
+    }))
   }
-
   return(f)
 }
 
 .euclideanDistance <- function(z, data) {
 
-  f <- function(treated, control) {
-    n <- dim(treated)[1]
-    tmp <- numeric(n) 
-    for (i in 1:n) {
-      tmp[i] <- t(as.matrix(treated[i,] - control[i,])) %*%  as.matrix(treated[i,] - control[i,])
-    }
-    return(sqrt(tmp))
+  f <- function(index, data) {
+    sqrt(apply(index, 1, function(pair) {
+      t(as.matrix(data[pair[1],] - data[pair[2],])) %*% as.matrix(data[pair[1],] - data[pair[2],])
+    }))
   }
 
   return(f)
@@ -195,7 +190,9 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
 #' (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
 #' changed to the actual s.d., or rescaling can be skipped entirely, by
 #' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.) 
-#' The resulting distance matrix is the absolute difference between treated and control units on the rescaled propensity scores.
+#' The resulting distance matrix is the absolute difference between treated and
+#' control units on the rescaled propensity scores. This method relies on the
+#' \code{numeric} method, so you may pass a \code{caliper} argument.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @rdname match_on-methods
@@ -212,9 +209,7 @@ setMethod("match_on", "glm", function(x, within = NULL, standardization.scale = 
 
   lp.adj <- x$linear.predictors/pooled.sd
 
-  f <- function(t, c) { abs(t - c) }
-  
-  makedist(z, lp.adj, f, within)
+  match_on(lp.adj, within = within, z = z, ...)
 })
 
 szn.scale <- function(x, Tx, standardizer = mad, ...) {
@@ -257,13 +252,11 @@ are there missing values in data?")
   } else { 
     szn.scale(theps, z, standardizer=standardization.scale,...)
   }
-  
-  psdiffs <- function(treatments, controls) {
-    abs(treatments - controls) / pooled.sd
-  }
-  
-  makedist(z, theps, psdiffs, within)
-      
+
+  theps <- as.vector(theps / pooled.sd)
+  names(theps) <- rownames(data)
+
+  match_on(theps, within = within, z = z, ... )    
 })
 
 #' @details The \code{numeric} method returns the absolute difference for treated and control units computed using
@@ -298,7 +291,8 @@ setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, .
     }
   }
   
-  f <- function(t, c) { abs(t - c) }
+  f <- function(index, data) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }
+
   makedist(z, x, f, within)
 })
 

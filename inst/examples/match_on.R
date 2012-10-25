@@ -21,12 +21,10 @@ all(fullmatch(match_on.examples$ps1)==fullmatch(match_on.examples$ps2, data = nu
 match_on.examples$mh1 <- match_on(pr ~ t1 + t2, data = nuclearplants)
 
 ### Absolute differences on a scalar:
+tmp <- nuclearplants$t1
+names(tmp) <- rownames(nuclearplants)
 
-sdiffs <- function(treatments, controls) {
-  abs(treatments$t1 - controls$t1)
-}
-
-(absdist <- match_on(sdiffs, z = nuclearplants$pr, data = nuclearplants, 
+(absdist <- match_on(tmp, z = nuclearplants$pr, 
                   exclusions = exactMatch(pr ~ pt, nuclearplants)))
 
 ### Pair matching on the variable `t1`:

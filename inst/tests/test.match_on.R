@@ -75,8 +75,8 @@ test_that("Distances from functions", {
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, B)
   
-  sdiffs <- function(t, c) {
-    abs(t$X1 - c$X1)
+  sdiffs <- function(index, data) {
+    abs(data[index[,1], "X1"] - data[index[,2], "X1"])
   }
   
   result.function <- match_on(sdiffs, z = Z, data = test.data)
@@ -167,26 +167,6 @@ test_that("Bigglm distances", {
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
     expect_equivalent(res.bg, res.glm) 
   }
-})
-
-test_that("Jake found a bug 2010-06-14", {
-  ### Issue appears to be a missing row.names/class
-
-  jb.sdiffs <- function(treatments, controls) {
-    abs(treatments$X1 - controls$X2)
-  }
-  
-  n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
-
-  absdist1 <- match_on(jb.sdiffs, z = Z, data = test.data)
-  # failing because fmatch is in transition, commentb back in later
-  # expect_true(length(pairmatch(absdist1)) > 0)
- 
 })
 
 test_that("Numeric: simple differences of scores", {

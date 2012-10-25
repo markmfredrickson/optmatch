@@ -5,21 +5,28 @@
 library(testthat)
 context("Makedist tests")
 
+# this is inefficient (in that it duplicates data entries many times)
+# but good enough for small tests
+absdiff <- function(index, data) {
+  abs(data[index[,1]] - data[index[,2]])
+}
+
 test_that("Checking input", {
   # Z should have exactly two levels
-  expect_error(makedist(rep(1,10), rep(1,10), identity))
-  expect_error(makedist(rep(0,10), rep(1,10), identity))
-  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity))
+  expect_error(makedist(rep(1,10), rep(1,10), identity), "Treatment")
+  expect_error(makedist(rep(0,10), rep(1,10), identity), "Treatment")
+  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity), "Treatment")
 
   # Z and data should be same length
-  expect_error(makedist(rep(c(1,0), 5), c(1,2,3), identity))
-  expect_error(makedist(rep(c(1,0), 5), data.frame(c(1,2,3), c(4,5,6))))
+  expect_error(makedist(rep(c(1,0), 5), c(1,2,3), identity), "length")
+  expect_error(makedist(rep(c(1,0), 5), data.frame(c(1,2,3), c(4,5,6))),
+               "length")
 
   # no NA's in Z
-  expect_error(makedist(c(NA, 1, 0, 1, 0), c(1,2,3,4,5), identity))
+  expect_error(makedist(c(NA, 1, 0, 1, 0), c(1,2,3,4,5), identity), "NA")
 
   # Z and/or data should have rownames
-  expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, `-`))
+  expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, absdiff), "names")
 })
 
 test_that("No within => dense matrix", {
@@ -28,17 +35,17 @@ test_that("No within => dense matrix", {
   z <- c(rep(0, 5), rep(1, 8))
 
   # this is what we should get. the equivalent of outer
-  m <- outer(X = data[z == 1], Y = data[z == 0], FUN = `-`)
+  m <- abs(outer(X = data[z == 1], Y = data[z == 0], FUN = `-`))
 
-  res <- makedist(z, data, `-`)
+  res <- makedist(z, data, absdiff)
 
   expect_equal(dim(res), c(8, 5))
   expect_is(res, "matrix")
-  expect_equivalent(as.matrix(res), m)
+  expect_equivalent(res@.Data, m)
 
   # same basic test, with a data frame
   data.df <- data.frame(a = data, xyz = 1:13)
-  aminus <- function(treat, control) { treat$a - control$a }
+  aminus <- function(index, data) { abs(data[index[,1], "a"] - data[index[,2], "a"]) }
 
   res.df <- makedist(z, data.df, aminus)
   expect_equal(res.df, res)
@@ -52,7 +59,7 @@ test_that("Mask => ISM result", {
                      b = rep(c(1,0), each = 5))
   rownames(data) <- letters[1:10]
  
-  yminus <- function(t,c) { t$y - c$y }
+  yminus <- function(index, data) { data[index[,1], 'y'] - data[index[,2], 'y'] }
 
   upper.left <- makedist(data$z[data$b == 1], data[data$b == 1,], yminus)
   lower.right <- makedist(data$z[data$b == 0], data[data$b == 0,], yminus)
@@ -73,20 +80,23 @@ test_that("Mask => ISM result", {
   rownames(data2) <- letters[11:20]
   test.within.bad <- exactMatch(z ~ b, data = data2)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad),
+               "names")
 
   # repeat previous test with bad row and column names respectively
   data3 <- data
   rownames(data3) <- c("foo", rownames(data[-1,]))
   test.within.bad.treat <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat),
+               "names")
 
   data4 <- data
   rownames(data3) <- c(rownames(data)[1:9], "bar")
   test.within.bad.cntrl <- exactMatch(z ~ b, data = data3)
   
-  expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl))
+  expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl),
+               "names")
 
 })
 
@@ -96,10 +106,7 @@ test_that("makedist works on single column data.frames", {
                      y = rnorm(10),
                      b = rep(c(1,0), each = 5))
   rownames(data) <- letters[1:10]
-
-  f <- function(treated, control) {
-    treated[, "y"] - control[, "y"]  
-  }
+  f <- function(index, data) { abs(as.vector(data[index[,1], 1] - data[index[,2], 1])) }
 
   res <- makedist(data$z, subset(data, T, select = 2), f)
   expect_true(all(res != 0)) # makes sure res <- ... worked
@@ -113,14 +120,25 @@ test_that("Z can be a numeric, logical, or two level factor", {
   
   names(X1) <- letters[1:n]
 
-  res.one <- makedist(Z, X1, `-`) 
-  res.logical <- makedist(as.logical(Z), X1, `-`) 
+  res.one <- makedist(Z, X1, absdiff) 
+  res.logical <- makedist(as.logical(Z), X1, absdiff) 
   expect_identical(res.one, res.logical)
   
-  res.factor <- makedist(as.factor(Z), X1, `-`) 
+  res.factor <- makedist(as.factor(Z), X1, absdiff) 
   expect_identical(res.one, res.factor)
   
   Y <- rep(1:4, n/4)
-  expect_error(makedist(as.factor(Y), X1, `-`))
+  expect_error(makedist(as.factor(Y), X1, absdiff), "Treatment")
+})
+
+test_that("distancefn specification", {
+  Z <- rep(c(1,0), 10)
+  X <- rep(c(5,10), 10)
+  names(Z) <- names(X) <- letters[1:20]
+
+
+  expect_true(all(makedist(Z, X, absdiff) == 5))
+
+  
 })
 
