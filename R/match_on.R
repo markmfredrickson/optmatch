@@ -99,20 +99,15 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 #' @details The formula method produces, by default, a Mahalanobis distance specification
 #' based on the formula \code{Z ~ X1 + X2 + ... }, where
 #' \code{Z}  the treatment indicator. A Mahalanobis
-#' distance scales the squared Euclidean distance by the inverse of the
-#' covariance matrix. Other scale matrices can be supplied, for example, the
-#' identity matrix will result in squared Euclidean distance. If you wish to use
-#' an alternative function to compute the covariance, pass it in the \code{COV}
-#' argument.
+#' distance scales the Euclidean distance by the inverse of the
+#' covariance matrix. Other options can be selected by the \code{method} argument. 
 #' @param subset A subset of the data to use in creating the distance specification.
-#' @param f A function that takes two arguments (a treatment indicator vector
-#' and the model matrix implied by the formula) and returns a new function that
-#' operates on allowed treated and control units. See the function method of
-#' \code{match_on} for details on the returned function.
+#' @param method A string indicating which method to use in computing the distances from the data. 
+#' The current possibilities are \code{"mahalanobis", "euclidean"}. 
 #' @rdname match_on-methods
 #' @aliases match_on,formula-method
 setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
-                                       f = .mahalanobisDistance, ...) {
+                                       method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")  
   }
@@ -134,12 +129,13 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
-  
+ 
+  f <- match.fun(paste("compute_", method, sep = ""))
   makedist(z, data, f(z, data), within)
 
 })
 
-.mahalanobisDistance <- function(z, data) {
+compute_mahalanobis <- function(z, data) {
 
   mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
   mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
@@ -172,7 +168,10 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
   return(f)
 }
 
-.euclideanDistance <- function(z, data) {
+# short alias if we need it
+compute_mahal <- compute_mahalanobis
+
+compute_euclidean <- function(z, data) {
 
   f <- function(index, data) {
     sqrt(apply(index, 1, function(pair) {
@@ -182,6 +181,9 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
 
   return(f)
 }
+
+# short alias
+compute_euclid <- compute_euclidean
 
 #' @details The \code{glm} method accepts a fitted propensity
 #' model, extracts distances on the linear propensity score (logits of
