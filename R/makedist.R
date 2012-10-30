@@ -80,7 +80,7 @@ makedist <- function(z, data, distancefn, within = NULL) {
     }
   }
 
-  dists <- distancefn(cbind(treatmentids, controlids), data)
+  dists <- distancefn(cbind(treatmentids, controlids), data, z)
 
   res <- replace(res, 1:length(res), dists)
 

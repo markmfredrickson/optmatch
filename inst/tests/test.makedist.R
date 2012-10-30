@@ -7,7 +7,7 @@ context("Makedist tests")
 
 # this is inefficient (in that it duplicates data entries many times)
 # but good enough for small tests
-absdiff <- function(index, data) {
+absdiff <- function(index, data, z) {
   abs(data[index[,1]] - data[index[,2]])
 }
 
@@ -45,7 +45,7 @@ test_that("No within => dense matrix", {
 
   # same basic test, with a data frame
   data.df <- data.frame(a = data, xyz = 1:13)
-  aminus <- function(index, data) { abs(data[index[,1], "a"] - data[index[,2], "a"]) }
+  aminus <- function(index, data, z) { abs(data[index[,1], "a"] - data[index[,2], "a"]) }
 
   res.df <- makedist(z, data.df, aminus)
   expect_equal(res.df, res)
@@ -59,7 +59,7 @@ test_that("Mask => ISM result", {
                      b = rep(c(1,0), each = 5))
   rownames(data) <- letters[1:10]
  
-  yminus <- function(index, data) { data[index[,1], 'y'] - data[index[,2], 'y'] }
+  yminus <- function(index, data, z) { data[index[,1], 'y'] - data[index[,2], 'y'] }
 
   upper.left <- makedist(data$z[data$b == 1], data[data$b == 1,], yminus)
   lower.right <- makedist(data$z[data$b == 0], data[data$b == 0,], yminus)
@@ -106,7 +106,7 @@ test_that("makedist works on single column data.frames", {
                      y = rnorm(10),
                      b = rep(c(1,0), each = 5))
   rownames(data) <- letters[1:10]
-  f <- function(index, data) { abs(as.vector(data[index[,1], 1] - data[index[,2], 1])) }
+  f <- function(index, data, z) { abs(as.vector(data[index[,1], 1] - data[index[,2], 1])) }
 
   res <- makedist(data$z, subset(data, T, select = 2), f)
   expect_true(all(res != 0)) # makes sure res <- ... worked
@@ -136,9 +136,15 @@ test_that("distancefn specification", {
   X <- rep(c(5,10), 10)
   names(Z) <- names(X) <- letters[1:20]
 
-
   expect_true(all(makedist(Z, X, absdiff) == 5))
 
+  # should get all args
+  absdiffz <- function(index, data, z) {
+    if(missing(z)) { stop("Missing z")}
+    abs(data[index[,1]] - data[index[,2]])
+  }
+
+  expect_true(all(makedist(Z, X, absdiffz) == 5))
   
 })
 
