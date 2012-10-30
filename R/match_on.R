@@ -66,8 +66,8 @@ setGeneric("match_on", def = function(x, within = NULL, ...) {
 })
 
 #' @details The \code{function} method takes as its \code{x} argument a
-#' function of two arguments: \code{index} and \code{data}. The \code{data}
-#' argument will be the same as the \code{data} argument passed directly to
+#' function of three arguments: \code{index}, \code{data}, and \code{z}. The \code{data} and \code{z}
+#' arguments will be the same as those passed directly to
 #' \code{match_on}. The \code{index} argument is a matrix of two columns,
 #' representing the pairs of treated and control units that are valid comparisons
 #' (given any \code{within} arguments). The first column is the row name or id of
@@ -77,7 +77,7 @@ setGeneric("match_on", def = function(x, within = NULL, ...) {
 #' This may sound complicated, but is simple to use. For example, a function that
 #' returned the absolute difference between to units using a vector of data would
 #' be 
-#' \code{f <- function(index, data) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
+#' \code{f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
 #' (Note: This simple case is precisely handled by the \code{numeric} method.)
 #' 
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
@@ -131,11 +131,11 @@ setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset 
   names(z) <- rownames(mf)
  
   f <- match.fun(paste("compute_", method, sep = ""))
-  makedist(z, data, f(z, data), within)
+  makedist(z, data, f, within)
 
 })
 
-compute_mahalanobis <- function(z, data) {
+compute_mahalanobis <- function(index, data, z) {
 
   mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
   mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
@@ -160,26 +160,20 @@ compute_mahalanobis <- function(z, data) {
   # }
 
 
-  f <- function(index, data) {
-    sqrt(apply(index, 1, function(pair) {
-      t(as.matrix(data[pair[1],] - data[pair[2],])) %*% inv.scale.matrix %*% as.matrix(data[pair[1],] - data[pair[2],])
-    }))
-  }
-  return(f)
+  sqrt(apply(index, 1, function(pair) {
+    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% inv.scale.matrix %*% as.matrix(data[pair[1],] - data[pair[2],])
+  }))
 }
 
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
-compute_euclidean <- function(z, data) {
+compute_euclidean <- function(index, data, z) {
 
-  f <- function(index, data) {
-    sqrt(apply(index, 1, function(pair) {
-      t(as.matrix(data[pair[1],] - data[pair[2],])) %*% as.matrix(data[pair[1],] - data[pair[2],])
-    }))
-  }
+  sqrt(apply(index, 1, function(pair) {
+    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% as.matrix(data[pair[1],] - data[pair[2],])
+  }))
 
-  return(f)
 }
 
 # short alias
@@ -293,7 +287,7 @@ setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, .
     }
   }
   
-  f <- function(index, data) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }
+  f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }
 
   makedist(z, x, f, within)
 })

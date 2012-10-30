@@ -75,7 +75,7 @@ test_that("Distances from functions", {
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, B)
   
-  sdiffs <- function(index, data) {
+  sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
   }
   
