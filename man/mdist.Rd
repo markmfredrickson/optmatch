@@ -23,7 +23,7 @@
 }
 \details{
   The \code{mdist} method provides three ways to construct a matching distance
-  (ie, a distance matrix or suitably organized list of such matrices):
+  (i.e., a distance matrix or suitably organized list of such matrices):
   guided by a function, by a fitted model, or by a formula.  The class
   of the first argument given to \code{mdist} determines which of these
   methods is invoked.

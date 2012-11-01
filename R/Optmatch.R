@@ -15,8 +15,8 @@
 #' \code{distance}.  Each element of the vector is either \code{NA}, indicating
 #' unavailability of any suitable matches for that element, or the
 #' concatenation of: (i) a character abbreviation of the name of the subclass
-#' (as encouded using \code{\link{exactMatch}}) (ii) the string \code{.}; and
-#' (iii) a nonnegative integer.  In this last place, positive whole numbers
+#' (as encoded using \code{\link{exactMatch}}) (ii) the string \code{.}; and
+#' (iii) a non-negative integer.  In this last place, positive whole numbers
 #' indicate placement of the unit into a matched set and \code{NA} indicates
 #' that all or part of the matching problem given to \code{fullmatch} was found
 #' to be infeasible.  The functions \code{\link{matched}},
@@ -47,9 +47,8 @@ NA
 #' 
 #' @param distance A \code{DistanceSpecificaton} object used to create the
 #'  match.
-#' @param solutions A list of the results of the matching, one list(cells,
-#'  maxErr) object per subproblem.
-#' @param call The call to full/pairmatch to be displayed later.
+#' @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
+#' @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
 #' @param data An object from which \code{names} or \code{row.names} will
 #'  provide the order of the items in the match.
 #' @return \code{optmatch} object

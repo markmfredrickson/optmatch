@@ -20,7 +20,7 @@
   \item{x}{Can be either a data frame (in which case the data argument should be \code{NULL}) or
     a formula (in which case data must be a data.frame)}
 
-  \item{data}{If x is a formula, this must be a data.frame. Otherise it will be ignored.}
+  \item{data}{If x is a formula, this must be a data.frame. Otherwise it will be ignored.}
 
   \item{all.covs}{Should the response variable be imputed? For formula
   \code{x}, this is the variable on the left hand side. For \code{data.frame}

@@ -12,7 +12,7 @@
 #' All \code{match_on} methods provide the same basic output: a matrix (or
 #' similar) object with treated units on the rows and control units on the
 #' columns. Each cell [i,j] then indicates the distance from a treated unit i to
-#' control unit j. Entries that are \code{Inf} are said to be un-matchable. Such
+#' control unit j. Entries that are \code{Inf} are said to be unmatchable. Such
 #' units are guaranteed to never be in a matched set. For problems with many
 #' \code{Inf} entries, so called sparse matching problems, \code{match_on} uses a
 #' special data type that is more space efficient than a standard R \code{matrix}.
@@ -20,7 +20,7 @@
 #' \code{matrix} type.
 #'
 #' \code{match_on} methods differ on the types of arguments they take, making
-#' the function a one-stop location of many different ways of specifing matches:
+#' the function a one-stop location of many different ways of specifying matches:
 #' using functions, formulas, models, and even simple scores. Many of the methods
 #' require additional arguments, detailed below. All methods take a \code{within}
 #' argument, a distance specification made using \code{\link{exactMatch}} or

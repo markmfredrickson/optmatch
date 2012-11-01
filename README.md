@@ -334,12 +334,25 @@ New features should include documentation. We prefer inline
 tasks are also useful for development:
 
 - `R`: starts up an interactive session with `optmatch` loaded.
-- `check`: runs `R CMD Check` on a built package
+- `spell`: checks the spelling of all Rd files in the package using the
+  []`aspell_*`
+  functions](http://stat.ethz.ch/R-manual/R-patched/library/utils/html/aspell-utils.html)
+  in the 'utils' package. - `check`: runs `R CMD Check` on a built package, includes the `test` and `spell` tasks
 - `package`: creates a `tar.gz` of the package
+- `check`: runs `R CMD check` on the package
 
 If you need to edit the `DESCRIPTION` file (e.g. to add a suggested package),
 edit `DESCRIPTION.template` instead. This file is used during the build process
 to insert the version and date information.
+
+You will need to have the `aspell` program installed and available on your
+`$PATH` in order to use the `spell` task. If you introduce new words that are
+not coveraged in the standard English dictionary, you can add them to the
+`lexicon.txt` file. There is also a task to create the lexicon from all found
+misspelled words (`make lexicon.txt`).  For more information on the use of
+spell checkers in R, see [Watch your
+spelling!](http://journal.r-project.org/archive/2011-2/RJournal_2011-2_Hornik+Murdoch.pdf)
+in the R journal.
 
 When your change is ready, make a pull request on github.
 

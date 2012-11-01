@@ -29,8 +29,8 @@ setClass("InfinitySparseMatrix",
 # using a maker function for now, probably should be an initialize function
 #' (Internal) Creating sparse matching problems
 #'
-#' Create \code{InfinitySparseMatrix} distance specifcations. Finite entries
-#' indicate possilbe matches, while infinite entries indicated non-allowed
+#' Create \code{InfinitySparseMatrix} distance specifications. Finite entries
+#' indicate possible matches, while infinite entries indicated non-allowed
 #' matches. This data type can be more space efficient for sparse matching
 #' problems.
 #'

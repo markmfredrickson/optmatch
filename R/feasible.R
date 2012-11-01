@@ -101,7 +101,7 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
 
 #' (Internal) A helper function to turn formulas into treatment and blocking variables
 #'
-#' Given a function and any of the arguments noramally passed to model.frame,
+#' Given a function and any of the arguments normally passed to model.frame,
 #' this function will return a data.frame with two columns: a treatment indicator
 #' and a blocking factor.
 #'
@@ -243,7 +243,7 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 #' Larger calipers permit more possible matches between treated and control
 #' groups, which can be better for creating matches with larger effective sample
 #' sizes. The downside is that wide calipers may make the matching problem too big
-#' for processor or memory contraints. \code{maxCaliper} attempts to find a
+#' for processor or memory constraints. \code{maxCaliper} attempts to find a
 #' caliper value, for a given vector of scores and a treatment indicator, that
 #' will be possible given the maximum problem size constraints imposed by
 #' \code{\link{fullmatch}} and \code{\link{pairmatch}}.
@@ -255,7 +255,7 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 #' be used by \code{\link{exactMatch}}. Including structure allows for wider
 #' calipers.
 #' @param exact A logical indicating if the exact problem size should be
-#' computed (\code{exact = TRUE}) or if a more computationlly efficient upper
+#' computed (\code{exact = TRUE}) or if a more computationally efficient upper
 #' bound should be used instead (\code{exact = FALSE}). The upper bound may lead
 #' to narrower calipers, even if wider calipers would have sufficed using the
 #' exact method.

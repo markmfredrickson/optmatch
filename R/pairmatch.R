@@ -5,7 +5,7 @@
 #' units to controls that minimizes the sum of discrepancies.
 #' 
 #' This is a wrapper to \code{\link{fullmatch}}; see its documentation for
-#' more information, especially on addiitonal arguments to pass.
+#' more information, especially on additional arguments to pass.
 #' 
 #' If \code{remove.unmatchables} is \code{FALSE}, then if there are
 #' unmatchable treated units then the matching as a whole will fail and
@@ -20,11 +20,11 @@
 #' treatment and control groups in reference to which the matching
 #' problem was posed, and are named accordingly; the names are taken from
 #' the row and column names of \code{distance} (with possible additions from
-#' the optonal \code{data} argument).  Each element of the
+#' the optional \code{data} argument).  Each element of the
 #' vector is the concatenation of: (i) a character abbreviation of
 #' \code{subclass.indices}, if that argument was given, or the string
 #' '\code{m}' if it was not; (ii) the string \code{.}; and (iii) a
-#' nonnegative integer. Unmatched units have \code{NA} entries.
+#' non-negative integer. Unmatched units have \code{NA} entries.
 #' Secondarily, \code{fullmatch} returns various data about the matching
 #' process and its result, stored as attributes of the named vector which
 #' is its primary output.  In particular, the \code{exceedances}
@@ -35,7 +35,7 @@
 #' \code{fullmatch}.  (Such a bound is also printed by
 #' \code{print.optmatch} and by \code{summary.optmatch}.) 
 #' 
-#' @param distance A matrix of nonnegative discrepancies, 
+#' @param distance A matrix of non-negative discrepancies, 
 #' each indicating the permissibility and desirability of matching the unit 
 #' corresponding to its row (a 'treatment') to the unit
 #' corresponding to its column (a 'control'); or a list of such matrices

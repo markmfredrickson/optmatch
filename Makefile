@@ -3,7 +3,7 @@
 ################################################################################
 
 R: .local/optmatch/INSTALLED
-	R_PROFILE=interactive.R R -q --no-save 
+	R_PROFILE=load.R R -q --no-save 
 
 ### Package release scripts ###
 
@@ -18,7 +18,7 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
 	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
-		--exclude=interactive.R . $(PKG)
+		--exclude=load.R . $(PKG)
 
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
@@ -31,12 +31,21 @@ $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static
 $(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
 	R --vanilla CMD build $(PKG)
 
-check: $(PKG).tar.gz
+package: $(PKG).tar.gz
+
+# the spell task doesn't need the tar.gz particularly, but it does need DESCRIPTION and roxygen
+spell: package 
+	R -q --no-save -e "source('checkspelling.R') ; check_spelling('$(PKG)')"
+
+lexicon.txt: package
+	R -q --no-save -e "source('checkspelling.R') ; make_dictionary('$(PKG)')"
+
+check: $(PKG).tar.gz 
 	R --vanilla CMD Check --as-cran --no-multiarch $(PKG).tar.gz
 
-release: check
+release: check spell
 	git tag -a $(VERSION)
-	@echo "Upload $(PKG) to cran.r-project.org/incoming"
+	@echo "Upload $(PKG).tar.gz to cran.r-project.org/incoming"
 	@echo "Email to CRAN@R-project.org, subject: 'CRAN submission optmatch $(VERSION)'"
 
 # depend on this file to decide if we need to install the local version
@@ -51,5 +60,3 @@ test: .local/optmatch/INSTALLED
 
 clean:
 	git clean -xfd
-
-package: $(PKG).tar.gz
