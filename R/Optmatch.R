@@ -50,7 +50,7 @@ NA
 #' @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
 #' @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
 #' @param data An object from which \code{names} or \code{row.names} will
-#'  provide the order of the items in the match.
+#'  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
 #' @return \code{optmatch} object
 #' 
 #' @seealso \code{\link{summary.optmatch}}

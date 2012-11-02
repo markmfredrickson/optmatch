@@ -82,10 +82,11 @@
 #' into the same matched sets.
 #'
 #' @param data Optional \code{data.frame} or \code{vector} to use to get order
-#' of the final matching factor (by \code{row.names} or \code{names},
-#' respectively). Useful to pass if you want to combine a match
-#' (using, e.g., \code{cbind}) with the data that were used to generate it (for
-#' example, in a propensity score matching).
+#' of the final matching factor. If a \code{data.frame}, the \code{rownames}
+#' are used. If a vector, the \code{names} are first tried, otherwise the contents
+#' is considered to be a character vector of names. Useful to pass if you want to
+#' combine a match (using, e.g., \code{cbind}) with the data that were used to
+#' generate it (for example, in a propensity score matching).
 #'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups. 
 #'
