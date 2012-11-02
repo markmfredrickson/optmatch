@@ -4,12 +4,16 @@
 
 #' Create treated to control distances for matching problems
 #' 
-#' A generic function, with several supplied methods, for creating
-#' matrices of distances between observations to be used in the match process.
-#' Using these matrices, 
-#' \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
+#' A function with which to produce matching distances, for instance Mahalanobis
+#' distances, propensity score discrepancies or calipers, or combinations thereof, for 
+#' \code{\link{pairmatch}} or \code{\link{fullmatch}} to subsequently \dQuote{match on}.
+#' Conceptually, the result of a call \code{match_on} is a treatment-by-control matrix of distances. 
+#' Because these matrices can grow quite large, in practice \code{match_on} produces either an 
+#' ordinary dense matrix or a special sparse matrix structure (that can make use of caliper and exact matching
+#' constraints to reduce storage requirements).  Methods are supplied for these sparse structures, 
+#'\code{InfinitySparseMatrix}es, so that they can be manipulated and modified in much the same way as dense matrices.
 #'
-#' All \code{match_on} methods provide the same basic output: a matrix (or
+#' \code{match_on} is generic. There are several supplied methods, all providing the same basic output: a matrix (or
 #' similar) object with treated units on the rows and control units on the
 #' columns. Each cell [i,j] then indicates the distance from a treated unit i to
 #' control unit j. Entries that are \code{Inf} are said to be unmatchable. Such
