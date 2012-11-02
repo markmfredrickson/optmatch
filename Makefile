@@ -7,7 +7,7 @@ R: .local/optmatch/INSTALLED
 
 ### Package release scripts ###
 
-VERSION=0.7-6
+VERSION=0.8-0
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
