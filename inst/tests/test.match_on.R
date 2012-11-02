@@ -68,6 +68,20 @@ test_that("Distances from formulas", {
 
 })
 
+# while the formula method often handles mahalanobis distances, separating the tests for clarity
+test_that("Mahalanobis distance calcualtions", {
+  badData <- data.frame(Z = as.factor(rep(c(0,1), 10)),
+                        all1 = as.factor(rep(1,20)),
+                        badf1 = c(rep(1,3), rep(0,7)),
+                        badf2 = c(rep(0,3), rep(1,7)))
+
+  expect_error(match_on(Z ~ all1, data = badData), "contrasts can be applied only to factors with 2 or more levels")
+  
+  # even though the supplied data is a bad idea, it should work using the svd() decomposition  
+  res <- match_on(Z ~ badf1 + badf2, data = badData)
+  
+})
+
 test_that("Distances from functions", {
   n <- 16
   Z <- c(rep(0, n/2), rep(1, n/2))

@@ -143,25 +143,21 @@ compute_mahalanobis <- function(index, data, z) {
 
   mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
   mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+  cv <- mt + mc
 
-  inv.scale.matrix <- solve(mt + mc) # don't need Z in the cov matrix
+  inv.scale.matrix <- try(solve(cv))
 
-  # the old mahal.dist wrapped the solve in a try() and used this if there
-  # was failure. Is this a common issue? I'm waiting for a failure case
-  # before turning this code on (and with adjustments to the different
-  # variable names, etc.
-  # 
-  # if (inherits(icv,"try-error"))
-  # {
-  #    dnx <- dimnames(cv)
-  #    s <- svd(cv)
-  #    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-  #    if (!any(nz))
-  #      stop("covariance has rank zero")
+  if (inherits(inv.scale.matrix,"try-error"))
+  {
+     dnx <- dimnames(cv)
+     s <- svd(cv)
+     nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+     if (!any(nz))
+       stop("covariance has rank zero")
 
-  #    icv <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-  #    dimnames(icv) <- dnx[2:1]
-  # }
+     inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+     dimnames(inv.scale.matrix) <- dnx[2:1]
+  }
 
 
   sqrt(apply(index, 1, function(pair) {
