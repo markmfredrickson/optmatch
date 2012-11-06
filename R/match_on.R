@@ -49,6 +49,7 @@
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}. 
+#' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
 #' P.~R. Rosenbaum and D.~B. Rubin (1985),
@@ -59,7 +60,6 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
-#' @aliases DistanceSpecification-class
 #' @aliases InfinitySparseMatrix-class
 setGeneric("match_on", def = function(x, within = NULL, ...) {
 
@@ -86,6 +86,7 @@ setGeneric("match_on", def = function(x, within = NULL, ...) {
 #' 
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
+#' @usage \S4method{match_on}{function}(x, within = NULL, z = NULL, data = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,function-method
 setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NULL, ...) {
@@ -108,6 +109,7 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param method A string indicating which method to use in computing the distances from the data. 
 #' The current possibilities are \code{"mahalanobis", "euclidean"}. 
+#' @usage \S4method{match_on}{formula}(x, within = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...)
 #' @rdname match_on-methods
 #' @aliases match_on,formula-method
 setMethod("match_on", "formula", function(x, within = NULL, data = NULL, subset = NULL, 
@@ -191,6 +193,7 @@ compute_euclid <- compute_euclidean
 #' \code{numeric} method, so you may pass a \code{caliper} argument.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
+#' @usage \S4method{match_on}{glm}(x, within = NULL, standardization.scale = mad, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,glm-method
 setMethod("match_on", "glm", function(x, within = NULL, standardization.scale = mad, ...)
@@ -218,6 +221,7 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
 #' the \code{bigglm} function from package \sQuote{biglm}, which can
 #' handle bigger data sets than the ordinary glm function can.
 #'
+#' @usage \S4method{match_on}{bigglm}(x, within = NULL, data = NULL, standardization.scale = mad, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,bigglm-method
 setMethod("match_on", "bigglm", function(x, within = NULL, data = NULL, standardization.scale = mad, ...)
@@ -256,13 +260,11 @@ are there missing values in data?")
 })
 
 #' @details The \code{numeric} method returns the absolute difference for treated and control units computed using
-#' the vector of scores \code{x}.
-#'
-#' @param z Vector of treatment assignments for each unit in \code{x}. Either
-#'   \code{x} or \code{z} must have names.
+#' the vector of scores \code{x}. Either \code{x} or \code{z} must have names.
 #' @param caliper The width of a caliper to fit on the difference of scores.
 #'   This can improve efficiency versus first creating all the differences and
 #'   then filtering out those entries that are larger than the caliper.
+#' @usage \S4method{match_on}{numeric}(x, within = NULL, z, caliper = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,numeric-method
 setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, ...) {
@@ -331,10 +333,6 @@ scoreCaliper <- function(x, z, caliper) {
 
   makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
 }
-
-# match_on methods for DistanceSpecifications
-# apparently the class union is less important than the true
-# type, so the numeric method above gets in the way
 
 #' @details The \code{matrix} and \code{InfinitySparseMatrix} just return their
 #' arguments as these objects are already valid distance specifications.

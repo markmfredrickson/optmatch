@@ -19,7 +19,7 @@ test_that("Distances from glms", {
    
   result.glm <- match_on(test.glm)
   
-  expect_true(is(result.glm, "DistanceSpecification"))
+  expect_true(validDistanceSpecification(result.glm))
   expect_equal(length(result.glm), (n/2)^2)
   
 })
@@ -34,7 +34,7 @@ test_that("Distances from formulas", {
   test.data <- data.frame(Z, X1, X2, B)
 
   result.fmla <- match_on(Z ~ X1 + X2 + B, data = test.data)
-  expect_true(is(result.fmla, "DistanceSpecification"))
+  expect_true(validDistanceSpecification(result.fmla))
 
   # test pulling from the environment, like lm does
   result.envir <- match_on(Z ~ X1 + X2 + B)

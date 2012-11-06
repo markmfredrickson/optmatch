@@ -5,19 +5,6 @@ library(testthat)
 
 context("Distance Specification Protocol")
 
-test_that("Basic types are DistanceSpeficiations", {
-  expect_true(isClassUnion("DistanceSpecification"))
-
-  m <- matrix(1, nrow = 2, ncol = 2)
-  expect_true(is(m, "DistanceSpecification")) # expect_is fails for S3 classes?
-  expect_true(is(as.InfinitySparseMatrix(m), "DistanceSpecification"))
-  B <- rep(c(0,1), each = 5)
-  names(B) <- letters[1:10] # either B or Z must have names
-  expect_true(is(exactMatch(B, rep(c(0,1), 5)),
-    "DistanceSpecification"))
-  
-})
-
 test_that("Matrix => nodes and arcs", {
   # tests:
   expect_true(isGeneric("prepareMatching"))
@@ -67,8 +54,8 @@ test_that("Subproblems", {
   res.em <- subproblems(em)
   expect_equal(length(res.em), 2)
   
-  expect_true(all(sapply(res.em, function(i) { is(i,
-    "DistanceSpecification")})))
+  expect_true(all(sapply(res.em, function(i) { 
+    validDistanceSpecification(i)})))
 
   m1 <- matrix(0, nrow = 2, ncol = 3,
     dimnames = list(treated = c("b", "d"), control = c("a", "c", "e")))
@@ -90,7 +77,7 @@ test_that("Subproblems", {
   expect_equal(length(em.subps), 5)
   expect_is(em.subps, "list")
   lapply(em.subps, function(i) {
-    expect_is(i, "DistanceSpecification")  
+    expect_true(validDistanceSpecification(i))  
   })
 
 

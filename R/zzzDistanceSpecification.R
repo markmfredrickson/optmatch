@@ -6,11 +6,6 @@
 #' @include mdist.R 
 NULL
 
-# The following objects are valid DistanceSpecifications, that is, they layout
-# how treatment and control units are related.
-
-setClassUnion("DistanceSpecification", c("matrix", "InfinitySparseMatrix"))
-
 ### prepareMatching: DistanceSpecification -> arcs
 ### where arcs is a data.frame with 3 columns: control, treatment, distance
 
@@ -67,9 +62,11 @@ function(distances) {
 setGeneric("subproblems", function(distances)
   standardGeneric("subproblems"))
 
-# same method for matrices and ISMs
-setMethod("subproblems", "DistanceSpecification", function(distances) FALSE)
+setMethod("subproblems", "InfinitySparseMatrix", function(distances) FALSE)  
+setMethod("subproblems", "matrix", function(distances) FALSE)  
+setMethod("subproblems", "DenseMatrix", function(distances) FALSE)  
 
+# same method for matrices and ISMs
 setMethod("subproblems", "BlockedInfinitySparseMatrix", 
 function(distances) {
   tmp <- lapply(levels(distances@groups), function(l) {

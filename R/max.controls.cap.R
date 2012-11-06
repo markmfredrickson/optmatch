@@ -1,9 +1,5 @@
 maxControlsCap <- function(distance, min.controls = NULL)
 {
-  if (!inherits(distance, "DistanceSpecification")) {
-    stop("Distance must be a DistanceSpecification (see match_on)")
-  }
-
   # check if it is valid distance specification, 
   # if not through an error message explaining the issue
   validDistanceSpecification(distance, stopOnProblem = TRUE)

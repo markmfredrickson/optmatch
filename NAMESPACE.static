@@ -45,4 +45,4 @@ S3method(mdist, bigglm)
 
 ### S4 Stuff
 
-exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix, DistanceSpecification)
+exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)

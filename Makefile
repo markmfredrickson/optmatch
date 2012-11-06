@@ -25,9 +25,9 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
-$(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static
+$(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static .local/roxygen2/INSTALLED
 	mkdir -p $(PKG)/man
-	R -e "library(roxygen2); roxygenize('$(PKG)')"
+	R_LIBS=.local R -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
 $(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
@@ -55,6 +55,11 @@ release: check spell
 	mkdir -p .local
 	R --vanilla CMD Install --no-multiarch --library=.local $(PKG).tar.gz
 	echo `date` > .local/optmatch/INSTALLED
+
+.local/roxygen2/INSTALLED:
+	mkdir -p .local
+	R_LIBS=.local R --vanilla -e "library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4')"
+	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
 test: .local/optmatch/INSTALLED

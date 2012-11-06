@@ -13,7 +13,7 @@ test_that("Caliper return values", {
 
   # use the Mahalanobis distance match_on method
   result <- caliper(A, 2)
-  expect_is(result, "DistanceSpecification")
+  expect_true(validDistanceSpecification(result))
   
   expect_equal(result@.Data, c(0,0))
 

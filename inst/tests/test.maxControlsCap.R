@@ -24,7 +24,7 @@ test_that("basics", {
 
 test_that("Testing input", {
   # must pass a dist spec
-  expect_error(maxControlsCap(1:10), "Distance must be a DistanceSpecification") # had to use \\( as the string is treated as a regex
+  expect_error(maxControlsCap(1:10),"Invalid distance")
 
   # if min.controls is a vector, it must be named the same as the name of the subproblems
   Z <- rep(c(0,1), 8)
