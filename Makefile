@@ -18,6 +18,8 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
 	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
+		--exclude=lexicon.txt --exclude=README.md --exclude=checkspelling.R \
+		--exclude=optmatch.Rcheck \
 		--exclude=load.R . $(PKG)
 
 $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
@@ -28,7 +30,7 @@ $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static
 	R -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE ChangeLog NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
 	R --vanilla CMD build $(PKG)
 
 package: $(PKG).tar.gz

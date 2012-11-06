@@ -50,6 +50,8 @@ BUG FIXES
   This avoids some obscure bugs when feeding the results of `fullmatch` to
   other functions.
 
+FOR A DETAILED CHANGELOG, SEE https://github.com/markmfredrickson/optmatch
+
 CHANGES IN OPTMATCH VERSION 0.7-1
 
 NEW FEATURES 
