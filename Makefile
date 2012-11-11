@@ -58,7 +58,7 @@ release: check spell
 
 .local/roxygen2/INSTALLED:
 	mkdir -p .local
-	R_LIBS=.local R --vanilla -e "library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4')"
+	R_LIBS=.local R --vanilla -e "library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
 	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
