@@ -1,8 +1,8 @@
 
-R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
+R version 2.15.2 (2012-10-26) -- "Trick or Treat"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: x86_64-apple-darwin12.0.0 (64-bit)
+Platform: x86_64-apple-darwin12.2.1 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -68,20 +68,12 @@ Percentiles of matched distances:
 > #                   exactMatch(pr ~ pt, data = nuclearplants)), width=2)) # Fails in subclass '1'
 > # summary(pspm)
 > psd[1,] <- psd[1,] + rep(100,22)
-> summary(pairmatch(psd, controls=2, data = nuclearplants))
-Matching failed in subclasses containing 2 of 32 observations.
-Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
-Structure of matched sets:
-1:2 
- 10 
-Effective Sample Size:  13.3 
-(equivalent number of matched pairs).
-
-sum(matched.distances)=226
-(within 0.0286 of optimum).
-Percentiles of matched distances:
-      0%      50%      95%     100% 
-  0.0168   1.1500 101.0000 102.0000 
+> 
+> # due to slight differences in the match on different platforms, just check that the
+> # total.distances remain the same
+> summary(pairmatch(psd, controls=2, data = nuclearplants))$total.distance
+[1] 225.8334
+> 
 > summary(psfm, propensity.model=psm)
 Matching failed in subclasses containing 14 of 32 observations.
 Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
@@ -159,24 +151,16 @@ Balance test overall result:
 +             t1 + t2 + cap + ne + ct + bw + cum.n + pt,
 +             family=binomial, data=nuclearplants)
 > psd2 <- match_on(psm2, standardization.scale = sd)
-> summary(pairmatch(psd2, data = nuclearplants), propensity.model=psm2)
-Matching failed in subclasses containing 12 of 32 observations.
-Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)
-Structure of matched sets:
-1:1 
- 10 
-Effective Sample Size:  10 
-(equivalent number of matched pairs).
-
-sum(matched.distances)=7.56
-(within 0.0272 of optimum).
-Percentiles of matched distances:
-    0%    50%    95%   100% 
-0.0419 0.7450 1.5300 1.6600 
-Balance test overall result:
-  chisquare df p.value
-       9.17  9   0.422
+> psd2summary <- summary(pairmatch(psd2, data = nuclearplants), propensity.model=psm2)
+> 
+> # due to slight differences in the match on different platforms, just check that the
+> # total.distances are the same and that the chi-squared value is 9.5 +- 0.5
+> 
+> psd2summary$total.distance
+[1] 7.56215
+> chisquared.value <- psd2summary$balance$overall$chisquare
+> stopifnot(abs(9.5 - chisquared.value) < 0.5)
 > 
 > proc.time()
    user  system elapsed 
-  0.934   0.039   0.954 
+  1.216   0.038   1.236 

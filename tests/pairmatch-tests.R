@@ -14,7 +14,13 @@ data(nuclearplants)
 # for users going forward.
 psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
 psd <- match_on(psm, standardization.scale = sd)
-pairmatch(psd, controls=2, data = nuclearplants)
+pm <- pairmatch(psd, controls=2, data = nuclearplants)
+
+# the pm match immediately above was giving slightly different answers in some environment
+# the problem allowed multiple optimal solutions, and different choices were picked in different environments
+# the sum of matched distances should be the same across all environments
+
+summary(pm)$total.distance
 
 # Also not run: again an error would be thrown (which R CMD CHECK does not like)
 # pairmatch(caliper(match_on(psm, standardization.scale = sd,
