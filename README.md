@@ -67,45 +67,32 @@ several distance specifications: matrices of treated units (rows) by control
 units (columns) with entries denoting distances. `optmatch` provides several
 ways of generating these matrices so that you don't have to do it by hand.
 
-Let's begin with a simple (squared) Euclidean distance on the space defined by `W`:
+Let's begin with a simple Euclidean distance on the space defined by `W`:
 
     distances <- list()
-    distances$euclid2 <- mdist(z ~ w1 + w2, data = W, inv.scale.matrix =
-      diag(2))
+    distances$euclid <- match_on(z ~ w1 + w2, data = W, method = "euclidean")
 
-The `inv.scale.matrix` argument tells the mdist function how to adjust the
-scales of the different covariates. In the case of Euclidean distance, we
-don't want any scaling, so we use a 2 by 2 identity matrix. The result of this
-computation is a matrix, and we can get the non-squared Euclidean distance
-using the usual function:
+The `method` argument tells the `match_on` function how to compute the
+distances over the space defined by the formula. The default method extends the
+simple Euclidean distance by rescaling the distances by the covariance of the
+variables, the [Mahalanobis
+distance](http://en.wikipedia.org/wiki/Mahalanobis_distance):
 
-    class(distances$euclid2)
-    distances$euclid <- sqrt(distances$euclid2)
+    distances$mahal <- match_on(z ~ w1 + w2, data = W)
 
-While the scales of a uniform and a Bernoulli variable are similar, you may
-find that you have different variables that are on wildly different scales or
-that covary. A better choice might be to use the so called (squared)
-[Mahalanobis distance](http://en.wikipedia.org/wiki/Mahalanobis_distance):
-
-    distances$mahal <- mdist(z ~ w1 + w2, data = W)
-
-The default argument for `inv.scale.matrix` is the inverse covariance matrix
-of the data. The distance is calculated as:
-
-    (T - C)^T S^(-1) (T - C)^T
-
-So you can see how other scale matrices can be used.
+You can write additional distance computation functions. See the documentation
+for `match_on` for more details on how to create these functions.
 
 To create distances, we could also try regressing the treatment indicator on
 the covariates and computing the difference distance for each treated and
-control pair. To make this process easier, `mdist` has methods for `glm`
+control pair. To make this process easier, `match_on` has methods for `glm`
 objects (and for big data problems, `bigglm` objects):
 
     propensity.model <- glm(z ~ w1 + w2, data = W, family =
       binomial())
-    distances$propensity <- mdist(propensity.model)
+    distances$propensity <- match_on(propensity.model)
 
-The `glm` method is a wrapper around the `numeric` method for `mdist`. The
+The `glm` method is a wrapper around the `numeric` method for `match_on`. The
 `numeric` method takes a vector of scores (for example, the linear prediction
 for each unit from the model) and a vector indicating treatment status (`z`)
 for each unit. This method returns the absolute difference between each
@@ -118,22 +105,10 @@ than the caliper value will be replaced by `Inf`, an unmatchable value. The
 `caliper` argument also applies to `glm` method. Calipers are covered in more
 detail in the next sction.
 
-The final convenience method of `mdist` is using an arbitrary function.  When
-called, this function will receive  two `data.frame`s each of length `nt *
-nc`, where `nt` is the number of treated units and `nc` is the number of
-control units. The first argument represents the treated units, while the
-second represents the control units. Combined the two variables represent every
-possible treated-control pair. While this might sound complicated at first, it
-is quite easy to use. For example, here is a function that sets distance to
-infinity if the units differ on `w2` and the difference of `w1` otherwise:
-
-    example.function <- function(t, c) {
-      ifelse(t$w2 == c$w2, abs(t$w1 - c$w1), Inf)  
-    }
-    distances$fn <- mdist(example.function, data = W, z = W$z)
-
-As in the previous examples, treated
-and control pairs that have infinite distance will never be matched. 
+The final convenience method of `match_on` is using an arbitrary function. This
+function is probably most useful for advanced users of `optmatch`. See the
+documentation of the `match_on` function for more details on how to write your
+own arbitrary computation functions. 
 
 ### Combining and editing distances
 
@@ -142,7 +117,7 @@ Euclidean distance, Mahalanobis distance, the estimated propensity score, and
 an arbitrary function. We can combine these distances into single metric using
 standard arithmetic functions:
 
-    distances$all <- with(distances, euclid2 + mahal + propensity + fn)
+    distances$all <- with(distances, euclid + mahal + propensity)
 
 You may find it convenient to work in smaller pieces at first and then stitch
 the results together into a bigger distance. The `rbind` and `cbind` functions let us
@@ -153,30 +128,14 @@ propensity score for units `t` through `z`:
 
     W.n.to.s <- W[c(LETTERS[1:13], letters[14:19]),]
     W.t.to.z <- W[c(LETTERS[1:13], letters[20:26]),]
-    mahal.n.to.s <- mdist(z ~ w1 + w2, data = W)
-    ps.t.to.z <- mdist(glm(z ~ w1 + w2, data = W.t.to.z, family = binomial()))
+    mahal.n.to.s <- match_on(z ~ w1 + w2, data = W.n.to.s)
+    ps.t.to.z <- match_on(glm(z ~ w1 + w2, data = W.t.to.z, family = binomial()))
     distances$combined <- cbind(mahal.n.to.s, ps.t.to.z)
-
-In a previous example, we used a function to compute conditional values:
-infinity, if two units had different values of `w2`; the difference of `w1`
-otherwise. `optmatch` has several functions that follow this basic pattern:
-infinity, under some condition; zero otherwise. Since distances can be added,
-we can recreate the results of the function based `mdist` call:
-
-    tmp <- sqrt(mdist(z ~ w1, data = W, inv.scale.matrix = 1))
-    distances$exact <- tmp + exactMatch(z ~ w2, data = W)
-    all(distances$fn == as.matrix(distances$exact))
 
 The `exactMatch` function creates "stratified" matching problems, in which
 there are subgroups that are completely separate. Such matching problems are
 often much easier to solve than problems where a treated unit could be
 connected to any control unit.
-
-The use of `as.matrix` in the comparison is because the results of
-`exactMatch` are a special kind of matrix that only records the finite entries
-and ignores any entries that would otherwise be infinity. In our small
-example, this does not waste much time or space, but in bigger problems, where many
-treatment-control pairs are disallowed, this data type can be very beneficial.
 
 There is another method for creating reduced matching problems. The `caliper`
 function compares each entry in an existing distance specification and
@@ -189,14 +148,14 @@ our previous combined distance to anything smaller than the median value:
 Like the `exactMatch` function, the results of `caliper` used the sparse
 matrix representation mentioned above, so can be very efficient for large,
 sparse problems. As noted previously, if using the `glm` or `numeric` methods
-of `mdist`, passing the caliper's width in the `caliper` argument can be more
+of `match_on`, passing the caliper's width in the `caliper` argument can be more
 efficient.
 
 ### Speeding up computation
 
 In addition to the space advantages of only storing the finite entries in a
 sparse matrix, the results of `exactMatch` and `caliper` can be used to speed
-up computation of *new* distances. The `mdist` function that we saw earlier
+up computation of *new* distances. The `match_on` function that we saw earlier
 has an argument called `within` that helps filter the resulting
 computation to only the finite entries in the `within` matrix. Since `exactMatch` and `caliper`
 use finite entries denote valid pairs, they make excellent sources of
@@ -206,10 +165,8 @@ Instead of creating the entire Euclidean distance matrix and *then* filtering
 out cross-strata matches, we use the results of `exactMatch` to compute only
 the interesting cases:
 
-    tmp <- exactMatch(z ~ w2, data = W) # same as before
-    distances$exact2 <- sqrt(mdist(z ~ w1, data = W, inv.scale.matrix = 1,
-    within = tmp))
-    identical(distances$exact2, distances$exact)
+    tmp <- exactMatch(z ~ w2, data = W) 
+    distances$exact <- match_on(z ~ w1, data = W, within = tmp)
 
 Users of previous versions of `optmatch` may notice that the `within`
 argument is similar to the old `structure.formula` argument. Like
@@ -219,8 +176,8 @@ distance specification as an argument, including those created with `caliper`. F
 example, here is the Mahalanobis distance computed only for units that differ
 by less than one on the propensity score.
 
-    distances$mahal.trimmed <- mdist(z ~ w1 + w2, data = W,
-      exclusions = mdist(propensity.model, caliper = 1))
+    distances$mahal.trimmed <- match_on(z ~ w1 + w2, data = W,
+      within = match_on(propensity.model, caliper = 1))
 
 ### Generating the match
 
@@ -272,9 +229,10 @@ otherwise results are not guaranteed to be in the same order as your original
 
 This section will help you get the latest development version of `optmatch` and
 start using the latest features. Before starting, you should know which branch
-you wish to install. Currently, the "master" branch is the main code base. The 
-"s4" branch contains a significant update to the class hierachy to use `R`'s 
-so-called "S4" classes.
+you wish to install. Currently, the "master" branch is the main code base.
+Additional features are added in their own branches. A list of branches is
+available at (the optmatch project
+page)[http://github.com/markmfredrickson/optmatch].
 
 ### Fetching and installing in a local directory
 
