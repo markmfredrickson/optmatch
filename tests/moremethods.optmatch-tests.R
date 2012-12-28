@@ -12,7 +12,7 @@ attributes(plantsfm[names(plantsfm)[1:10] ])
 attributes(plantsfm[names(plantsfm)[5:10],drop=TRUE])
 
 
-plantsfm[5] <- "m.4"
+plantsfm[5] <- "1.4"
 plantsfm[1:5]
 attributes(plantsfm)
 

@@ -1,3 +1,5 @@
+#' @include feasible.R
+
 .onAttach <- function(lib, pkg) {   
 packageStartupMessage(paste(
 "You're loading optmatch, by B. Hansen and M. Fredrickson.\n",
@@ -10,3 +12,9 @@ packageStartupMessage(paste(
 "relaxinfo() at the command line.\n"
 ))
 } 
+
+.onLoad <- function(lib, pkg) {
+  setFeasibilityConstants()
+}
+
+

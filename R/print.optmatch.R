@@ -6,7 +6,8 @@ print.optmatch <- function(x, quote = FALSE, grouped = FALSE, ...)
   else 
   {
     if (grouped) {
-      tmp <- aggregate(names(x), by = list(x), FUN = as.character)
+      tmp <- aggregate(names(x), by = list(x), FUN = function(x) { paste(x,
+        collapse = ", ")})
       colnames(tmp) <- c("Group", "Members")
       print(tmp, quote = quote, row.names = FALSE, ...)
     } else {

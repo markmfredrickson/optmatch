@@ -1,28 +1,26 @@
-matched.distances <- function(matchobj, distance, preserve.unit.names=FALSE)
-  {
-stopifnot(inherits(matchobj,"optmatch"))
+matched.distances <- function(matchobj, distance, preserve.unit.names = FALSE)
+{
+  stopifnot(inherits(matchobj,"optmatch"))
+  validDistanceSpecification(distance) # this will stop() on invalid dist spec
 
-finddist.mat <- function(dmat, omobj)
-  {
-tapply(names(omobj),omobj, FUN=function(x,DMAT){
-  DMAT[match(x,dimnames(DMAT)[[1]], nomatch=0),
-                 match(x,dimnames(DMAT)[[2]], nomatch=0),
-       drop=!preserve.unit.names]
-}, dmat)
-  }
+  res <- tapply(names(matchobj), matchobj, FUN = function(x) {
+      rs <- rownames(distance) %in% x
+      cs <- colnames(distance) %in% x
+      tmp <- as.vector(subset(distance, subset = rs, select = cs, drop = !preserve.unit.names))
 
-if (!inherits(distance,"optmatch.dlist"))
-  {
-return(finddist.mat(distance, matchobj))
-  } else {
-res <- lapply(distance,finddist.mat, matchobj)
-res <- lapply(res, function(x){x[unlist(lapply(x,length))>0]})
-names(res) <- NULL
-nms <- unlist(lapply(res, names))
-if (any(duplicated(nms)))
-warning("something is wrong -- matched set referenced in separate distance matrices")
-res <- unlist(res, recursive=FALSE)
-return(res[levels(matchobj)])
-  }
+      if (sum(rs) > sum(cs)) {
+        names(tmp) <- rownames(distance)[rs]  
+      }
 
-  }
+      if (sum(cs) > sum(rs)) {
+        names(tmp) <- colnames(distance)[cs]
+      }
+
+      if (sum(cs) == sum(rs)) {
+        names(tmp) <- colnames(distance)[cs] # either would be correct, and we don't make any guarantees about if we report t or c
+      }
+      return(tmp)
+  })
+
+  return(res)
+}

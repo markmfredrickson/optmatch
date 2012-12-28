@@ -1,42 +1,18 @@
 require('optmatch')
 data(nuclear, package="boot")
-mahal.dist(pr~cap, nuclear)
-mahal.dist(pr~cap, nuclear,
-           inverse.cov=matrix(1,1,1,dimnames=list("cap", "cap")))
-mahal.dist(pr~date+cum.n, nuclear)
-mahal.dist(~date+cum.n, nuclear, pr~pt)
+match_on(pr ~ cap, data = nuclear)
+match_on(pr ~ date + cum.n, data = nuclear)
+match_on(pr ~ date + cum.n, data = nuclear, within = exactMatch(pr ~ pt, data = nuclear))
+
 if ( (require(splines)) )
-  mahal.dist(pr~ns(date,df=3)+cum.n, nuclear)
+  match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear)
+
 if (require(splines))
-  mahal.dist(~ns(date,df=3)+cum.n, nuclear, pr ~ pt)
+  match_on(pr ~ ns(date,df=3) + cum.n, data = nuclear, exactMatch(pr ~ pt, data = nuclear)
+)
 cum.n.q <- cut(nuclear$cum.n, quantile(nuclear$cum.n), include.lowest=TRUE)
-mahal.dist(pr~date+cum.n.q, nuclear)
-mahal.dist(~date+cum.n.q, nuclear, pr~pt)
+match_on(pr ~ date + cum.n.q, data = nuclear)
+match_on(pr ~ date + cum.n.q, data = nuclear, within = exactMatch(pr~pt, data = nuclear))
+
 ### should give error, incorrect mode
-try(mahal.dist(as.factor(pr)~cap, nuclear))
-
-### should be OK:
-mahal.dist(pr~date, nuclear, inverse.cov=diag(1))
-### should complain about inverse.cov's lack of dimnames (but not give error)
-mahal.dist(pr~date+cum.n, nuclear, inverse.cov=diag(2))
-### same thing w/o complaint:
-mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
-                                     dimnames=list(c("date","cum.n"),c("date","cum.n")))
-           )
-### also OK:
-mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
-                                     dimnames=list(c("dateTRUE","cum.n"),c("dateTRUE","cum.n")))
-           )
-
-### but this should stop the show:
-try(
-    mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
-                                     dimnames=list(c("cum.n","date"),c("date","cum.n")))
-               )
-)
-### and this should be another showstopper:
-try(
-    mahal.dist(pr~date+cum.n, nuclear, inverse.cov=structure(diag(2),
-                                     dimnames=list(c("cum.n","date"),c("cum.n","date")))
-               )
-)
+try(match_on(as.factor(pr) ~ cap, data = nuclear))

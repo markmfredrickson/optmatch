@@ -34,9 +34,27 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     if (!any(is.na(rn12rn2)) && any(diff(rn12rn2)<0)) stop("arguments\' row names inconsistently ordered")
     if (!any(is.na(rn22rn1)) && any(diff(rn22rn1)<0)) stop("arguments\' row names inconsistently ordered")
     
-    if (!setequal(sc1,sc2) ) stop("dlist names don\'t match")
+    # the proper behavior is:
+    # - make sure the two objects have same length
+    # - in each item, make sure the row and column names are the same
+    # if either is not met, fail
 
-     e2 <- e2[sc1]
+    if (setequal(sc1,sc2)) {
+      # if they have the same names, great. proceed, perhaps reording e2 
+      e2 <- e2[sc1]
+    } else {
+      if (length(sc1) != length(sc2)) {
+        stop("arguments must have equal number of subproblems")  
+      }
+      
+      k <- length(sc1) 
+      for (i in 1:k) {
+        if (!identical(dimnames(e1[[i]]), dimnames(e2[[i]]))) {
+          stop("arguments must have identically named subproblem matrices")  
+        }  
+      }
+    }
+
      
      dm11 <- lapply(e1, function(x) {if (is.null(dim(x))) {length(x)} else {dim(x)[1]}})
      dm11 <- unlist(dm11)
@@ -60,7 +78,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     
     if (nchar(.Method[1]) )
       {
-      for (j in sc1)
+      for (j in 1:length(e1))
         {
           left <- e1[[j]]
           if (!unary) {
@@ -82,7 +100,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     {
       if (nchar(.Method[2]))
         {
-      for (j in sc2)
+      for (j in 1:length(e2))
         {
           right <- e2[[j]]
           left <- e1
@@ -109,3 +127,32 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     
     value
   }
+
+###### Other optmatch.dlist common methods #####
+dim.optmatch.dlist <- function(x) {
+  dims <- lapply(x, dim)
+  return(Reduce(function(x,y) { c(x[1] + y[1], x[2] + y[2])}, dims, c(0,0)))
+}
+
+dimnames.optmatch.dlist <- function(x) {
+  dnms <- lapply(x, dimnames)
+  return(Reduce(function(x,y) {list(treated = c(x$treated, y[[1]]), control =
+  c(x$control, y[[2]]))}, dnms, list(treated = c(), control = c())))
+}
+
+as.matrix.optmatch.dlist <- function(x, ...) {
+  xdim <- dim(x)
+  tmp <- matrix(Inf, nrow = xdim[1], ncol = xdim[2], dimnames = dimnames(x))
+
+  for (i in 1:length(x)) {
+    submatrix <- x[[i]]
+    subrows <- rownames(submatrix)
+    subcols <- colnames(submatrix)
+    tmp[subrows, subcols] <- submatrix
+  }
+  return(tmp)  
+}
+
+subset.optmatch.dlist <- function(x, subset, select, ...) {
+  subset(as.matrix(x), subset, select, ...)  
+}

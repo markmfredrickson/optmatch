@@ -1,13 +1,13 @@
 Package: optmatch
-Version: 0.7-4
-Date: 2012-04-01
+Version: VERSION 
+Date: DATE
 Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu> and Mark Fredrickson <mark.m.fredrickson@gmail.com>,
   with embedded Fortran code due to Dimitri P. Bertsekas
   <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Ben B. Hansen <optmatch@ctools.umich.edu>
-Depends: R (>= 2.6.0)
-Suggests: boot, RItools, biglm
+Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
+Depends: R (>= 2.8.0), stats, methods
+Suggests: boot, RItools, biglm, testthat
 Description: Functions for optimal matching, including full matching
 License: file LICENSE
 URL: http://www.r-project.org, http://www.stat.lsa.umich.edu/~bbh/optmatch.html

@@ -1,8 +1,8 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.2 (2012-10-26) -- "Trick or Treat"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-apple-darwin9.8.0/i386 (32-bit)
+Platform: x86_64-apple-darwin12.2.1 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -27,39 +27,60 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
  Dr. Bertsekas. For more information, enter
  relaxinfo() at the command line.
 
+> 
 > data(plantdist)
+> # warnings about lacking data argument are expected
 > pairmatch(plantdist)
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5 <NA> <NA>  m.6 <NA> <NA>  m.7 <NA> <NA> 
+ 1.4  1.5 <NA> <NA>  1.6 <NA> <NA>  1.7 <NA> <NA> 
+Warning message:
+In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
 > pairmatch(plantdist, controls=2)
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5  m.6  m.7 <NA>  m.1  m.2 <NA>  m.2  m.4  m.3 <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7 <NA>  1.1  1.2 <NA>  1.2  1.4  1.3 <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5  m.5  m.3  m.6 <NA>  m.1  m.7  m.7  m.6 
-> pairmatch(plantdist/(plantdist<1)) # Matching fails everywhere
+ 1.4  1.5  1.5  1.3  1.6 <NA>  1.1  1.7  1.7  1.6 
+Warning message:
+In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> ## Not run: pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
+> pairmatch(plantdist + caliper(plantdist, 5, compare = `<`), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
+ 1.1  1.2  1.3  1.4  1.5 <NA>  1.6 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
-m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA m.NA 
-> pairmatch(plantdist/(plantdist<5), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
-   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- m.1  m.2  m.3  m.4  m.5 <NA>  m.6 <NA>  m.1  m.2 <NA>  m.3 <NA> <NA> <NA> <NA> 
-   Q    R    S    T    U    V    W    X    Y    Z 
- m.4  m.5 <NA> <NA> <NA> <NA> <NA>  m.6 <NA> <NA> 
+ 1.4  1.5 <NA> <NA> <NA> <NA> <NA>  1.6 <NA> <NA> 
+Warning message:
+In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> 
 > data(nuclearplants)
+> # in both of match_on calls below use sd to maintain backwards compatibility with
+> # pscore.dist, which used sd by default. match_on has used mad as the std. scale
+> # since it was added to the package, so the use of match_on should be consistent
+> # for users going forward.
 > psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-> psd <- pscore.dist(psm)
-> pairmatch(psd, controls=2)
-   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
- m.8  m.7  m.2  m.5  m.4 <NA>  m.2  m.9  m.6  m.6  m.7  m.3  m.3 m.10  m.4  m.1 
-   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
- m.2  m.7  m.1  m.8  m.4  m.9  m.5 m.10  m.6  m.8  m.9 <NA> m.10  m.1  m.3  m.5 
-> pairmatch(caliper(mdist(psm, structure.fmla=~pt), width=2)) # Fails in subclass '1'
-   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
-<NA> <NA>  0.1 <NA>  0.2 <NA> <NA> <NA>  0.3 <NA> <NA> <NA> <NA> <NA>  0.4  0.6 
-   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
- 0.3  0.4  0.1  0.5  0.2  0.6  0.5  0.7 <NA>  0.7 1.NA 1.NA 1.NA 1.NA 1.NA 1.NA 
+> psd <- match_on(psm, standardization.scale = sd)
+> pm <- pairmatch(psd, controls=2, data = nuclearplants)
+> 
+> # the pm match immediately above was giving slightly different answers in some environment
+> # the problem allowed multiple optimal solutions, and different choices were picked in different environments
+> # the sum of matched distances should be the same across all environments
+> 
+> summary(pm)$total.distance
+[1] 25.83338
+> 
+> # Also not run: again an error would be thrown (which R CMD CHECK does not like)
+> # pairmatch(caliper(match_on(psm, standardization.scale = sd,
+> #   within = exactMatch(pr ~ pt, data =
+> #   nuclearplants)), width=2)) # Fails in subclass '1'
 > 
 > 
+> proc.time()
+   user  system elapsed 
+  0.823   0.030   0.835 

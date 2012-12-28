@@ -1,8 +1,8 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-apple-darwin9.8.0/i386 (32-bit)
+Platform: x86_64-apple-darwin12.0.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -28,15 +28,19 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
 
 > data(plantdist)
 > plantsfm <- fullmatch(plantdist)
+Warning message:
+In fullmatch(plantdist) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
 > plantsfm[1:10]
   A   B   C   D   E   F   G   H   I   J 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 
 > attributes(plantsfm[1:10])
 $names
  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J"
 
 $levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -45,29 +49,31 @@ $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
@@ -77,7 +83,7 @@ $names
 [1] "E" "F" "G" "H" "I" "J"
 
 $levels
-[1] "m.1" "m.2" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -86,42 +92,44 @@ $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
 
 > plantsfm[1:26 <11]
   A   B   C   D   E   F   G   H   I   J 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 
 > attributes(plantsfm[1:26 <6])
 $names
 [1] "A" "B" "C" "D" "E"
 
 $levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -130,29 +138,31 @@ $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
@@ -162,7 +172,7 @@ $names
 [1] "A" "B" "C" "D" "E"
 
 $levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5"
+[1] "1.1" "1.2" "1.3" "1.4" "1.5"
 
 $class
 [1] "optmatch" "factor"  
@@ -171,42 +181,44 @@ $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
 
 > plantsfm[names(plantsfm)[1:10] ]
   A   B   C   D   E   F   G   H   I   J 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 
 > attributes(plantsfm[names(plantsfm)[1:10] ])
 $names
  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J"
 
 $levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -215,29 +227,31 @@ $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
@@ -247,7 +261,7 @@ $names
 [1] "E" "F" "G" "H" "I" "J"
 
 $levels
-[1] "m.1" "m.2" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -256,49 +270,51 @@ $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
 
 > 
 > 
-> plantsfm[5] <- "m.4"
+> plantsfm[5] <- "1.4"
 > plantsfm[1:5]
   A   B   C   D   E 
-m.1 m.2 m.3 m.4 m.4 
+1.1 1.2 1.3 1.4 1.4 
 > attributes(plantsfm)
+$levels
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
+
 $names
  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S"
 [20] "T" "U" "V" "W" "X" "Y" "Z"
 
-$levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5" "m.6" "m.7"
-
 $exceedances
-         m 
+         1 
 0.01283333 
 
 $call
@@ -310,50 +326,61 @@ $contrast.group
 [25] FALSE FALSE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
+
+$subproblem
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+Levels: 1
 
 $class
 [1] "optmatch" "factor"  
 
 > 
 > plantsfm <- fullmatch(plantdist)
+Warning message:
+In fullmatch(plantdist) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
 > plantsfm[26:1]
   Z   Y   X   W   V   U   T   S   R   Q   P   O   N   M   L   K   J   I   H   G 
-m.6 m.7 m.7 m.5 m.5 m.6 m.4 m.5 m.5 m.4 m.3 m.4 m.3 m.4 m.3 m.4 m.2 m.1 m.4 m.7 
+1.6 1.7 1.7 1.5 1.5 1.6 1.4 1.5 1.5 1.4 1.3 1.4 1.3 1.4 1.3 1.4 1.2 1.1 1.4 1.7 
   F   E   D   C   B   A 
-m.6 m.5 m.4 m.3 m.2 m.1 
+1.6 1.5 1.4 1.3 1.2 1.1 
 > attributes(plantsfm[26:1])
 $names
  [1] "Z" "Y" "X" "W" "V" "U" "T" "S" "R" "Q" "P" "O" "N" "M" "L" "K" "J" "I" "H"
 [20] "G" "F" "E" "D" "C" "B" "A"
 
 $levels
-[1] "m.1" "m.2" "m.3" "m.4" "m.5" "m.6" "m.7"
+[1] "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7"
 
 $class
 [1] "optmatch" "factor"  
@@ -364,29 +391,31 @@ $contrast.group
 [25]  TRUE  TRUE
 
 $matched.distances
-$matched.distances$m.1
-[1] 0
+$matched.distances$`1.1`
+I 
+0 
 
-$matched.distances$m.2
-[1] 0
+$matched.distances$`1.2`
+J 
+0 
 
-$matched.distances$m.3
+$matched.distances$`1.3`
 L N P 
 4 6 9 
 
-$matched.distances$m.4
+$matched.distances$`1.4`
 H K M O Q T 
 7 8 2 6 0 4 
 
-$matched.distances$m.5
+$matched.distances$`1.5`
 R S V W 
 0 2 8 4 
 
-$matched.distances$m.6
+$matched.distances$`1.6`
  U  Z 
  5 12 
 
-$matched.distances$m.7
+$matched.distances$`1.7`
 X Y 
 4 8 
 
@@ -401,17 +430,20 @@ X Y
 > ### (caused [.optmatch to die in optmatch version 0.4-0 on R-2.6.0 +)
 > as.factor(plantsfm)[, drop = TRUE]
   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 m.4 m.3 m.4 m.3 m.4 m.3 m.4 m.5 m.5 m.4 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 1.4 1.3 1.4 1.3 1.4 1.3 1.4 1.5 1.5 1.4 
   U   V   W   X   Y   Z 
-m.6 m.5 m.5 m.7 m.7 m.6 
+1.6 1.5 1.5 1.7 1.7 1.6 
 > plantsfm[, drop = TRUE]
   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 m.4 m.3 m.4 m.3 m.4 m.3 m.4 m.5 m.5 m.4 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 1.4 1.3 1.4 1.3 1.4 1.3 1.4 1.5 1.5 1.4 
   U   V   W   X   Y   Z 
-m.6 m.5 m.5 m.7 m.7 m.6 
+1.6 1.5 1.5 1.7 1.7 1.6 
 > plantsfm[, drop = FALSE]
   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T 
-m.1 m.2 m.3 m.4 m.5 m.6 m.7 m.4 m.1 m.2 m.4 m.3 m.4 m.3 m.4 m.3 m.4 m.5 m.5 m.4 
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.4 1.1 1.2 1.4 1.3 1.4 1.3 1.4 1.3 1.4 1.5 1.5 1.4 
   U   V   W   X   Y   Z 
-m.6 m.5 m.5 m.7 m.7 m.6 
+1.6 1.5 1.5 1.7 1.7 1.6 
 > 
+> proc.time()
+   user  system elapsed 
+  0.758   0.030   0.771 

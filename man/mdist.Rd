@@ -23,7 +23,7 @@
 }
 \details{
   The \code{mdist} method provides three ways to construct a matching distance
-  (ie, a distance matrix or suitably organized list of such matrices):
+  (i.e., a distance matrix or suitably organized list of such matrices):
   guided by a function, by a fitted model, or by a formula.  The class
   of the first argument given to \code{mdist} determines which of these
   methods is invoked.
@@ -41,7 +41,7 @@
   }
 
   The \code{mdist.function} method does similar things as the
-  earlier optmatch function \code{\link{makedist}}, although the
+  earlier optmatch function \code{makedist}, although the
   interface is a bit different.
   
   The \code{mdist.formula} method computes the squared Mahalanobis
@@ -72,7 +72,7 @@
 \value{
   Object of class \code{optmatch.dlist}, which is suitable to be given
   as \code{distance} argument to \code{\link{fullmatch}} or
-  \code{\link{pairmatch}}. For more information, see \code{\link{pscore.dist}}
+  \code{\link{pairmatch}}. 
 
 }
 \author{ Mark M. Fredrickson} %Ben B. Hansen
@@ -84,8 +84,8 @@
  \emph{The American Statistician}, \bold{39} 33--38.
 }
 
-\seealso{ \code{\link{makedist}}, \code{\link{mahal.dist}}, \code{\link{fullmatch}}, \code{\link{pairmatch}},
-          \code{\link{pscore.dist}}}
+\seealso{ \code{\link{fullmatch}}, \code{\link{pairmatch}},
+\code{\link{match_on}}}
 \examples{
 data(nuclearplants)
 mdist.examples <- list()
@@ -126,7 +126,7 @@ mdist.examples$ps3 <- mdist(aGlm, structure.fmla=~pt)
 fullmatch(mdist.examples$ps3)
 
 ### Propensity score matching with a propensity score caliper:
-mdist.examples$pscal <- mdist.examples$ps1 + caliper(1,mdist.examples$ps1)
+mdist.examples$pscal <- mdist.examples$ps1 + caliper(mdist.examples$ps1, 1)
 fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
 
 ### A Mahalanobis distance for matching within subgroups:
@@ -136,7 +136,7 @@ all.equal(mdist.examples$mh2,
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:
-fullmatch(mdist.examples$mh2 + caliper(1, mdist.examples$ps3))
+fullmatch(mdist.examples$mh2 + caliper(mdist.examples$ps3, 1))
 
 }
 

@@ -1,4 +1,94 @@
-makedist <- function(structure.fmla, data,
+################################################################################
+# makedist: produces DistanceSpecificaitons from data and a distance function
+################################################################################
+
+# an internal function to handle the heavy lifting
+# z is a treatment indicator for the data
+# 
+makedist <- function(z, data, distancefn, within = NULL) {
+  # conversion and error checking handled by toZ
+  z <- toZ(z)
+  
+  # next, data should be same length/size as z
+  # I would have liked to have "duck typed" data by using
+  # hasMethod(f = "dim", signature = class(data))
+  # but "vector" has a dim method (though it returns null!), which causes this to fail
+  if (inherits(data, "matrix") | inherits(data, "data.frame")) {
+    data.len <- dim(data)[1]  
+  } else {
+    data.len <- length(data)  
+  }
+   
+  if (data.len != length(z)) {
+    stop("Treatment indicator and data must have the same length.")  
+  }
+
+  # data can be either a vector or a data.frame/matrix
+  if (is.vector(data)) {
+    namefn <- names
+  } else {
+    namefn <- rownames
+  }
+
+  rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
+  cns <- namefn(subset(data, !as.logical(z)))
+
+  if (length(cns) == 0 | length(rns) == 0) {
+    stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
+  }
+
+  if (is.null(within)) {
+    # without a within, make a dense matrix    
+    nc <- length(cns)
+    nr <- length(rns)
+    
+    res <- new("DenseMatrix", matrix(0, nrow = nr, ncol = nc, dimnames =
+                                     list(treatment = rns, control = cns)))
+    
+    # matrices have column major order
+    treatmentids <- rep(rns, nc)
+    controlids <- rep(cns, each = nr)
+    
+    if (nc * nr > getMaxProblemSize()) {
+      warning("Matching problem too large. Consider passing an 'within'
+      argument. See 'mdist', 'exactMatch', and 'caliper' documentation for details.")  
+    }
+
+  } else {
+    # with a within, make a copy and only fill in the finite entries of within
+    res <- within
+    
+    if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
+        !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
+      stop("Row and column names of within must match those of the data.")  
+    }
+
+    treatmentids <- res@rownames[res@rows]
+    controlids <- res@colnames[res@cols]
+
+    # TODO: check that the rownames, colnames of within match data
+    subprobs <- findSubproblems(within)
+    issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail 
+    for (s in subprobs) {
+      issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
+    }
+   
+    if(issue.warning) {
+      warning("Matching problem too large, even with included 'within'
+          argument. You should try to exclude more treated-control comparisons.
+          See 'exactMatch' and 'caliper' documentation for details.")  
+    }
+  }
+
+  dists <- distancefn(cbind(treatmentids, controlids), data, z)
+
+  res <- replace(res, 1:length(res), dists)
+
+  return(res)
+}
+
+
+makedistold <- function(structure.fmla, data,
                      fn=function(trtvar, dat, ...){
                        matrix(0, sum(trtvar), sum(!trtvar),
                               dimnames=list(names(trtvar)[trtvar],

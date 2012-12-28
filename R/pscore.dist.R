@@ -18,7 +18,7 @@ PpTy <- glmobject$linear.predictors/pooled.sd
 
 attr(structure.fmla, 'generation.increment') <- 1
 
-makedist(structure.fmla,
+makedistOptmatchDlist(structure.fmla,
          data.frame(ZzZz, PpTy,model.frame(glmobject)),
          fn=function(trtvar,data)
          {

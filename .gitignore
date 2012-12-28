@@ -2,3 +2,8 @@
 *.tar.gz
 *.so
 *.o
+.local
+src-*
+OPTMATCH_TIMESTAMP
+DESCRIPTION
+optmatch_*
