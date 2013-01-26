@@ -67,3 +67,12 @@ test: .local/optmatch/INSTALLED
 
 clean:
 	git clean -xfd
+
+################################################################################
+# Performance Testing
+################################################################################
+
+performance.pdf: .local/optmatch/INSTALLED performance.Rnw
+	R_LIBS=.local R --vanilla CMD Sweave performance.Rnw
+	latexmk -pdf performance.tex
+

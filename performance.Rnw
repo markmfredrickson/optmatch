@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+
+\title{\texttt{optmatch} Performance Testing}
+
+\begin{document}
+\maketitle
+
+The goal of this document is provide some basic performance testing of the
+\texttt{optmatch} package. In most matching workflows, a user first creates
+distances, produces one or more matches, assesses balance on a given match,
+and, provided balance meets necessary requirements, proceeds to analysis. Of
+these tasks, \texttt{optmach} is responsible for distance creation and
+creating the match. These two tasks will be considered separately. The
+remainder of this document lays out the performance testing strategy and then
+implements it for the distance creation and matching routines in
+\texttt{optmatch}.
+
+\section{Performance Testing Strategy}
+
+\texttt{R} provides built in execution profiling through the \texttt{Rprof}
+function (and a similarly named command line option). When invoked, this
+function regularly interrupts normal processing and writes out the current
+call stack to a file. This information can be used to attribute the portion of
+run time attributable different functions.
+
+For interpretation of this data, we rely on the \texttt{profr} package, which
+provides some graphical summaries to help make raw profile data more manageable.
+
+Since we suspect that creation of large data sets may account for a sizeable
+portion of the runtime of large problems, we also profile memory usage
+with\ldots.
+
+\subsection{Simulated Data}
+
+Before proceeding to the actual profiling, we begin by creating some simulated
+data.
+
+<<create-data>>=
+set.seed(20130125) # so that the random values we generate will be consistent
+N <- 10000
+X <- data.frame(X1 = rnorm(N), 
+                X2 = rnorm(N, mean = runif(N, -5, 5)), 
+                X3 = as.factor(sample(letters[1:5], N, replace = T)))
+
+mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+coefs <- runif(dim(mm)[2], -2, 2)
+logits <- as.vector(coefs %*% t(mm)) 
+DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
+model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
+
+# clear out memory and run the garbage collector before proceeding
+rm(mm)
+rm(logits)
+rm(X)
+gc()
+ls()
+@
+
+\section{Distance Creation}
+\subsection{Dense Problem Distance Creation}
+\subsection{Sparse Problem Distance Creation}
+\subsection{\texttt{match\_on} Methods}
+\subsubsection{\texttt{formula}}
+\subsubsection{\texttt{glm}}
+
+\section{Matching}
+\subsection{Dense problems}
+\subsection{Dense, stratified problems}
+\subsection{Sparse problems}
+\subsection{Sparse, stratified problems}
+\subsection{\texttt{pairmatch}}
+\subsection{User supplied constraints}
+
+\end{document}
