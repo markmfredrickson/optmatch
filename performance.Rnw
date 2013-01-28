@@ -263,7 +263,26 @@ plot(benchmark.matching.sparse.strat)
 
 
 \subsection{\texttt{pairmatch}}
-\subsection{User supplied constraints}
+
+To change things up a little, we use pairmatch for this profile. Again, we use
+the dense problem in order to focus on the matching aspect.
+
+<<>>=
+gc()
+
+benchmark.matching.pairmatch <- profr(result.matching.pairmatch <-
+  fullmatch(result.dense))
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.matching.pairmatch)
+@
+\caption{Profiling diagram for dense matrix pairmatching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-pairmatch}
+\end{figure}
 
 \appendix
 
@@ -297,6 +316,8 @@ save(file = "performance.rda",
   benchmark.matching.sparse,
   result.matching.sparse,
   benchmark.matching.sparse.strat,
-  result.matching.sparse.strat)
+  result.matching.sparse.strat,
+  benchmark.matching.pairmatch,
+  result.matching.pairmatch)
 @
 \end{document}
