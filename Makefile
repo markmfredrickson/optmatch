@@ -72,8 +72,14 @@ clean:
 # Performance Testing
 ################################################################################
 
-vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/performance/performance.Rnw
+vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/performance/performance.Rnw \
+																			 vignettes/performance/setup.rda \
+																			 vignettes/performance/distance-dense.rda 
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 
+vignettes/performance/setup.rda: vignettes/performance/setup.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
 
+vignettes/performance/distance-dense.rda: vignettes/performance/setup.rda vignettes/performance/distance-dense.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f distance-dense.R

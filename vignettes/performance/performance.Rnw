@@ -44,26 +44,8 @@ with\ldots.
 Before proceeding to the actual profiling, we begin by creating some simulated
 data.
 
-<<create-data>>=
-set.seed(20130125) # so that the random values we generate will be consistent
-N <- 1000
-X <- data.frame(X1 = rnorm(N), 
-                X2 = rnorm(N, mean = runif(N, -5, 5)), 
-                X3 = as.factor(sample(letters[1:5], N, replace = T)))
-
-mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
-coefs <- runif(dim(mm)[2], -2, 2)
-logits <- as.vector(coefs %*% t(mm)) 
-DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
-model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
-predicted <- predict(model)
-
-# clear out memory and run the garbage collector before proceeding
-rm(mm)
-rm(logits)
-rm(X)
-gc()
-ls()
+<<setup, echo = F>>=
+load("setup.rda")
 @
 
 \section{Distance Creation}
@@ -75,16 +57,12 @@ methods to see what overhead they add.
 
 \subsection{Dense Problem Distance Creation}
 
-<<>>=
-gc()
-
-benchmark.dense <- profr(result.dense <- match_on(x = predicted, z = DATA$Z))
-@
-
 \begin{figure}
 \centering
-<<fig = T>>=
-plot(benchmark.dense)
+<<echo = F, fig = T, width = 7, height = 4>>=
+load("distance-dense.rda")
+par(cex = 0.5) # this makes the text in the plots a more maneagable size.
+plot(benchmark.dense, minlabel = 0.05)
 @
 \caption{Profiling diagram for dense distance creation for $N = 
 \Sexpr{N}$ units.}
