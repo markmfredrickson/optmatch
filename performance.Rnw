@@ -149,7 +149,28 @@ plot(benchmark.sparse.within)
 
 \subsection{\texttt{match\_on} Methods}
 
+These additional methods add some pre-processing to the distance creation.
+Both can work on sparse problems, but to keep things simple, these examples
+just create dense matrices.
+
 \subsubsection{\texttt{formula}}
+
+<<>>=
+gc()
+benchmark.formula <- profr(result.formula <- match_on(x =
+  Z ~ X1 + X2 + X3, data = DATA))
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.formula)
+@
+\caption{Profiling diagram for formula (Mahalanobis) distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:sparse-formula}
+\end{figure}
+
 \subsubsection{\texttt{glm}}
 
 \section{Matching}
