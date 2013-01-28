@@ -125,7 +125,30 @@ plot(benchmark.sparse.caliper)
 
 \subsubsection{Within argument}
 
+
+<<>>=
+gc()
+benchmark.sparse.within <- profr(result.sparse.within <- match_on(x =
+predicted, z = DATA$Z, within = exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA)))
+@
+
+This matrix has 
+\Sexpr{round(100 * length(result.sparse.within) / (N*N), 1)}\% finite
+entries.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.sparse.within)
+@
+\caption{Profiling diagram for within based sparse distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:sparse-within}
+\end{figure}
+
+
 \subsection{\texttt{match\_on} Methods}
+
 \subsubsection{\texttt{formula}}
 \subsubsection{\texttt{glm}}
 
@@ -155,6 +178,8 @@ save(file = "performance.rda",
   result.dense,
   benchmark.dense,
   result.sparse.caliper,
-  benchmark.sparse.caliper)
+  benchmark.sparse.caliper,
+  result.sparse.within,
+  benchmark.sparse.within)
 @
 \end{document}
