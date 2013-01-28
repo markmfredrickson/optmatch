@@ -152,6 +152,11 @@ plot(benchmark.glm, minlabel = minlabel)
 \end{figure}
 
 \section{Matching}
+
+<<echo = F>>=
+load("matching.rda")
+@
+
 Now that distance creation code has been benchmarked, we now consider the
 matching process itself. We reuse the earlier distance objects. To keep things
 simple, most of these matches will be computed using \texttt{fullmatch} at
@@ -159,17 +164,11 @@ default settings.
 
 \subsection{Dense problems}
 
-<<>>=
-gc()
-
-benchmark.matching.dense <- profr(result.matching.dense <-
-  fullmatch(result.dense))
-@
-
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.matching.dense)
+par(cex = perfcex)
+plot(benchmark.matching.dense, minlabel = minlabel)
 @
 \caption{Profiling diagram for dense matrix based matching for $N = 
 \Sexpr{N}$ units.}
@@ -185,17 +184,11 @@ For the first sparse matrix test, we use the result of the \texttt{caliper}
 argument test. This kind of sparse problem must be passed to the solver as a
 single unit.
 
-<<>>=
-gc()
-
-benchmark.matching.sparse <- profr(result.matching.sparse <-
-  fullmatch(result.sparse.caliper))
-@
-
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.matching.sparse)
+par(cex = perfcex)
+plot(benchmark.matching.sparse, minlabel = minlabel)
 @
 \caption{Profiling diagram for sparse matrix based matching for $N = 
 \Sexpr{N}$ units.}
@@ -206,17 +199,12 @@ plot(benchmark.matching.sparse)
 \subsection{Sparse, stratified problems}
 
 This time we use a problem that has been stratified by a factor.
-<<>>=
-gc()
-
-benchmark.matching.sparse.strat <- profr(result.matching.sparse.strat <-
-  fullmatch(result.sparse.within))
-@
 
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.matching.sparse.strat)
+par(cex = perfcex)
+plot(benchmark.matching.sparse.strat, minlabel = minlabel)
 @
 \caption{Profiling diagram for stratified sparse matrix based matching for $N = 
 \Sexpr{N}$ units.}
@@ -229,17 +217,11 @@ plot(benchmark.matching.sparse.strat)
 To change things up a little, we use pairmatch for this profile. Again, we use
 the dense problem in order to focus on the matching aspect.
 
-<<>>=
-gc()
-
-benchmark.matching.pairmatch <- profr(result.matching.pairmatch <-
-  fullmatch(result.dense))
-@
-
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.matching.pairmatch)
+par(cex = perfcex)
+plot(benchmark.matching.pairmatch, minlabel = minlabel)
 @
 \caption{Profiling diagram for dense matrix pairmatching for $N = 
 \Sexpr{N}$ units.}
@@ -254,22 +236,4 @@ plot(benchmark.matching.pairmatch)
 sessionInfo()
 @
 
-\section{Saving Results}
-<<>>=
-save(file = "performance.rda",
-  N,
-  DATA,
-  model,
-  predicted,
-  # distances
-  # matching
-  benchmark.matching.dense,
-  result.matching.dense,
-  benchmark.matching.sparse,
-  result.matching.sparse,
-  benchmark.matching.sparse.strat,
-  result.matching.sparse.strat,
-  benchmark.matching.pairmatch,
-  result.matching.pairmatch)
-@
 \end{document}
