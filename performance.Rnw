@@ -190,7 +190,31 @@ plot(benchmark.glm)
 \end{figure}
 
 \section{Matching}
+Now that distance creation code has been benchmarked, we now consider the
+matching process itself. We reuse the earlier distance objects. To keep things
+simple, most of these matches will be computed using \texttt{fullmatch} at
+default settings.
+
 \subsection{Dense problems}
+
+<<>>=
+gc()
+
+benchmark.matching.dense <- profr(result.matching.dense <-
+  fullmatch(result.dense))
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.matching.dense)
+@
+\caption{Profiling diagram for dense matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-dense}
+\end{figure}
+
+
 \subsection{Dense, stratified problems}
 \subsection{Sparse problems}
 \subsection{Sparse, stratified problems}
@@ -212,6 +236,7 @@ save(file = "performance.rda",
   DATA,
   model,
   predicted,
+  # distances
   result.dense,
   benchmark.dense,
   result.sparse.caliper,
@@ -221,6 +246,9 @@ save(file = "performance.rda",
   result.formula,
   benchmark.formula,
   result.glm,
-  benchmark.glm)
+  benchmark.glm,
+  # matching
+  benchmark.matching.dense,
+  result.matching.dense)
 @
 \end{document}
