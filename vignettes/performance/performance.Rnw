@@ -64,7 +64,7 @@ methods to see what overhead they add.
 \begin{figure}
 \centering
 <<echo = F, fig = T, width = 7, height = 4>>=
-load("distance-dense.rda")
+load("distance.rda")
 par(cex = perfcex) # this makes the text in the plots a more maneagable size.
 plot(benchmark.dense, minlabel = minlabel)
 @
@@ -86,10 +86,6 @@ require generating a dense matrix first (though not always --- the
 
 \subsubsection{Caliper argument}
 
-<<>>=
-load("distance-sparse-caliper.rda")
-@
-
 This matrix has 
 \Sexpr{round(100 * length(result.sparse.caliper) / (N*N), 1)}\% finite
 entries.
@@ -107,13 +103,6 @@ plot(benchmark.sparse.caliper, minlabel = minlabel)
 
 \subsubsection{Within argument}
 
-
-<<>>=
-gc()
-benchmark.sparse.within <- profr(result.sparse.within <- match_on(x =
-predicted, z = DATA$Z, within = exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA)))
-@
-
 This matrix has 
 \Sexpr{round(100 * length(result.sparse.within) / (N*N), 1)}\% finite
 entries.
@@ -121,7 +110,8 @@ entries.
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.sparse.within)
+par(cex = perfcex)
+plot(benchmark.sparse.within, minlabel = minlabel)
 @
 \caption{Profiling diagram for within based sparse distance creation for $N = 
 \Sexpr{N}$ units.}
@@ -282,12 +272,6 @@ save(file = "performance.rda",
   model,
   predicted,
   # distances
-  result.dense,
-  benchmark.dense,
-  result.sparse.caliper,
-  benchmark.sparse.caliper,
-  result.sparse.within,
-  benchmark.sparse.within,
   result.formula,
   benchmark.formula,
   result.glm,

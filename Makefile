@@ -74,16 +74,13 @@ clean:
 
 vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/performance/performance.Rnw \
 																			 vignettes/performance/setup.rda \
-																			 vignettes/performance/distance-dense.rda \
-																			 vignettes/performance/distance-sparse-caliper.rda
+																			 vignettes/performance/distance.rda 
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 
 vignettes/performance/setup.rda: vignettes/performance/setup.R
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
 
-vignettes/performance/distance-dense.rda: vignettes/performance/setup.rda vignettes/performance/distance-dense.R
-	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f distance-dense.R
+vignettes/performance/distance.rda: vignettes/performance/setup.rda vignettes/performance/distance.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f distance.R
 
-vignettes/performance/distance-sparse-caliper.rda: vignettes/performance/setup.rda vignettes/performance/distance-sparse-caliper.R
-	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f distance-sparse-caliper.R
