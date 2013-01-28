@@ -127,16 +127,11 @@ just create dense matrices.
 
 \subsubsection{\texttt{formula}}
 
-<<>>=
-gc()
-benchmark.formula <- profr(result.formula <- match_on(x =
-  Z ~ X1 + X2 + X3, data = DATA))
-@
-
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.formula)
+par(cex = perfcex)
+plot(benchmark.formula, minlabel = minlabel)
 @
 \caption{Profiling diagram for formula (Mahalanobis) distance creation for $N = 
 \Sexpr{N}$ units.}
@@ -145,16 +140,11 @@ plot(benchmark.formula)
 
 \subsubsection{\texttt{glm}}
 
-<<>>=
-gc()
-benchmark.glm <- profr(result.glm <- match_on(x =
-  glm(Z ~ X1 + X2 + X3, data = DATA)))
-@
-
 \begin{figure}
 \centering
 <<fig = T>>=
-plot(benchmark.glm)
+par(cex = perfcex)
+plot(benchmark.glm, minlabel = minlabel)
 @
 \caption{Profiling diagram for \texttt{glm} distance creation for $N = 
 \Sexpr{N}$ units.}
@@ -272,10 +262,6 @@ save(file = "performance.rda",
   model,
   predicted,
   # distances
-  result.formula,
-  benchmark.formula,
-  result.glm,
-  benchmark.glm,
   # matching
   benchmark.matching.dense,
   result.matching.dense,
