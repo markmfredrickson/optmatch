@@ -6,6 +6,8 @@
 \begin{document}
 \maketitle
 
+\SweaveOpts{width = 7, height = 4}
+
 <<echo = F>>=
 library(optmatch)
 @
@@ -30,6 +32,8 @@ run time attributable different functions.
 
 <<echo = F>>=
 library(profr)
+perfcex <- 0.5 # makes text more readable in plots
+minlabel <- 0.05 # add labels for smaller segments of time
 @
 
 For interpretation of this data, we rely on the \texttt{profr} package, which
@@ -61,8 +65,8 @@ methods to see what overhead they add.
 \centering
 <<echo = F, fig = T, width = 7, height = 4>>=
 load("distance-dense.rda")
-par(cex = 0.5) # this makes the text in the plots a more maneagable size.
-plot(benchmark.dense, minlabel = 0.05)
+par(cex = perfcex) # this makes the text in the plots a more maneagable size.
+plot(benchmark.dense, minlabel = minlabel)
 @
 \caption{Profiling diagram for dense distance creation for $N = 
 \Sexpr{N}$ units.}
@@ -83,9 +87,7 @@ require generating a dense matrix first (though not always --- the
 \subsubsection{Caliper argument}
 
 <<>>=
-gc()
-benchmark.sparse.caliper <- profr(result.sparse.caliper <- match_on(x =
-predicted, z = DATA$Z, caliper = 1))
+load("distance-sparse-caliper.rda")
 @
 
 This matrix has 
@@ -94,8 +96,9 @@ entries.
 
 \begin{figure}
 \centering
-<<fig = T>>=
-plot(benchmark.sparse.caliper)
+<<fig = T, echo = F>>=
+par(cex = perfcex)
+plot(benchmark.sparse.caliper, minlabel = minlabel)
 @
 \caption{Profiling diagram for caliper based sparse distance creation for $N = 
 \Sexpr{N}$ units.}
