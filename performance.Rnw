@@ -215,9 +215,53 @@ plot(benchmark.matching.dense)
 \end{figure}
 
 
-\subsection{Dense, stratified problems}
+% \subsection{Dense, stratified problems}
+
 \subsection{Sparse problems}
+
+For the first sparse matrix test, we use the result of the \texttt{caliper}
+argument test. This kind of sparse problem must be passed to the solver as a
+single unit.
+
+<<>>=
+gc()
+
+benchmark.matching.sparse <- profr(result.matching.sparse <-
+  fullmatch(result.sparse.caliper))
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.matching.sparse)
+@
+\caption{Profiling diagram for sparse matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-sparse}
+\end{figure}
+
+
 \subsection{Sparse, stratified problems}
+
+This time we use a problem that has been stratified by a factor.
+<<>>=
+gc()
+
+benchmark.matching.sparse.strat <- profr(result.matching.sparse.strat <-
+  fullmatch(result.sparse.within))
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.matching.sparse.strat)
+@
+\caption{Profiling diagram for stratified sparse matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-sparse-strat}
+\end{figure}
+
+
 \subsection{\texttt{pairmatch}}
 \subsection{User supplied constraints}
 
@@ -249,6 +293,10 @@ save(file = "performance.rda",
   benchmark.glm,
   # matching
   benchmark.matching.dense,
-  result.matching.dense)
+  result.matching.dense,
+  benchmark.matching.sparse,
+  result.matching.sparse,
+  benchmark.matching.sparse.strat,
+  result.matching.sparse.strat)
 @
 \end{document}
