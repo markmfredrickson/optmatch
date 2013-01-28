@@ -91,6 +91,40 @@ plot(benchmark.dense)
 \end{figure}
 
 \subsection{Sparse Problem Distance Creation}
+
+There are two ways to create sparse problems. In the first, we use the
+\texttt{caliper} argument (for the \texttt{numeric} and \texttt{glm} methods
+of \texttt{match\_on}). This argument looks over all the treated and control
+values and computes which treated and control units should be compared, and
+then computes the exact distances between them. The \texttt{within} argument
+is more general, applying to all \texttt{match\_on} methods, but can sometimes
+require generating a dense matrix first (though not always --- the
+\texttt{exactMatch} function doesn't require a dense matrix). 
+
+\subsubsection{Caliper argument}
+
+<<>>=
+gc()
+benchmark.sparse.caliper <- profr(result.sparse.caliper <- match_on(x =
+predicted, z = DATA$Z, caliper = 1))
+@
+
+This matrix has 
+\Sexpr{round(100 * length(result.sparse.caliper) / (N*N), 1)}\% finite
+entries.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(benchmark.sparse.caliper)
+@
+\caption{Profiling diagram for caliper based sparse distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:sparse-caliper}
+\end{figure}
+
+\subsubsection{Within argument}
+
 \subsection{\texttt{match\_on} Methods}
 \subsubsection{\texttt{formula}}
 \subsubsection{\texttt{glm}}
@@ -119,6 +153,8 @@ save(file = "performance.rda",
   model,
   predicted,
   result.dense,
-  benchmark.dense)
+  benchmark.dense,
+  result.sparse.caliper,
+  benchmark.sparse.caliper)
 @
 \end{document}
