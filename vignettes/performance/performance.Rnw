@@ -192,9 +192,34 @@ load("matching.rda")
 Now that distance creation code has been benchmarked, we now consider the
 matching process itself. We reuse the earlier distance objects. To keep things
 simple, most of these matches will be computed using \texttt{fullmatch} at
-default settings.
+default settings. The process of matching, as currently implemented in
+\texttt{optmatch} can be broken down into the following steps:
 
-\subsection{Dense problems}
+\begin{enumerate}
+  \item The specification for the match is check for basic sanity. 
+  \item If there are clear subproblems (such as those created using
+  \texttt{exactMatch}), the problem is broken into multiple parts, and each
+  of the next steps is run for each component.
+  \item From the matrix representation of the distances (which is potentially
+  sparse), a new matrix is formed with a row for each valid comparison. The data in
+  each row is the treated unit, the control unit, and the distance (an
+  adjacency matrix).
+  \item This representation is passed to the Fortran solver, along with the
+  fixed elements of the matching process.
+  \item The results of the solver and turned into an \texttt{optmatch} object,
+  a factor where the names corresponds to the names of the units and the
+  levels to the matched groups. This object also stores additional information
+  about the match as attributes. (If the match was split into multiple
+  components, it is combined here.)
+\end{enumerate}
+
+We should expect to see these phases in each of the next figures. 
+Figure~\ref{fig:match-dense} shows the matching process applied to the dense
+distance matrix from the previous section. Figure~\ref{fig:match-sparse} shows
+a profiling information for the \texttt{caliper} argument based sparse distance
+matrix. Figure~\ref{fig:match-sparse-strat} shows the profiling data for the
+stratified, sparse problem (which can be split up into separate calls to the
+solver) 
 
 \begin{figure}
 \centering
@@ -207,15 +232,6 @@ plot(benchmark.matching.dense, minlabel = minlabel)
 \label{fig:match-dense}
 \end{figure}
 
-
-% \subsection{Dense, stratified problems}
-
-\subsection{Sparse problems}
-
-For the first sparse matrix test, we use the result of the \texttt{caliper}
-argument test. This kind of sparse problem must be passed to the solver as a
-single unit.
-
 \begin{figure}
 \centering
 <<fig = T>>=
@@ -226,11 +242,6 @@ plot(benchmark.matching.sparse, minlabel = minlabel)
 \Sexpr{N}$ units.}
 \label{fig:match-sparse}
 \end{figure}
-
-
-\subsection{Sparse, stratified problems}
-
-This time we use a problem that has been stratified by a factor.
 
 \begin{figure}
 \centering
@@ -244,10 +255,13 @@ plot(benchmark.matching.sparse.strat, minlabel = minlabel)
 \end{figure}
 
 
-\subsection{\texttt{pairmatch}}
-
-To change things up a little, we use pairmatch for this profile. Again, we use
-the dense problem in order to focus on the matching aspect.
+The previous tests used \texttt{fullmatch} with the default arguments. To test
+out the use of the various constraint arguments, we call \texttt{pairmatch}
+on the dense distance problem. In addition to fixing the minimum and maximum
+number of controls per matched set to 1, the \texttt{pairmatch} function inspects the
+distance object to set appropriate values for \texttt{omit.fraction}, the
+argument that allows a portion of the control group to be discarded.
+Figure~\ref{fig:match-pairmatch} shows these profiling data.
 
 \begin{figure}
 \centering
