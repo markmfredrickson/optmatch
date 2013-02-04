@@ -50,8 +50,10 @@ makedist <- function(z, data, distancefn, within = NULL) {
     controlids <- rep(cns, each = nr)
     
     if (nc * nr > getMaxProblemSize()) {
-      warning("Matching problem too large. Consider passing an 'within'
-      argument. See 'mdist', 'exactMatch', and 'caliper' documentation for details.")  
+      warning("I've been asked to compute a large number of treatment-control distances. 
+The result will present too large an optimization problem for optimal matching.  
+You can split up or simplify the problem by providing an appropriate 'within'
+argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details.")  
     }
 
   } else {
@@ -74,9 +76,11 @@ makedist <- function(z, data, distancefn, within = NULL) {
     }
    
     if(issue.warning) {
-      warning("Matching problem too large, even with included 'within'
-          argument. You should try to exclude more treated-control comparisons.
-          See 'exactMatch' and 'caliper' documentation for details.")  
+      warning("I've been asked to compute a large number of treatment-control distances. 
+Even with the provided 'within' argument, the result will present too large 
+an optimization problem for optimal matching. Please use a more restrictive 
+'within' specification, either in a revision of this call or a follow-up
+elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")  
     }
   }
 
