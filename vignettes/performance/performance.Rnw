@@ -295,6 +295,33 @@ plot(benchmark.mdist, minlabel = minlabel)
 \end{figure}
 \appendix
 
+\subsection{Scaling}
+
+<<>>=
+load("scaling.rda")
+@
+
+This section considers how the two functions scale up as the problem size gets
+bigger. We create problems sets of size $N = 2K$ with $K$ treatment and $K$
+control units. Figure~\ref{fig:scaling} shows the run time of the two functions as $K$ is
+increased. The $y$ axis is logged showing that both methods grow roughly
+quadratically, as we would expect from the nature of the algorithms. Of
+course, the absolute run time of \texttt{match\_on} is orders of magnitude
+worse.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(match_on ~ k, data = times, type = 'l', col = "red", log = "y")
+lines(mdist ~ k, data = times, col = "blue", log = "y")
+@
+\caption{Run times for increasingly large problems for the \texttt{match\_on}
+(red) and \texttt{mdist} (blue) functions.}
+\label{fig:scaling}
+\end{figure}
+
+
+
 \section{Environment}
 
 <<>>=

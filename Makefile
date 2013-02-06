@@ -76,16 +76,12 @@ vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/perfo
 																			 vignettes/performance/setup.rda \
 																			 vignettes/performance/distance.rda \
 																			 vignettes/performance/matching.rda \
-																			 vignettes/performance/mdist.rda
+																			 vignettes/performance/mdist.rda \
+																			 vignettes/performance/scaling.rda 
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 
-vignettes/performance/setup.rda: vignettes/performance/setup.R
-	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
-	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
-	cd vignettes/performance && latexmk -pdf performance.tex
-
-vignettes/performance/setup.rda: vignettes/performance/setup.R
+vignettes/performance/setup.rda: .local/optmatch/INSTALLED vignettes/performance/setup.R
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
 
 vignettes/performance/distance.rda: vignettes/performance/setup.rda vignettes/performance/distance.R
@@ -96,3 +92,6 @@ vignettes/performance/matching.rda: vignettes/performance/setup.rda vignettes/pe
 
 vignettes/performance/mdist.rda: vignettes/performance/setup.rda vignettes/performance/mdist.R
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f mdist.R
+
+vignettes/performance/scaling.rda: .local/optmatch/INSTALLED vignettes/performance/scaling.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f scaling.R
