@@ -274,6 +274,25 @@ plot(benchmark.matching.pairmatch, minlabel = minlabel)
 \label{fig:match-pairmatch}
 \end{figure}
 
+\section{\texttt{mdist} and \texttt{match\_on}}
+
+In version 0.7 of \texttt{optmatch} and earlier, the primary method of
+creating distances was to use the \texttt{mdist} function. In version 0.8,
+\texttt{match\_on} was added as a more comprehensive tool, specifically one
+that allowed for arbitrary sparseness of distances matrices. 
+
+<<>>=
+load("mdist.rda")
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.mdist, minlabel = minlabel)
+@
+\caption{Profiling results for a stratified mdist distance problem.}
+\end{figure}
 \appendix
 
 \section{Environment}

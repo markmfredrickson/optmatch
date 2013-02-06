@@ -75,13 +75,13 @@ clean:
 vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/performance/performance.Rnw \
 																			 vignettes/performance/setup.rda \
 																			 vignettes/performance/distance.rda \
-																			 vignettes/performance/matching.rda 
+																			 vignettes/performance/matching.rda \
+																			 vignettes/performance/mdist.rda
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 
 vignettes/performance/setup.rda: vignettes/performance/setup.R
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
-
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 
@@ -93,3 +93,6 @@ vignettes/performance/distance.rda: vignettes/performance/setup.rda vignettes/pe
 
 vignettes/performance/matching.rda: vignettes/performance/setup.rda vignettes/performance/matching.R
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f matching.R
+
+vignettes/performance/mdist.rda: vignettes/performance/setup.rda vignettes/performance/mdist.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f mdist.R
