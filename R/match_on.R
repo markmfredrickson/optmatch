@@ -161,21 +161,58 @@ compute_mahalanobis <- function(index, data, z) {
      dimnames(inv.scale.matrix) <- dnx[2:1]
   }
 
-
   sqrt(apply(index, 1, function(pair) {
-    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% inv.scale.matrix %*% as.matrix(data[pair[1],] - data[pair[2],])
+  
+    pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
+    t(pair.diff) %*% inv.scale.matrix %*% pair.diff
+    
   }))
 }
 
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
+compute_mahalanobis_c <- function(index, data, z) {
+
+  mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+  mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+  cv <- mt + mc
+
+  inv.scale.matrix <- try(solve(cv))
+
+  if (inherits(inv.scale.matrix,"try-error"))
+  {
+     dnx <- dimnames(cv)
+     s <- svd(cv)
+     nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+     if (!any(nz))
+       stop("covariance has rank zero")
+
+     inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+     dimnames(inv.scale.matrix) <- dnx[2:1]
+  }
+
+  nv <- nrow(index)
+	
+  result <- .C('mahalanobisHelper',
+    as.integer(nv),
+    as.integer(ncol(data)),
+    data[index[, 1], ],
+    data[index[, 2], ],
+    inv.scale.matrix,
+    result=numeric(nv), PACKAGE='optmatch')$result
+
+  return(result)
+}
+
 compute_euclidean <- function(index, data, z) {
 
   sqrt(apply(index, 1, function(pair) {
-    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% as.matrix(data[pair[1],] - data[pair[2],])
-  }))
 
+    pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
+    t(pair.diff) %*% pair.diff
+  
+  }))
 }
 
 # short alias
