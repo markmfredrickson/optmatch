@@ -1,2 +1,2 @@
-matched <- is.na
-unmatched <- function(x) !is.na(x)
+unmatched <- is.na
+matched <- function(x) !is.na(x)
