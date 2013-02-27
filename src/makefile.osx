@@ -1,0 +1,58 @@
+# C language variables
+C_COMP := clang -std=gnu99 -arch x86_64
+C_OBJS := mahalanobisHelper.o
+C_INCS := -I"$(shell R RHOME)/include"
+C_PARAMS := $(shell R CMD config CFLAGS) $(shell R CMD config CPICFLAGS)
+
+C_LIBS := -F"$(shell R RHOME)/.." -framework R
+C_LD_PARAMS := $(shell R CMD config SHLIB_CFLAGS)
+
+# fortran variables
+F_COMP := gfortran -arch x86_64
+F_OBJS := relax4s.o
+F_INCS :=
+F_PARAMS := $(shell R CMD config FCFLAGS) $(shell R CMD config FCPICFLAGS)
+
+F_LIBS :=
+F_LD_PARAMS := # $(shell R CMD config SHLIB_FCLD)
+
+# CUDA variables (gpu support)
+# CUDA code generation flags
+GENCODE_SM10 := -gencode arch=compute_10,code=sm_10
+GENCODE_SM20 := -gencode arch=compute_20,code=sm_20
+GENCODE_SM30 := -gencode arch=compute_30,code=sm_30
+GENCODE_SM35 := -gencode arch=compute_35,code=sm_35
+CUDA_ARCH := $(GENCODE_SM10) $(GENCODE_SM20) $(GENCODE_SM30) $(GENCODE_SM35)
+
+CUDA_COMP := $(CUDA_HOME)/bin/nvcc -m64
+CUDA_OBJS := gpuMahalanobisHelper.o
+CUDA_INCS := $(C_INCS) -I"$(CUDA_HOME)/include"
+CUDA_PARAMS := -Xcompiler "$(C_PARAMS)" $(CUDA_ARCH)
+
+CUDA_LIBS := -rpath "$(CUDA_HOME)/lib" -L"$(CUDA_HOME)/lib" -lcudart
+CUDA_LD_PARAMS :=
+
+TARGETS := optmatch.so
+
+OBJS := $(F_OBJS) $(C_OBJS) $(CUDA_OBJS)
+LIBS := $(CUDA_LIBS) $(C_LIBS) $(F_LIBS) -L"/usr/local/lib"
+LD_PARAMS := $(CUDA_LD_PARAMS) $(C_LD_PARAMS) $(F_LD_PARAMS)
+
+all: $(TARGETS) 
+
+$(TARGETS): $(OBJS)
+	clang -arch x86_64 -std=gnu99 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress $(LD_PARAMS) $(LIBS) $^ -o $@
+
+$(CUDA_OBJS): %.o: %.cu
+	$(CUDA_COMP) -c $(CUDA_INCS) $(CUDA_PARAMS) $^ -o $@
+
+$(C_OBJS): %.o: %.c
+	$(C_COMP) -c $(C_INCS) $(C_PARAMS) $^ -o $@
+
+$(F_OBJS): %.o: %.f
+	$(F_COMP) -c $(F_INCS) $(F_PARAMS) $^ -o $@
+
+clean:
+	rm -rf *o
+
+.PHONY: all clean
