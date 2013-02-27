@@ -298,7 +298,7 @@ setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, .
     }
   }
   
-  f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }
+  f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
   makedist(z, x, f, within)
 })
