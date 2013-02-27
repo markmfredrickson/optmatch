@@ -161,10 +161,17 @@ compute_mahalanobis <- function(index, data, z) {
      dimnames(inv.scale.matrix) <- dnx[2:1]
   }
 
+  nv <- nrow(index)
+	
+  result <- .C('mahalanobisHelper',
+    as.integer(nv),
+    as.integer(ncol(data)),
+    data[index[, 1], ],
+    data[index[, 2], ],
+    inv.scale.matrix,
+    result=numeric(nv), PACKAGE='optmatch')$result
 
-  sqrt(apply(index, 1, function(pair) {
-    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% inv.scale.matrix %*% as.matrix(data[pair[1],] - data[pair[2],])
-  }))
+  return(result)
 }
 
 # short alias if we need it
@@ -173,9 +180,11 @@ compute_mahal <- compute_mahalanobis
 compute_euclidean <- function(index, data, z) {
 
   sqrt(apply(index, 1, function(pair) {
-    t(as.matrix(data[pair[1],] - data[pair[2],])) %*% as.matrix(data[pair[1],] - data[pair[2],])
-  }))
 
+    pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
+    t(pair.diff) %*% pair.diff
+  
+  }))
 }
 
 # short alias
