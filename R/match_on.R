@@ -178,8 +178,13 @@ compute_mahalanobis <- function(index, data, z) {
 compute_mahal <- compute_mahalanobis
 
 compute_euclidean <- function(index, data, z) {
-  pair.diff <- as.matrix(data[index[,1], ] - data[index[,2], ])
-  sqrt(t(pair.diff) %*% pair.diff)
+
+  sqrt(apply(index, 1, function(pair) {
+
+    pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
+    t(pair.diff) %*% pair.diff
+  
+  }))
 }
 
 # short alias
@@ -293,7 +298,7 @@ setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, .
     }
   }
   
-  f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
+  f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }
 
   makedist(z, x, f, within)
 })
