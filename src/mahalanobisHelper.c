@@ -1,6 +1,4 @@
 #include<R.h>
-#include<Rinternals.h>
-
 // computes the dot product of two vectors u and v of length n
 
 double dotProduct(int n, const double * u, const double * v) {
