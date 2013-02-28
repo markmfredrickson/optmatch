@@ -13,7 +13,7 @@ F_OBJS := relax4s.o
 F_INCS :=
 F_PARAMS := $(shell R CMD config FCFLAGS) $(shell R CMD config FCPICFLAGS)
 
-F_LIBS :=
+F_LIBS := -lgfortran
 F_LD_PARAMS := # $(shell R CMD config SHLIB_FCLD)
 
 # CUDA variables (gpu support)
@@ -35,13 +35,13 @@ CUDA_LD_PARAMS :=
 TARGETS := optmatch.so
 
 OBJS := $(F_OBJS) $(C_OBJS) $(CUDA_OBJS)
-LIBS := $(CUDA_LIBS) $(C_LIBS) $(F_LIBS) -L"/usr/local/lib"
+LIBS := $(CUDA_LIBS) $(C_LIBS) $(F_LIBS)
 LD_PARAMS := $(CUDA_LD_PARAMS) $(C_LD_PARAMS) $(F_LD_PARAMS)
 
 all: $(TARGETS) 
 
 $(TARGETS): $(OBJS)
-	clang -arch x86_64 -std=gnu99 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress $(LD_PARAMS) $(LIBS) $^ -o $@
+	clang -arch x86_64 -std=gnu99 -shared $(LD_PARAMS) $(LIBS) $^ -o $@
 
 $(CUDA_OBJS): %.o: %.cu
 	$(CUDA_COMP) -c $(CUDA_INCS) $(CUDA_PARAMS) $^ -o $@

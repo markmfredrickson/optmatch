@@ -46,6 +46,7 @@ __global__ void dMahalanobisHelper(int vectorSetSize, int vectorLength,
 // to get at the jth vector in the set, you must index the elements as
 // w + 0 * nv + j, w + nv + j, w + 2 * nv + j, ..., w + (n - 1) * nv + j
 
+extern "C"
 void gpuMahalanobisHelper(const int * vectorSetSize, const int * vectorLength,
 	const float * vectorSet1, const float * vectorSet2, const float * mat,
 	float * result)
