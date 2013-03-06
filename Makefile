@@ -53,12 +53,12 @@ release: check spell
 # depend on this file to decide if we need to install the local version
 .local/optmatch/INSTALLED: $(PKG).tar.gz
 	mkdir -p .local
-	R --vanilla CMD Install --no-multiarch --library=.local $(PKG).tar.gz
+	R --vanilla CMD INSTALL --no-multiarch --library=.local $(PKG).tar.gz
 	echo `date` > .local/optmatch/INSTALLED
 
 .local/roxygen2/INSTALLED:
 	mkdir -p .local
-	R_LIBS=.local R --vanilla -e "library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
+	R_LIBS=.local:R_LIBS R -e "options(repos = structure(c(CRAN = 'http://cran.us.r-project.org'))); library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
 	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
