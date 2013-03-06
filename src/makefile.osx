@@ -25,7 +25,7 @@ GENCODE_SM35 := -gencode arch=compute_35,code=sm_35
 CUDA_ARCH := $(GENCODE_SM10) $(GENCODE_SM20) $(GENCODE_SM30) $(GENCODE_SM35)
 
 CUDA_COMP := $(CUDA_HOME)/bin/nvcc -m64
-CUDA_OBJS := gpuMahalanobisHelper.o
+CUDA_OBJS := gpuMahalanobisHelper.o gpuDoubleMaha.o
 CUDA_INCS := $(C_INCS) -I"$(CUDA_HOME)/include"
 CUDA_PARAMS := -Xcompiler "$(C_PARAMS)" $(CUDA_ARCH)
 
@@ -40,11 +40,29 @@ LD_PARAMS := $(CUDA_LD_PARAMS) $(C_LD_PARAMS) $(F_LD_PARAMS)
 
 all: $(TARGETS) 
 
+
+ifdef CUDA_HOME
+
 $(TARGETS): $(OBJS)
 	clang -arch x86_64 -std=gnu99 -shared $(LD_PARAMS) $(LIBS) $^ -o $@
 
 $(CUDA_OBJS): %.o: %.cu
 	$(CUDA_COMP) -c $(CUDA_INCS) $(CUDA_PARAMS) $^ -o $@
+
+else
+
+CUDA_OBJS := gpuStubs.o
+OBJS := $(F_OBJS) $(C_OBJS) $(CUDA_OBJS)
+LIBS := $(C_LIBS) $(F_LIBS)
+LD_PARAMS := $(C_LD_PARAMS) $(F_LD_PARAMS)
+
+$(TARGETS): $(OBJS)
+	clang -arch x86_64 -std=gnu99 -shared $(LD_PARAMS) $(LIBS) $^ -o $@
+
+$(CUDA_OBJS): %.o: %.c
+	$(C_COMP) -c $(C_INCS) $(C_PARAMS) gpuStubs.c -o $@
+
+endif # end ifdef CUDA_HOME
 
 $(C_OBJS): %.o: %.c
 	$(C_COMP) -c $(C_INCS) $(C_PARAMS) $^ -o $@

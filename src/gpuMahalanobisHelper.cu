@@ -1,45 +1,78 @@
+#include<R.h>
+
 #define NTHREADS 256
 
+texture<float, cudaTextureType2D, cudaReadModeElementType> dMat;
+
+void safeCudaMallocFloat(float ** vect, int nfloats) {
+	cudaError_t err = cudaSuccess;
+	err = cudaMalloc((void **) vect, nfloats * sizeof(float));
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
+size_t safeCudaMallocPitchFloat(float ** vect, int width, int height) {
+	cudaError_t err = cudaSuccess;
+	size_t pitch;
+	err = cudaMallocPitch(vect, &pitch, width * sizeof(float), height);
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+	return pitch;
+}
+
+void safeToDeviceFloat(float * a, const float * b, int nfloats) {
+	cudaError_t err = cudaSuccess;
+	err = cudaMemcpy(a, b, nfloats * sizeof(float), cudaMemcpyHostToDevice);
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
+void safeToDevice2DFloat(float * a, size_t aPitch,
+	const float * b, size_t nrows, size_t ncols)
+{
+	cudaError_t err = cudaSuccess;
+	err = cudaMemcpy2D(a, aPitch, b, ncols * sizeof(float),
+		ncols * sizeof(float), nrows, cudaMemcpyHostToDevice);
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
+void safeFromDeviceFloat(float * a, const float * b, int nfloats) {
+	cudaError_t err = cudaSuccess;
+	err = cudaMemcpy(a, b, nfloats * sizeof(float), cudaMemcpyDeviceToHost);
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
+void checkCudaError() {
+	cudaError_t err = cudaSuccess;
+	cudaGetLastError();
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
+void safeCudaFree(float * a) {
+	cudaError_t err = cudaSuccess;
+	err = cudaFree(a);
+	if(err != cudaSuccess) error(cudaGetErrorString(err));
+}
+
 __global__ void dMahalanobisHelper(int nvectors, int n,
-	const float * vectors1, const float * vectors2, const float * mat,
+	const float * vectors1, size_t v1Pitch,
+	const float * vectors2, size_t v2Pitch,
 	float * result)
 {
-	int i = blockDim.x * blockIdx.x + threadIdx.x;
+	int k, i = blockDim.x * blockIdx.x + threadIdx.x;
 	if(i >= nvectors) return;
 
-	int
-		k, col, innerCol;
 	float
 		sum = 0, innerSum;
+	const float
+		* v1i = vectors1 + i * v1Pitch,
+		* v2i = vectors2 + i * v2Pitch;
 
 	for(int j = 0; j < n; j++) {
 		innerSum = 0;
-		col = j * n;
-		for(k = 0; k < n; k++) {
-			innerCol = i + k * nvectors;
-			innerSum += (vectors1[innerCol] - vectors2[innerCol])
-				* mat[k + col];
-		}
-		col = i + j * nvectors;
-		sum += innerSum * (vectors1[col] - vectors2[col]);
+		for(k = 0; k < n; k++)
+			innerSum += (v1i[k] - v2i[k]) * tex2D(dMat, j, k);
+		sum += innerSum * (v1i[j] - v2i[j]);
 	}
 	result[i] = sqrtf(sum);
 }
-
-// computes sqrt((u_i - v_i) * m * (u_i - v_i)) for two sets of vectors
-// u and v and a matrix m. The matrix m should have dim n x n where each
-// u_i and v_i are of length n. This is intended to fill in the last part of a
-// mahabalonis distance calculation for a set of vectors u and v,
-// one set a treatment and the other a control.
-
-// The matrix m is expected to be stored column major in memory
-// the ith column's elements are stored consecutively at m + i * n
-// the jth row will be at m + 0 * n + j, m + n + j, m + 2 * n + j, ...
-
-// each vector is expected to be a row vector of length n, with the whole
-// set stored as an nv x n matrix w in column major order :(
-// to get at the jth vector in the set, you must index the elements as
-// w + 0 * nv + j, w + nv + j, w + 2 * nv + j, ..., w + (n - 1) * nv + j
 
 extern "C"
 void gpuMahalanobisHelper(const int * vectorSetSize, const int * vectorLength,
@@ -50,194 +83,48 @@ void gpuMahalanobisHelper(const int * vectorSetSize, const int * vectorLength,
 		nv = *vectorSetSize, n = *vectorLength;
 
 	float
-		* dVectorSet1, * dVectorSet2, * dMat, * dResult;
+		* dVectorSet1 = NULL, * dVectorSet2 = NULL, * dResult = NULL;
+	size_t v1Pitch, v2Pitch;
 
-	size_t
-		resultBytes = nv * sizeof(float),
-		matBytes = n * n * sizeof(float),
-		vectorSetBytes = nv * n * sizeof(float);
+	// safeCudaMallocFloat(&dVectorSet1, nv * n);
+	// safeCudaMallocFloat(&dVectorSet2, nv * n);
 
-	cudaMalloc((void **) & dVectorSet1, vectorSetBytes);
-	cudaMalloc((void **) & dVectorSet2, vectorSetBytes);
-	cudaMalloc((void **) & dMat, matBytes);
-	cudaMalloc((void **) & dResult, resultBytes);
+	safeCudaMallocFloat(&dResult, nv);
 
-	cudaMemcpy(dVectorSet1, vectorSet1, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dVectorSet2, vectorSet2, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dMat, mat, matBytes, cudaMemcpyHostToDevice);
+	v1Pitch = safeCudaMallocPitchFloat(&dVectorSet1, n, nv);
+	v2Pitch = safeCudaMallocPitchFloat(&dVectorSet2, n, nv);
 
-	dim3 dimBlock(NTHREADS, 1, 1);
-	int gx = ceil((double) nv /(double) dimBlock.x);
-	dim3 dimGrid(gx, 1, 1);
+	safeToDevice2DFloat(dVectorSet1, v1Pitch, vectorSet1, nv, n);
+	safeToDevice2DFloat(dVectorSet2, v2Pitch, vectorSet2, nv, n);
 
-	cudaDeviceSynchronize();
-	dMahalanobisHelper<<<dimBlock, dimGrid>>>(nv, n, dVectorSet1, dVectorSet2,
-		dMat, dResult);
-	cudaDeviceSynchronize();
+	// create mat in device memory as a read only 2D texture
+	cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 0, 0, 0,
+		cudaChannelFormatKindFloat);
+	cudaArray * cuArray;
+	cudaMallocArray(&cuArray, &channelDesc, n, n);
+	cudaMemcpyToArray(cuArray, 0, 0, mat, n * n * sizeof(float),
+		cudaMemcpyHostToDevice);
+	
+	dMat.addressMode[0] = cudaAddressModeClamp;
+	dMat.addressMode[1] = cudaAddressModeClamp;
+	dMat.filterMode = cudaFilterModePoint;
+	dMat.normalized = false;
 
-	cudaMemcpy(result, dResult, resultBytes, cudaMemcpyDeviceToHost);
+	cudaBindTextureToArray(dMat, cuArray, channelDesc);
+	// end create mat
 
-	cudaFree(dVectorSet1);
-	cudaFree(dVectorSet2);
-	cudaFree(dMat);
-	cudaFree(dResult);
-}
+	size_t nblocks = ceil((double) nv /(double) NTHREADS);
 
-__device__ double ddDotProduct(int n, const double * u, const double * v) {
-	double sum = 0.0;
-	for(int i = 0; i < n; i++)
-		sum += u[i] * v[i];
-	return sum;
-}
-
-__global__ void ddMahalanobisHelper(int vectorSetSize, int vectorLength,
-	const double * vectorSet1, const double * vectorSet2, const double * mat,
-	double * temp1, double * temp2, double * result)
-{
-	int
-		i = blockDim.x * blockIdx.x + threadIdx.x,
-		nv = vectorSetSize, n = vectorLength;
-
-	if(i >= vectorSetSize) return;
-
-	double
-		* temp1i = temp1 + i * vectorLength,
-		* temp2i = temp2 + i * vectorLength;
-
-	for(int j = 0; j < vectorLength; j++)
-		temp1i[j] = vectorSet1[i + j * nv] - vectorSet2[i + j * nv];
-	for(int j = 0; j < vectorLength; j++)
-		temp2i[j] = ddDotProduct(n, temp1i, mat + j * n);
-
-	result[i] = sqrtf( ddDotProduct(n, temp1i, temp2i) );
-}
-
-// computes sqrt((u_i - v_i) * m * (u_i - v_i)) for two sets of vectors
-// u and v and a matrix m. The matrix m should have dim n x n where each
-// u_i and v_i are of length n. This is intended to fill in the last part of a
-// mahabalonis distance calculation for a set of vectors u and v,
-// one set a treatment and the other a control.
-
-// The matrix m is expected to be stored column major in memory
-// the ith column's elements are stored consecutively at m + i * n
-// the jth row will be at m + 0 * n + j, m + n + j, m + 2 * n + j, ...
-
-// each vector is expected to be a row vector of length n, with the whole
-// set stored as an nv x n matrix w in column major order :(
-// to get at the jth vector in the set, you must index the elements as
-// w + 0 * nv + j, w + nv + j, w + 2 * nv + j, ..., w + (n - 1) * nv + j
-
-extern "C"
-void gpu2MahalanobisHelper(const int * vectorSetSize, const int * vectorLength,
-	const double * vectorSet1, const double * vectorSet2, const double * mat,
-	double * result)
-{
-	int
-		nv = *vectorSetSize, n = *vectorLength;
-
-	double
-		* dVectorSet1, * dVectorSet2, * dMat,
-		* temp1, * temp2, * dResult;
-
-	size_t
-		resultBytes = nv * sizeof(double),
-		matBytes = n * n * sizeof(double),
-		vectorSetBytes = nv * n * sizeof(double);
-
-	cudaMalloc((void **) & dVectorSet1, vectorSetBytes);
-	cudaMalloc((void **) & dVectorSet2, vectorSetBytes);
-	cudaMalloc((void **) & dMat, matBytes);
-	cudaMalloc((void **) & temp1, vectorSetBytes);
-	cudaMalloc((void **) & temp2, vectorSetBytes);
-	cudaMalloc((void **) & dResult, resultBytes);
-
-	cudaMemcpy(dVectorSet1, vectorSet1, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dVectorSet2, vectorSet2, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dMat, mat, matBytes, cudaMemcpyHostToDevice);
-
-	dim3 dimBlock(NTHREADS, 1, 1);
-	int gx = ceil((double) nv /(double) dimBlock.x);
-	dim3 dimGrid(gx, 1, 1);
-
-	cudaDeviceSynchronize();
-	ddMahalanobisHelper<<<dimBlock, dimGrid>>>(nv, n, dVectorSet1, dVectorSet2,
-		dMat, temp1, temp2, dResult);
-	cudaDeviceSynchronize();
-
-	cudaFree(temp1);
-	cudaFree(temp2);
-	cudaFree(dVectorSet1);
-	cudaFree(dVectorSet2);
-	cudaFree(dMat);
-
-	cudaMemcpy(result, dResult, resultBytes, cudaMemcpyDeviceToHost);
-	cudaFree(dResult);
-}
-
-__global__ void dMahaDouble(int nvectors, int n,
-	const double * vectors1, const double * vectors2, const double * mat,
-	double * result)
-{
-	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	if(i >= nvectors) return;
-
-	int
-		k, col, innerCol;
-	double
-		sum = 0, innerSum;
-
-	for(int j = 0; j < n; j++) {
-		innerSum = 0;
-		col = j * n;
-		for(k = 0; k < n; k++) {
-			innerCol = i + k * nvectors;
-			innerSum += (vectors1[innerCol] - vectors2[innerCol])
-				* mat[k + col];
-		}
-		col = i + j * nvectors;
-		sum += innerSum * (vectors1[col] - vectors2[col]);
-	}
-	result[i] = sqrtf(sum);
-}
-
-extern "C"
-void gpuMahaDouble(const int * vectorSetSize, const int * vectorLength,
-	const double * vectorSet1, const double * vectorSet2, const double * mat,
-	double * result)
-{
-	int
-		nv = *vectorSetSize, n = *vectorLength;
-
-	double
-		* dVectorSet1, * dVectorSet2, * dMat, * dResult;
-
-	size_t
-		resultBytes = nv * sizeof(double),
-		matBytes = n * n * sizeof(double),
-		vectorSetBytes = nv * n * sizeof(double);
-
-	cudaMalloc((void **) & dVectorSet1, vectorSetBytes);
-	cudaMalloc((void **) & dVectorSet2, vectorSetBytes);
-	cudaMalloc((void **) & dMat, matBytes);
-	cudaMalloc((void **) & dResult, resultBytes);
-
-	cudaMemcpy(dVectorSet1, vectorSet1, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dVectorSet2, vectorSet2, vectorSetBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(dMat, mat, matBytes, cudaMemcpyHostToDevice);
-
-	dim3 dimBlock(NTHREADS, 1, 1);
-	int gx = ceil((double) nv /(double) dimBlock.x);
-	dim3 dimGrid(gx, 1, 1);
-
-	cudaDeviceSynchronize();
-	dMahaDouble<<<dimBlock, dimGrid>>>(nv, n, dVectorSet1, dVectorSet2, dMat,
+	dMahalanobisHelper<<<nblocks, NTHREADS>>>(nv, n,
+		dVectorSet1, v1Pitch / sizeof(float),
+		dVectorSet2, v2Pitch / sizeof(float),
 		dResult);
-	cudaDeviceSynchronize();
+	checkCudaError();
+	safeFromDeviceFloat(result, dResult, nv);
 
-	cudaMemcpy(result, dResult, resultBytes, cudaMemcpyDeviceToHost);
-
-	cudaFree(dVectorSet1);
-	cudaFree(dVectorSet2);
-	cudaFree(dMat);
-	cudaFree(dResult);
+	cudaFreeArray(cuArray);
+	safeCudaFree(dVectorSet1);
+	safeCudaFree(dVectorSet2);
+	// safeCudaFree(dMat);
+	safeCudaFree(dResult);
 }
