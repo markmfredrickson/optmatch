@@ -1,4 +1,6 @@
 #include<R.h>
+#include<Rinternals.h>
+
 // computes the dot product of two vectors u and v of length n
 
 double dotProduct(int n, const double * u, const double * v) {
@@ -42,32 +44,4 @@ void mahalanobisHelper(const int * vectorSetSize, const int * vectorLength,
 	}
 	Free(temp1);
 	Free(temp2);
-}
-
-void unrolledMahalanobisHelper(
-	const int * vectorSetSize, const int * vectorLength,
-	const double * vectorSet1, const double * vectorSet2, const double * mat,
-	double * result)
-{
-	int
-		j, k,
-		nv = *vectorSetSize, n = *vectorLength;
-	double
-		sum, innerSum;
-	const double
-		* v1i, * v2i, * matCol;
-	
-	for(int i = 0; i < nv; i++) {
-		sum = 0;
-		v1i = vectorSet1 + i * n;
-		v2i = vectorSet2 + i * n;
-		for(j = 0; j < n; j++) {
-			innerSum = 0;
-			matCol = mat + j * n;
-			for(k = 0; k < n; k++)
-				innerSum += (v1i[k] - v2i[k]) * matCol[k];
-			sum += innerSum * (v1i[j] - v2i[j]);
-		}
-		result[i] = sqrt(sum);
-	}
 }
