@@ -1,8 +1,8 @@
 
-R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
+R version 2.15.2 (2012-10-26) -- "Trick or Treat"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-apple-darwin9.8.0/i386 (32-bit)
+Platform: x86_64-apple-darwin12.2.1 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -194,31 +194,26 @@ In fullmatch(distance = distance, min.controls = controls, max.controls = contro
 > ### (a joint test of mdist and Ops.optmatch.dlist)
 > ### Distances without subclasses:
 > test(inherits(result.glm + result.fmla, "optmatch.dlist"),
-+      "Should be a optmatch object")
++ 	"Should be a optmatch.dlist object")
 > test(inherits(result.glm + result.function, "optmatch.dlist"),
-+      "Should be a optmatch object")
++ 	"Should be a optmatch.dlist object")
 > if (require("biglm"))
 + test(inherits(result.glm + result.bigglm1, "optmatch.dlist"),
-+      "Should be a optmatch object")
++      "Should be a optmatch.dlist object")
 > 
 > 
 > ### Distances embodying subclassification:
 > test(inherits(result.glm2 + result.fmla2, "optmatch.dlist"),
-+      "Should be a optmatch object")
++      "Should be a optmatch.dlist object")
 > 
 > test(inherits(result.glm2 + result.function.a, "optmatch.dlist"),
-+      "Should be a optmatch object")
++      "Should be a optmatch.dlist object")
 > 
-> tmp <- result.glm2[1]
-> class(tmp) <- c("optmatch.dlist", 'list')
-> 
-> shouldError(inherits(tmp + result.function.a, "optmatch.dlist"),
-+      "Should be a optmatch object")
 > 
 > if (require("biglm"))
 + test(inherits(result.glm2 + result.bigglm2, "optmatch.dlist"),
-+      "Should be a optmatch object")
++      "Should be a optmatch.dlist object")
 > 
 > proc.time()
    user  system elapsed 
-  2.049   0.086   2.123 
+  1.027   0.037   1.046 
