@@ -7,3 +7,4 @@ src-*
 OPTMATCH_TIMESTAMP
 DESCRIPTION
 optmatch_*
+*.swp
