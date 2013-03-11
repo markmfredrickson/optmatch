@@ -43,6 +43,11 @@ VERSION=0.8-1
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
+# a useful helper for scripts who need to know what the package name is going to be
+# use: R CMD INSTALL path/to/optmatch/$(cd path/to/optmatch && make current)
+current: 
+	@echo $(PKG).tar.gz
+
 # depend on the makefile so that updates to the version number will force a rebuild
 $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
