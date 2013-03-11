@@ -56,10 +56,15 @@ release: check spell
 	R --vanilla CMD INSTALL --no-multiarch --library=.local $(PKG).tar.gz
 	echo `date` > .local/optmatch/INSTALLED
 
-.local/roxygen2/INSTALLED:
+.local/devtools/INSTALLED:
+	mkdir -p .local
+	R_LIBS=.local R -e "install.packages('devtools', repos = 'http://cran.us.r-project.org')"
+	date > .local/devtools/INSTALLED
+
+.local/roxygen2/INSTALLED: .local/devtools/INSTALLED
 	mkdir -p .local
 	R_LIBS=.local:R_LIBS R -e "options(repos = structure(c(CRAN = 'http://cran.us.r-project.org'))); library(devtools) ; install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
-	echo `date` > .local/roxygen2/INSTALLED
+	date > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
 test: .local/optmatch/INSTALLED
