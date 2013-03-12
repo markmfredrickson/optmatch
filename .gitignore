@@ -1,4 +1,4 @@
-*.RCheck
+*.Rcheck
 *.tar.gz
 *.so
 *.o
@@ -15,3 +15,4 @@ performance.pdf
 performance.tex
 performance-*.pdf
 vignettes/performance/*.rda
+*.swp
