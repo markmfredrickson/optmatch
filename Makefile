@@ -116,6 +116,9 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/biglm/INSTALLED:
 	$(call installpkg,biglm)
 
+.local/profr/INSTALLED:
+	$(call installpkg,profr)
+
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
 # time to see if the released version gets the bug fix.
@@ -136,7 +139,8 @@ clean:
 # Performance Testing
 ################################################################################
 
-vignettes/performance/performance.pdf: .local/optmatch/INSTALLED vignettes/performance/performance.Rnw \
+vignettes/performance/performance.pdf: .local/optmatch/INSTALLED .local/profr/INSTALLED \
+																			 vignettes/performance/performance.Rnw \
 																			 vignettes/performance/setup.rda \
 																			 vignettes/performance/distance.rda \
 																			 vignettes/performance/matching.rda \
