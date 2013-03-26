@@ -240,6 +240,70 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
                                   rownames = x@rownames[subset]))
 }
 
+# we match the subset.matrix semmantics: subset = rows, select = columns, both logical
+subset.InfinitySparseMatrix.alt <- function(x, subset, select, ...) {
+  
+  xdim <- dim(x)
+  
+  if (missing(subset))
+    subset <- rep(TRUE, xdim[1])  
+
+  if (missing(select))
+    select <- rep(TRUE, xdim[2])  
+
+  if (!is.logical(subset) | !is.logical(select))
+    stop("Subset and select arguments must be logical")  
+
+  if (length(subset) != xdim[1] | length(select) != xdim[2])
+    stop("Subset and select must be same length as rows and columns, respectively.")  
+
+  # get the indexes of the selected rows and columns
+  keeper.rows <- subset[x@rows]
+  keeper.cols <- select[x@cols]
+
+  # combine the two indexes
+  idx <- keeper.rows & keeper.cols
+
+  newRowIdx <- cumsum(subset)
+  newColIdx <- cumsum(select)
+  return(makeInfinitySparseMatrix(x[idx],
+                                  newColIdx[x@cols[idx]],
+                                  newRowIdx[x@rows[idx]],
+                                  colnames = x@colnames[select],
+                                  rownames = x@rownames[subset]))
+}
+
+# we match the subset.matrix semmantics: subset = rows, select = columns, both logical
+subset.InfinitySparseMatrix.c <- function(x, subset, select, ...) {
+  
+  xdim <- dim(x)
+  
+  if (missing(subset)) {
+    subset <- rep(TRUE, xdim[1])  
+  }
+
+  if (missing(select)) {
+    select <- rep(TRUE, xdim[2])  
+  }
+
+  if (!is.logical(subset) | !is.logical(select)) {
+    stop("Subset and select arguments must be logical")  
+  }
+
+  if (length(subset) != xdim[1] | length(select) != xdim[2]) {
+    stop("Subset and select must be same length as rows and columns, respectively.")  
+  }
+
+  subset.data <- .Call('subsetInfSparseMatrix',
+    subset, select, x, PACKAGE="optmatch")
+
+  return(makeInfinitySparseMatrix(subset.data[, 3],
+                                  subset.data[, 2],
+                                  subset.data[, 1],
+                                  colnames = x@colnames[select],
+                                  rownames = x@rownames[subset]))
+}
+
 # a slightly different method of subsetting. Return a matrix of the same size, but with
 # entries not in the index listed as zero
 discardOthers <- function(x, index) {

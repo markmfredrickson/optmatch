@@ -1,0 +1,63 @@
+ARCH := $(shell uname -m)
+
+# C language variables
+C_COMP := $(shell R CMD config CC)
+C_OBJS := mahalanobisHelper.o subsetInfSparseMatrix.o
+C_INCS := -I"$(shell R RHOME)/include"
+C_PARAMS := $(shell R CMD config CFLAGS) $(shell R CMD config CPICFLAGS)
+
+C_LIBS :=
+C_LD_PARAMS := $(shell R CMD config SHLIB_CFLAGS)
+
+# fortran variables
+F_COMP := $(shell R CMD config F77)
+F_OBJS := relax4s.o
+F_INCS :=
+F_PARAMS := $(shell R CMD config FCFLAGS) $(shell R CMD config FCPICFLAGS)
+
+F_LIBS := -lgfortran
+F_LD_PARAMS :=
+
+TARGETS := optmatch.so
+
+LIBS := $(C_LIBS) $(F_LIBS)
+LD_PARAMS := $(C_LD_PARAMS) $(F_LD_PARAMS)
+
+all: $(TARGETS) 
+
+ifdef CUDA_HOME
+
+C_OBJS := $(C_OBJS) gpuMahalanobisHelper.o
+OBJS := $(F_OBJS) $(C_OBJS)
+
+CUDA_LIB_DIR := $(CUDA_HOME)/lib
+ifeq ($(ARCH),x86_64)
+CUDA_LIB_DIR := $(CUDA_LIB_DIR)64
+endif
+
+$(TARGETS): $(OBJS)
+	$(C_COMP) -shared $(LD_PARAMS) $(LIBS) -L$(CUDA_LIB_DIR) -lcublas -lcudart $^ -o $@
+
+$(C_OBJS): %.o: %.c
+	$(C_COMP) -c $(C_INCS) -I$(CUDA_HOME)/include $(C_PARAMS) $^ -o $@
+
+else
+
+C_OBJS := $(C_OBJS) gpuStubs.o 
+OBJS := $(F_OBJS) $(C_OBJS)
+
+$(TARGETS): $(OBJS)
+	$(C_COMP) -shared $(LD_PARAMS) $(LIBS) $^ -o $@
+
+$(C_OBJS): %.o: %.c
+	$(C_COMP) -c $(C_INCS) $(C_PARAMS) $^ -o $@
+
+endif
+
+$(F_OBJS): %.o: %.f
+	$(F_COMP) -c $(F_INCS) $(F_PARAMS) $^ -o $@
+
+clean:
+	rm -rf *o
+
+.PHONY: all clean
