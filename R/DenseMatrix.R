@@ -6,4 +6,5 @@ setClass("DenseMatrix",
   representation(call = "OptionalCall"),
   contains = "matrix")
 
-as.matrix.DenseMatrix <- function(x) { x@.Data }
+#' @S3method as.matrix DenseMatrix
+as.matrix.DenseMatrix <- function(x, ...) { x@.Data }

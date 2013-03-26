@@ -160,27 +160,22 @@ test(length(pairmatch(absdist1)) > 0)
 ### (a joint test of mdist and Ops.optmatch.dlist)
 ### Distances without subclasses:
 test(inherits(result.glm + result.fmla, "optmatch.dlist"),
-     "Should be a optmatch object")
+	"Should be a optmatch.dlist object")
 test(inherits(result.glm + result.function, "optmatch.dlist"),
-     "Should be a optmatch object")
+	"Should be a optmatch.dlist object")
 if (require("biglm"))
 test(inherits(result.glm + result.bigglm1, "optmatch.dlist"),
-     "Should be a optmatch object")
+     "Should be a optmatch.dlist object")
 
 
 ### Distances embodying subclassification:
 test(inherits(result.glm2 + result.fmla2, "optmatch.dlist"),
-     "Should be a optmatch object")
+     "Should be a optmatch.dlist object")
 
 test(inherits(result.glm2 + result.function.a, "optmatch.dlist"),
-     "Should be a optmatch object")
+     "Should be a optmatch.dlist object")
 
-tmp <- result.glm2[1]
-class(tmp) <- c("optmatch.dlist", 'list')
-
-shouldError(inherits(tmp + result.function.a, "optmatch.dlist"),
-     "Should be a optmatch object")
 
 if (require("biglm"))
 test(inherits(result.glm2 + result.bigglm2, "optmatch.dlist"),
-     "Should be a optmatch object")
+     "Should be a optmatch.dlist object")

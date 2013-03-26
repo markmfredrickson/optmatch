@@ -85,7 +85,8 @@ dim.InfinitySparseMatrix <- function(x) {
   return(x@dimension)
 }
 
-as.matrix.InfinitySparseMatrix <- function(x) {
+#' @S3method as.matrix InfinitySparseMatrix
+as.matrix.InfinitySparseMatrix <- function(x, ...) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
   v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(treated = x@rownames, control = x@colnames))
 

@@ -247,14 +247,20 @@ copy of GNU `make` to create the package from source (standard on Linux,
 included with [Apple's developer tools](http://developer.apple.com), included
 with the [Cygwin](http://www.cygwin.com/) UNIX tools for Windows).
 
-In `R`, you will need to install and load the `roxygen2` package:
+When these packages are installed, download a `.zip` of the `optmatch`
+source, which is available from [the project download
+tab](https://github.com/markmfredrickson/optmatch/archive/master.zip). Unzip
+the package in a directory.
 
-    > install.packages("roxygen2")
+Alternatively, if you have a working installation of `git`
+and all the software mentioned in the previous section, you can checkout a
+copy of the source direclty.  Instead of downloading
+the source directly, fork the project and github and clone a working copy from
+your forked project:
 
-You will need to download the branch you wish to install. You can navigate to
-the [Optmatch project page](http://github.com/markmfredrickson/optmatch) to
-find the branch you wish to use. Switch to the proper branch and use the zip
-download button. Unzip the package. In a terminal window:
+    $ git clone git@github.com:YOURUSERNAME/optmatch.git
+
+To download all dependencies and create a bundled package:
 
     $ cd /path/to/package
     $ make package
@@ -271,13 +277,6 @@ You can then load the library in `R` using:
 
 ### Developing for Optmatch
 
-We welcome patches to add features, fix bugs, or otherwise improve the package.
-To develop `optmatch`, you will need to have a working installation of `git`
-and all the software mentioned in the previous section. Instead of downloading
-the source directly, fork the project and github and clone a working copy from
-your forked project:
-
-    $ git clone git@github.com:YOURUSERNAME/optmatch.git
 
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the
