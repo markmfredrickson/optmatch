@@ -3,7 +3,7 @@
 #
 # The main targets available for use are: 
 #
-#   R: (the default) Launches an interactive R session with the current
+#   interactive: (the default) Launches an interactive R session with the current
 #   working copy built into a package and automatically loaded.
 #   
 #   package: Builds a .tar.gz archive of the package suitable for installing,
@@ -34,7 +34,7 @@
 # ./local/<pkg>/INSTALLED. The last step is important to prevent your version
 # of the package from being overwritten by the version from CRAN.
 ################################################################################
-R: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
+interactive: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
 	R_LIBS=.local R_PROFILE=load.R R -q --no-save 
 
 ### Package release scripts ###
