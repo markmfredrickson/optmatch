@@ -51,11 +51,12 @@ current:
 # depend on the makefile so that updates to the version number will force a rebuild
 $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
-	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
+	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude "/Makefile" \
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
 		--exclude=lexicon.txt --exclude=README.md --exclude=checkspelling.R \
 		--exclude=optmatch.Rcheck \
-		--exclude=load.R . $(PKG)
+		--exclude=load.R \
+		. $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
 # add them to DESCRIPTION.template
