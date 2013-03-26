@@ -3,7 +3,7 @@ ARCH := $(shell uname -m)
 # C language variables
 C_COMP := $(shell R CMD config CC)
 C_OBJS := mahalanobisHelper.o subsetInfSparseMatrix.o
-C_INCS := -I"$(shell R RHOME)/include"
+C_INCS := -I$(R_INCLUDE_DIR)
 C_PARAMS := $(shell R CMD config CFLAGS) $(shell R CMD config CPICFLAGS)
 
 C_LIBS :=
