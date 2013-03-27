@@ -226,17 +226,12 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")  
   }
 
-  # get the indexes of the selected rows and columns
-  selectedRows <- which(subset)
-  selectedCols <- which(select)
+  subset.data <- .Call('subsetInfSparseMatrix',
+    subset, select, x, PACKAGE="optmatch")
 
-  # combine the two indexes
-  idx <- (x@rows %in% selectedRows) & (x@cols %in% selectedCols)
-  newRowIdx <- cumsum(subset)
-  newColIdx <- cumsum(select)
-  return(makeInfinitySparseMatrix(x[idx],
-                                  newColIdx[x@cols[idx]],
-                                  newRowIdx[x@rows[idx]],
+  return(makeInfinitySparseMatrix(subset.data[, 3],
+                                  subset.data[, 2],
+                                  subset.data[, 1],
                                   colnames = x@colnames[select],
                                   rownames = x@rownames[subset]))
 }
