@@ -55,6 +55,7 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
 		--exclude=lexicon.txt --exclude=README.md --exclude=checkspelling.R \
 		--exclude=optmatch.Rcheck \
+		--exclude=vignettes \
 		--exclude=load.R . $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
