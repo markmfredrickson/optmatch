@@ -21,7 +21,8 @@
 #		release: Builds the package, tests, and spellchecks in preparation for
 #		sending to CRAN.
 #
-#		clean: removes all locally built files and packages.
+#		clean: removes all locally built files; to remove the downloaded
+#		libraries, use `make clean-deps`.
 #
 # The version number of the package is set through the VERSION variable. This
 # variable will change the name of the built .tar.gz file.
@@ -132,9 +133,14 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
 	$(LR) -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
-# this will delete everything, including the CRAN dependencies in .local
+# this will delete everything, except the CRAN dependencies in .local
 clean:
-	git clean -xfd
+	mv .local .local-clean
+	git clean -Xfd
+	mv .local-clean .local
+
+clean-deps:
+	rm -rf .local
 
 ################################################################################
 # Performance Testing
