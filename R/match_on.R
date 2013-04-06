@@ -205,11 +205,16 @@ compute_euclid <- compute_euclidean
 #' changed to the actual s.d., or rescaling can be skipped entirely, by
 #' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.) 
 #' The overall result records absolute differences between treated and
-#' control units on possibly rescaled, linear propensity scores. 
+#' control units on linear, possibly rescaled, propensity scores. 
 #' 
 #' In addition, one can impose a caliper in terms of these distances by providing a scalar as a 
 #' \code{caliper} argument, forbidding matches between treatment and control units differing in the 
-#' calculated propensity score by more than the specified caliper.  
+#' calculated propensity score by more than the specified caliper.  For example, Rosenbaum and Rubin's (1985) 
+#' caliper of one-fifth of a pooled propensity score s.d. would be imposed by specifying \code{caliper=.2}, 
+#' in tandem either with the default rescaling or, to follow their example even more closely, with the 
+#' additional specification \code{standardization.scale=sd}. Propensity calipers are beneficial 
+#' computationally as well as statistically, for reasons indicated in the below discussion of 
+#' the \code{numeric} method.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @usage \S4method{match_on}{glm}(x, within = NULL, standardization.scale = mad, ...)
@@ -278,6 +283,9 @@ are there missing values in data?")
   match_on(theps, within = within, z = z, ... )    
 })
 
+
+# Note that Details for the glm method, above, refers to the below for discussion of computational
+# benefits of calipers -- if that's changed here, adjust there accordingly. 
 #' @details The \code{numeric} method returns absolute differences between treated and control units'
 #' values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it 
 #' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of 
