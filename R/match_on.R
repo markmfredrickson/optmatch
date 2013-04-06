@@ -190,16 +190,26 @@ compute_euclidean <- function(index, data, z) {
 # short alias
 compute_euclid <- compute_euclidean
 
-#' @details The \code{glm} method accepts a fitted propensity
-#' model, extracts distances on the linear propensity score (logits of
-#' the estimated conditional probabilities), and rescales the distances
-#' by the reciprocal of the pooled s.d. of treatment- and control-group propensity scores.
-#' (The scaling uses \code{mad}, for resistance to outliers, by default; this can be
+#' @details The \code{glm} method assumes its first argument to be a fitted propensity
+#' model. From this it extracts distances on the \emph{linear} propensity score: fitted values
+#' of the linear predictor, the link function applied to the estimated conditional probabilities, 
+#' as opposed to the estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).  
+#' For example, a logistic model (\code{glm} with \code{family=binomial()}) has the logit function 
+#' as its link, so from such models \code{match_on} computes distances in terms of logits of
+#' the estimated conditional probabilities, i.e. the estimated log odds. 
+#' 
+#' Optionally these distances are also rescaled. The default is to rescale, by the reciprocal of 
+#' an outlier-resistant variant of the pooled s.d. of propensity scores.
+#' (Outlier resistance is obtained by the application of \code{mad}, as opposed to \code{sd}, 
+#' to linear propensity scores in the treatment; this can be
 #' changed to the actual s.d., or rescaling can be skipped entirely, by
 #' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.) 
-#' The resulting distance matrix is the absolute difference between treated and
-#' control units on the rescaled propensity scores. This method relies on the
-#' \code{numeric} method, so you may pass a \code{caliper} argument.
+#' The overall result records absolute differences between treated and
+#' control units on possibly rescaled, linear propensity scores. 
+#' 
+#' In addition, one can impose a caliper in terms of these distances by providing a scalar as a 
+#' \code{caliper} argument, forbidding matches between treatment and control units differing in the 
+#' calculated propensity score by more than the specified caliper.  
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @usage \S4method{match_on}{glm}(x, within = NULL, standardization.scale = mad, ...)
@@ -268,11 +278,17 @@ are there missing values in data?")
   match_on(theps, within = within, z = z, ... )    
 })
 
-#' @details The \code{numeric} method returns the absolute difference for treated and control units computed using
-#' the vector of scores \code{x}. Either \code{x} or \code{z} must have names.
-#' @param caliper The width of a caliper to fit on the difference of scores.
-#'   This can improve efficiency versus first creating all the differences and
-#'   then filtering out those entries that are larger than the caliper.
+#' @details The \code{numeric} method returns absolute differences between treated and control units'
+#' values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it 
+#' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of 
+#' \code{caliper} and \code{within} has been specified then only information about permissible pairings 
+#' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here, 
+#' as opposed to omitting it and afterwards applying the \code{\link{caliper}} function, can substantially 
+#' reduce storage requirements, with corresponding performance benefits.
+#' 
+#' Either \code{x} or \code{z} must have names.
+#' @param caliper Maximum difference on \code{x} within which matching is to be permitted; 
+#' or \code{NULL} for no caliper restriction.
 #' @usage \S4method{match_on}{numeric}(x, within = NULL, z, caliper = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,numeric-method
