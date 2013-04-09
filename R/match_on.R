@@ -41,7 +41,9 @@
 #' interface. For the most part, the two functions can be used interchangeably by
 #' users.
 #' 
-#' @param x An object defining how to create the distances
+#' @param x An object defining how to create the distances. All methods require
+#' some form of names (e.g. \code{names} for vectors or \code{rownames} for
+#' matrix like objects)
 #' @param within A valid distance specification, such as the result
 #' of \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #' which distances to create. Including this argument can significantly speed up
@@ -294,7 +296,7 @@ are there missing values in data?")
 #' as opposed to omitting it and afterwards applying the \code{\link{caliper}} function, reduces 
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
 #' 
-#' Either \code{x} or \code{z} must have names.
+#' For the numeric method, \code{x} must have names.
 #' @param caliper Maximum difference on \code{x} within which matching is to be permitted; 
 #' or \code{NULL} for no caliper restriction.
 #' @usage \S4method{match_on}{numeric}(x, within = NULL, z, caliper = NULL, ...)
