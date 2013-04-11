@@ -135,9 +135,9 @@ test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALL
 
 # this will delete everything, except the CRAN dependencies in .local
 clean:
-	mv .local .local-clean
+	if [ -d .local ]; then mv .local .local-clean; fi
 	git clean -Xfd
-	mv .local-clean .local
+	if [ -d .local-clean ]; then mv .local-clean .local; fi
 
 clean-deps:
 	rm -rf .local
