@@ -121,13 +121,12 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/profr/INSTALLED:
 	$(call installpkg,profr)
 
-# There is a bug in the released version of roxygen that prevents S4
-# documentation from being properly built. This should be checked from time to
-# time to see if the released version gets the bug fix.
-.local/roxygen2/INSTALLED: .local/devtools/INSTALLED
-	mkdir -p .local
-	$(LR) -e "library(devtools) ; options(repos = 'http://streaming.stat.iastate.edu/CRAN/'); install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
-	echo `date` > .local/roxygen2/INSTALLED
+# This is a change from the upstream optmatch.
+# Upstream uses a fork of roxygen that properly handles S4 documentation
+# Since we don't particularly care about the docs for optmatch, we'll just use
+# the released version available from CRAN
+.local/roxygen2/INSTALLED: 
+	$(call installpkg,roxygen2)
 
 # test is just the internal tests, not the full R CMD Check
 test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
