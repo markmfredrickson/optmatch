@@ -1,5 +1,12 @@
 data(nuclearplants)
 
+
+### Caliper of 100 MWe on plant capacity
+caliper(match_on(pr~cap, data=nuclearplants, method="euclidean"), width=100)
+
+### Caliper of 1/2 a pooled SD of plant capacity
+caliper(match_on(pr~cap, data=nuclearplants), width=.5)
+
 ### Caliper  of .2 pooled SDs in the propensity score
 ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
 ppty.dist <- match_on(ppty)
