@@ -106,9 +106,6 @@ release: check spell
 # additional dependencies from CRAN
 installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http://streaming.stat.iastate.edu/CRAN/')" ; date > .local/$(1)/INSTALLED
 	
-.local/devtools/INSTALLED:
-	$(call installpkg,devtools)
-
 .local/testthat/INSTALLED:
 	$(call installpkg,testthat)
 
@@ -124,9 +121,17 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
 # time to see if the released version gets the bug fix.
-.local/roxygen2/INSTALLED: .local/devtools/INSTALLED
+# this is is the sha hash of the commit we want to use:
+ROXYGENV= ce302fdd7620f4a9bcc4174374c4296318671b53
+.local/roxygen2/INSTALLED: 
 	mkdir -p .local
-	$(LR) -e "library(devtools) ; options(repos = 'http://streaming.stat.iastate.edu/CRAN/'); install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
+	$(call installpkg,stringr)
+	$(call installpkg,brew) 
+	$(call installpkg,digest)
+	rm -rf .local/roxygen*
+	curl https://codeload.github.com/klutometis/roxygen/zip/$(ROXYGENV) > .local/roxygen-s4-branch.zip
+	cd .local && unzip roxygen-s4-branch.zip
+	$(LR) CMD INSTALL .local/roxygen-$(ROXYGENV)
 	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
