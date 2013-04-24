@@ -26,7 +26,7 @@ summary.optmatch <- function(object,
 ## overall balance -- xBalance()
   so <- list()
   so$thematch <- object
-  so$matching.failed <- mfd <- is.na(object)
+  mfd <- is.na(object)
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
@@ -35,6 +35,8 @@ summary.optmatch <- function(object,
                        )
       return(so)
     }
+  subprobs <- attr(object, "subproblem")
+  so$matching.failed <- tapply(mfd, subprobs, function(x) if (all(x)) sum(x) else 0)
   so$matched.set.structures <- stratumStructure(object[!mfd, drop=TRUE],min.controls=min.controls,max.controls=max.controls)
   so$effective.sample.size <- attr(so$matched.set.structures, "comparable.num.matched.pairs")
 
@@ -111,7 +113,7 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
   
     if (any(x$matching.failed))  {
       cat(paste("Matching failed in subclasses containing",sum(x$matching.failed),
-                "of",length(x$matching.failed),"observations.\n"))
+                "of",length(x$thematch),"observations.\n"))
       cat("Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)\n")
     } 
 
