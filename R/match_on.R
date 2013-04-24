@@ -105,9 +105,19 @@ setMethod("match_on", "function", function(x, within = NULL, z = NULL, data = NU
 
 #' @details The formula method produces, by default, a Mahalanobis distance specification
 #' based on the formula \code{Z ~ X1 + X2 + ... }, where
-#' \code{Z}  the treatment indicator. A Mahalanobis
-#' distance scales the Euclidean distance by the inverse of the
-#' covariance matrix. Other options can be selected by the \code{method} argument. 
+#' \code{Z} is the treatment indicator. The Mahalanobis distance is calculated as the 
+#' square root of d'Cd, where d is the vector of X-differences on a pair of observations and C
+#' is an inverse (generalized inverse) of the pooled covariance of Xes. (The pooling is of the
+#' covariance of X within the subset defined by \code{Z==0} and within the complement of that 
+#' subset. This is similar to a Euclidean distance calculated after reexpressing the Xes in 
+#' standard units, such that the reexpressed variables all have pooled SDs of 1; except that 
+#' it addresses redundancies among the variables by scaling down variables contributions in 
+#' proportion to their correlations with other included variables.) 
+#' 
+#' Euclidean distance is also available, via \code{method="euclidean"}. Or, implement your own;  
+#' for hints as to how, refer to\cr
+#' \url{https://github.com/markmfredrickson/optmatch/wiki/How-to-write-your-own-compute-method}
+#' 
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param method A string indicating which method to use in computing the distances from the data. 
 #' The current possibilities are \code{"mahalanobis", "euclidean"}. 
