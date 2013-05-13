@@ -38,7 +38,7 @@ NA
 #' @keywords nonparametric
 #' 
 #' @param x A distance specification created with \code{\link{match_on}} or similar.
-#' @param width The width of the caliper: how wide of a margin to allow in matches.
+#' @param width The width of the caliper: how wide of a margin to allow in matches. Must be a scalar value.
 #' @param exclude (Optional) A character vector of observations (corresponding to row and column names) to exclude from the caliper.
 #' @param compare A function that decides that whether two observations are with the caliper. The default is \code{`<=`}. \code{`<`} is a common alternative.
 #' @return A matrix like object that is suitable to be given
@@ -52,6 +52,9 @@ NA
 #' @docType methods
 #' @rdname caliper-methods
 setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`) {
+  if (length(width) > 1) {
+    stop("Argument `width` must be a scalar value, not a vector.")
+  }
 
   tmp <- standardGeneric("caliper")
   tmp@call <- match.call()

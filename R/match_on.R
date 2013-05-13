@@ -308,7 +308,7 @@ are there missing values in data?")
 #' 
 #' For the numeric method, \code{x} must have names.
 #' @param caliper Maximum difference on \code{x} within which matching is to be permitted; 
-#' or \code{NULL} for no caliper restriction.
+#' or \code{NULL} for no caliper restriction. Must be a scalar value.
 #' @usage \S4method{match_on}{numeric}(x, within = NULL, z, caliper = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,numeric-method
@@ -325,6 +325,10 @@ setMethod("match_on", "numeric", function(x, within = NULL, z, caliper = NULL, .
   z <- toZ(z)
 
   if(!is.null(caliper)) {
+    if (length(caliper) > 1) {
+      stop("Argument `caliper` must be a scalar value, not a vector.")
+    }
+
     allowed <- scoreCaliper(x, z, caliper)
     
     if (!is.null(within)) {

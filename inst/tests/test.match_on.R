@@ -245,6 +245,8 @@ test_that("Numeric: simple differences of scores", {
   res <- match_on(scores2, z = z2, caliper = 1)
   expect_equal(length(res), 28) # effectively same result as without the new units
 
+  # caliper must be of length 1
+  expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
 

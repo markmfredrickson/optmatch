@@ -3,7 +3,7 @@
 ### method. Missingness indicators are added for each column that is
 ### imputed.
 
-fill.NAs <- function(x, data = NULL, all.covs=FALSE) {
+fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
   # if x is present alone, it must be a data.frame
   # if x is present with data, x is a formula
   # all.covs is logical indicating whether or not we want a response variable 
@@ -47,7 +47,7 @@ fill.NAs <- function(x, data = NULL, all.covs=FALSE) {
 
 
   # create a model matrix from the data; transforms of NA should be NA
-  modmat <- model.matrix(x, model.frame(x, data, na.action = na.pass))
+  modmat <- model.matrix(x, model.frame(x, data, na.action = na.pass), contrasts.arg=contrasts.arg)
   modmat <- as.data.frame(modmat)
   # remove the intercept, if any
   modmat["(Intercept)"] <- NULL
