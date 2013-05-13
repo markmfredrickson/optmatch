@@ -116,7 +116,7 @@ test_that("Math Ops", {
   B <- as.InfinitySparseMatrix(q) # q got rownames later
   q.reordered <- q[,2:1]
   C <- as.InfinitySparseMatrix(q.reordered)
-  expect_equal(rownames(C), rev(rownames(B)))
+  expect_equal(colnames(C), rev(colnames(B)))
   expect_equal(A + C, A  + B)
 })
 
