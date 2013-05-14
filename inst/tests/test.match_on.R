@@ -329,3 +329,19 @@ test_that("Issue #44", {
   expect_true(max(coxmoC) <= 1) 
 
 })
+
+test_that("Issue 48: caliper is a universal argument", {
+
+  Z <- rep(c(1,0), 5)
+  X <- -4:5
+  names(X) <- names(Z) <- letters[1:10]
+
+  res.num <- match_on(X, z = Z, caliper = 1)
+  expect_true(all(res.num <= 1))
+
+  res.glm <- match_on(glm(Z ~ X, family = binomial), caliper = 1)
+  expect_true(all(res.glm <= 1))
+
+  res.fmla <- match_on(Z ~ X, caliper = 1)
+  expect_true(all(res.fmla <= 1))
+})
