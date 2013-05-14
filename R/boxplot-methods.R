@@ -1,7 +1,14 @@
-boxplot.glm <- function(x,xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
+boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
   {
-dependent.variable <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
-linear.score <- x$linear.predictors
+    if (is.null(data))
+      {
+        dependent.variable <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
+        linear.score <- x$linear.predictors
+} else {
+  linear.score <- predict(x, data, type = 'link', se.fit = FALSE)
+  Data <- model.frame(terms(x), data)
+  dependent.variable <- as.numeric(model.response(Data))
+}
 boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main,...)
   }
 
