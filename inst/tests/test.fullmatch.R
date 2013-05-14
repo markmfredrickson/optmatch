@@ -241,3 +241,18 @@ test_that("Both mdist and match_on objects accepted", {
   expect_equivalent(res.mdist, res.mon) 
   
 })
+
+test_that("full() and pair() are alises to _match functions", {
+  
+  n <- 14
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, X2, B)
+
+  model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
+  dists <- match_on(model)
+  expect_equivalent(fullmatch(dists), full(dists))
+  expect_equivalent(pairmatch(dists), pair(dists))
+}) 
