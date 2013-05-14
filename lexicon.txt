@@ -1,15 +1,17 @@
-personal_ws-1.1 en 34
+personal_ws-1.1 en 42 UTF-8
 Babcock
 biglm
 Canty
 ColumnName
 covariance
 covariates
+d'Cd
 ECDF
 glm
 infeasible
 InfinitySparseMatrix
 Kalton
+logit
 logits
 LWR
 Mahalanobis
@@ -21,11 +23,17 @@ MWe
 NA's
 optmatch
 Optmatch
+outlier
+Outlier
 outliers
 permissibility
+reexpressed
+reexpressing
+rescale
 rescaled
-rescales
 rescaling
+Rosenbaum
+SDs
 subclassed
 subclasses
 submatrix

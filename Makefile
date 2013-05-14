@@ -106,9 +106,6 @@ release: check spell
 # additional dependencies from CRAN
 installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http://streaming.stat.iastate.edu/CRAN/')" ; date > .local/$(1)/INSTALLED
 	
-.local/devtools/INSTALLED:
-	$(call installpkg,devtools)
-
 .local/testthat/INSTALLED:
 	$(call installpkg,testthat)
 

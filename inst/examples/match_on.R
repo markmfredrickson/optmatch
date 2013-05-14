@@ -25,7 +25,7 @@ tmp <- nuclearplants$t1
 names(tmp) <- rownames(nuclearplants)
 
 (absdist <- match_on(tmp, z = nuclearplants$pr, 
-                  exclusions = exactMatch(pr ~ pt, nuclearplants)))
+                  within = exactMatch(pr ~ pt, nuclearplants)))
 
 ### Pair matching on the variable `t1`:
 pairmatch(absdist)
@@ -41,7 +41,7 @@ fullmatch(match_on.examples$pscal, data = nuclearplants) # Note that the caliper
 
 ### A Mahalanobis distance for matching within subgroups:
 match_on.examples$mh2 <- match_on(pr ~ t1 + t2 , data = nuclearplants,
-                            excludes = exactMatch(pr ~ pt, nuclearplants))
+                            within = exactMatch(pr ~ pt, nuclearplants))
 
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:

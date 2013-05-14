@@ -112,7 +112,15 @@ test_that("Math Ops", {
   expect_equal(colnames(Aq), c("C1", "C2"))
   expect_equal(rownames(Aq), c("T1", "T2"))
 
+  # math ops over two matrices with same rows/names bu in different orders
+  B <- as.InfinitySparseMatrix(q) # q got rownames later
+  q.reordered <- q[,2:1]
+  C <- as.InfinitySparseMatrix(q.reordered)
+  expect_equal(colnames(C), rev(colnames(B)))
+  expect_equal(A + C, A  + B)
 })
+
+
 
 test_that("Subsetting", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)

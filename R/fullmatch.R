@@ -253,3 +253,7 @@ fullmatch <- function(distance,
 }
 
 
+#' @aliases fullmatch
+#' @rdname fullmatch
+#' @export
+full <- fullmatch

@@ -13,6 +13,7 @@ export(mdist,
        exactMatch)
 
 importFrom(stats, getCall)
+importFrom(graphics, boxplot)
 
 ### S3 Stuff
 S3method(Ops, optmatch.dlist)
@@ -43,6 +44,8 @@ S3method(mdist, "function")
 S3method(mdist, numeric)
 S3method(mdist, bigglm)
 
+S3method(boxplot, glm)
+S3method(boxplot, bigglm)
 ### S4 Stuff
 
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)

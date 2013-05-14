@@ -245,6 +245,8 @@ test_that("Numeric: simple differences of scores", {
   res <- match_on(scores2, z = z2, caliper = 1)
   expect_equal(length(res), 28) # effectively same result as without the new units
 
+  # caliper must be of length 1
+  expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
 
@@ -288,4 +290,58 @@ test_that("update() of match_on created objects", {
   expect_equivalent(stratified, unstratified + em)
 
   expect_error(update(unstratified + em, x = X2))
+})
+
+test_that("Issue #44", {
+  # problem: `within` negates proper caliper
+
+  scores <- rep(c(1,2,2,3), each = 25)
+  z <- rep(c(0,1), each = 50)
+
+  names(scores) <- paste("A", 1:100, sep = "")
+
+  # get the caliper only results
+  res.cal <- match_on(scores, z = z, caliper = 1)
+  expect_equal(max(res.cal), 1)
+
+  # now make up a within arg
+  names(z) <- names(scores)
+  www  <- exactMatch(x = as.factor(rep(c(0,1), 50)),
+                     treatment = z)
+
+  res.w  <- match_on(scores, z = z, within = www)
+  expect_true(max(res.w) > 1)
+
+  # they should safely interact
+  res.cal.w <- match_on(scores, z = z, within = www, caliper = 1)
+  expect_equal(max(res.cal.w), 1)
+
+  # this is the test case from:
+  # https://github.com/markmfredrickson/optmatch/issues/44
+  library(survival)
+
+  coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
+  names(coxps) <- row.names(heart)
+  coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
+  expect_true(max(coxmoA) <= 1) 
+  
+  coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
+  expect_true(max(coxmoC) <= 1) 
+
+})
+
+test_that("Issue 48: caliper is a universal argument", {
+
+  Z <- rep(c(1,0), 5)
+  X <- -4:5
+  names(X) <- names(Z) <- letters[1:10]
+
+  res.num <- match_on(X, z = Z, caliper = 1)
+  expect_true(all(res.num <= 1))
+
+  res.glm <- match_on(glm(Z ~ X, family = binomial), caliper = 1)
+  expect_true(all(res.glm <= 1))
+
+  res.fmla <- match_on(Z ~ X, caliper = 1)
+  expect_true(all(res.fmla <= 1))
 })
