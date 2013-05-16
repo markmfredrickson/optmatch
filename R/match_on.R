@@ -170,7 +170,9 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
 })
 
 compute_mahalanobis <- function(index, data, z) {
-	
+
+        if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
+
 	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
 	mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
 	cv <- mt + mc
@@ -207,6 +209,7 @@ compute_mahal <- compute_mahalanobis
 
 compute_euclidean <- function(index, data, z) {
 
+  if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
   sqrt(apply(index, 1, function(pair) {
 
     pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
