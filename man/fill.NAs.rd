@@ -104,13 +104,17 @@ family=binomial))
 ### with fill-in and flagging. Then perform pair matching on it:
 pairmatch(match_on(np.glm))
 
-## fill NAs without using treatment contrasts by making a list of contrasts for each factor
-## following hints from http://stackoverflow.com/a/4569239/161808
+## fill NAs without using treatment contrasts by making a list of contrasts for
+## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
 
 np.missing$t1F<-factor(np.missing$t1)
 cov.factors <- sapply(np.missing[,c("t1F","t2")],is.factor) 
-cov.contrasts <- lapply(np.missing[,names(cov.factors)[cov.factors],drop=FALSE],contrasts,contrasts=FALSE)
-## make a data frame filling the missing covariate values, but without excluding any levels of any factors
+cov.contrasts <- lapply(
+  np.missing[,names(cov.factors)[cov.factors],drop=FALSE],
+  contrasts, contrasts = FALSE)
+
+## make a data frame filling the missing covariate values, but without
+## excluding any levels of any factors
 np.noNA2<-fill.NAs(pr~t1F+t2,data=np.missing,contrasts.arg=cov.contrasts)
 
 
