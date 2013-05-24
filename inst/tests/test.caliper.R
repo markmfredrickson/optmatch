@@ -104,3 +104,11 @@ test_that("update() caliper objects", {
   expect_equal(length(optdl.updated), 10)
 
 })
+
+test_that("caliper width must be length 1", {
+  Z <- rep(c(0,1), each = 10)
+  S <- rep(1:10 * 2, 2)
+  names(Z) <- names(S) <- letters[1:20]
+
+  expect_error(caliper(match_on(S, z = Z), c(1, 2)), "scalar")
+})

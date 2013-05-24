@@ -12,7 +12,7 @@
 }
 
 \usage{
-  fill.NAs(x, data = NULL, all.covs = FALSE)
+  fill.NAs(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL)
 
 }
 
@@ -25,6 +25,12 @@
   \item{all.covs}{Should the response variable be imputed? For formula
   \code{x}, this is the variable on the left hand side. For \code{data.frame}
   \code{x}, the response is considered the first column. }
+
+\item{contrasts.arg}{(from \code{model.matrix}) A list, whose entries are values (numeric
+    matrices or character strings naming functions) to be used
+    as replacement values for the \code{\link{contrasts}}
+    replacement function and whose names are the names of
+    columns of \code{data} containing \code{\link{factor}}s.}
 }
 
 \details{
@@ -44,7 +50,7 @@
   a \code{data.frame}. Fill-in  will only be applied to columns specifically used in the formula. Prior to
   fill-in, any functions in the formula will be expanded. If any arguments to the functions are \code{NA},
   the function value will also be \code{NA} and subject to fill-in.
-  
+
   By default, \code{fill.NAs} does not impute the response variable. This is to
   encourage more sophisticated imputation schemes when the response is a
   treatment indicator in a matching problem. This behavior can be overridden by
@@ -62,7 +68,7 @@
 \references{
   von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
     \emph{Sociological Methodlogy}, \bold{39}(1), 265 -- 291.}
-    
+
 \seealso{\code{\link{match_on}}, \code{\link{lm}}}
 
 \examples{
@@ -97,6 +103,20 @@ family=binomial))
 ### produce a matrix of propensity distances based on the propensity model 
 ### with fill-in and flagging. Then perform pair matching on it:
 pairmatch(match_on(np.glm))
+
+## fill NAs without using treatment contrasts by making a list of contrasts for
+## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
+
+np.missing$t1F<-factor(np.missing$t1)
+cov.factors <- sapply(np.missing[,c("t1F","t2")],is.factor) 
+cov.contrasts <- lapply(
+  np.missing[,names(cov.factors)[cov.factors],drop=FALSE],
+  contrasts, contrasts = FALSE)
+
+## make a data frame filling the missing covariate values, but without
+## excluding any levels of any factors
+np.noNA2<-fill.NAs(pr~t1F+t2,data=np.missing,contrasts.arg=cov.contrasts)
+
 
 }
 

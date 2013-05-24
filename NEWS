@@ -1,3 +1,30 @@
+CHANGES IN OPTMATCH VERSION 0.8-3
+* Changes to make examples compatible with PDF manual
+
+CHANGES IN OPTMATCH VERSION 0.8-2
+
+* full() and pair() are now aliases to fullmatch() and pairmatch()
+
+* All match_on() methods take `caliper` arguments (formerly just the numeric
+  method and derived methods had this argument).
+
+* boxplot methods for fitted propensity score methods (glm and bigglm)
+
+* fill.NAs now takes `constrats.arg` argument to mimic model.matrix()
+
+* Several bug fixes in examples, documentation
+
+* The methods pscore.dist() and mahal.dist() are now deprecated, with useful
+  error messages pointing users to replacements.
+
+* Significant performance improvements for sparse matching problems.
+
+* Functions umatched() and matched() were backwards. Corrected.
+
+CHANGES IN OPTMATCH VERSION 0.8-1
+
+* Several small bug fixes
+
 CHANGES IN OPTMATCH VERSION 0.8-0
 
 NEW FEATURES

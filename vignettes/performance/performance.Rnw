@@ -1,0 +1,331 @@
+\documentclass[12pt]{article}
+\usepackage{../Sweave}
+
+\title{\texttt{optmatch} Performance Testing}
+
+\begin{document}
+\maketitle
+
+\SweaveOpts{echo = F, width = 7, height = 4}
+
+<<echo = F>>=
+library(optmatch)
+@
+
+The goal of this document is provide some basic performance testing of the
+\texttt{optmatch} package. In most matching workflows, a user first creates
+distances, produces one or more matches, assesses balance on a given match,
+and, provided balance meets necessary requirements, proceeds to analysis. Of
+these tasks, \texttt{optmach} is responsible for distance creation and
+creating the match. These two tasks will be considered separately. The
+remainder of this document lays out the performance testing strategy and then
+implements it for the distance creation and matching routines in
+\texttt{optmatch}.
+
+\section{Performance Testing Strategy}
+
+\texttt{R} provides built in execution profiling through the \texttt{Rprof}
+function (and a similarly named command line option). When invoked, this
+function regularly interrupts normal processing and writes out the current
+call stack to a file. This information can be used to attribute the portion of
+run time attributable different functions.
+
+<<echo = F>>=
+library(profr)
+perfcex <- 0.5 # makes text more readable in plots
+minlabel <- 0.05 # add labels for smaller segments of time
+@
+
+For interpretation of this data, we rely on the \texttt{profr} package, which
+provides some graphical summaries to help make raw profile data more manageable.
+
+Since we suspect that creation of large data sets may account for a sizeable
+portion of the runtime of large problems, we also profile memory usage
+with\ldots.
+
+\subsection{Simulated Data}
+
+<<setup, echo = F>>=
+load("setup.rda")
+@
+
+Before proceeding to the actual profiling, we begin by creating some simulated
+data.\footnote{See the file \texttt{setup.R} for the supporting code.}
+We use $\Sexpr{N}$ individuals, with $\Sexpr{sum(DATA[, "Z"])}$ receiving the
+treatment condition.
+Treatment assignment is based on a
+simple linear model of 3 covariates (two Normal variables and one categorical
+variable with 5 levels).
+
+For most of the problems, we create a model of treatment assignment and then
+pull out the linear predictors from that model. Figure~\ref{fig:logits-density}
+shows the distributions of the predicted probabilities for the treated and
+control groups (henceforth the \emph{propensity score}). 
+
+\begin{figure}
+\centering
+<<fig = T, width = 5, height = 5>>=
+library(lattice)
+densityplot(~ predicted, groups = DATA$Z, xlab = "Linear predictors")
+@
+\caption{Relative distribution of predicted probabilities for simulated
+treated and control units.}
+\label{fig:logits-density}
+\end{figure}
+
+\section{Distance Creation}
+
+We begin by benchmarking dense distance creation.\footnote{See the file
+\texttt{distance.R} for implementation details.} The \texttt{match\_on.numeric}
+method has the least complicated interface and applies the least
+pre-processing to the input. Figure~\ref{fig:distance-dense} shows the profile data for
+using \texttt{match\_on.numeric} with the propensity score.
+
+\begin{figure}
+\centering
+<<echo = F, fig = T, width = 7, height = 4>>=
+load("distance.rda")
+par(cex = perfcex) # this makes the text in the plots a more maneagable size.
+plot(benchmark.dense, minlabel = minlabel)
+@
+\caption{Profiling diagram for dense distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:distance-dense}
+\end{figure}
+
+There are two ways to create sparse problems. In the first, we use the
+\texttt{caliper} argument (for the \texttt{numeric} and \texttt{glm} methods
+of \texttt{match\_on}). This argument looks over all the treated and control
+values and computes which treated and control units should be compared, and
+then computes the exact distances between them. Applying a caliper width of 1
+to the simulated data, leads to a sparse matrix with 
+\Sexpr{round(100 * length(result.sparse.caliper) / (N*N), 1)}\% finite
+entries. Figure~\ref{fig:sparse-caliper} shows the profiling data for this
+process.
+
+The alternative to the \texttt{caliper} argument is the \texttt{within}
+argument.
+This method is more general, applying to all \texttt{match\_on} methods, but can sometimes
+require generating a dense matrix first (though not always --- the
+\texttt{exactMatch} function doesn't require a dense matrix). To use the
+\texttt{within} argument, we use \texttt{exactMatch} create two subproblems
+based on the categorical covariate. 
+\Sexpr{round(100 * length(result.sparse.within) / (N*N), 1)}\% finite
+entries. Figure~\ref{fig:sparse-within} shows the profiling results when using
+the \texttt{within} argument.
+
+\begin{figure}
+\centering
+<<fig = T, echo = F>>=
+par(cex = perfcex)
+plot(benchmark.sparse.caliper, minlabel = minlabel)
+@
+\caption{Profiling diagram for caliper based sparse distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:sparse-caliper}
+\end{figure}
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.sparse.within, minlabel = minlabel)
+@
+\caption{Profiling diagram for within based sparse distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:sparse-within}
+\end{figure}
+
+\subsection{\texttt{match\_on} Methods}
+
+These additional methods add some pre-processing to the distance creation.
+These methods can work on sparse problems, but to keep things simple, these examples
+just create dense matrices. The \texttt{glm} method is a relatively small
+wrapper around the \texttt{numeric} method used in the previous examples.
+Figure~\ref{fig:distance-glm} shows the profiling data for \texttt{glm}
+method, which we would expect to look very similar to
+Figure~\ref{fig:distance-dense}, the dense matrix problem from the previous
+section.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.glm, minlabel = minlabel)
+@
+\caption{Profiling diagram for \texttt{glm} distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:distance-glm}
+\end{figure}
+
+Figure~\ref{fig:distance-formula} shows the
+profiling data for using the \texttt{formula} method. This method, by default,
+creates a squared Mahalanobis distance between treated and control pairs (Euclidean
+distances scaled by the variance-covariance matrix).
+Figure~\ref{fig:distance-formula} shows the profiling data for using the
+\texttt{formula} method. This plot is expected to be very different than
+the previous as all the previous examples were based a simple absolute
+difference of a 1-D vector. In this task, however, we have to compute a
+variance-covariance matrix and then produce a series of multiplications to
+compute the squared distances. There may be opportunities to improve both
+components of the distance creation. Additionally, they may not scale in the
+same way, with one dominating for small problems and the other for large. This
+plot does not provide any information the scaling nature of the function.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.formula, minlabel = minlabel)
+@
+\caption{Profiling diagram for formula (Mahalanobis) distance creation for $N = 
+\Sexpr{N}$ units.}
+\label{fig:distance-formula}
+\end{figure}
+
+\section{Matching}
+
+<<echo = F>>=
+load("matching.rda")
+@
+
+Now that distance creation code has been benchmarked, we now consider the
+matching process itself. We reuse the earlier distance objects. To keep things
+simple, most of these matches will be computed using \texttt{fullmatch} at
+default settings. The process of matching, as currently implemented in
+\texttt{optmatch} can be broken down into the following steps:
+
+\begin{enumerate}
+  \item The specification for the match is check for basic sanity. 
+  \item If there are clear subproblems (such as those created using
+  \texttt{exactMatch}), the problem is broken into multiple parts, and each
+  of the next steps is run for each component.
+  \item From the matrix representation of the distances (which is potentially
+  sparse), a new matrix is formed with a row for each valid comparison. The data in
+  each row is the treated unit, the control unit, and the distance (an
+  adjacency matrix).
+  \item This representation is passed to the Fortran solver, along with the
+  fixed elements of the matching process.
+  \item The results of the solver and turned into an \texttt{optmatch} object,
+  a factor where the names corresponds to the names of the units and the
+  levels to the matched groups. This object also stores additional information
+  about the match as attributes. (If the match was split into multiple
+  components, it is combined here.)
+\end{enumerate}
+
+We should expect to see these phases in each of the next figures. 
+Figure~\ref{fig:match-dense} shows the matching process applied to the dense
+distance matrix from the previous section. Figure~\ref{fig:match-sparse} shows
+a profiling information for the \texttt{caliper} argument based sparse distance
+matrix. Figure~\ref{fig:match-sparse-strat} shows the profiling data for the
+stratified, sparse problem (which can be split up into separate calls to the
+solver) 
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.matching.dense, minlabel = minlabel)
+@
+\caption{Profiling diagram for dense matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-dense}
+\end{figure}
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.matching.sparse, minlabel = minlabel)
+@
+\caption{Profiling diagram for sparse matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-sparse}
+\end{figure}
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.matching.sparse.strat, minlabel = minlabel)
+@
+\caption{Profiling diagram for stratified sparse matrix based matching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-sparse-strat}
+\end{figure}
+
+
+The previous tests used \texttt{fullmatch} with the default arguments. To test
+out the use of the various constraint arguments, we call \texttt{pairmatch}
+on the dense distance problem. In addition to fixing the minimum and maximum
+number of controls per matched set to 1, the \texttt{pairmatch} function inspects the
+distance object to set appropriate values for \texttt{omit.fraction}, the
+argument that allows a portion of the control group to be discarded.
+Figure~\ref{fig:match-pairmatch} shows these profiling data.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.matching.pairmatch, minlabel = minlabel)
+@
+\caption{Profiling diagram for dense matrix pairmatching for $N = 
+\Sexpr{N}$ units.}
+\label{fig:match-pairmatch}
+\end{figure}
+
+\section{\texttt{mdist} and \texttt{match\_on}}
+
+In version 0.7 of \texttt{optmatch} and earlier, the primary method of
+creating distances was to use the \texttt{mdist} function. In version 0.8,
+\texttt{match\_on} was added as a more comprehensive tool, specifically one
+that allowed for arbitrary sparseness of distances matrices. 
+
+<<>>=
+load("mdist.rda")
+@
+
+\begin{figure}
+\centering
+<<fig = T>>=
+par(cex = perfcex)
+plot(benchmark.mdist, minlabel = minlabel)
+@
+\caption{Profiling results for a stratified mdist distance problem.}
+\end{figure}
+\appendix
+
+\subsection{Scaling}
+
+<<>>=
+load("scaling.rda")
+@
+
+This section considers how the two functions scale up as the problem size gets
+bigger. We create problems sets of size $N = 2K$ with $K$ treatment and $K$
+control units. Figure~\ref{fig:scaling} shows the run time of the two functions as $K$ is
+increased. The $y$ axis is logged showing that both methods grow roughly
+quadratically, as we would expect from the nature of the algorithms. Of
+course, the absolute run time of \texttt{match\_on} is orders of magnitude
+worse.
+
+\begin{figure}
+\centering
+<<fig = T>>=
+plot(match_on ~ k, data = times, type = 'l', col = "red", log = "y")
+lines(mdist ~ k, data = times, col = "blue", log = "y")
+@
+\caption{Run times for increasingly large problems for the \texttt{match\_on}
+(red) and \texttt{mdist} (blue) functions.}
+\label{fig:scaling}
+\end{figure}
+
+
+
+\section{Environment}
+
+<<>>=
+sessionInfo()
+@
+
+\end{document}

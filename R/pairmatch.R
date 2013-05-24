@@ -131,3 +131,8 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
             ...)
 }
 
+
+#' @aliases pairmatch
+#' @rdname pairmatch
+#' @export
+pair <- pairmatch

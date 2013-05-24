@@ -27,11 +27,12 @@
   \code{exactMatch} creates a block diagonal matrix of 0s and \code{Inf}s. The pairs
   with 0 entries are within the same level of the factor and legitimate matches.
   \code{Inf} indicates units in different levels. \code{exactMatch} replaces the
-  \code{structure.fmla} argument to several functions in previous versions of Optmatch.
+  \code{structure.fmla} argument to several functions in previous versions of optmatch.
 
   For the \code{factor} method, the two vectors \code{x} and \code{treatment} must be the same
   length. The vector \code{x} is interpreted as indicating the grouping factors for the data,
   and the vector \code{treatment} indicates whether a unit is in the treatment or control groups.
+  At least one of these two vectors must have names.
 
   For the \code{formula} method, the \code{data} argument may be omitted, in which case the
   method attempts to find the variables in the environment from which the function was called.

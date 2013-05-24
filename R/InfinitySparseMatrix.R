@@ -160,16 +160,38 @@ function(e1, e2) {
     stop(paste("non-conformable matrices"))  
   }  
 
+  # re-order e2 by the row and column names in e1
+  if (!is.null(e1@rownames) && !is.null(e2@rownames)) { 
+  
+    if (!all(e1@rownames == e2@rownames)) {
+      # re-order e2 by e1 if they are not exactly same
+      e1e2order <- match(e2@rownames, e1@rownames)
+      e2@rows <- e1e2order[e2@rows] 
+      e2@rownames <- e1@rownames
+    }
+  }
+
+  if (!is.null(e1@colnames) && !is.null(e2@colnames)) { 
+  
+    if (!all(e1@colnames == e2@colnames)) {
+      # re-order e2 by e1 if they are not exactly same
+      e1e2order <- match(e2@colnames, e1@colnames)
+      e2@cols <- e1e2order[e2@cols] 
+      e2@colnames <- e1@colnames
+    }
+  }
+
+  # even if in the same row, column order the two matrices might also be in different data order
   pairs1 <- mapply(c, e1@rows, e1@cols, SIMPLIFY = F)
   pairs2 <- mapply(c, e2@rows, e2@cols, SIMPLIFY = F)
   
   # Note: This might be expensive. There may be a way to do this in one pass if the data
   # were pre-sorted in into row/column order
   idx1 <- which(pairs1 %in% pairs2)
-  idx2 <- which(pairs2 %in% pairs1)
+  idx2 <- match(pairs1, pairs2)
 
   data1 <- e1@.Data[idx1]
-  data2 <- e2@.Data[idx2]
+  data2 <- e2@.Data[idx2[!is.na(idx2)]]
 
   res <- callGeneric(data1, data2)
 
@@ -226,17 +248,12 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")  
   }
 
-  # get the indexes of the selected rows and columns
-  selectedRows <- which(subset)
-  selectedCols <- which(select)
+  subset.data <- .Call('subsetInfSparseMatrix',
+    subset, select, x, PACKAGE="optmatch")
 
-  # combine the two indexes
-  idx <- (x@rows %in% selectedRows) & (x@cols %in% selectedCols)
-  newRowIdx <- cumsum(subset)
-  newColIdx <- cumsum(select)
-  return(makeInfinitySparseMatrix(x[idx],
-                                  newColIdx[x@cols[idx]],
-                                  newRowIdx[x@rows[idx]],
+  return(makeInfinitySparseMatrix(subset.data[, 3],
+                                  subset.data[, 2],
+                                  subset.data[, 1],
                                   colnames = x@colnames[select],
                                   rownames = x@rownames[subset]))
 }
