@@ -43,6 +43,8 @@ S3method(mdist, "function")
 S3method(mdist, numeric)
 S3method(mdist, bigglm)
 
+S3method(stratumStructure, optmatch)
+
 ### S4 Stuff
 
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)

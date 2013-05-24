@@ -1,22 +1,29 @@
-stratumStructure <- function(stratum,trtgrp=NULL,min.controls=0,
-                             max.controls=Inf)
+stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf,...) UseMethod("stratumStructure")
+stratumStructure.optmatch <- function(stratum,trtgrp=trtgrp, min.controls=min.controls,
+                             max.controls=max.controls,...)
+  {
+    trtgrp.arg.provided <- !missing(trtgrp) && !is.null(trtgrp)
+    ZZ <- try(getZfromMatch(stratum), silent=TRUE)
+    if (inherits(ZZ, "try-error") & !trtgrp.arg.provided)
+      stop("stratum is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
+
+    if (inherits(ZZ, "try-error") & trtgrp.arg.provided)
+      return(stratumStructure(factor(stratum),min.controls=min.controls,max.controls=max.controls,...))
+
+    if (trtgrp.arg.provided) # by implication, ZZ is not an error
+      {
+        warning("ignoring trtgrp argument to stratumStructure")
+        stratumStructure(factor(stratum),min.controls=min.controls,max.controls=max.controls,
+                         trtgrp=ZZ)
+      }
+  }
+stratumStructure.default <- function(stratum,trtgrp=trtgrp,min.controls=min.controls,
+                             max.controls=max.controls,...)
 {
-if (!inherits(stratum,"optmatch") & is.null(trtgrp))
-  stop("stratum not of class \'optmatch\'; trtgrp must be specified")
-if (!inherits(stratum,"optmatch"))
-  warning("stratum not of class optmatch; was this intended?")
-if (inherits(stratum, "optmatch") & is.null(attr(stratum, "contrast.group")) & is.null(trtgrp))
-  stop("Argument 1 is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
-if (inherits(stratum, "optmatch") & !is.null(attr(stratum, "contrast.group")) & !is.null(trtgrp))
-  warning("ignoring second argument to stratumStructure")
+if (is.null(trtgrp))
+  stop("Unless stratum is of class \'optmatch\', stratumStructure() requires a trtgrp= argument.")
 
-if (is.null(trtgrp)) {
-  tgp <- getZfromMatch(stratum)
-} else {
-  tgp <- trtgrp
-}
-
-if (!any(tgp<=0) | !any(tgp>0))
+if (!any(trtgrp<=0) | !any(trtgrp>0))
    warning("No variation in (trtgrp>0); was this intended?")
 
 stopifnot(is.numeric(min.controls), is.numeric(max.controls))
@@ -24,13 +31,13 @@ stopifnot(is.numeric(min.controls), is.numeric(max.controls))
 if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
 if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-comp.num.matched.pairs <- effectiveSampleSize(stratum, tgp)
+comp.num.matched.pairs <- effectiveSampleSize(stratum, trtgrp)
 
 stratum <- as.integer(as.factor(stratum))
 if (any(is.na(stratum)))
   stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
-ttab <- table(stratum,as.logical(tgp))
+ttab <- table(stratum,as.logical(trtgrp))
 max.tx <- round(1/min.controls[1])
 max.controls <- round(max.controls[1])
 txsz <- pmin(ttab[,2], max.tx)
