@@ -33,3 +33,12 @@ test_that("Correct Scores()", {
   expect_equal(ps1[-c(22:24)], ps3[-c(22:24)], check.attributes=FALSE)
   expect_equal(ps2[-c(22:24)], ps3[-c(22:24)], check.attributes=FALSE)
 })
+
+test_that("Finds variables", {
+ data(iris)
+ mod <- lm(Sepal.Length ~ ., data=iris, subset=(Species==0))
+ psa <- glm(Petal.Width ~ scores(mod), data=iris) # to build its own newdata, scores() is forced
+                                        #to find a variable (Petal.Length) not OW mentioned in containing formula
+ psb <- glm(Petal.Width ~ predict(mod, newdata=iris), data=iris)
+ expect_equal(fitted(psa), fitted(psb))
+})
