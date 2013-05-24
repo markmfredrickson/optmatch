@@ -36,9 +36,21 @@ test_that("Correct Scores()", {
 
 test_that("Finds variables", {
  data(iris)
- mod <- lm(Sepal.Length ~ ., data=iris, subset=(Species==0))
+ iris$Species <- as.numeric(iris$Species=="setosa")
+ mod <- lm(Sepal.Length ~ ., data=iris, subset=Species)
  psa <- glm(Petal.Width ~ scores(mod), data=iris) # to build its own newdata, scores() is forced
                                         #to find a variable (Petal.Length) not OW mentioned in containing formula
  psb <- glm(Petal.Width ~ predict(mod, newdata=iris), data=iris)
  expect_equal(fitted(psa), fitted(psb))
 })
+
+### Fails. Let's fix!
+###test_that("indep vars of class logical properly handled", {
+### data(iris)
+### iris$Species <- iris$Species=="setosa"
+### mod <- lm(Sepal.Length ~ Species + Sepal.Width, data=iris, subset=Species)
+### psb <- glm(Petal.Width ~ Species + predict(mod, newdata=iris), data=iris)
+### psa <- glm(Petal.Width ~ Species + scores(mod), data=iris) # bombs (as of commit 060f033690d827d5944bda8836c8a76d74ac216c)
+### expect_equal(fitted(psa), fitted(psb))
+###})
+
