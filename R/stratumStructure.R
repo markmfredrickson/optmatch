@@ -28,13 +28,14 @@ stopifnot(is.numeric(min.controls), is.numeric(max.controls))
 if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
 if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-comp.num.matched.pairs <- effectiveSampleSize(stratum, trtgrp)
 
 stratum <- as.integer(as.factor(stratum))
 if (any(is.na(stratum)))
   stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
 ttab <- table(stratum,as.logical(trtgrp))
+comp.num.matched.pairs <- effectiveSampleSize(ttab)
+
 max.tx <- round(1/min.controls[1])
 max.controls <- round(max.controls[1])
 txsz <- pmin(ttab[,2], max.tx)
@@ -90,16 +91,28 @@ getZfromMatch <- function(m) {
 #' This is only required if the \code{match} object does not contain the
 #' contrast.group' attribute.
 #' @return The equivalent number of pairs in this match.
-effectiveSampleSize <- function(x, z = NULL) {
+effectiveSampleSize <- function(x,...) UseMethod("effectiveSampleSize")
+effectiveSampleSize.optmatch <- function(x, z = NULL,...) {
   if (is.null(z)) {
     z <- getZfromMatch(x)
   }
 
+ effectiveSampleSize.default(x,z,...)
+}
+effectiveSampleSize.default <- function(x, z, ...) {
+ if (missing(z) || is.null(z)) stop("default effectiveSampleSize method requires a treatment indicator, z")
   wasMatched <- !is.na(x)
 
   if (!any(wasMatched)) { return(0) }
   
-  totals <- table(x[wasMatched], z[wasMatched])
+  totals <- table(x[wasMatched], as.logical(z)[wasMatched])
+effectiveSampleSize.table(totals,...)
+}
+effectiveSampleSize.table <- function(x,...)
+  {
+    stopifnot(length(dim(x))==2, ncol(x)==1 || ncol(x)==2,
+              all(colnames(x) %in% c("FALSE","TRUE")))
+    if (ncol(x)==1 | nrow(x)==0) return(0)
+  sum(2/(1/x[,"FALSE"] + 1/x[,"TRUE"]))
 
-  sum(2/(1/totals[,1] + 1/totals[,2]))
 }
