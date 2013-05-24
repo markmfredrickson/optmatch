@@ -5,11 +5,11 @@
 ##' model.
 ##'
 ##' Specifying \code{newdata} is identical to calling \code{predict}
-##' 
+##'
 ##' @param object a model object from which prediction is desired.
 ##' @param newdata optionally, specifies a data frame in which to look for variables to predict
 ##' with. When omitted, attempts to intelligently use the correct data frame as opposed to \code{predict}
-##' using the data originally used to credit \data{object}.
+##' using the data originally used to credit \code{object}.
 ##' @param ... additional arguments passed to \code{predict}.
 ##' @return See individual \code{predict} functions.
 ##' @author Josh Errickson
