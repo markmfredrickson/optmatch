@@ -1,11 +1,11 @@
-##' Wrapped for \code{predict} to cleanly look for new data to predict on.
+##' Wrapper for \code{predict} to cleanly look for new data to predict on.
 ##'
 ##' When called without a \code{newdata} argument, it will attempt to determine the correct
 ##' new data to predict on; e.g. in a \code{lm} or \code{glm} model, will use the data in that
 ##' model.
 ##'
 ##' Specifying \code{newdata} is identical to calling \code{predict}
-##' @title
+##' 
 ##' @param object a model object from which prediction is desired.
 ##' @param newdata optionally, specifies a data frame in which to look for variables to predict
 ##' with. When omitted, attempts to intelligently use the correct data frame as opposed to \code{predict}
