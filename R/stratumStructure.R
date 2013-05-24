@@ -1,6 +1,5 @@
-stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf,...) UseMethod("stratumStructure")
-stratumStructure.optmatch <- function(stratum,trtgrp=trtgrp, min.controls=min.controls,
-                             max.controls=max.controls,...)
+stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf, ...) UseMethod("stratumStructure")
+stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.controls=Inf,...)
   {
     trtgrp.arg.provided <- !missing(trtgrp) && !is.null(trtgrp)
     ZZ <- try(getZfromMatch(stratum), silent=TRUE)
@@ -8,17 +7,15 @@ stratumStructure.optmatch <- function(stratum,trtgrp=trtgrp, min.controls=min.co
       stop("stratum is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
 
     if (inherits(ZZ, "try-error") & trtgrp.arg.provided)
-      return(stratumStructure(factor(stratum),min.controls=min.controls,max.controls=max.controls,...))
+      return(stratumStructure.default(stratum,trtgrp=trtgrp,min.controls=min.controls,max.controls=max.controls,...))
 
     if (trtgrp.arg.provided) # by implication, ZZ is not an error
       {
         warning("ignoring trtgrp argument to stratumStructure")
-        stratumStructure(factor(stratum),min.controls=min.controls,max.controls=max.controls,
-                         trtgrp=ZZ)
       }
+        stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls,...)
   }
-stratumStructure.default <- function(stratum,trtgrp=trtgrp,min.controls=min.controls,
-                             max.controls=max.controls,...)
+stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf,...)
 {
 if (is.null(trtgrp))
   stop("Unless stratum is of class \'optmatch\', stratumStructure() requires a trtgrp= argument.")
