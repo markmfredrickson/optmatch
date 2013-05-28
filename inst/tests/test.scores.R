@@ -18,18 +18,14 @@ test_that("Works like predict", {
   expect_error(scores(pg))
 })
 
-test_that("Works like predict with 'with' and 'attach'", {
+test_that("Works like predict with 'with'", {
   options(warn=-1)
   pg <- lm(cost ~ ., data=nuclearplants, subset=(pr==0))
 ### function as predict correctly
   pred <- predict(pg, newdata=nuclearplants)
   scores1 <- with(nuclearplants, scores(pg))
-#  attach(nuclearplants)
-#  scores2 <- scores(pg)
-#  detach(nuclearplants)
-  expect_equal(pred, scores1, check.attributes=FALSE)
-#  expect_equal(pred, scores2, check.attributes=FALSE)
 
+  expect_equal(pred, scores1, check.attributes=FALSE)
 })
 
 test_that("Correct in a model", {
@@ -44,20 +40,14 @@ test_that("Correct in a model", {
   expect_equal(fitted(ps1), fitted(ps3), check.attributes=FALSE)
 })
 
-test_that("Correct in a model using 'with' or 'attach'", {
+test_that("Correct in a model using 'with'", {
   pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
 
   options(warn=-1)
   ps1 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
   ps2 <- with(nuclearplants, glm(pr ~ cap + date + t1 + bw + scores(pg)))
-#  attach(nuclearplants)
-#  expect_error(ps3 <- glm(pr ~ cap + date + t1 + bw + predict(pg)))
-#  # Note that while predict bombs in this scenario, scores actually works!
-#  ps4<- glm(pr ~ cap + date + t1 + bw + scores(pg))
-#  detach(nuclearplants)
 
   expect_equal(fitted(ps1), fitted(ps2), check.attributes=FALSE)
-#  expect_equal(fitted(ps1), fitted(ps4), check.attributes=FALSE)
 })
 
 test_that("Finds variables", {
