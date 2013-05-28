@@ -42,7 +42,7 @@ test_that("Helper functions to compute small bits about matches", {
   # ok, I actually found it really hard to break up the optmatch data, but ust in case it happens
   tmp <- as.numeric(res.pairs)
   names(tmp) <- names(res.pairs)
-  expect_error(effectiveSampleSize.optmatch(tmp), "contrast.group")
+  expect_error(effectiveSampleSize.factor(tmp), "contrast.group")
   expect_error(effectiveSampleSize(tmp))
   
   expect_equal(effectiveSampleSize(tmp, Z), 8)

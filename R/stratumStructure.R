@@ -1,5 +1,5 @@
-stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf, ...) UseMethod("stratumStructure")
-stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.controls=Inf,...)
+stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf) UseMethod("stratumStructure")
+stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.controls=Inf)
   {
     trtgrp.arg.provided <- !missing(trtgrp) && !is.null(trtgrp)
     ZZ <- try(getZfromMatch(stratum), silent=TRUE)
@@ -7,15 +7,15 @@ stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.control
       stop("stratum is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
 
     if (inherits(ZZ, "try-error") & trtgrp.arg.provided)
-      return(stratumStructure.default(stratum,trtgrp=trtgrp,min.controls=min.controls,max.controls=max.controls,...))
+      return(stratumStructure.default(stratum,trtgrp=trtgrp,min.controls=min.controls,max.controls=max.controls))
 
     if (trtgrp.arg.provided) # by implication, ZZ is not an error
       {
         warning("ignoring trtgrp argument to stratumStructure")
       }
-        stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls,...)
+        stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls)
   }
-stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf,...)
+stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf)
 {
 if (is.null(trtgrp))
   stop("Unless stratum is of class \'optmatch\', stratumStructure() requires a trtgrp= argument.")
@@ -78,7 +78,7 @@ getZfromMatch <- function(m) {
   stop("Unable to find 'contrast.group' attribute (treatment indicator)")
 }
 
-#' (Internal) Compute the effective sample size of a match.
+#' Compute the effective sample size of a match.
 #'
 #' The effective sample size is the sum of the harmonic means of the number
 #' units in treatment and control for each matched group. For k matched pairs,
@@ -90,29 +90,37 @@ getZfromMatch <- function(m) {
 #' @param z A treatment indicator, a vector the same length as \code{match}.
 #' This is only required if the \code{match} object does not contain the
 #' contrast.group' attribute.
+#' @seealso \code{\link{summary.optmatch}}, \code{\link{stratumStructure}}
 #' @return The equivalent number of pairs in this match.
-effectiveSampleSize <- function(x,...) UseMethod("effectiveSampleSize")
-effectiveSampleSize.optmatch <- function(x, z = NULL,...) {
+effectiveSampleSize <- function(x, z = NULL) UseMethod("effectiveSampleSize")
+
+effectiveSampleSize.factor <- function(x, z = NULL) {
   if (is.null(z)) {
     z <- getZfromMatch(x)
   }
 
- effectiveSampleSize.default(x,z,...)
+  effectiveSampleSize.default(x,z)
 }
-effectiveSampleSize.default <- function(x, z, ...) {
- if (missing(z) || is.null(z)) stop("default effectiveSampleSize method requires a treatment indicator, z")
+
+effectiveSampleSize.default <- function(x, z = NULL) {
+
+  if (missing(z) || is.null(z)) stop("default effectiveSampleSize method requires a treatment indicator, z") 
+
   wasMatched <- !is.na(x)
 
   if (!any(wasMatched)) { return(0) }
   
   totals <- table(x[wasMatched], as.logical(z)[wasMatched])
-effectiveSampleSize.table(totals,...)
+  effectiveSampleSize.table(totals, z)
 }
-effectiveSampleSize.table <- function(x,...)
-  {
-    stopifnot(length(dim(x))==2, ncol(x)==1 || ncol(x)==2,
-              all(colnames(x) %in% c("FALSE","TRUE")))
-    if (ncol(x)==1 | nrow(x)==0) return(0)
+
+effectiveSampleSize.table <- function(x, z = NULL) {
+
+  stopifnot(length(dim(x))==2, ncol(x)==1 || ncol(x)==2,
+            all(colnames(x) %in% c("FALSE","TRUE")))
+
+  if (ncol(x)==1 | nrow(x)==0) return(0)
+
   sum(2/(1/x[,"FALSE"] + 1/x[,"TRUE"]))
 
 }
