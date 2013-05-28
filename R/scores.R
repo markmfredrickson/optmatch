@@ -4,7 +4,10 @@
 ##' new data to predict on; e.g. in a \code{lm} or \code{glm} model, will use the data in that
 ##' model.
 ##'
-##' Specifying \code{newdata} is identical to calling \code{predict}
+##' Specifying \code{newdata} is identical to calling \code{predict}.
+##'
+##' It is not recommended to use \code{attach} and \code{detach} when using scores. The preferred methods
+##' are using \code{with} or using the \code{newdata} parameter.
 ##'
 ##' @param object a model object from which prediction is desired.
 ##' @param newdata optionally, specifies a data frame in which to look for variables to predict
