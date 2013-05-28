@@ -15,7 +15,8 @@ fullmatch(match_on.examples$ps2, data = nuclearplants)
 ### Because match_on.glm uses robust estimates of spread, 
 ### the results differ in detail -- but they are close enough
 ### to yield similar optimal matches.
-all(fullmatch(match_on.examples$ps1)==fullmatch(match_on.examples$ps2, data = nuclearplants)) # The same
+all(fullmatch(match_on.examples$ps1) == 
+    fullmatch(match_on.examples$ps2, data = nuclearplants)) # The same
 
 ### Mahalanobis distance:
 match_on.examples$mh1 <- match_on(pr ~ t1 + t2, data = nuclearplants)

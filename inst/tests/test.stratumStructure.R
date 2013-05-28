@@ -29,6 +29,7 @@ test_that("Helper functions to compute small bits about matches", {
   res.pairs <- pairmatch(exactMatch(Z ~ B), data = Z)  
   expect_equal(effectiveSampleSize(res.pairs), 8)
 
+  expect_equal(effectiveSampleSize.default(res.pairs, Z), 8)
   # effective sample size should be 2/(1/4)
   res.mixed <- fullmatch(exactMatch(Z~B), max.controls = 2, omit.fraction = 1/4, data = Z)
   expect_equal(sum(!is.na(res.mixed)), 14) 
@@ -41,8 +42,9 @@ test_that("Helper functions to compute small bits about matches", {
   # ok, I actually found it really hard to break up the optmatch data, but ust in case it happens
   tmp <- as.numeric(res.pairs)
   names(tmp) <- names(res.pairs)
-  expect_error(effectiveSampleSize(tmp), "contrast.group")
-
+  expect_error(effectiveSampleSize.factor(tmp), "contrast.group")
+  expect_error(effectiveSampleSize(tmp))
+  
   expect_equal(effectiveSampleSize(tmp, Z), 8)
 })
 
