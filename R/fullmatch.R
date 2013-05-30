@@ -288,7 +288,7 @@ fullmatch <- function(distance,
               } else {
                   # drop off treatment
                   if(np > 1) {
-                      new.omit.fraction[i] <- 1 - num.controls/dim(findSubproblems(distance)[[i]])[2]
+                      new.omit.fraction[i] <- 1 - num.controls/subdim(distance)[i,2]
                   } else {
                       new.omit.fraction[i] <- 1 - num.controls/dim(distance)[2]
                   }

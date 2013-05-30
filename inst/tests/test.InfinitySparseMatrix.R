@@ -245,4 +245,27 @@ test_that("BlockedISM addition", {
 })
 
 
+test_that("Get subproblem size of each block", {
+  Z <- rep(c(0,1), 8)
+  B1 <- c(rep('a',3),rep('b', 3), rep('c', 6), rep('d', 4))
+  B2 <- c(rep(0, 7), rep(1, 9))
+  B3 <- c('a', rep('b', 15)) # group a has no treatment.
 
+  res.b1 <- exactMatch(Z ~ B1)
+  res.b2 <- exactMatch(Z ~ B2)
+  res.b3 <- exactMatch(Z ~ B3)
+
+  expect_equal(subdim(res.b1), matrix(c(1,2,2,1,3,3,2,2), ncol=2, byrow=TRUE, dimnames=list(c('a','b','c','d'))))
+  expect_equal(subdim(res.b2), matrix(c(3,4,5,4), ncol=2, byrow=TRUE, dimnames=list(c('0','1'))))
+  expect_equal(subdim(res.b3), c(8,7))
+
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
+              dimnames = list(control = c("A", "B"),
+                  treated = c("C", "D")))
+  a <- as.InfinitySparseMatrix(m)
+
+  # subdim on a non-blocked ISM is equivalent to calling dim
+  expect_equal(subdim(a), dim(a))
+
+  expect_error(subdim(m), "Input must be an InfinitySparseMatrix")
+})

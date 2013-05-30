@@ -405,7 +405,19 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   rbind(as.InfinitySparseMatrix(x), y, ...)
 }
 
+
+### get subdimensions
+subdim <- function(ism) {
+    if(!is(ism, "InfinitySparseMatrix")) {
+        stop("Input must be an InfinitySparseMatrix")
+    }
+    if(!is(ism, "BlockedInfinitySparseMatrix")) {
+        return(dim(ism))
+    }
+    out <- t(sapply(levels(ism@groups), function(x) c(sum(row.names(ism) %in% names(ism@groups)[ism@groups == x]), sum(colnames(ism) %in% names(ism@groups)[ism@groups == x]))))
+    # drop out any invalid subproblems
+    out[apply(out, 1, function(x) all(x > 0)),]
+}
+
 # Splits out the blocked matrix into its consitutent parts
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
-
-
