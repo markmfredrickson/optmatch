@@ -50,6 +50,18 @@ test_that("Correct in a model using 'with'", {
   expect_equal(fitted(ps1), fitted(ps2), check.attributes=FALSE)
 })
 
+test_that("Works in match_on", {
+  pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
+
+  m1 <- match_on(pr~cap + predict(pg, newdata=nuclearplants), data=nuclearplants)
+  m2 <- match_on(pr~cap + scores(pg), data=nuclearplants)
+  m3 <- with(match_on(pr~cap + scores(pg)), data=nuclearplants)
+
+  expect_equal(m1@.Data, m2@.Data)
+  expect_true(all.equal(m1@.Data, m3@.Data, check.attributes=FALSE))
+
+})
+
 test_that("Finds variables", {
     data(iris)
     iris$Species <- as.numeric(iris$Species=="setosa")
