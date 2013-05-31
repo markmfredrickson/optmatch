@@ -248,74 +248,70 @@ fullmatch <- function(distance,
 
     return(temp)
   }
-  solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
 
-  ### If the problem is infeasible, see if can gracefully solve a similar albeit more restricted problem.
-  ### When to try to solve again: Must have all true
-  # a) The problem is infeasible, check by nothing is matched
-  a <- any(unlist(lapply(lapply(solutions, '[', 'cells'), function(x) all(is.na(unlist(x))))))
-  # b) At least one max.controls is finite
-  b <- any(is.finite(max.controls))
-  # c) Max.controls is at least 1 (less than one would require fixing min.controls for the inverted problem)
-  c <- all(max.controls >= 1)
-  # d) omit.fraction should be undefined (add mean.controls here later)
-  d <- all(is.na(omit.fraction))
-  if(a & b & c & d)
-      {
-          # re-solve using no max.controls
-          solutions2 <- mapply(.fullmatch, problems, min.controls, rep(Inf, length(max.controls)), omit.fraction, SIMPLIFY = FALSE)
-          temp.optmatch <- makeOptmatch(distance, solutions2, match.call(), data)
-
-          # compute the new.omit.fraction
-          new.omit.fraction <- rep(NA, length(omit.fraction))
-          # if blocked, do this on each block
-          for(i in 1:np) {
-              # need to split this up because of the oddity in indexing subproblem attr.
-              if(np == 1) {
-                  trial.stratumStructure <- stratumStructure(temp.optmatch)
-              } else {
-                  # generate the stratumStructure for ONLY this subproblem
-                  trial.stratumStructure <- stratumStructure(temp.optmatch[attr(temp.optmatch, "subproblem")==names(problems)[i]])
-              }
-              treats <- as.numeric(unlist(lapply(strsplit(names(trial.stratumStructure), ":"),"[",1)))
-              ctrls <- as.numeric(unlist(lapply(strsplit(names(trial.stratumStructure), ":"),"[",2)))
-              # drop excess, then count what's left
-              num.controls <- sum((pmin(ctrls, max.controls[i])*trial.stratumStructure)[treats > 0])
-
-              # if we've not matched anything, we can't omit anything
-              if(num.controls == 0) {
-                  new.omit.fraction[i] <- 1
-              } else {
-                  # drop off treatment
-                  if(np > 1) {
-                      new.omit.fraction[i] <- 1 - num.controls/subdim(distance)[i,2]
-                  } else {
-                      new.omit.fraction[i] <- 1 - num.controls/dim(distance)[2]
-                  }
-              }
-          }
-          #new.omit.fraction <- pmax(new.omit.fraction, omit.fraction, na.rm=TRUE) # if user specified higher than necessary omit.fraction, cap it
-          # re-solve again using the 'correct' omit.fraction
-          solutions2 <- mapply(.fullmatch, problems, min.controls, max.controls, new.omit.fraction, SIMPLIFY = FALSE)
-
-          if(!all(is.na(unlist(lapply(solutions2, '[', 'cells'))))) {
-              solutions <- solutions2
-              if(length(new.omit.fraction) > 1) {
-                  warning(paste("The problem is infeasible with the given max.controls.",
-                                " This desired max.controls can be met with c(",
-                                paste(round(new.omit.fraction, 4), collapse=", "),
-                                ") as the omit.fraction.", sep=''))
-
-              } else {
-                  warning(paste("The problem is infeasible with the given max.controls.",
-                                " This desired max.controls can be met with ",
-                                round(new.omit.fraction, 4),
-                                " as the omit.fraction.", sep=''))
-              }
-          } else {
-              warning("The problem is infeasible with the given max.controls and min.control for any omit.fraction.")
-          }
+  # a second helper function, that will attempt graceful recovery in situations where the match
+  # is infeasible with the given max.controls
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r) {
+    # try to solve with the given constraints
+    tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+    # if the user did not give an omit.fraction, but did give some max.control in [1, Inf)
+    # and the given max.controls makes it infeasible
+    if(is.na(omf.r) & is.finite(mxctl.r) & mxctl.r >= 1 & all(is.na(tmp[1]$cells))) {
+      # Re-solve with no max.control
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r))
+      tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
+      trial.ss <- stratumStructure(tmp2.optmatch)
+      treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
+      ctrls <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",2)))
+      num.controls <- sum((pmin(ctrls, mxctl.r)*trial.ss)[treats > 0])
+      if(num.controls == 0) {
+        new.omit.fraction <<- c(new.omit.fraction, 1)
+        # infeasible anyways
+        return(tmp)
       }
+      recovered.infeasible <- 1
+      new.omf.r <- 1 - num.controls/dim(d.r)[2]
+      new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
+
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r)
+    } else {
+      # if the subproblem is feasible with given constraints, no need to omit anything
+      new.omit.fraction <<- c(new.omit.fraction, NA)
+    }
+    return(tmp)
+  }
+
+  # In case we need to try and recover from infeasible, save the new.omit.fraction's used for output to user
+  new.omit.fraction <- numeric(0)
+
+  # If we're in a situation where we may be able to recover:
+  # Any of the subproblems have no omit.fraction, and max.controls finite and greater than 1
+  if(any(is.na(omit.fraction) & is.finite(max.controls) & max.controls >= 1)) {
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+  } else {
+   solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+  }
+
+  # length(new.omit.fraction) will be strictly positive if we ever entered .fullmatch.with.recovery
+  if(length(new.omit.fraction) > 0 & !all(is.na(new.omit.fraction))) {
+    if(!any(is.na(new.omit.fraction)) & all(new.omit.fraction == 1)) {
+      # If we never got a feasible subproblem
+      warning("The problem is infeasible with the given max.controls and min.control for any omit.fraction.")
+    } else {
+      if(length(new.omit.fraction) > 1) {
+        warning(paste("The problem is infeasible with the given max.controls.",
+                      " This desired max.controls can be met with c(",
+                      paste(round(new.omit.fraction, 4), collapse=", "),
+                      ") as the omit.fraction.", sep=''))
+
+      } else {
+        warning(paste("The problem is infeasible with the given max.controls.",
+                      " This desired max.controls can be met with ",
+                      round(new.omit.fraction, 4),
+                      " as the omit.fraction.", sep=''))
+      }
+    }
+  }
 
   return(makeOptmatch(distance, solutions, match.call(), data))
 }
