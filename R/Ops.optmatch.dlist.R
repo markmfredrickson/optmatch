@@ -1,11 +1,11 @@
-Ops.optmatch.dlist <- function (e1, e2=NULL) 
+Ops.optmatch.dlist <- function (e1, e2=NULL)
 {
     ok <- switch(.Generic, "%%" = , "%/%" = FALSE, TRUE)
     if (!ok) {
         warning(.Generic, " not meaningful for matching distances; returning 1st arg")
         return(e1)
     }
-    
+
     unary <- nargs() == 1
 
     if (nchar(.Method[1])) {
@@ -150,9 +150,13 @@ as.matrix.optmatch.dlist <- function(x, ...) {
     subcols <- colnames(submatrix)
     tmp[subrows, subcols] <- submatrix
   }
-  return(tmp)  
+  return(tmp)
 }
 
 subset.optmatch.dlist <- function(x, subset, select, ...) {
-  subset(as.matrix(x), subset, select, ...)  
+  subset(as.matrix(x), subset, select, ...)
+}
+
+subdim.optmatch.dlist <- function(x) {
+  lapply(x, dim)
 }
