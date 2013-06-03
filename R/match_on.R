@@ -207,6 +207,16 @@ compute_mahalanobis <- function(index, data, z) {
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
+compute_smahal <- function(index, data, z) {
+    if (!all(is.finite(data))) {
+        stop("Infinite or NA values detected in data for Mahalanobis computations.")
+    }
+
+    return(
+        .Call('smahal', index, data, z, PACKAGE='optmatch')
+    )
+}
+
 compute_euclidean <- function(index, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
