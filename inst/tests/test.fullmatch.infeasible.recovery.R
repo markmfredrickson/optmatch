@@ -19,7 +19,7 @@ test_that("Invalid mean.controls input", {
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = "a"),
                "mean.controls must be NULL or numeric greater than 0")
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = 23/10),
-               "mean.controls must be less than the ratio of number of controls to treatments")
+               "mean.controls cannot be larger than the ratio of number of controls to treatments")
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = c(1,1)))
                # "Length of 'mean.controls' arg must be same as number of subproblems [1]")
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = 1, min.controls=2),
@@ -35,8 +35,10 @@ test_that("Invalid mean.controls input", {
 
   mm <- match_on(treat~.-fact, data=dd, within=exactMatch(treat~fact, dd))
 
-  expect_error(fullmatch(mm, data=dd, mean.controls=1.5), "mean.controls must be less than the ratio of number of controls to treatments")
-  expect_error(fullmatch(mm, data=dd, mean.controls=c(2, NA, 2)), "mean.controls must be less than the ratio of number of controls to treatments")
+  expect_error(fullmatch(mm, data=dd, mean.controls=1.5),
+               "mean.controls cannot be larger than the ratio of number of controls to treatments")
+  expect_error(fullmatch(mm, data=dd, mean.controls=c(2, NA, 2)),
+               "mean.controls cannot be larger than the ratio of number of controls to treatments")
 
 })
 
