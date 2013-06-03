@@ -9,6 +9,70 @@ context("fullmatch-recover-infeasible update")
 # basic tests are in the general test.fullmatch.R file (as this update should not change
 # functionality for fundamentally feasible problems)
 
+test_that("Invalid mean.controls input", {
+  data(nuclearplants)
+  m <- match_on(glm(pr~cost, data=nuclearplants))
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = 1, omit.fraction=.5),
+               "omit.fraction and mean.controls cannot both be specified.")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = -1),
+               "mean.controls must be NULL or numeric greater than 0")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = "a"),
+               "mean.controls must be NULL or numeric greater than 0")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = 23/10),
+               "mean.controls must be less than the ratio of number of controls to treatments")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = c(1,1)))
+               # "Length of 'mean.controls' arg must be same as number of subproblems [1]")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = 1, min.controls=2),
+               "mean.controls cannot be smaller than min.controls")
+  expect_error(fullmatch(m, data=nuclearplants, mean.controls = 1, max.controls=1/2),
+               "mean.controls cannot be larger than max.controls")
+
+  set.seed(2)
+  x <- runif(20)
+  fact <- c(rep(0,7), rep(1, 4), rep(2, 9))
+  treat <- c(rep(0,4), rep(1, 2),0, rep(0, 2), rep(1, 2), rep(0, 5), rep(1, 4))
+  dd <- as.data.frame(cbind(x,fact,treat))
+
+  mm <- match_on(treat~.-fact, data=dd, within=exactMatch(treat~fact, dd))
+
+  expect_error(fullmatch(mm, data=dd, mean.controls=1.5), "mean.controls must be less than the ratio of number of controls to treatments")
+  expect_error(fullmatch(mm, data=dd, mean.controls=c(2, NA, 2)), "mean.controls must be less than the ratio of number of controls to treatments")
+
+})
+
+test_that("mean.controls should do the same as omit.fraction", {
+  data(nuclearplants)
+  m <- match_on(glm(pr~cost, data=nuclearplants))
+  f <- fullmatch(m, data=nuclearplants, omit.fraction=1/2)
+  g <- fullmatch(m, data=nuclearplants, mean.controls=11/10)
+
+  expect_true(all.equal(f, g, check.attributes=FALSE))
+
+  set.seed(2)
+  x <- runif(20)
+  fact <- c(rep(0,7), rep(1, 4), rep(2, 9))
+  treat <- c(rep(0,4), rep(1, 2),0, rep(0, 2), rep(1, 2), rep(0, 5), rep(1, 4))
+  dd <- as.data.frame(cbind(x,fact,treat))
+
+  mm <- match_on(treat~.-fact, data=dd, within=exactMatch(treat~fact, dd))
+
+  f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, 1/3, 1/5))
+  g <- fullmatch(mm,data=dd, mean.controls=c(2, 1/2, 1))
+
+  expect_true(all.equal(f, g, check.attributes=FALSE))
+
+  f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, NA, NA))
+  g <- fullmatch(mm,data=dd, mean.controls=c(2, NA, NA))
+
+  expect_true(all.equal(f, g, check.attributes=FALSE))
+
+  f <- fullmatch(mm,data=dd, omit.fraction=c(3/5, NA, 1/5))
+  g <- fullmatch(mm,data=dd, mean.controls=1)
+
+  expect_true(all.equal(f, g, check.attributes=FALSE))
+
+})
+
 test_that("Correctly apply max.controls", {
   set.seed(2)
   x <- runif(20)
