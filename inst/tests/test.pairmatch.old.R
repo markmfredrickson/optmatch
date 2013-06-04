@@ -5,10 +5,27 @@ context("Pairmatch function old")
 test_that("pairmatch", {
   data(plantdist)
 
-  expect_warning(pairmatch(plantdist))
-  expect_warning(pairmatch(plantdist, controls=2))
+  stripCall <- function(obj) {
+    attr(obj, "call") <- NULL
+    obj
+  }
+
+
+  expect_warning(p1 <- pairmatch(plantdist))
+  expect_warning(f1 <- fullmatch(plantdist, max.controls = 1, min.controls = 1, omit.fraction = 1 - 7/19))
+  expect_equal(stripCall(f1), stripCall(p1))
+
+  expect_warning(p2 <- pairmatch(plantdist, controls=2))
+  expect_warning(f2 <- fullmatch(plantdist, max.controls = 2, min.controls = 2, omit.fraction = 1 - 14/19))
+  expect_equal(stripCall(f2), stripCall(p2))
+
   expect_error(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
-  expect_warning(pairmatch(plantdist + caliper(plantdist, 5, compare = `<`), remove.unmatchables=TRUE)) # Matching works after removing plant 'F'
+
+  expect_warning(p3 <- pairmatch(plantdist + caliper(plantdist, 5, compare = `<`),
+                                 remove.unmatchables=TRUE)) # Matching works after removing plant 'F'
+  expect_warning(f3 <- fullmatch(plantdist + caliper(plantdist, 5, compare = `<`),
+                                 max.controls = 1, min.controls = 0, omit.fraction = 1 - 6/19))
+  expect_equal(stripCall(f3), stripCall(p3))
 
   data(nuclearplants)
   # in both of match_on calls below use sd to maintain backwards compatibility with
@@ -23,7 +40,7 @@ test_that("pairmatch", {
   # the problem allowed multiple optimal solutions, and different choices were picked in different environments
   # the sum of matched distances should be the same across all environments
 
-  summary(pm)$total.distance
+  expect_true(all.equal(summary(pm)$total.distance, 25.83338, tolerance=1e-5))
 
   # again an error would be thrown (which R CMD CHECK does not like)
   expect_error(pairmatch(caliper(match_on(psm, standardization.scale = sd,
