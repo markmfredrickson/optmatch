@@ -311,7 +311,7 @@ fullmatch <- function(distance,
       tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
-        new.omit.fraction <<- c(new.omit.fraction, 0)
+        new.omit.fraction <<- c(new.omit.fraction, NA)
         return(tmp)
       }
     }
@@ -330,7 +330,7 @@ fullmatch <- function(distance,
         if (!exists("tmp")) {
           tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
         }
-        new.omit.fraction <<- c(new.omit.fraction, 1)
+        new.omit.fraction <<- c(new.omit.fraction, NA)
         return(tmp)
       }
       recovered.infeasible <- 1
@@ -345,7 +345,7 @@ fullmatch <- function(distance,
         tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
       }
 
-      new.omit.fraction <<- c(new.omit.fraction, 1)
+      new.omit.fraction <<- c(new.omit.fraction, NA)
       return(tmp)
     }
   }
