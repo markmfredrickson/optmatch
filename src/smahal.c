@@ -1,5 +1,3 @@
-#include <time.h>
-
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Lapack.h>
@@ -53,6 +51,7 @@ Rboolean rerank_dups(int n, const double * data, double * ranks) {
             ranks[dup_idx[j]] = mean_rank;
     }
     Free(dup_idx);
+    Free(visited);
     return any_ties;
 }
 
@@ -112,22 +111,6 @@ void transpose_sq(int n, double * mat) {
       mat[i * n + j] = mat[j * n + i];
       mat[j * n + i] = elt;
     }
-  }
-}
-
-void printVec(int n, const double * data) {
-  for(int j = 0; j < n - 1; j++)
-    Rprintf("%g ", data[j]);
-
-  Rprintf("%g\n", data[n - 1]);
-}
-
-void printMat(int nr, int nc, const double * data) {
-  for(int i = 0; i < nr; i++) {
-    for(int j = 0; j < nc - 1; j++)
-      Rprintf("%g ", data[j * nr + i]);
-
-    Rprintf("%g\n", data[(nc - 1) * nr + i]);
   }
 }
 
@@ -224,7 +207,9 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
 
   for(int i = 0; i < nr * nc; i++)
     mat_mult[i] *= recentered[i];
-  
+
+  Free(recentered);
+
   // compute row sums of mat_mult for answer
   for(int i = 0; i < nr; i++) {
     double sum  = 0.0;
@@ -236,15 +221,12 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
   Free(mat_mult);
 }
 
-SEXP smahal(SEXP index, SEXP data, SEXP z) {
-    if(!isLogical(z))
-        error("first argument SEXP z is not a logical vector");
-    if(!isMatrix(data))
-        error("second argument SEXP data is not a matrix");
+typedef struct dmat {
+  int nr, nc;
+  double * data;
+} DMAT;
 
-    int
-      nr = nrows(data), nc = ncols(data);
-
+DMAT * smahal_nosexp(int nr, int nc, double * data, int * z) {
     double
       * col_i,
       * ranks = Calloc(nr * nc, double),
@@ -254,7 +236,7 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
       tie,
       any_ties = FALSE;
 
-    memcpy(ranks, REAL(data), nr * nc * sizeof(double));
+    memcpy(ranks, data, nr * nc * sizeof(double));
     for(int i = 0; i < nc; i++) {
       col_i = ranks + i * nr;
       rank(nr, col_i, ranks_i);
@@ -274,13 +256,9 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
     if(any_ties == TRUE) adjust_ties(nr, nc, covs_inv);    
     ginv_square(covs_inv, nc);
 
-    Rboolean
-      * is_treat_row = LOGICAL(z);
-    int
-      ncontrol, ntreat = 0;
-
+    int ncontrol, ntreat = 0;
     for(int i = 0; i < nr; i++) {
-      if(is_treat_row[i] == TRUE)
+      if(z[i] == TRUE)
 	ntreat++;
     }
     ncontrol = nr - ntreat;
@@ -292,7 +270,7 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
     int
       c_treat_row = 0, c_control_row = 0;
     for(int i = 0; i < nr; i++) {
-      if(is_treat_row[i] == TRUE) {
+      if(z[i] == TRUE) {
 	for(int j = 0; j < nc; j++)
 	  ranks_treat[c_treat_row + j * ntreat] = ranks[i + j * nr];
 	c_treat_row++;
@@ -303,8 +281,13 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
       }
     }
 
-    SEXP out_distances;
-    PROTECT(out_distances = allocMatrix(REALSXP, ntreat, ncontrol));
+    DMAT * out_distances = Calloc(1, DMAT);
+    if(out_distances == NULL)
+      error("smahal_nosexp:391:NULL Calloc\n");
+
+    out_distances->data = Calloc(ntreat * ncontrol, double);
+    out_distances->nr = ntreat;
+    out_distances->nc = ncontrol;
 
     double * out_row_i = Calloc(ncontrol, double);
     double * treat_row_i = Calloc(nc, double);
@@ -316,7 +299,7 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
       mahalanobis(ncontrol, nc, ranks_control, treat_row_i, covs_inv,
 		  out_row_i);
       for(int j = 0; j < ncontrol; j++)
-	REAL(out_distances)[i + j * ntreat] = out_row_i[j];
+	out_distances->data[i + j * ntreat] = out_row_i[j];
     }
 
     Free(treat_row_i);
@@ -325,52 +308,24 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
     Free(out_row_i);
     Free(covs_inv);
     Free(ranks);
-    UNPROTECT(1);
+
     return out_distances;
 }
 
-/*
-int main(int argc, char ** argv) {
-    if(argc < 2) {
-        printf("Usage:  smahal <nrows> <ncols>\n");
-        exit(1);
-    }
+SEXP smahal(SEXP index, SEXP data, SEXP z) {
+  DMAT * ans = smahal_nosexp(nrows(data), ncols(data), REAL(data), LOGICAL(z));
+  if(ans == NULL || ans->nr < 1 || ans->nc <1)
+    error("smahal_nosexp returned an invalid answer");
 
-    int nr, nc;
+  SEXP out;
+  PROTECT(out = allocMatrix(REALSXP, ans->nr, ans->nc));
+  for(int i = 0; i < ans->nc; i++) {
+    int col_i = i * ans->nr;
+    memcpy(REAL(out) + col_i, (ans->data) + col_i, ans->nr * sizeof(double));
+  }
+  Free(ans->data);
+  Free(ans);
+  UNPROTECT(1);
 
-    char * tail;
-    nr = strtol(argv[0], &tail, 0);
-    nc = strtol(argv[1], &tail, 0);
-
-    SEXP z, x;
-
-    PROTECT(x = allocMatrix(REALSXP, nr, nc));
-    PROTECT(z = allocVector(LGLSXP, nr));
-
-    srand(time(0));
-
-    Rboolean * z_ptr = LOGICAL(z);
-    for(int i = 0; i < nr; i++) {
-      int flip = rand() % 2;
-      if(flip == 1)
-	z_ptr[i] = TRUE;
-      else
-	z_ptr[i] = FALSE;
-    }
-
-    for(int i = 0; i < nr * nc; i++)
-      REAL(x)[i] = (double) rand() + (double) rand() / (double) RAND_MAX;
-
-    puts("==== z");
-    for(int i = 0; i < nr; i++)
-      printf("%d ", (int) z_ptr[i]);
-    puts("");
-
-    printf("==== x\n");
-    printMat(nr, nc, REAL(x));
-
-    UNPROTECT(2);
-    return 0;
+  return out;
 }
-
-*/
