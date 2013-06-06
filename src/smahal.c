@@ -319,10 +319,8 @@ SEXP smahal(SEXP index, SEXP data, SEXP z) {
 
   SEXP out;
   PROTECT(out = allocMatrix(REALSXP, ans->nr, ans->nc));
-  for(int i = 0; i < ans->nc; i++) {
-    int col_i = i * ans->nr;
-    memcpy(REAL(out) + col_i, (ans->data) + col_i, ans->nr * sizeof(double));
-  }
+  memcpy(REAL(out), ans->data, ans->nr * ans->nc * sizeof(double));
+
   Free(ans->data);
   Free(ans);
   UNPROTECT(1);
