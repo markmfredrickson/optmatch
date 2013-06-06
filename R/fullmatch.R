@@ -41,6 +41,20 @@
 #' for each subclass.  The names of this vector should include names of all
 #' subproblems \code{distance}.
 #'
+#' @param mean.controls Optionally, specify the average number of controls per
+#' treatment to be matched. Must be no less than than \code{min.controls} and no greater
+#' than the minimum of \code{max.controls} and the ratio of total number of controls vs
+#' total number of treated. Some controls will likely not be matched to ensure meeting
+#' this value.
+#'
+#' When matching within subclasses (such as those created by
+#' \code{\link{exactMatch}}), \code{mean.controls} specifies the average number of
+#' controls per treatment per subproblem, a parameter that can be made to
+#' differ by subclass by setting \code{mean.controls} equal to a named numeric
+#' vector.
+#'
+#' At most one of \code{mean.controls} and \code{omit.fraction} can be non-\code{NULL}.
+#'
 #' @param max.controls The maximum ratio of controls to treatments that is
 #' to be permitted within a matched set: should be positive and numeric.
 #' If \code{max.controls} is not a whole number, the reciprocal of a
@@ -70,23 +84,7 @@
 #' differ by subclass by setting \code{omit.fraction} equal to a named numeric
 #' vector of fractions.
 #'
-#' Only one of \code{omit.fraction} and \code{mean.controls} can be non-\code{NULL} for
-#' a given call.
-#'
-#' @param mean.controls Optionally, specify the average number of controls per
-#' treatment to be matched. Must be no less than than \code{min.controls} and no greater
-#' than the minimum of \code{max.controls} and the ratio of total number of controls vs
-#' total number of treated. Some controls will likely not be matched to ensure meeting
-#' this value.
-#'
-#' When matching within subclasses (such as those created by
-#' \code{\link{exactMatch}}), \code{mean.controls} specifies the average number of
-#' controls per treatment per subproblem, a parameter that can be made to
-#' differ by subclass by setting \code{mean.controls} equal to a named numeric
-#' vector.
-#'
-#' Only one of \code{omit.fraction} and \code{mean.controls} can be non-\code{NULL} for
-#' a given call.
+#' At most one of \code{mean.controls} and \code{omit.fraction} can be non-\code{NULL}.
 #'
 #' @param tol Because of internal rounding, \code{fullmatch} may
 #' solve a slightly different matching problem than the one
@@ -307,11 +305,19 @@ fullmatch <- function(distance,
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
   .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r) {
-    # try to solve with the given constraints
-    tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+
+    # if the subproblem isn't clearly infeasible, try to get a match
+    if (mxctl.r * dim(d.r)[1] >= dim(d.r)[2]) {
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+      if (!all(is.na(tmp[1]$cells))) {
+        # subproblem is feasible with given constraints, no need to recover
+        new.omit.fraction <<- c(new.omit.fraction, 0)
+        return(tmp)
+      }
+    }
     # if the user did not give an omit.fraction, but did give some max.control in [1, Inf)
     # and the given max.controls makes it infeasible
-    if(is.na(omf.r) & is.finite(mxctl.r) & mxctl.r >= 1 & all(is.na(tmp[1]$cells))) {
+    if(is.na(omf.r) & is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control
       tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
@@ -320,28 +326,36 @@ fullmatch <- function(distance,
       ctrls <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",2)))
       num.controls <- sum((pmin(ctrls, mxctl.r)*trial.ss)[treats > 0])
       if(num.controls == 0) {
-        new.omit.fraction <<- c(new.omit.fraction, 1)
         # infeasible anyways
+        if (!exists("tmp")) {
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+        }
+        new.omit.fraction <<- c(new.omit.fraction, 1)
         return(tmp)
       }
       recovered.infeasible <- 1
       new.omf.r <- 1 - num.controls/dim(d.r)[2]
-      new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
 
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r)
+      # feasible with the new omit fraction
+      new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r))
     } else {
-      # if the subproblem is feasible with given constraints, no need to omit anything
-      new.omit.fraction <<- c(new.omit.fraction, NA)
+      # subproblem is infeasible, but we can't fix (probably no max.controls given)
+      if (!exists("tmp")) {
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+      }
+
+      new.omit.fraction <<- c(new.omit.fraction, 1)
+      return(tmp)
     }
-    return(tmp)
   }
 
   # In case we need to try and recover from infeasible, save the new.omit.fraction's used for output to user
   new.omit.fraction <- numeric(0)
 
   # If we're in a situation where we may be able to recover:
-  # Any of the subproblems have no omit.fraction, and max.controls finite and greater than 1
-  if(any(is.na(omit.fraction) & is.finite(max.controls) & max.controls >= 1)) {
+  # omit.fraction is never specified, and at least one subproblem has a finite max.controls > 1
+  if(all(is.na(omit.fraction)) & any(is.finite(max.controls) & max.controls >= 1)){
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {
    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
