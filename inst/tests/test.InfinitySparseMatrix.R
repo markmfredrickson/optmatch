@@ -121,73 +121,43 @@ test_that("Math Ops", {
 })
 
 test_that("Math ops with vectors", {
-  ### Division
+
   # Small matrix with manual calculation
   m <- matrix(c(1, 4, 2, 3), nrow = 2, ncol = 2)
   A <- as.InfinitySparseMatrix(m)
   v <- 1:2
 
-  nm <- m/v
-  nA <- A/v
+  expect_true(all.equal(attributes(A), attributes(A/v)))
+  expect_true(all.equal(attributes(A), attributes(A*v)))
+  expect_true(all.equal(attributes(A), attributes(A-v)))
+  expect_true(all.equal(attributes(A), attributes(A+v)))
+  expect_true(all.equal(attributes(A), attributes(A^v)))
+  expect_true(all.equal(attributes(A), attributes(A%%v)))
+  expect_true(all.equal(attributes(A), attributes(A%/%v)))
 
-  expect_true(all(nm == as.matrix(nA)))
-  expect_true(all(as.vector(nm) == c(1,2,2,3/2)))
-  expect_true(all.equal(attributes(A), attributes(nA)))
+  expect_true(all.equal(attributes(A), attributes(v/A)))
+  expect_true(all.equal(attributes(A), attributes(v*A)))
+  expect_true(all.equal(attributes(A), attributes(v-A)))
+  expect_true(all.equal(attributes(A), attributes(v+A)))
+  expect_true(all.equal(attributes(A), attributes(v^A)))
+  expect_true(all.equal(attributes(A), attributes(v%%A)))
+  expect_true(all.equal(attributes(A), attributes(v%/%A)))
 
-  # BlockedInfinitySparseMatrix
-  x <- c(rep(1,4), rep(2,2), rep(3,5))
-  set.seed(1)
-  y <- runif(11)
-  z <- c(0,0,1,0,1,0,1,1,0,0,0)
+  expect_true(all(as.vector(A/v) == c(1,2,2,3/2)))
+  expect_true(all(as.vector(A*v) == c(1,8,2,6)))
+  expect_true(all(as.vector(A+v) == c(2,6,3,5)))
+  expect_true(all(as.vector(A-v) == c(0,2,1,1)))
+  expect_true(all(as.vector(A^v) == c(1,16,2,9)))
+  expect_true(all(as.vector(A%%v) == c(0,0,0,1)))
+  expect_true(all(as.vector(A%/%v) == c(1,2,2,1)))
 
-  m <- match_on(z~y, within=exactMatch(z~x))
-  v <- 1:4
-
-  mm <- as.matrix(m)
-  n <- m/v
-
-  expect_true(all(mm/v ==  as.matrix(n)))
-  expect_true(all.equal(attributes(m), attributes(n)))
-
-  # Larger InfinitySparseMatrix with high sparsity
-  m <- matrix(runif(30), nrow=10, ncol=3)
-  m[m>.2] <- Inf
-  a <- as.InfinitySparseMatrix(m)
-  v <- 1:10
-
-  nm <- m/v
-  na <- a/v
-
-  expect_true(all(nm ==  as.matrix(na)))
-  expect_true(all.equal(attributes(a), attributes(na)))
-
-  # Error on incorrect vector size
-  expect_error(a/1:9, "Size mismatch")
-  expect_error(a/1:3, "Size mismatch")
-
-  # Error on non-numeric input
-  expect_error(a/"a", "Non-numeric arithmetic not supported")
-  expect_error(a/factor(1), "Non-numeric arithmetic not supported")
-
-  # Integer gets expanded into vector
-  expect_true(identical(a, a/1))
-  expect_true(all(m/5 ==  as.matrix(a/5)))
-  expect_true(all.equal(attributes(a/5), attributes(a)))
-
-  ### Multipication
-  # Small matrix with manual calculation
-  m <- matrix(c(1, 4, 2, 3), nrow = 2, ncol = 2)
-  A <- as.InfinitySparseMatrix(m)
-  v <- 1:2
-
-  nm <- m*v
-  nA <- A*v
-  An <- v*A
-
-  expect_true(identical(An, nA))
-  expect_true(all(nm == as.matrix(nA)))
-  expect_true(all(as.vector(nm) == c(1,8,2,6)))
-  expect_true(all.equal(attributes(A), attributes(nA)))
+  expect_true(all(as.vector(v/A) == c(1,1/2, 1/2, 2/3)))
+  expect_true(all(as.vector(v*A) == c(1,8,2,6)))
+  expect_true(all(as.vector(v+A) == c(2,6,3,5)))
+  expect_true(all(as.vector(v-A) == c(0,-2,-1,-1)))
+  expect_true(all(as.vector(v^A) == c(1,16,1,8)))
+  expect_true(all(as.vector(v%%A) == c(0,2,1,2)))
+  expect_true(all(as.vector(v%/%A) == c(1,0,0,0)))
 
   # BlockedInfinitySparseMatrix
   x <- c(rep(1,4), rep(2,2), rep(3,5))
@@ -196,45 +166,35 @@ test_that("Math ops with vectors", {
   z <- c(0,0,1,0,1,0,1,1,0,0,0)
 
   A <- match_on(z~y, within=exactMatch(z~x))
-  v <- 1:4
-
   m <- as.matrix(A)
-  nA <- A*v
-  An <- v*A
-  nm <- m*v
+  v <- 1:5
 
-  expect_true(identical(nA, An))
-  expect_true(all(nm ==  as.matrix(nA)))
-  expect_true(all.equal(attributes(nA), attributes(A)))
-
-  # Larger InfinitySparseMatrix with high sparsity
-  m <- matrix(runif(30), nrow=10, ncol=3)
-  m[m>.2] <- Inf
-  A <- as.InfinitySparseMatrix(m)
-  v <- 1:10
-
-  nm <- m*v
-  nA <- A*v
-  An <- v*A
-
-  expect_true(identical(nA, An))
-  expect_true(all(nm ==  as.matrix(nA)))
-  expect_true(all.equal(attributes(A), attributes(nA)))
-
-  # Error on incorrect vector size
-  expect_error(A*1:9, "Size mismatch")
-  expect_error(1:3*A, "Size mismatch")
+  options(warn=-1)
+  expect_true(all(as.matrix(A/v) == m/v))
+  expect_true(all(as.matrix(A*v) == m*v))
+  expect_true(all(as.matrix(A+v) == m+v))
+  expect_true(all(as.matrix(A-v) == m-v))
+  expect_true(all(as.matrix(A^v) == m^v))
+  expect_true(all(as.matrix(A%%v) == m%%v, na.rm=TRUE))
+  expect_true(all(as.matrix(A%/%v) == m%/%v, na.rm=TRUE))
+  vm <- v/m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v/A) == vm))
+  expect_true(all(as.matrix(v*A) == v*m))
+  expect_true(all(as.matrix(v+A) == v+m))
+  vm <- v-m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v-A) == vm))
+  vm <- v^m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v^A) == vm))
+  expect_true(all(as.matrix(v%%A) == v%%m, na.rm=TRUE))
+  expect_true(all(as.matrix(v%/%A) == v%/%m, na.rm=TRUE))
+  options(warn=0)
 
   # Error on non-numeric input
-  expect_error(A*"a", "Non-numeric arithmetic not supported")
-  expect_error(factor(1)*A, "Non-numeric arithmetic not supported")
-
-  # Integer gets expanded into vector
-  expect_true(identical(A, 1*A*1))
-  expect_true(all(m*5 ==  as.matrix(A*5)))
-  expect_true(all(5*m ==  as.matrix(5*A)))
-  expect_true(all.equal(attributes(A*5), attributes(A)))
-
+  expect_error("a"*A, "Non-numeric arithmetic not supported")
+  expect_error(A*factor(1), "Non-numeric arithmetic not supported")
 })
 
 test_that("Subsetting", {
