@@ -10,8 +10,7 @@ export(mdist,
        relaxinfo, 
        stratumStructure, 
        fill.NAs,
-       exactMatch,
-       scores)
+       exactMatch)
 
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)

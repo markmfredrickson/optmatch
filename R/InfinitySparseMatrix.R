@@ -405,22 +405,33 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   rbind(as.InfinitySparseMatrix(x), y, ...)
 }
 
-subdim <- function(x) {
-  UseMethod("subdim")
-}
-
-subdim.InfinitySparseMatrix <- subdim.matrix <- function(x) {
-  list(dim(x))
-}
-
-##' Returns the dimension of each valid subproblem
+##' (Internal) Returns the dimension of each valid subproblem
 ##'
-##' Returns a list containing the dimensions of valid subproblem.
-##' @param x BlockedInfinitySparseMatrix to get the subdimesions of.
+##' Returns a list containing the dimensions of all valid subproblems.
+##'
+##' @param x A distance specification to get the subdimesions of.
 ##' @return A list of the dimensions of each valid subproblem. Any subproblems with 0 controls
 ##' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
 ##' subproblems, if they exist.
 ##' @author Josh Errickson
+subdim <- function(x) {
+  UseMethod("subdim")
+}
+
+#' @S3method subdim InfinitySparseMatrix
+#' @rdname subdim
+subdim.InfinitySparseMatrix <- function(x) {
+  list(dim(x))
+}
+
+#' @S3method subdim matrix
+#' @rdname subdim
+subdim.matrix <- function(x) {
+  list(dim(x))
+}
+
+#' @S3method subdim BlockedInfinitySparseMatrix
+#' @rdname subdim
 subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]), sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
