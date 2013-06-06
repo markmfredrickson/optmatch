@@ -24,7 +24,6 @@ S3method(dim, optmatch.dlist)
 S3method(dimnames, optmatch.dlist)
 S3method(as.matrix, optmatch.dlist)
 
-S3method(print, optmatch)
 S3method("[", optmatch)
 S3method(print, summary.optmatch)
 S3method(dim, InfinitySparseMatrix)

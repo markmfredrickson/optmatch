@@ -11,6 +11,7 @@
 #' @param max.controls Like \code{min.controls} sets maximum group sized displayed with respect to the number of controls. Raise this value to see more groups.
 #' @param quantiles A points in the ECDF at which the distances between units will be displayed.
 #' @return \code{optmatch.summary}
+#' @seealso \code{\link{print.optmatch}}
 #' @method summary optmatch
 #' @S3method summary optmatch
 #' @rdname optmatch
