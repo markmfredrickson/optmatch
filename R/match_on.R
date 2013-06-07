@@ -171,6 +171,13 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
 
 compute_mahalanobis <- function(index, data, z) {
 
+    #cat('==== index\n');
+    #print(index)
+    #cat('==== data\n');    
+    #print(data)
+    #cat('==== z\n');    
+    #print(z)
+    
         if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
 	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
@@ -213,7 +220,7 @@ compute_smahal <- function(index, data, z) {
     }
 
     return(
-        .Call('smahal', index, data, z, PACKAGE='optmatch')
+        .Call('r_smahal', index, data, z, PACKAGE='optmatch')
     )
 }
 
