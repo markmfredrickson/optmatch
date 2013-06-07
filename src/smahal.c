@@ -1,8 +1,4 @@
-#include <R.h>
-#include <Rinternals.h>
-#include <R_ext/Lapack.h>
-
-#define SMAHAL_CUTOFF 1e-10
+#include "smahal.h"
 
 void rank(int n, const double * data, double * ranks) {
   double
@@ -221,12 +217,7 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
   Free(mat_mult);
 }
 
-typedef struct dmat {
-  int nr, nc;
-  double * data;
-} DMAT;
-
-DMAT * smahal_nosexp(int nr, int nc, double * data, int * z) {
+DMAT * smahal(int nr, int nc, double * data, int * z) {
     double
       * col_i,
       * ranks = Calloc(nr * nc, double),
@@ -283,7 +274,7 @@ DMAT * smahal_nosexp(int nr, int nc, double * data, int * z) {
 
     DMAT * out_distances = Calloc(1, DMAT);
     if(out_distances == NULL)
-      error("smahal_nosexp:391:NULL Calloc\n");
+      error("smahal:out_distances:NULL Calloc\n");
 
     out_distances->data = Calloc(ntreat * ncontrol, double);
     out_distances->nr = ntreat;
@@ -310,20 +301,4 @@ DMAT * smahal_nosexp(int nr, int nc, double * data, int * z) {
     Free(ranks);
 
     return out_distances;
-}
-
-SEXP smahal(SEXP index, SEXP data, SEXP z) {
-  DMAT * ans = smahal_nosexp(nrows(data), ncols(data), REAL(data), LOGICAL(z));
-  if(ans == NULL || ans->nr < 1 || ans->nc <1)
-    error("smahal_nosexp returned an invalid answer");
-
-  SEXP out;
-  PROTECT(out = allocMatrix(REALSXP, ans->nr, ans->nc));
-  memcpy(REAL(out), ans->data, ans->nr * ans->nc * sizeof(double));
-
-  Free(ans->data);
-  Free(ans);
-  UNPROTECT(1);
-
-  return out;
 }
