@@ -44,7 +44,7 @@ NA
 #' functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
 #' \code{optmatch} object descends from a \code{factor}, but contains additional
 #' information relating to the quality of the match.
-#' 
+#'
 #' @param distance A \code{DistanceSpecificaton} object used to create the
 #'  match.
 #' @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
@@ -52,13 +52,13 @@ NA
 #' @param data An object from which \code{names} or \code{row.names} will
 #'  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
 #' @return \code{optmatch} object
-#' 
+#'
 #' @seealso \code{\link{summary.optmatch}}
-makeOptmatch <- function(distance, 
-                         solutions, 
+makeOptmatch <- function(distance,
+                         solutions,
                          call,
-                         data = NULL) 
-{ 
+                         data = NULL)
+{
   # pull out just the matching vectors
   matching <- lapply(solutions, function(x) { x$cells })
 
@@ -66,12 +66,12 @@ makeOptmatch <- function(distance,
 
   grpnames <- names(matching)
   if (is.null(grpnames)) {
-    grpnames <- 1:(length(matching))  
+    grpnames <- 1:(length(matching))
   }
-  
+
   optmatch.obj <- Reduce(mapply(function(label, groups) {
         tmp <- groups
-        tmp[!is.na(groups)] <- paste(label, groups[!is.na(groups)], 
+        tmp[!is.na(groups)] <- paste(label, groups[!is.na(groups)],
           sep = ".")
         return(tmp)
         }, grpnames, matching), f = c)
@@ -85,14 +85,14 @@ makeOptmatch <- function(distance,
   # value of the data argument.
   optorder <- NULL
   if(!is.null(data)) {
-    optorder <- row.names(data)  
+    optorder <- row.names(data)
 
     if (is.null(optorder)) {
-      optorder <- names(data)  
+      optorder <- names(data)
     }
 
     if (is.null(optorder) & is.vector(data)) {
-      optorder <- as.character(data)  
+      optorder <- as.character(data)
     }
 
     if (is.null(optorder)) {
@@ -114,13 +114,13 @@ makeOptmatch <- function(distance,
   attr(optmatch.obj, "exceedances") <- tmp
 
   attr(optmatch.obj, "call") <- call
- 
+
   attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
   # TODO TURN ON WHEN MATCHED DISTANCES IS UPDATED
   attr(optmatch.obj, "matched.distances") <- matched.distances(optmatch.obj, distance)
 
   attr(optmatch.obj, "subproblem") <- subproblems
-  
+
   return(optmatch.obj)
 }
 
@@ -150,9 +150,32 @@ makeOptmatch <- function(distance,
   if (!is.null(attr(x, "matched.distances"))) {
     attr(y, "matched.distances") <- attr(x, "matched.distances")
   }
-  
+
   class(y) <- c("optmatch", "factor")
-  
+
   return(y)
 }
 
+##' Returns the restrictions which were used to generate the match.
+##'
+##' If \code{mean.controls} was explicitly specified in the creation of the optmatch object, it is returned; otherwise \code{omit.fraction}
+##' is given.
+##'
+##' Note that if the matching algorithm attempted to recover from initial infeasible restrictions, the output from this function may not be
+##' the same as the original function call.
+##'
+##' @title optmatch_restrictions
+##' @param obj An optmatch object
+##' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
+##' @author Josh Errickson
+optmatch_restrictions <- function(obj)
+  {
+    if (!is(obj, "optmatch")) {
+      stop("Input must be an optmatch object")
+    }
+    if (is.null(attr(obj, "omit.fraction"))) {
+      return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "mean.controls"=attr(obj, "mean.controls")))
+    } else {
+      return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
+    }
+  }
