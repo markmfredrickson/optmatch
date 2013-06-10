@@ -105,13 +105,13 @@ summary.optmatch <- function(object,
 print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...)
   {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
-  if (all(x$matching.failed))
+  if (all(x$matching.failed > 0))
     {
       do.call(cat, warns)
       return(invisible(x))
     }
   
-    if (any(x$matching.failed))  {
+    if (any(x$matching.failed > 0))  {
       cat(paste("Matching failed in subclasses containing",sum(x$matching.failed),
                 "of",length(x$thematch),"observations.\n"))
       cat("Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)\n")
