@@ -25,8 +25,9 @@
 ##' ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 scores <- function(object, newdata=NULL,...)
 {
-    # If user didn't give newdata, extract from model call
-    if(is.null(newdata))
-          newdata <- model.frame(terms(object), data=parent.frame())
-    predict(object, newdata=newdata,...)
+  # If user didn't give newdata, extract from model call
+  if (is.null(newdata)) {
+    newdata <- model.frame(terms(object), data=parent.frame())
+  }
+  predict(object, newdata=newdata, na.action=na.omit,...)
 }
