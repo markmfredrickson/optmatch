@@ -168,14 +168,30 @@ makeOptmatch <- function(distance,
 ##' @param obj An optmatch object
 ##' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
 ##' @author Josh Errickson
-optmatch_restrictions <- function(obj)
-  {
-    if (!is(obj, "optmatch")) {
-      stop("Input must be an optmatch object")
-    }
-    if (is.null(attr(obj, "omit.fraction"))) {
-      return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "mean.controls"=attr(obj, "mean.controls")))
-    } else {
-      return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
+optmatch_restrictions <- function(obj) {
+  if (!is(obj, "optmatch")) {
+    stop("Input must be an optmatch object")
+  }
+  if (is.null(attr(obj, "omit.fraction"))) {
+    return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "mean.controls"=attr(obj, "mean.controls")))
+  } else {
+    return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
+  }
+}
+
+update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
+  if (is.null(call <- attr(optmatch, "call")))
+    stop("optmatch must have a call attribute")
+  extras <- match.call(expand.dots = FALSE)$...
+  if (length(extras)) {
+    existing <- !is.na(match(names(extras), names(call)))
+    for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
+    if (any(!existing)) {
+      call <- c(as.list(call), extras[!existing])
+      call <- as.call(call)
     }
   }
+  if (evaluate)
+    eval(call, parent.frame())
+  else call
+}

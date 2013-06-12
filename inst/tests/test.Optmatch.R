@@ -147,6 +147,41 @@ test_that("optmatch_restrictions", {
   expect_true(all(o$max.controls == 1))
   expect_true(all(o$omit.fraction == c(3/4, 1/2)))
   expect_true(all(is.null(o$mean.controls)))
+})
+
+test_that("update.optmatch", {
+  Z <- c(1,0,0,0,0,1,0,0)
+  B <- c(rep('a', 5), rep('b', 3))
+  d <- as.data.frame(cbind(Z,B))
+
+  res.b <- exactMatch(Z ~ B, data=d)
+
+  f1 <- fullmatch(res.b, data=d)
+  f2 <- fullmatch(res.b, data=d, max.controls = 2)
+  f3 <- fullmatch(res.b, data=d, max.controls = 1)
+  f4 <- fullmatch(res.b, data=d, max.controls = 1, min.controls = 1)
+  f5 <- fullmatch(res.b, data=d, omit.fraction = 1/7)
+  f6 <- fullmatch(res.b, data=d, mean.controls = 1)
+  f7 <- fullmatch(res.b, data=d, tol = .00001)
+  f8 <- fullmatch(res.b, data=d, max.controls = 1, attempt.recovery = FALSE)
+
+  u2 <- update(f1, max.controls=2)
+  u3 <- update(u2, max.controls=1)
+  u4 <- update(u3, min.controls=1)
+  u5 <- update(f1, omit.fraction = 1/7)
+  u6 <- update(f1, mean.controls = 1)
+  u7 <- update(f1, tol = .00001)
+  u8 <- update(f1, max.controls = 1, attempt.recovery = FALSE)
+
+  expect_true(identical(f2, u2))
+  expect_true(identical(f3, u3))
+  expect_true(identical(f4, u4))
+  expect_true(identical(f5, u5))
+  expect_true(identical(f6, u6))
+  expect_true(identical(f7, u7))
+  expect_true(identical(f8, u8))
 
 
+  # update without arguments shouldn't change anything
+  expect_true(identical(f1, update(f1)))
 })
