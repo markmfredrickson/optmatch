@@ -224,3 +224,15 @@ test_that("attr saved after recovery", {
 
 
 })
+
+test_that("fullmatch_try_recovery", {
+  data(nuclearplants)
+
+  mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
+
+  expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+  options("fullmatch_try_recovery" = FALSE)
+  expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+  options("fullmatch_try_recovery" = TRUE)
+  expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+})

@@ -163,7 +163,6 @@ test_that("update.optmatch", {
   f5 <- fullmatch(res.b, data=d, omit.fraction = 1/7)
   f6 <- fullmatch(res.b, data=d, mean.controls = 1)
   f7 <- fullmatch(res.b, data=d, tol = .00001)
-  f8 <- fullmatch(res.b, data=d, max.controls = 1, attempt.recovery = FALSE)
 
   u2 <- update(f1, distance=res.b, max.controls=2)
   u3 <- update(u2, distance=res.b, max.controls=1)
@@ -171,7 +170,6 @@ test_that("update.optmatch", {
   u5 <- update(f1, distance=res.b, omit.fraction = 1/7)
   u6 <- update(f1, distance=res.b, mean.controls = 1)
   u7 <- update(f1, distance=res.b, tol = .00001)
-  u8 <- update(f1, distance=res.b, max.controls = 1, attempt.recovery = FALSE)
 
   expect_true(identical(f2, u2))
   expect_true(identical(f3, u3))
@@ -179,7 +177,6 @@ test_that("update.optmatch", {
   expect_true(identical(f5, u5))
   expect_true(identical(f6, u6))
   expect_true(identical(f7, u7))
-  expect_true(identical(f8, u8))
 
   # update without arguments shouldn't change anything
   expect_true(identical(f1, update(f1, distance=res.b)))

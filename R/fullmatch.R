@@ -1,4 +1,11 @@
-#' Optimal full matching
+#' (Internal) Sets up option to try recovery in fullmatch.
+#
+# @return NULL
+setTryRecovery <- function() {
+  options("fullmatch_try_recovery" = TRUE)
+}
+
+#' #' Optimal full matching
 #'
 #' Given two groups, such as a treatment and a control group, and a
 #' treatment-by-control discrepancy matrix indicating desirability and
@@ -23,6 +30,14 @@
 #' the details of the problem.  If \code{fullmatch} can't guarantee that the
 #' tolerance is as small as the given value of argument \code{tol}, then
 #' matching proceeds but a warning is issued.
+#'
+#' By default, \code{fullmatch} will attempt, if the given constraints are
+#' infeasible, to find a feasible problem using the same constraints.  This will
+#' almost surely involve using a more restrictive \code{omit.fraction} or
+#' \code{mean.controls}. Note that this does not guarantee that the returned
+#' match has the least possible number of omitted subjects, it only gives a
+#' match that will work with the given constraints. This is controlled by
+#' \code{options("fullmatch_try_recovery")}.
 #'
 #' @param distance A matrix of non-negative discrepancies, each indicating the
 #' permissibility and desirability of matching the unit corresponding to its row
@@ -104,13 +119,6 @@
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param attempt.recovery Whether, if the given constraints are infeasible, the
-#' algorithm should attempt to find a feasible problem using the same constraints.
-#' This will involved using a more restrictive \code{omit.fraction} or
-#' \code{mean.controls}. Note that this does not guarantee that the returned match
-#' has the least possible number of omitted subjects, it only gives a match that
-#' will work with the given constraints.
-#'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
 #' @references
@@ -134,8 +142,7 @@ fullmatch <- function(distance,
     omit.fraction = NULL,
     mean.controls = NULL,
     tol = .001,
-    data = NULL,
-    attempt.recovery = TRUE) {
+    data = NULL) {
 
   ### Checking Input ###
 
@@ -363,7 +370,7 @@ fullmatch <- function(distance,
   new.omit.fraction <- numeric(0)
 
 
-  if (attempt.recovery) {
+  if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {
     solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)

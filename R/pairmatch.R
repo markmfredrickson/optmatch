@@ -101,13 +101,13 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
       }
     }
 
-    # a similar procedure is used to remove all control rows that
+    # a similar procedure is used to remove all control cols that
     # are unreachable
 
     if (inherits(prob, "matrix")) {
-      # drop any rows that are entirely NA
-      prob <- prob[, apply(prob, 2, function(row) {
-        any(is.finite(row)) })]
+      # drop any cols that are entirely NA
+      prob <- prob[, apply(prob, 2, function(col) {
+        any(is.finite(col)) })]
     } else {
         # assuming an InfinitySparseMatrix here
         validcols <- which(1:(ncol(prob)) %in% prob@cols)
@@ -124,12 +124,19 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
     stop('not enough controls in some subclasses')
   }
 
-  fullmatch(distance = distance,
+  if(!remove.unmatchables) {
+    saveopt <- options()$fullmatch_try_recovery
+    options("fullmatch_try_recovery" = FALSE)
+  }
+  out <- fullmatch(distance = distance,
             min.controls = controls,
             max.controls = controls,
             omit.fraction = omf,
-            attempt.recovery = remove.unmatchables,
             ...)
+  if(!remove.unmatchables) {
+    options("fullmatch_try_recovery" = saveopt)
+  }
+  return(out)
 }
 
 
