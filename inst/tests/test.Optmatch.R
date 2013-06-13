@@ -165,13 +165,13 @@ test_that("update.optmatch", {
   f7 <- fullmatch(res.b, data=d, tol = .00001)
   f8 <- fullmatch(res.b, data=d, max.controls = 1, attempt.recovery = FALSE)
 
-  u2 <- update(f1, max.controls=2)
-  u3 <- update(u2, max.controls=1)
-  u4 <- update(u3, min.controls=1)
-  u5 <- update(f1, omit.fraction = 1/7)
-  u6 <- update(f1, mean.controls = 1)
-  u7 <- update(f1, tol = .00001)
-  u8 <- update(f1, max.controls = 1, attempt.recovery = FALSE)
+  u2 <- update(f1, distance=res.b, max.controls=2)
+  u3 <- update(u2, distance=res.b, max.controls=1)
+  u4 <- update(u3, distance=res.b, min.controls=1)
+  u5 <- update(f1, distance=res.b, omit.fraction = 1/7)
+  u6 <- update(f1, distance=res.b, mean.controls = 1)
+  u7 <- update(f1, distance=res.b, tol = .00001)
+  u8 <- update(f1, distance=res.b, max.controls = 1, attempt.recovery = FALSE)
 
   expect_true(identical(f2, u2))
   expect_true(identical(f3, u3))
@@ -181,7 +181,53 @@ test_that("update.optmatch", {
   expect_true(identical(f7, u7))
   expect_true(identical(f8, u8))
 
-
   # update without arguments shouldn't change anything
-  expect_true(identical(f1, update(f1)))
+  expect_true(identical(f1, update(f1, distance=res.b)))
+
+  # demand a distance argument
+  expect_error(update(u2, max.controls=3), "distance must be re-specified when calling update on an optmatch object")
+
+  # "distance" can be abbreviated
+  expect_true(identical(f1, update(f1, dist=res.b)))
+  expect_true(identical(f1, update(f1, d=res.b)))
+  expect_true(identical(f2, update(f1, d=res.b, max.controls = 2)))
+  expect_true(identical(f2, update(f1, max.controls = 2, d=res.b)))
+
+  # passing a difference distance
+  set.seed(9876)
+  x <- rnorm(10)
+  y <- runif(10)
+  z <- c(rep(0,6), rep(1,4))
+  d1 <- as.data.frame(cbind(x,y,z))
+
+  res.b1 <- match_on(z ~ x, data=d1)
+  res.b2 <- match_on(z ~ y, data=d1)
+
+  f1 <- fullmatch(res.b1, data = d1)
+  f2 <- fullmatch(res.b2, data = d1)
+
+  expect_true(!identical(f1,f2))
+
+  expect_true(identical(f2, update(f1, dist=res.b2)))
+  expect_true(identical(f1, update(f2, dist=res.b1)))
+  expect_true(!identical(f1, update(f2, dist=res.b2)))
+
+  f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
+  u3a <- update(f1, dis = res.b1, max.controls = 2)
+  u3b <- update(f2, dis = res.b1, max.controls = 2)
+
+  expect_true(identical(f3, u3a))
+  expect_true(identical(f3, u3b))
+
+  # change distance between calls
+
+  res.c <- match_on(z ~ x, data = d1)
+
+  fc <- fullmatch(res.c, data=d1)
+
+  res.c <- match_on(z ~ y, data = d1)
+
+  uc <- update(fc, dista = res.c)
+
+  expect_true(!identical(fc, uc))
 })

@@ -183,6 +183,14 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
+
+  # demand distance be given, and give its full name if abbrev. is given.
+  if(any(pmatch(names(extras), "distance") == 1, na.rm=TRUE)) {
+    names(extras)[which(pmatch(names(extras), "distance") == 1)] <- "distance"
+  } else {
+    stop("distance must be re-specified when calling update on an optmatch object")
+  }
+
   if (length(extras)) {
     existing <- !is.na(match(names(extras), names(call)))
     for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
