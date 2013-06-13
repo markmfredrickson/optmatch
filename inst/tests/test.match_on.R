@@ -22,6 +22,14 @@ test_that("Distances from glms", {
   expect_true(validDistanceSpecification(result.glm))
   expect_equal(length(result.glm), (n/2)^2)
 
+  # what about classes that inherit from glm?
+  class(test.glm) <- c("foo", class(test.glm))
+
+  result.foo <- match_on(test.glm)
+
+  expect_true(validDistanceSpecification(result.foo))
+  expect_equal(length(result.foo), (n/2)^2)
+
 })
 
 test_that("Distances from formulas", {
