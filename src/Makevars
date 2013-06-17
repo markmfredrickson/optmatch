@@ -1,0 +1,7 @@
+REXEC = $(R_HOME)/bin/$(R_ARCH_BIN)/R
+
+MY_LAPACK_LIBS = $(shell $(REXEC) CMD config LAPACK_LIBS)
+MY_BLAS_LIBS = $(shell $(REXEC) CMD config BLAS_LIBS)
+MY_FLIBS = $(shell $(REXEC) CMD config FLIBS)
+
+PKG_LIBS = $(MY_LAPACK_LIBS) $(MY_BLAS_LIBS) $(MY_FLIBS)
