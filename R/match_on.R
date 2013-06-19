@@ -214,7 +214,7 @@ compute_mahalanobis <- function(index, data, z) {
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
-compute_smahal <- function(index, data, z) {
+compute_rank.mahalanobis <- function(index, data, z) {
     if (!all(is.finite(data))) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
@@ -223,6 +223,10 @@ compute_smahal <- function(index, data, z) {
         .Call('r_smahal', index, data, z, PACKAGE='optmatch')
     )
 }
+
+# another short alias
+compute_rank.mahal <- compute_rank.mahalanobis
+
 
 compute_euclidean <- function(index, data, z) {
 
