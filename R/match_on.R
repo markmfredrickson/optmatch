@@ -52,10 +52,11 @@
 #' pairs with values greater than the width. For some methods, there may be a
 #' speed advantage to passing a width rather than using the
 #' \code{\link{caliper}} function on an existing distance specification.
+#' @param data An optional data frame.
+#' @param ... Other arguments for methods.
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}.
-#' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
 #' P.~R. Rosenbaum and D.~B. Rubin (1985),
@@ -67,7 +68,7 @@
 #' @docType methods
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
-match_on <- function(x, within = NULL, caliper = NULL, ...) {
+match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   cl <- match.call()
   UseMethod("match_on")
 }
@@ -89,10 +90,10 @@ match_on <- function(x, within = NULL, caliper = NULL, ...) {
 #'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
-#' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, z = NULL, data = NULL, ...)
+#' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,function-method
-match_on.function <- function(x, within = NULL, caliper = NULL, z = NULL, data = NULL, ...) {
+match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
@@ -246,10 +247,10 @@ compute_euclidean <- function(index, data, z) {
 #' the \code{numeric} method.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
-#' @usage \S4method{match_on}{glm}(x, within = NULL, caliper = NULL, standardization.scale = mad, ...)
+#' @usage \S4method{match_on}{glm}(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,glm-method
-match_on.glm <- function(x, within = NULL, caliper = NULL, standardization.scale = mad, ...) {
+match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
 
@@ -329,10 +330,10 @@ are there missing values in data?")
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
 #'
 #' For the numeric method, \code{x} must have names.
-#' @usage \S4method{match_on}{numeric}(x, within = NULL, caliper = NULL, z, ...)
+#' @usage \S4method{match_on}{numeric}(x, within = NULL, caliper = NULL, data = NULL, z, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,numeric-method
-match_on.numeric <- function(x, within = NULL, caliper = NULL, z, ...) {
+match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
 
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric match_on method.")
@@ -411,7 +412,7 @@ scoreCaliper <- function(x, z, caliper) {
 #'
 #' @rdname match_on-methods
 #' @aliases match_on,InfinitySparseMatrix-method
-match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, ...) {
+match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
@@ -419,7 +420,7 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, ...)
 
 #' @rdname match_on-methods
 #' @aliases match_on,matrix-method
-match_on.matrix <- function(x, within = NULL, caliper = NULL, ...) {
+match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
