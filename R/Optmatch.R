@@ -178,18 +178,30 @@ optmatch_restrictions <- function(obj) {
     return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
   }
 }
+##' Checks if the distance \code{newdist} is identical to the distance used to generate the optmatch object \code{obj}.
+##'
+##' To save space, optmatch objects merely store a hash of the distance matrix instead of the original object. This checks if the hash of
+##' \code{newdist} is identical to the hash currently saved in \code{obj}.
+##' @param obj An optmatch object.
+##' @param newdist A distance
+##' @return Boolean whether the two distance specifications are identical.
+##' @author Josh Errickson
+##' @import digest
+optmatch_same_distance <- function(obj, newdist) {
+  if (!is(obj, "optmatch")) {
+    stop("obj must be an optmatch object")
+  }
+  if (!class(newdist) %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
+    stop("newdist must be a valid distance")
+  }
+
+  return(attr(obj, "hashed.distance") == digest(newdist))
+}
 
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
-
-  # demand distance be given, and give its full name if abbrev. is given.
-  if(any(pmatch(names(extras), "distance") == 1, na.rm=TRUE)) {
-    names(extras)[which(pmatch(names(extras), "distance") == 1)] <- "distance"
-  } else {
-    stop("distance must be re-specified when calling update on an optmatch object")
-  }
 
   if (length(extras)) {
     existing <- !is.na(match(names(extras), names(call)))
@@ -199,6 +211,14 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
       call <- as.call(call)
     }
   }
+
+  # check if distance in the new call is identical to distance in the original object
+  newdigest <- digest(eval(parse(text=call[2]), envir=parent.frame()))
+  if(newdigest != attr(optmatch, "hashed.distance")) {
+    warning(paste("Distance given in update (", newdigest, ") is different than distance used to generate fullmatch (",
+                  attr(optmatch,"hashed.distance"), ").", sep=''))
+  }
+
   if (evaluate)
     eval(call, parent.frame())
   else call

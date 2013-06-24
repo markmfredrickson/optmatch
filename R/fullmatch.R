@@ -135,6 +135,7 @@ setTryRecovery <- function() {
 #'
 #' @example inst/examples/fullmatch.R
 #' @keywords nonparametric optimize
+#' @import digest
 #' @export
 fullmatch <- function(distance,
     min.controls = 0,
@@ -408,6 +409,9 @@ fullmatch <- function(distance,
       warning("The problem is infeasible with the given constraints; some units were omitted to allow a match.")
     }
   }
+
+  # save hash of distance
+  attr(mout, "hashed.distance") <- digest(distance)
 
   return(mout)
 }

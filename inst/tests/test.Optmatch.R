@@ -149,6 +149,32 @@ test_that("optmatch_restrictions", {
   expect_true(all(is.null(o$mean.controls)))
 })
 
+test_that("optmatch_same_distance", {
+  Z <- c(1,0,0,0,0,1,0,0)
+  B <- c(rep('a', 5), rep('b', 3))
+  d <- as.data.frame(cbind(Z,B))
+
+  res.b <- exactMatch(Z ~ B, data=d)
+  res.b2 <- res.b
+  res.b2@.Data[1] <- 1
+
+  f1 <- fullmatch(res.b, data=d)
+  f2 <- fullmatch(res.b2, data=d)
+  f3 <- fullmatch(res.b, data=d, max.controls=1)
+
+  expect_true(optmatch_same_distance(f1, res.b))
+  expect_true(optmatch_same_distance(f2, res.b2))
+  expect_true(optmatch_same_distance(f3, res.b))
+
+  expect_true(!optmatch_same_distance(f1, res.b2))
+  expect_true(!optmatch_same_distance(f2, res.b))
+  expect_true(!optmatch_same_distance(f3, res.b2))
+
+  expect_error(optmatch_same_distance(res.b, res.b), "obj must be an optmatch object")
+  expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "newdist must be a valid distance")
+})
+
+
 test_that("update.optmatch", {
   Z <- c(1,0,0,0,0,1,0,0)
   B <- c(rep('a', 5), rep('b', 3))
@@ -164,12 +190,12 @@ test_that("update.optmatch", {
   f6 <- fullmatch(res.b, data=d, mean.controls = 1)
   f7 <- fullmatch(res.b, data=d, tol = .00001)
 
-  u2 <- update(f1, distance=res.b, max.controls=2)
-  u3 <- update(u2, distance=res.b, max.controls=1)
-  u4 <- update(u3, distance=res.b, min.controls=1)
-  u5 <- update(f1, distance=res.b, omit.fraction = 1/7)
-  u6 <- update(f1, distance=res.b, mean.controls = 1)
-  u7 <- update(f1, distance=res.b, tol = .00001)
+  u2 <- update(f1, max.controls=2)
+  u3 <- update(u2, max.controls=1)
+  u4 <- update(u3, min.controls=1)
+  u5 <- update(f1, omit.fraction = 1/7)
+  u6 <- update(f1, mean.controls = 1)
+  u7 <- update(f1, tol = .00001)
 
   expect_true(identical(f2, u2))
   expect_true(identical(f3, u3))
@@ -179,16 +205,7 @@ test_that("update.optmatch", {
   expect_true(identical(f7, u7))
 
   # update without arguments shouldn't change anything
-  expect_true(identical(f1, update(f1, distance=res.b)))
-
-  # demand a distance argument
-  expect_error(update(u2, max.controls=3), "distance must be re-specified when calling update on an optmatch object")
-
-  # "distance" can be abbreviated
-  expect_true(identical(f1, update(f1, dist=res.b)))
-  expect_true(identical(f1, update(f1, d=res.b)))
-  expect_true(identical(f2, update(f1, d=res.b, max.controls = 2)))
-  expect_true(identical(f2, update(f1, max.controls = 2, d=res.b)))
+  expect_true(identical(f1, update(f1)))
 
   # passing a difference distance
   set.seed(9876)
@@ -205,13 +222,15 @@ test_that("update.optmatch", {
 
   expect_true(!identical(f1,f2))
 
-  expect_true(identical(f2, update(f1, dist=res.b2)))
-  expect_true(identical(f1, update(f2, dist=res.b1)))
-  expect_true(!identical(f1, update(f2, dist=res.b2)))
+  expect_warning(u1 <- update(f2, distance=res.b1))
+  expect_warning(u2 <- update(f1, distance=res.b2))
+  expect_true(identical(f1,u1))
+  expect_true(identical(f2,u2))
+  expect_true(!identical(f2,u1))
 
   f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
-  u3a <- update(f1, dis = res.b1, max.controls = 2)
-  u3b <- update(f2, dis = res.b1, max.controls = 2)
+  u3a <- update(f1, max.controls = 2)
+  expect_warning(u3b <- update(f2, distance = res.b1, max.controls = 2))
 
   expect_true(identical(f3, u3a))
   expect_true(identical(f3, u3b))
@@ -224,7 +243,22 @@ test_that("update.optmatch", {
 
   res.c <- match_on(z ~ y, data = d1)
 
-  uc <- update(fc, dista = res.c)
+  expect_warning(uc <- update(fc, distance = res.c))
 
   expect_true(!identical(fc, uc))
+
+  # odd ordering of parameters
+  fo <- fullmatch(data = d1, distance = res.c)
+  uo <- update(fo, max.controls=2)
+  fo <- fullmatch(data = d1, distance = res.c, max.controls=2)
+
+  expect_true(identical(fo, uo))
+
+  # two updates, first changing data, only one warning
+
+  ftu <- fullmatch(res.c, data=d1)
+  expect_warning(utu1 <- update(ftu, distance=res.b))
+  expect_warning(utu2 <- update(utu1, max.controls=2), "The problem is infeasible with the given constraints; some units were omitted to allow a match.")
+  expect_warning(ftu2 <- fullmatch(res.b, data=d1, max.controls=2))
+  expect_true(identical(ftu2, utu2))
 })
