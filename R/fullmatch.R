@@ -5,7 +5,57 @@ setTryRecovery <- function() {
   options("fullmatch_try_recovery" = TRUE)
 }
 
-#' #' Optimal full matching
+##' Generic fullmatch method.
+##'
+##' @param x Formula or distance specification.
+##' @param min.controls Min # controls
+##' @param max.controls Max # controls
+##' @param omit.fraction Omit fraction
+##' @param tol Tolerance level.
+##' @param data Dataframe
+##' @param ... Additional parameters
+##' @return Match
+##' @export
+##' @author Josh
+fullmatch <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    mean.controls = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+  cl <- match.call()
+  UseMethod("fullmatch")
+}
+
+##' Takes a formula, calls fullmatch.InfinitySparseMatrix after computing match_on
+##'
+##' @param x Formula
+##' @param within Optional within parameter
+##' @param min.controls Min # controls
+##' @param max.controls Max # controls
+##' @param omit.fraction Omit fraction
+##' @param tol Tolerance level
+##' @param data Dataframe
+##' @param ... Additional parameters
+##' @return Match
+##' @export
+fullmatch.formula <- function(x,
+    within=NULL,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+  m <- match_on(x, within=within, data=data, ...)
+  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=data, ...)
+  attr(out, "call") <- cl
+  out
+}
+
+#' Optimal full matching
 #'
 #' Given two groups, such as a treatment and a control group, and a
 #' treatment-by-control discrepancy matrix indicating desirability and
@@ -137,13 +187,14 @@ setTryRecovery <- function() {
 #' @keywords nonparametric optimize
 #' @import digest
 #' @export
-fullmatch <- function(distance,
+fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(distance,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
     mean.controls = NULL,
     tol = .001,
-    data = NULL) {
+    data = NULL,
+    ...) {
 
   ### Checking Input ###
 
