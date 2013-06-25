@@ -11,6 +11,7 @@
 #' @param max.controls Like \code{min.controls} sets maximum group sized displayed with respect to the number of controls. Raise this value to see more groups.
 #' @param quantiles A points in the ECDF at which the distances between units will be displayed.
 #' @return \code{optmatch.summary}
+#' @seealso \code{\link{print.optmatch}}
 #' @method summary optmatch
 #' @S3method summary optmatch
 #' @rdname optmatch
@@ -26,7 +27,7 @@ summary.optmatch <- function(object,
 ## overall balance -- xBalance()
   so <- list()
   so$thematch <- object
-  so$matching.failed <- mfd <- is.na(object)
+  mfd <- is.na(object)
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
@@ -35,6 +36,8 @@ summary.optmatch <- function(object,
                        )
       return(so)
     }
+  subprobs <- attr(object, "subproblem")
+  so$matching.failed <- tapply(mfd, subprobs, function(x) if (all(x)) sum(x) else 0)
   so$matched.set.structures <- stratumStructure(object[!mfd, drop=TRUE],min.controls=min.controls,max.controls=max.controls)
   so$effective.sample.size <- attr(so$matched.set.structures, "comparable.num.matched.pairs")
 
@@ -103,15 +106,15 @@ summary.optmatch <- function(object,
 print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...)
   {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
-  if (all(x$matching.failed))
+  if (all(x$matching.failed > 0))
     {
       do.call(cat, warns)
       return(invisible(x))
     }
   
-    if (any(x$matching.failed))  {
+    if (any(x$matching.failed > 0))  {
       cat(paste("Matching failed in subclasses containing",sum(x$matching.failed),
-                "of",length(x$matching.failed),"observations.\n"))
+                "of",length(x$thematch),"observations.\n"))
       cat("Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)\n")
     } 
 
