@@ -257,7 +257,7 @@ test_that("full() and pair() are alises to _match functions", {
   expect_equivalent(pairmatch(dists), pair(dists))
 })
 
-test_that("fullmatch.formula", {
+test_that("fullmatch UI cleanup", {
   n <- 14
   Z <- c(rep(0, n/2), rep(1, n/2))
   X1 <- rnorm(n, mean = 5)
@@ -273,8 +273,79 @@ test_that("fullmatch.formula", {
 
   attr(fm.dist, "call") <- NULL
   attr(fm.form, "call") <- NULL
-
   expect_true(identical(fm.dist, fm.form))
+
+  # passing a glm
+  ps <- glm(Z~X1+X2, data=test.data, family=binomial)
+
+  fm.ps <- fullmatch(ps, data=test.data, caliper=2)
+
+  fm.glm <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2)
+  expect_warning(fm.glm2 <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), caliper=2))
+  # should be the same, but different group names
+  expect_true(all.equal(attr(fm.glm, "matched.distances"), attr(fm.glm2, "matched.distances")))
+
+  attr(fm.ps, "call") <- NULL
+  attr(fm.glm, "call") <- NULL
+  expect_true(identical(fm.ps, fm.glm))
+
+  # with predict
+
+  ps <- glm(Z~X2, data=test.data, family=binomial)
+
+  m <- match_on(Z ~ X1 + predict(ps), within=exactMatch(Z~B), data=test.data)
+
+  fm.dist <- fullmatch(m, data=test.data)
+
+  fm.form <- fullmatch(Z~ X1 + predict(ps), within=exactMatch(Z~B), data=test.data)
+
+  attr(fm.dist, "call") <- NULL
+  attr(fm.form, "call") <- NULL
+  expect_true(identical(fm.dist, fm.form))
+
+  # passing integer
+
+  names(X1) <- row.names(test.data)
+  names(Z) <- row.names(test.data)
+  fm.vector <- fullmatch(X1,z=Z, data=test.data, caliper=1)
+  expect_warning(fm.vector2 <- fullmatch(X1,z=Z, caliper=1))
+  # should be the same, but different group names
+  expect_true(all.equal(attr(fm.vector, "matched.distances"), attr(fm.vector2, "matched.distances")))
+
+  m <- match_on(X1, z=Z, caliper=1)
+  fm.mi <- fullmatch(m, data=test.data)
+
+  attr(fm.vector, "call") <- NULL
+  attr(fm.mi, "call") <- NULL
+  expect_true(identical(fm.vector, fm.mi))
+
+  # function
+
+  n <- 16
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rep(c(1,2,3,4), each = n/4)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, B)
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "X1"] - data[index[,2], "X1"])
+  }
+
+  result.function <- match_on(sdiffs, z = Z, data = test.data)
+
+  fm.funcres <- fullmatch(result.function, data=test.data)
+
+  fm.func <- fullmatch(sdiffs, z = Z, data=test.data)
+  expect_error(fullmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
+
+  attr(fm.funcres, "call") <- NULL
+  attr(fm.func, "call") <- NULL
+  expect_true(identical(fm.funcres, fm.func))
+
+  # passing bad arguments
+
+  expect_error(fullmatch(test.data), "Invalid input, must be a potential argument to match_on")
+  expect_error(fullmatch(TRUE), "Invalid input, must be a potential argument to match_on")
 
 
 })

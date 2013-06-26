@@ -29,9 +29,9 @@ fullmatch <- function(x,
   UseMethod("fullmatch")
 }
 
-##' Takes a formula, calls fullmatch.InfinitySparseMatrix after computing match_on
+##' Takes any object that match_on can operate upon.
 ##'
-##' @param x Formula
+##' @param x Any object that is able to be match_on'd
 ##' @param within Optional within parameter
 ##' @param min.controls Min # controls
 ##' @param max.controls Max # controls
@@ -41,7 +41,7 @@ fullmatch <- function(x,
 ##' @param ... Additional parameters
 ##' @return Match
 ##' @export
-fullmatch.formula <- function(x,
+fullmatch.default <- function(x,
     within=NULL,
     min.controls = 0,
     max.controls = Inf,
@@ -49,8 +49,30 @@ fullmatch.formula <- function(x,
     tol = .001,
     data = NULL,
     ...) {
-  m <- match_on(x, within=within, data=data, ...)
-  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=data, ...)
+  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+    stop("Invalid input, must be a potential argument to match_on")
+  }
+  mfd <- if (!is.null(data)) {
+    model.frame(data)
+  } else {
+    warning("Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.")
+    if (inherits(x, "function")) {
+      stop("A data argument must be given when passing a function")
+    }
+    if (inherits(x, "numeric")) {
+      d <- data.frame(cbind(x, list(...)$z))
+      names(d)[2] <- "z"
+      d
+    } else {
+      model.frame(x)
+    }
+  }
+  if (!class(mfd) == "data.frame") {
+    stop("Please pass data argument")
+  }
+  m <- match_on(x, within=within, data=mfd, ...)
+  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=mfd, ...)
   attr(out, "call") <- cl
   out
 }
