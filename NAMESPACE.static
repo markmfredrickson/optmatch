@@ -43,7 +43,7 @@ S3method(mdist, "function")
 S3method(mdist, numeric)
 S3method(mdist, bigglm)
 
-S3method(fullmatch, formula)
+S3method(fullmatch, default)
 S3method(fullmatch, InfinitySparseMatrix)
 S3method(fullmatch, BlockedInfinitySparseMatrix)
 S3method(fullmatch, optmatch.dlist)
