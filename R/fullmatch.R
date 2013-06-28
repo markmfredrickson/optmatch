@@ -1,74 +1,3 @@
-##' Generic fullmatch method.
-##'
-##' @param x Formula or distance specification.
-##' @param min.controls Min # controls
-##' @param max.controls Max # controls
-##' @param omit.fraction Omit fraction
-##' @param tol Tolerance level.
-##' @param data Dataframe
-##' @param ... Additional parameters
-##' @return Match
-##' @export
-##' @author Josh
-fullmatch <- function(x,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    tol = .001,
-    data = NULL,
-    ...) {
-  cl <- match.call()
-  UseMethod("fullmatch")
-}
-
-##' Takes any object that match_on can operate upon.
-##'
-##' @param x Any object that is able to be match_on'd
-##' @param within Optional within parameter
-##' @param min.controls Min # controls
-##' @param max.controls Max # controls
-##' @param omit.fraction Omit fraction
-##' @param tol Tolerance level
-##' @param data Dataframe
-##' @param ... Additional parameters
-##' @return Match
-##' @export
-fullmatch.default <- function(x,
-    within=NULL,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    tol = .001,
-    data = NULL,
-    ...) {
-  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
-    stop("Invalid input, must be a potential argument to match_on")
-  }
-  mfd <- if (!is.null(data)) {
-    model.frame(data)
-  } else {
-    warning("Without 'data' argument the order of the match is not guaranteed
-    to be the same as your original data.")
-    if (inherits(x, "function")) {
-      stop("A data argument must be given when passing a function")
-    }
-    if (inherits(x, "numeric")) {
-      d <- data.frame(cbind(x, list(...)$z))
-      names(d)[2] <- "z"
-      d
-    } else {
-      model.frame(x)
-    }
-  }
-  if (!class(mfd) == "data.frame") {
-    stop("Please pass data argument")
-  }
-  m <- match_on(x, within=within, data=mfd, ...)
-  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=mfd, ...)
-  attr(out, "call") <- cl
-  out
-}
-
 #' Optimal full matching
 #'
 #' Given two groups, such as a treatment and a control group, and a
@@ -95,10 +24,15 @@ fullmatch.default <- function(x,
 #' tolerance is as small as the given value of argument \code{tol}, then
 #' matching proceeds but a warning is issued.
 #'
-#' @param distance A matrix of non-negative discrepancies, each indicating the
-#' permissibility and desirability of matching the unit corresponding to its row
-#' (a 'treatment') to the unit corresponding to its column (a 'control'); or,
-#' better, a distance specification as produced by \code{\link{match_on}}.
+#' @param x Any valid input to \code{match_on}. \code{fullmatch} will use
+#' \code{x} and any optional arguments to generate a distance before performing
+#' the matching.
+#'
+#' Alternatively, a pre-computed distance may be entered. A matrix of
+#' non-negative discrepancies, each indicating the permissibility and
+#' desirability of matching the unit corresponding to its row (a 'treatment') to
+#' the unit corresponding to its column (a 'control'); or, better, a distance
+#' specification as produced by \code{\link{match_on}}.
 #'
 #' @param min.controls The minimum ratio of controls to treatments that is to
 #' be permitted within a matched set: should be non-negative and finite.  If
@@ -159,6 +93,8 @@ fullmatch.default <- function(x,
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
+#' @param ... Additional arguments.
+#'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
 #' @references
@@ -176,6 +112,81 @@ fullmatch.default <- function(x,
 #' @example inst/examples/fullmatch.R
 #' @keywords nonparametric optimize
 #' @export
+fullmatch <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+  cl <- match.call()
+  UseMethod("fullmatch")
+}
+
+##' @aliases fullmatch
+fullmatch.default <- function(x,
+    within=NULL,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+    stop("Invalid input, must be a potential argument to match_on")
+  }
+  mfd <- if (!is.null(data)) {
+    model.frame(data)
+  } else {
+    if (inherits(x, "function")) {
+      stop("A data argument must be given when passing a function")
+    }
+    warning("Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.")
+    model.frame(x)
+  }
+  if (!class(mfd) == "data.frame") {
+    stop("Please pass data argument")
+  }
+  m <- match_on(x, within=within, data=mfd, ...)
+  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=mfd, ...)
+  attr(out, "call") <- cl
+  out
+}
+##' \code{fullmatch} method for a vector of numeric inputs.
+##'
+##' An additional argument, \code{z}, must be given, which is the treatment
+##' status of each individual.
+##'
+##' If \code{data} is not specified, \code{x} and \code{z} must be named vectors.
+##' @param x A vector of numeric values.
+##' @param z A vector of treatment flags.
+##' @param within See \code{fullmatch} for full specification.
+##' @param min.controls See \code{fullmatch} for full specification.
+##' @param max.controls See \code{fullmatch} for full specification.
+##' @param omit.fraction See \code{fullmatch} for full specification.
+##' @param tol See \code{fullmatch} for full specification.
+##' @param data See \code{fullmatch} for full specification.
+##' @param ... Additional arguments to \code{match_on}.
+##' @return See \code{fullmatch} for full specification.
+fullmatch.numeric <- function(x,
+    z,
+    within=NULL,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+
+  m <- match_on(x, within=within, z=z, ...)
+  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=data, ...)
+  attr(out, "call") <- cl
+  out
+}
+
+
+##' @aliases fullmatch
 fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(distance,
     min.controls = 0,
     max.controls = Inf,

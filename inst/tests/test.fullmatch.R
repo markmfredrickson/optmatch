@@ -303,7 +303,7 @@ test_that("fullmatch UI cleanup", {
   attr(fm.form, "call") <- NULL
   expect_true(identical(fm.dist, fm.form))
 
-  # passing integer
+  # passing numeric
 
   names(X1) <- row.names(test.data)
   names(Z) <- row.names(test.data)
