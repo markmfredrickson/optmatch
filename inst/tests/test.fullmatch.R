@@ -264,16 +264,28 @@ test_that("fullmatch UI cleanup", {
   X2 <- rnorm(n, mean = -2, sd = 2)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, X2, B)
+  rm(Z)
+  rm(X1)
+  rm(X2)
+  rm(B)
+  rm(n)
 
-  m <- match_on(Z~X1 + X2, within=exactMatch(Z~B), data=test.data, caliper=2)
+  m <- match_on(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
   fm.dist <- fullmatch(m, data=test.data)
 
-  fm.form <- fullmatch(Z~X1 + X2, within=exactMatch(Z~B), data=test.data, caliper=2)
+  fm.form <- fullmatch(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
   attr(fm.dist, "call") <- NULL
   attr(fm.form, "call") <- NULL
   expect_true(identical(fm.dist, fm.form))
+
+  # with "with()"
+
+  expect_warning(fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2)))
+
+  attr(fm.with, "call") <- NULL
+  expect_true(identical(fm.dist, fm.with))
 
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
@@ -293,17 +305,20 @@ test_that("fullmatch UI cleanup", {
 
   ps <- glm(Z~X2, data=test.data, family=binomial)
 
-  m <- match_on(Z ~ X1 + predict(ps), within=exactMatch(Z~B), data=test.data)
+  m <- match_on(Z ~ X1 + predict(ps), within=exactMatch(Z~B, data=test.data), data=test.data)
 
   fm.dist <- fullmatch(m, data=test.data)
 
-  fm.form <- fullmatch(Z~ X1 + predict(ps), within=exactMatch(Z~B), data=test.data)
+  fm.form <- fullmatch(Z~ X1 + predict(ps), within=exactMatch(Z~B, data=test.data), data=test.data)
 
   attr(fm.dist, "call") <- NULL
   attr(fm.form, "call") <- NULL
   expect_true(identical(fm.dist, fm.form))
 
   # passing numeric
+
+  X1 <- test.data$X1
+  Z <- test.data$Z
 
   names(X1) <- row.names(test.data)
   names(Z) <- row.names(test.data)
@@ -326,16 +341,20 @@ test_that("fullmatch UI cleanup", {
   X1 <- rep(c(1,2,3,4), each = n/4)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, B)
+  rm(n)
+  rm(Z)
+  rm(X1)
+  rm(B)
 
   sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
   }
 
-  result.function <- match_on(sdiffs, z = Z, data = test.data)
+  result.function <- match_on(sdiffs, z = test.data$Z, data = test.data)
 
   fm.funcres <- fullmatch(result.function, data=test.data)
 
-  fm.func <- fullmatch(sdiffs, z = Z, data=test.data)
+  fm.func <- fullmatch(sdiffs, z = test.data$Z, data=test.data)
   expect_error(fullmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
 
   attr(fm.funcres, "call") <- NULL
