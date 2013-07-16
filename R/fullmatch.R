@@ -158,12 +158,13 @@ fullmatch <- function(x,
 
 ##' @aliases fullmatch
 fullmatch.default <- function(x,
-    within=NULL,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
+    mean.controls = NULL,
     tol = .001,
     data = NULL,
+    within=NULL,
     ...) {
   if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
     stop("Invalid input, must be a potential argument to match_on")
@@ -182,7 +183,14 @@ fullmatch.default <- function(x,
     stop("Please pass data argument")
   }
   m <- match_on(x, within=within, data=mfd, ...)
-  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=mfd, ...)
+  out <- fullmatch(m,
+                   min.controls=min.controls,
+                   max.controls=max.controls,
+                   omit.fraction=omit.fraction,
+                   mean.controls=mean.controls,
+                   tol=tol,
+                   data=mfd,
+                   ...)
   attr(out, "call") <- cl
   out
 }
@@ -199,29 +207,38 @@ fullmatch.default <- function(x,
 ##' @param min.controls See \code{fullmatch} for full specification.
 ##' @param max.controls See \code{fullmatch} for full specification.
 ##' @param omit.fraction See \code{fullmatch} for full specification.
+##' @param mean.controls See \code{fullmatch} for full specification.
 ##' @param tol See \code{fullmatch} for full specification.
 ##' @param data See \code{fullmatch} for full specification.
 ##' @param ... Additional arguments to \code{match_on}.
 ##' @return See \code{fullmatch} for full specification.
 fullmatch.numeric <- function(x,
-    z,
-    within=NULL,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
+    mean.controls = NULL,
     tol = .001,
     data = NULL,
+    z,
+    within=NULL,
     ...) {
 
   m <- match_on(x, within=within, z=z, ...)
-  out <- fullmatch(m, min.controls=min.controls, max=max.controls, omit.fraction=omit.fraction, tol=tol, data=data, ...)
+  out <- fullmatch(m,
+                   min.controls=min.controls,
+                   max.controls=max.controls,
+                   omit.fraction=omit.fraction,
+                   mean.controls=mean.controls,
+                   tol=tol,
+                   data=data,
+                   ...)
   attr(out, "call") <- cl
   out
 }
 
 
 ##' @aliases fullmatch
-fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(distance,
+fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
@@ -233,7 +250,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   ### Checking Input ###
 
   # this will throw an error if not valid
-  validDistanceSpecification(distance)
+  validDistanceSpecification(x)
 
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed
@@ -241,13 +258,13 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   }
 
   # note: we might want to move these checks to validDistSpec
-  dnms <- dimnames(distance)
+  dnms <- dimnames(x)
   if (is.null(dnms) | is.null(dnms[[1]]) | is.null(dnms[[2]])) {
-    stop("argument \'distance\' must have dimnames")
+    stop("argument \'x\' must have dimnames")
   }
 
   if (any(duplicated(unlist(dnms)))){
-    stop("dimnames of argument \'distance\' contain duplicates")
+    stop("dimnames of argument \'x\' contain duplicates")
   }
 
   nmtrt <- dnms[[1]]
@@ -255,8 +272,8 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
   # note: this next _should_ be unnecessary, the objects should do this
   # but better safe than sorry
-  if (!isTRUE(all.equal(dim(distance), c(length(nmtrt), length(nmctl))))) {
-    stop("argument \'distance\' dimensions do not match row and column names")
+  if (!isTRUE(all.equal(dim(x), c(length(nmtrt), length(nmctl))))) {
+    stop("argument \'x\' dimensions do not match row and column names")
   }
 
   if (!is.numeric(min.controls)) {
@@ -282,7 +299,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
   # problems is guaranteed to be a list of DistanceSpecifictions
   # it may only have 1 entry
-  problems <- findSubproblems(distance)
+  problems <- findSubproblems(x)
 
   # the number of problems should match the argument lengths for
   # min, max, and omit
@@ -338,7 +355,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   }
 
   if (any(!is.na(mean.controls))) {
-    if (any(mean.controls > lapply(subdim(distance), function(x) x[2]/x[1]), na.rm=TRUE)) {
+    if (any(mean.controls > lapply(subdim(x), function(x) x[2]/x[1]), na.rm=TRUE)) {
       stop("mean.controls cannot be larger than the ratio of number of controls to treatments")
     }
   }
@@ -355,10 +372,10 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
   if (any(!is.na(mean.controls) & is.na(omit.fraction))) {
     user.input.mean.controls <- TRUE
-    omit.fraction <- 1 - mapply(function(x,y) x*y[1]/y[2], mean.controls, subdim(distance))
+    omit.fraction <- 1 - mapply(function(x,y) x*y[1]/y[2], mean.controls, subdim(x))
   }
 
-  total.n <- sum(dim(distance))
+  total.n <- sum(dim(x))
 
   TOL <- tol * total.n
 
@@ -455,14 +472,19 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   # In case we need to try and recover from infeasible, save the new.omit.fraction's used for output to user
   new.omit.fraction <- numeric(0)
 
+  if (is.null(options()$fullmatch_try_recovery)) {
+    warning("The flag fullmatch_try_recovery is unset, setting to TRUE")
+    setTryRecovery()
+  }
+
   # Include NULL in case something odd is going on - assume user still wants recovery
-  if (options()$fullmatch_try_recovery == TRUE | is.null(options()$fullmatch_try_recovery)) {
+  if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {
     solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   }
 
-  mout <- makeOptmatch(distance, solutions, match.call(), data)
+  mout <- makeOptmatch(x, solutions, match.call(), data)
 
   names(min.controls) <- names(problems)
   names(max.controls) <- names(problems)
@@ -475,7 +497,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   } else {
     out.omit.fraction <- omit.fraction
   }
-  out.mean.controls <- mapply(function(x,y) (1 - x)*y[2]/y[1], out.omit.fraction, subdim(distance))
+  out.mean.controls <- mapply(function(x,y) (1 - x)*y[2]/y[1], out.omit.fraction, subdim(x))
 
   names(out.mean.controls) <- names(problems)
   names(out.omit.fraction) <- names(problems)
@@ -496,7 +518,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- digest(distance)
+  attr(mout, "hashed.distance") <- digest(x)
 
   return(mout)
 }
