@@ -1,19 +1,20 @@
 useDynLib(optmatch)
 
 export(mdist,
-       matched.distances, 
-       matched, 
-       matchfailed, 
-       unmatched, 
-       maxControlsCap, 
-       minControlsCap, 
-       relaxinfo, 
-       stratumStructure, 
+       matched.distances,
+       matched,
+       matchfailed,
+       unmatched,
+       maxControlsCap,
+       minControlsCap,
+       relaxinfo,
+       stratumStructure,
        fill.NAs,
        exactMatch)
 
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
+importFrom(digest,digest)
 
 ### S3 Stuff
 S3method(Ops, optmatch.dlist)
