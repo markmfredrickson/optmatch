@@ -197,7 +197,16 @@ optmatch_same_distance <- function(obj, newdist) {
 
   return(attr(obj, "hashed.distance") == digest(newdist))
 }
-
+##' Performs an update on an \code{optmatch} object.
+##'
+##' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
+##' \code{optmatch} object differs from the hash of the new \code{data}.
+##' @param optmatch \code{Optmatch} object to update.
+##' @param ... Additional arguments to the call, or arguments with changed values.
+##' @param evaluate If true evaluate the new call eslse return the call.
+##' @return An updated \code{optmatch} object.
+##' @author Josh Errickson
+##' @import digest
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")

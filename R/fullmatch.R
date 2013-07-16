@@ -370,8 +370,8 @@ fullmatch <- function(distance,
   # In case we need to try and recover from infeasible, save the new.omit.fraction's used for output to user
   new.omit.fraction <- numeric(0)
 
-
-  if (options()$fullmatch_try_recovery) {
+  # Include NULL in case something odd is going on - assume user still wants recovery
+  if (options()$fullmatch_try_recovery == TRUE | is.null(options()$fullmatch_try_recovery)) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {
     solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)

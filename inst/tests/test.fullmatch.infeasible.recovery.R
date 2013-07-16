@@ -58,7 +58,7 @@ test_that("mean.controls should do the same as omit.fraction", {
 
   mm <- match_on(treat~.-fact, data=dd, within=exactMatch(treat~fact, dd))
 
-  f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, 1/3, 1/5))
+  f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, 1/2, 1/5))
   g <- fullmatch(mm,data=dd, mean.controls=c(2, 1/2, 1))
 
   expect_true(all.equal(f, g, check.attributes=FALSE))
@@ -89,11 +89,17 @@ test_that("Correctly apply max.controls", {
   # 2) 2 ctrl, 2 treat
   # 3) 5 ctrl, 4 treat
 
+  # no restrictions, everything should be matched.
   s1 <- stratumStructure(f <- fullmatch(mm,data=dd))
-  s2 <- stratumStructure(g <- fullmatch(mm,data=dd, max.controls=2))
+  expect_true(all(unlist(strsplit(names(s1), ":")) > 0))
+
+  # max.controls = 2
+  expect_warning(s2 <- stratumStructure(g <- fullmatch(mm,data=dd, max.controls=2)))
   max.controls <- max(as.numeric(unlist(lapply(strsplit(names(s2), ":"),"[",2))))
   expect_true(max.controls <= 2)
-  s3 <- stratumStructure(h <- fullmatch(mm,data=dd, max.controls=1))
+
+  # max controls = 1
+  expect_warning(s3 <- stratumStructure(h <- fullmatch(mm,data=dd, max.controls=1)))
   max.controls <- max(as.numeric(unlist(lapply(strsplit(names(s3), ":"),"[",2))))
   expect_true(max.controls <= 1)
 })
@@ -107,20 +113,19 @@ test_that("Omits occur only on controls", {
 
   mm <- match_on(treat~.-fact, data=dd, within=exactMatch(treat~fact, dd))
 
-  s1 <- stratumStructure(fullmatch(mm, data=dd))
-  s2 <- stratumStructure(fullmatch(mm, data=dd, max.controls=2))
+  expect_warning(s1 <- stratumStructure(fullmatch(mm, data=dd, max.controls=2)))
+  ctrls1 <- as.numeric(unlist(lapply(strsplit(names(s1), ":"),"[",2)))
+  treats1 <- as.numeric(unlist(lapply(strsplit(names(s1), ":"),"[",1)))
+  # It should drop some of the controls (some treats1 should be 0)
+  # but none of the treatments (all ctrls1 > 0)
+  expect_true(all(ctrls1 > 0))
+  expect_true(any(treats1 == 0))
+
+  expect_warning(s2 <- stratumStructure(fullmatch(mm, data=dd, max.controls=1)))
   ctrls2 <- as.numeric(unlist(lapply(strsplit(names(s2), ":"),"[",2)))
   treats2 <- as.numeric(unlist(lapply(strsplit(names(s2), ":"),"[",1)))
-  # It should drop some of the controls (some treats2 should be 0)
-  # but none of the treatments (all ctrls2 > 0)
   expect_true(all(ctrls2 > 0))
   expect_true(any(treats2 == 0))
-
-  s3 <- stratumStructure(fullmatch(mm, data=dd, max.controls=1))
-  ctrls3 <- as.numeric(unlist(lapply(strsplit(names(s3), ":"),"[",2)))
-  treats3 <- as.numeric(unlist(lapply(strsplit(names(s3), ":"),"[",1)))
-  expect_true(all(ctrls3 > 0))
-  expect_true(any(treats3 == 0))
 })
 
 test_that("If omit.fraction is included", {
@@ -138,11 +143,13 @@ test_that("If omit.fraction is included", {
   # 3) 5 ctrl, 4 treat
 
   f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, 1/3, 1/5))
+  # check that exactly 1 is omitted from each.
   expect_true(sum(is.na(f[row.names(dd[dd$fact == 0 & dd$treat == 0,])])) == 1)
   expect_true(sum(is.na(f[row.names(dd[dd$fact == 1 & dd$treat == 0,])])) == 1)
   expect_true(sum(is.na(f[row.names(dd[dd$fact == 2 & dd$treat == 0,])])) == 1)
 
-  g <- fullmatch(mm,data=dd, max.controls=1, omit.fraction=c(1/5, 1/3, 1/5))
+  expect_warning(g <- fullmatch(mm,data=dd, max.controls=1, omit.fraction=c(1/5, 1/3, 1/5)))
+  # infeasible even though some omit.fraction is given, needs to drop more
   expect_true(sum(is.na(g[row.names(dd[dd$fact == 0 & dd$treat == 0,])])) == 3)
   expect_true(sum(is.na(g[row.names(dd[dd$fact == 1 & dd$treat == 0,])])) == 2)
   expect_true(sum(is.na(g[row.names(dd[dd$fact == 2 & dd$treat == 0,])])) == 1)
@@ -153,11 +160,11 @@ test_that("Suggested omit.fraction can be used", {
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
 
-  s1 <- fullmatch(mm, data=nuclearplants, max.controls=2)
-  s2 <- fullmatch(mm, data=nuclearplants, max.controls=2, omit.fraction=.4091)
+  expect_warning(s1 <- fullmatch(mm, data=nuclearplants, max.controls=2))
+  s2 <- fullmatch(mm, data=nuclearplants, max.controls=2, omit.fraction=attr(s1, "omit.fraction"))
 
-  s3 <- fullmatch(mm, data=nuclearplants, max.controls=1)
-  s4 <- fullmatch(mm, data=nuclearplants, max.controls=1, omit.fraction=.5455)
+  expect_warning(s3 <- fullmatch(mm, data=nuclearplants, max.controls=1))
+  s4 <- fullmatch(mm, data=nuclearplants, max.controls=1, omit.fraction=attr(s3, "omit.fraction"))
 
   expect_true(all.equal(s1, s2, check.attributes=FALSE))
   expect_true(all.equal(s3, s4, check.attributes=FALSE))
@@ -168,9 +175,11 @@ test_that("mean.controls as fraction", {
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
 
+  # 22 treatments, I want to exclude 3, so 19ctrls/10treat = 1.9 mean.controls
   s1 <- stratumStructure(fullmatch(mm, data=nuclearplants, mean.controls=1.9, max.controls=3))
   expect_equal(3, sum(s1[substr(names(s1),1,1) == 0]))
 
+  # 22, exclude 10, 12/10 = 1.2 mean.controls
   s2 <- stratumStructure(fullmatch(mm, data=nuclearplants, mean.controls=1.2, max.controls=3))
   expect_equal(10, sum(s2[substr(names(s2),1,1) == 0]))
 })
@@ -180,13 +189,6 @@ test_that("attr saved after recovery", {
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
 
-  # infeasible as given
-  f <- fullmatch(mm, data=nuclearplants, max.controls=2)
-  expect_equal(attr(f, "min.controls"), 0)
-  expect_equal(attr(f, "mean.controls"), NULL)
-  expect_equal(attr(f, "max.controls"), 2)
-  expect_equal(attr(f, "omit.fraction"), 9/22)
-
   # not infeasible as given
   f <- fullmatch(mm, data=nuclearplants, max.controls=3)
   expect_equal(attr(f, "min.controls"), 0)
@@ -194,11 +196,29 @@ test_that("attr saved after recovery", {
   expect_equal(attr(f, "max.controls"), 3)
   expect_equal(attr(f, "omit.fraction"), as.numeric(NA))
 
+  # infeasible as given
+  expect_warning(f <- fullmatch(mm, data=nuclearplants, max.controls=2))
+  s <- stratumStructure(fullmatch(mm, data=nuclearplants))
+  expect_equal(attr(f, "min.controls"), 0)
+  expect_equal(attr(f, "mean.controls"), NULL)
+  expect_equal(attr(f, "max.controls"), 2)
+  # how many SHOULD we omit?
+  numomit <- sum(pmax(0,as.numeric(unlist(lapply(strsplit(names(s), "1:"), "[", 2)))-2))
+  expect_equal(attr(f, "omit.fraction"), numomit/22)
+
+
+  # not infeasible as mean.controls provided
+  f <- fullmatch(mm, data=nuclearplants, max.controls=2, mean.controls=2)
+  expect_equal(attr(f, "min.controls"), 0)
+  expect_equal(attr(f, "mean.controls"), 2)
+  expect_equal(attr(f, "max.controls"), 2)
+  expect_equal(attr(f, "omit.fraction"), NULL)
+
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants, within=exactMatch(pr ~ pt, data=nuclearplants))
 
   # infeasible as given for subproblem 1, feasible for subproblem 2
-  f <- fullmatch(mm, data=nuclearplants, max.controls=2)
+  expect_warning(f <- fullmatch(mm, data=nuclearplants, max.controls=2))
   expect_equal(attr(f, "min.controls"), c(0,0), check.attributes=FALSE)
   expect_equal(attr(f, "mean.controls"), NULL)
   expect_equal(attr(f, "max.controls"), c(2,2), check.attributes=FALSE)
@@ -210,7 +230,7 @@ test_that("attr saved after recovery", {
 
   res.b <- exactMatch(Z ~ B, data=d)
 
-  f <- fullmatch(res.b, data=d, max.controls=2)
+  expect_warning(f <- fullmatch(res.b, data=d, max.controls=2))
   a <- c(0,0)
   names(a) <- c('a','b')
   expect_equal(attr(f, "min.controls"), a)
@@ -230,9 +250,13 @@ test_that("fullmatch_try_recovery", {
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
 
-  expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+  options("fullmatch_try_recovery" = TRUE)
+  # warn and fix
+  expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
   options("fullmatch_try_recovery" = FALSE)
+  # no warning, just die
   expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
   options("fullmatch_try_recovery" = TRUE)
-  expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+  # back to fixing.
+  expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
 })
