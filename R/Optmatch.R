@@ -156,18 +156,20 @@ makeOptmatch <- function(distance,
   return(y)
 }
 
-##' Returns the restrictions which were used to generate the match.
-##'
-##' If \code{mean.controls} was explicitly specified in the creation of the optmatch object, it is returned; otherwise \code{omit.fraction}
-##' is given.
-##'
-##' Note that if the matching algorithm attempted to recover from initial infeasible restrictions, the output from this function may not be
-##' the same as the original function call.
-##'
-##' @title optmatch_restrictions
-##' @param obj An optmatch object
-##' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
-##' @author Josh Errickson
+#' Returns the restrictions which were used to generate the match.
+#'
+#' If \code{mean.controls} was explicitly specified in the creation of the
+#' optmatch object, it is returned; otherwise \code{omit.fraction} is given.
+#'
+#' Note that if the matching algorithm attempted to recover from initial
+#' infeasible restrictions, the output from this function is likely different
+#' from the original function call.
+#'
+#' @title optmatch_restrictions
+#' @param obj An optmatch object
+#' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
+#' @author Josh Errickson
+#' @export
 optmatch_restrictions <- function(obj) {
   if (!is(obj, "optmatch")) {
     stop("Input must be an optmatch object")
@@ -178,15 +180,20 @@ optmatch_restrictions <- function(obj) {
     return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
   }
 }
-##' Checks if the distance \code{newdist} is identical to the distance used to generate the optmatch object \code{obj}.
-##'
-##' To save space, optmatch objects merely store a hash of the distance matrix instead of the original object. This checks if the hash of
-##' \code{newdist} is identical to the hash currently saved in \code{obj}.
-##' @param obj An optmatch object.
-##' @param newdist A distance
-##' @return Boolean whether the two distance specifications are identical.
-##' @author Josh Errickson
-##' @import digest
+
+#' Checks if the distance \code{newdist} is identical to the distance used to
+#' generate the optmatch object \code{obj}.
+#'
+#' To save space, optmatch objects merely store a hash of the distance matrix
+#' instead of the original object. This checks if the hash of \code{newdist} is
+#' identical to the hash currently saved in \code{obj}.
+#'
+#' @param obj An optmatch object.
+#' @param newdist A distance
+#' @return Boolean whether the two distance specifications are identical.
+#' @author Josh Errickson
+#' @import digest
+#' @export
 optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
     stop("obj must be an optmatch object")
@@ -197,16 +204,20 @@ optmatch_same_distance <- function(obj, newdist) {
 
   return(attr(obj, "hashed.distance") == digest(newdist))
 }
-##' Performs an update on an \code{optmatch} object.
-##'
-##' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
-##' \code{optmatch} object differs from the hash of the new \code{data}.
-##' @param optmatch \code{Optmatch} object to update.
-##' @param ... Additional arguments to the call, or arguments with changed values.
-##' @param evaluate If true evaluate the new call eslse return the call.
-##' @return An updated \code{optmatch} object.
-##' @author Josh Errickson
-##' @import digest
+
+#' Performs an update on an \code{optmatch} object.
+#'
+#' Note that passing \code{distance} again is strongly recommended. A warning
+#' will be printed if the hash of the distance used to generate the
+#' \code{optmatch} object differs from the hash of the new \code{distance}.
+#'
+#' @param optmatch \code{Optmatch} object to update.
+#' @param ... Additional arguments to the call, or arguments with changed values.
+#' @param evaluate If true evaluate the new call eslse return the call.
+#' @return An updated \code{optmatch} object.
+#' @author Josh Errickson
+#' @import digest
+#' @export
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")

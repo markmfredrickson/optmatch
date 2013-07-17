@@ -35,8 +35,10 @@ setTryRecovery <- function() {
 #' infeasible, to find a feasible problem using the same constraints.  This will
 #' almost surely involve using a more restrictive \code{omit.fraction} or
 #' \code{mean.controls}. Note that this does not guarantee that the returned
-#' match has the least possible number of omitted subjects, it only gives a
-#' match that will work with the given constraints. This is controlled by
+#' match has the least possible number of omitted subjects, it only gives a match
+#' that is feasible within the given constraints. It may often be possible to
+#' loosen the \code{omit.fraction} or \code{mean.controls} constraint and still
+#' find a feasible match. The auto recovery is controlled by
 #' \code{options("fullmatch_try_recovery")}.
 #'
 #' @param distance A matrix of non-negative discrepancies, each indicating the
@@ -67,16 +69,15 @@ setTryRecovery <- function() {
 #' separately specifying the maximum permissible ratio of controls to treatments
 #' in each subclass.
 #'
-#' @param omit.fraction Optionally, specify what fraction of
-#' controls or treated subjects are to be rejected.  If
-#' \code{omit.fraction} is a positive fraction less than one, then
-#' \code{fullmatch} leaves up to that fraction of the control reservoir
-#' unmatched.  If \code{omit.fraction} is a negative number greater than
-#' -1, then \code{fullmatch} leaves up to |\code{omit.fraction}| of the
+#' @param omit.fraction Optionally, specify what fraction of controls or treated
+#' subjects are to be rejected.  If \code{omit.fraction} is a positive fraction
+#' less than one, then \code{fullmatch} leaves up to that fraction of the control
+#' reservoir unmatched.  If \code{omit.fraction} is a negative number greater
+#' than -1, then \code{fullmatch} leaves up to |\code{omit.fraction}| of the
 #' treated group unmatched.  Positive values are only accepted if
-#' \code{max.controls} >= 1; negative values, only if \code{min.controls}
-#' <= 1.  If \code{omit.fraction} is not specified, then only those
-#' treated and control subjects without permissible matches among the
+#' \code{max.controls} >= 1; negative values, only if \code{min.controls} <= 1.
+#' If neither \code{omit.fraction} or \code{mean.controls} are specified, then
+#' only those treated and control subjects without permissible matches among the
 #' control and treated subjects, respectively, are omitted.
 #'
 #' When matching within subclasses (such as those created by
@@ -88,10 +89,13 @@ setTryRecovery <- function() {
 #' At most one of \code{mean.controls} and \code{omit.fraction} can be non-\code{NULL}.
 #'
 #' @param mean.controls Optionally, specify the average number of controls per
-#' treatment to be matched. Must be no less than than \code{min.controls} and no greater
-#' than the minimum of \code{max.controls} and the ratio of total number of controls vs
-#' total number of treated. Some controls will likely not be matched to ensure meeting
-#' this value.
+#' treatment to be matched. Must be no less than than \code{min.controls} and no
+#' greater than the either \code{max.controls} or the ratio of total number of
+#' controls versus total number of treated. Some controls will likely not be
+#' matched to ensure meeting this value. If neither \code{omit.fraction} or
+#' \code{mean.controls} are specified, then only those treated and control
+#' subjects without permissible matches among the control and treated subjects,
+#' respectively, are omitted.
 #'
 #' When matching within subclasses (such as those created by
 #' \code{\link{exactMatch}}), \code{mean.controls} specifies the average number of

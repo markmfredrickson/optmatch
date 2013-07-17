@@ -14,7 +14,6 @@ export(mdist,
 
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
-importFrom(digest,digest)
 
 ### S3 Stuff
 S3method(Ops, optmatch.dlist)
