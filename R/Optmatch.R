@@ -192,7 +192,6 @@ optmatch_restrictions <- function(obj) {
 #' @param newdist A distance
 #' @return Boolean whether the two distance specifications are identical.
 #' @author Josh Errickson
-#' @import digest
 #' @export
 optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
@@ -202,7 +201,7 @@ optmatch_same_distance <- function(obj, newdist) {
     stop("newdist must be a valid distance")
   }
 
-  return(attr(obj, "hashed.distance") == digest(newdist))
+  return(attr(obj, "hashed.distance") == dist_digest(newdist))
 }
 
 #' Performs an update on an \code{optmatch} object.
@@ -211,16 +210,16 @@ optmatch_same_distance <- function(obj, newdist) {
 #' will be printed if the hash of the distance used to generate the
 #' \code{optmatch} object differs from the hash of the new \code{distance}.
 #'
-#' @param optmatch \code{Optmatch} object to update.
+#' @param object \code{Optmatch} object to update.
 #' @param ... Additional arguments to the call, or arguments with changed values.
 #' @param evaluate If true evaluate the new call eslse return the call.
 #' @return An updated \code{optmatch} object.
 #' @author Josh Errickson
-#' @import digest
-#' @export
-update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
-  if (is.null(call <- attr(optmatch, "call")))
-    stop("optmatch must have a call attribute")
+#' @method update optmatch
+#' @S3method update optmatch
+update.optmatch <- function(object, ..., evaluate = TRUE) {
+  if (is.null(call <- attr(object, "call")))
+    stop("object must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
 
   if (length(extras)) {
@@ -232,14 +231,13 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
     }
   }
 
-  # check if distance in the new call is identical to distance in the original object
-  newdigest <- digest(eval(parse(text=call[2]), envir=parent.frame()))
-  if(newdigest != attr(optmatch, "hashed.distance")) {
-    warning(paste("Distance given in update (", newdigest, ") is different than distance used to generate fullmatch (",
-                  attr(optmatch,"hashed.distance"), ").", sep=''))
-  }
-
-  if (evaluate)
-    eval(call, parent.frame())
-  else call
+  if (evaluate) {
+    newmatch <- eval(call, parent.frame())
+    if (attr(newmatch, "hashed.distance") != attr(object, "hashed.distance")) {
+      warning(paste("Distance given in update (", attr(newmatch, "hashed.distance"),
+                    ") is different than distance used to generate fullmatch (",
+                    attr(object,"hashed.distance"), ").", sep=''))
+    }
+    newmatch
+  } else call
 }

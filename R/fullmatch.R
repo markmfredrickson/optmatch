@@ -139,7 +139,6 @@ setTryRecovery <- function() {
 #'
 #' @example inst/examples/fullmatch.R
 #' @keywords nonparametric optimize
-#' @import digest
 #' @export
 fullmatch <- function(distance,
     min.controls = 0,
@@ -415,7 +414,7 @@ fullmatch <- function(distance,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- digest(distance)
+  attr(mout, "hashed.distance") <- dist_digest(distance)
 
   return(mout)
 }
