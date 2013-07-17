@@ -278,8 +278,6 @@ test_that("fullmatch UI cleanup", {
 
   attr(fm.dist, "call") <- NULL
   attr(fm.form, "call") <- NULL
-  attr(fm.dist, "hashed.distance") <- NULL
-  attr(fm.form, "hashed.distance") <- NULL
   expect_true(identical(fm.dist, fm.form))
 
   # with "with()"
@@ -287,9 +285,6 @@ test_that("fullmatch UI cleanup", {
   expect_warning(fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2)))
 
   attr(fm.with, "call") <- NULL
-  # distance will hash differently because we have to recreate it when using with
-  attr(fm.with, "hashed.distance") <- NULL
-  attr(fm.dist, "hashed.distance") <- NULL
   expect_true(identical(fm.dist, fm.with))
 
   # passing a glm
@@ -318,8 +313,6 @@ test_that("fullmatch UI cleanup", {
 
   attr(fm.dist, "call") <- NULL
   attr(fm.form, "call") <- NULL
-  attr(fm.form, "hashed.distance") <- NULL
-  attr(fm.dist, "hashed.distance") <- NULL
   expect_true(identical(fm.dist, fm.form))
 
   # passing numeric
@@ -339,8 +332,6 @@ test_that("fullmatch UI cleanup", {
 
   attr(fm.vector, "call") <- NULL
   attr(fm.mi, "call") <- NULL
-  attr(fm.vector, "hashed.distance") <- NULL
-  attr(fm.mi, "hashed.distance") <- NULL
   expect_true(identical(fm.vector, fm.mi))
 
   # function
@@ -368,8 +359,6 @@ test_that("fullmatch UI cleanup", {
 
   attr(fm.funcres, "call") <- NULL
   attr(fm.func, "call") <- NULL
-  attr(fm.funcres, "hashed.distance") <- NULL
-  attr(fm.func, "hashed.distance") <- NULL
   expect_true(identical(fm.funcres, fm.func))
 
   # passing bad arguments

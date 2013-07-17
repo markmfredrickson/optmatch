@@ -156,18 +156,20 @@ makeOptmatch <- function(distance,
   return(y)
 }
 
-##' Returns the restrictions which were used to generate the match.
-##'
-##' If \code{mean.controls} was explicitly specified in the creation of the optmatch object, it is returned; otherwise \code{omit.fraction}
-##' is given.
-##'
-##' Note that if the matching algorithm attempted to recover from initial infeasible restrictions, the output from this function may not be
-##' the same as the original function call.
-##'
-##' @title optmatch_restrictions
-##' @param obj An optmatch object
-##' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
-##' @author Josh Errickson
+#' Returns the restrictions which were used to generate the match.
+#'
+#' If \code{mean.controls} was explicitly specified in the creation of the
+#' optmatch object, it is returned; otherwise \code{omit.fraction} is given.
+#'
+#' Note that if the matching algorithm attempted to recover from initial
+#' infeasible restrictions, the output from this function may not be the same as
+#' the original function call.
+#'
+#' @title optmatch_restrictions
+#' @param obj An optmatch object
+#' @return A list of \code{min.controls}, \code{max.controls} and either
+#' \code{omit.fraction} or \code{mean.controls}.
+#' @author Josh Errickson
 optmatch_restrictions <- function(obj) {
   if (!is(obj, "optmatch")) {
     stop("Input must be an optmatch object")
@@ -178,15 +180,23 @@ optmatch_restrictions <- function(obj) {
     return(list("min.controls"=attr(obj, "min.controls"), "max.controls"=attr(obj, "max.controls"), "omit.fraction"=attr(obj, "omit.fraction")))
   }
 }
-##' Checks if the distance \code{newdist} is identical to the distance used to generate the optmatch object \code{obj}.
-##'
-##' To save space, optmatch objects merely store a hash of the distance matrix instead of the original object. This checks if the hash of
-##' \code{newdist} is identical to the hash currently saved in \code{obj}.
-##' @param obj An optmatch object.
-##' @param newdist A distance
-##' @return Boolean whether the two distance specifications are identical.
-##' @author Josh Errickson
-##' @import digest
+
+#' Checks if the distance \code{newdist} is identical to the distance used to
+#' generate the optmatch object \code{obj}.
+#'
+#' To save space, optmatch objects merely store a hash of the distance matrix
+#' instead of the original object. This checks if the hash of \code{newdist} is
+#' identical to the hash currently saved in \code{obj}.
+#'
+#' Note that the distance is hashed with its \code{call} set to
+#' \code{NULL}. (This avoids issues where, for example, \code{match_on(Z~X,
+#' data=d, caliper=NULL)} and \code{match_on(Z~x, data=d)} produce identical
+#' matches (since the default argument to \code{caliper} is \code{NULL}) but
+#' since the \code{call} is different for each, the hashes would be different.)
+#' @param obj An optmatch object.
+#' @param newdist A distance
+#' @return Boolean whether the two distance specifications are identical.
+#' @author Josh Errickson
 optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
     stop("obj must be an optmatch object")
@@ -195,7 +205,7 @@ optmatch_same_distance <- function(obj, newdist) {
     stop("newdist must be a valid distance")
   }
 
-  return(attr(obj, "hashed.distance") == digest(newdist))
+  return(attr(obj, "hashed.distance") == dist_digest(newdist))
 }
 ##' Performs an update on an \code{optmatch} object.
 ##'
@@ -206,7 +216,6 @@ optmatch_same_distance <- function(obj, newdist) {
 ##' @param evaluate If true evaluate the new call eslse return the call.
 ##' @return An updated \code{optmatch} object.
 ##' @author Josh Errickson
-##' @import digest
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
@@ -221,14 +230,14 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
     }
   }
 
-  # check if distance in the new call is identical to distance in the original object
-  newdigest <- digest(eval(parse(text=call[2]), envir=parent.frame()))
-  if(newdigest != attr(optmatch, "hashed.distance")) {
-    warning(paste("Distance given in update (", newdigest, ") is different than distance used to generate fullmatch (",
-                  attr(optmatch,"hashed.distance"), ").", sep=''))
-  }
+  if (evaluate) {
+    newmatch <- eval(call, parent.frame())
+    if (attr(newmatch, "hashed.distance") != attr(optmatch, "hashed.distance")) {
+      warning(paste("Distance given in update (", attr(newmatch, "hashed.distance"),
+                    ") is different than distance used to generate fullmatch (",
+                    attr(optmatch,"hashed.distance"), ").", sep=''))
+    }
+    newmatch
+  } else call
 
-  if (evaluate)
-    eval(call, parent.frame())
-  else call
 }

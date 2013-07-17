@@ -518,7 +518,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- digest(x)
+  attr(mout, "hashed.distance") <- dist_digest(x)
 
   return(mout)
 }

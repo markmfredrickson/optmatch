@@ -276,3 +276,18 @@ test_that("update.optmatch", {
   attr(utu2, "call") <- NULL
   expect_true(identical(ftu2, utu2))
 })
+
+## test_that("update.optmatch with fullmatch ui simplications", {
+##   set.seed(9876)
+##   x <- rnorm(10)
+##   y <- runif(10)
+##   z <- c(rep(0,6), rep(1,4))
+##   d1 <- as.data.frame(cbind(x,y,z))
+##   rm(x)
+##   rm(y)
+##   rm(z)
+
+##   f1 <- fullmatch(z~y+x, data=d1)
+##   a <- update(f1, x=z~y, max.controls=2)
+
+## })
