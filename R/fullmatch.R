@@ -156,7 +156,10 @@ fullmatch <- function(x,
   UseMethod("fullmatch")
 }
 
+##' @param within Passed to \code{match_on}.
 ##' @aliases fullmatch
+##' @S3method fullmatch default
+##' @rdname fullmatch
 fullmatch.default <- function(x,
     min.controls = 0,
     max.controls = Inf,
@@ -164,7 +167,7 @@ fullmatch.default <- function(x,
     mean.controls = NULL,
     tol = .001,
     data = NULL,
-    within=NULL,
+    within = NULL,
     ...) {
   if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
     stop("Invalid input, must be a potential argument to match_on")
@@ -212,6 +215,7 @@ fullmatch.default <- function(x,
 ##' @param data See \code{fullmatch} for full specification.
 ##' @param ... Additional arguments to \code{match_on}.
 ##' @return See \code{fullmatch} for full specification.
+##' @S3method fullmatch numeric
 fullmatch.numeric <- function(x,
     min.controls = 0,
     max.controls = Inf,

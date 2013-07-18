@@ -176,11 +176,11 @@ test_that("optmatch_same_distance", {
 
 
 ## test_that("update.optmatch", {
-##   Z <- c(1,0,0,0,0,1,0,0)
-##   B <- c(rep('a', 5), rep('b', 3))
-##   d <- as.data.frame(cbind(Z,B))
-##   rm(Z)
-##   rm(B)
+  Z <- c(1,0,0,0,0,1,0,0)
+  B <- c(rep('a', 5), rep('b', 3))
+  d <- as.data.frame(cbind(Z,B))
+  rm(Z)
+  rm(B)
 
 ##   res.b <- exactMatch(Z ~ B, data=d)
 
@@ -217,14 +217,14 @@ test_that("optmatch_same_distance", {
 
 
 ##   # passing a difference distance
-##   set.seed(9876)
-##   x <- rnorm(10)
-##   y <- runif(10)
-##   z <- c(rep(0,6), rep(1,4))
-##   d1 <- as.data.frame(cbind(x,y,z))
-##   rm(x)
-##   rm(y)
-##   rm(z)
+##  set.seed(9876)
+##  x <- rnorm(10)
+##  y <- runif(10)
+##  z <- c(rep(0,6), rep(1,4))
+##  d1 <- as.data.frame(cbind(x,y,z))
+##  rm(x)
+##  rm(y)
+##  rm(z)
 
 ##   res.b1 <- match_on(z ~ x, data=d1)
 ##   res.b2 <- match_on(z ~ y, data=d1)
@@ -249,7 +249,7 @@ test_that("optmatch_same_distance", {
 
 ##   # change distance between calls
 
-##   res.c <- match_on(z ~ x, data = d1)
+##   res.c <- match_on(z ~ x, data = d2)
 
 ##   fc <- fullmatch(res.c, data=d1)
 
@@ -291,3 +291,40 @@ test_that("optmatch_same_distance", {
 ##   a <- update(f1, x=z~y, max.controls=2)
 
 ## })
+
+test_that("num_eligible_matches", {
+  x <- rnorm(10)
+  y <- as.factor(rep(c("a", "b"), 5))
+  y2 <- as.factor(rep(1:2, 5))
+  z <- c(rep(0,6), rep(1,4))
+  d1 <- as.data.frame(cbind(x,z))
+  d1$y <- y
+  d1$y2 <- y2
+  rm(x)
+  rm(y)
+  rm(y2)
+  rm(z)
+
+  a <- match_on(z ~ x, data = d1)
+  expect_true(num_eligible_matches(a) == 24)
+
+  b <- caliper(a, 1e-5)
+  expect_true(num_eligible_matches(b) == 0)
+
+  c <- exactMatch(z ~ y, data=d1)
+  nemc <- num_eligible_matches(c)
+  expect_true(identical(nemc, list(a=as.integer(6), b=as.integer(6))))
+
+  c2 <- exactMatch(z ~ y2, data=d1)
+  nemc2 <- num_eligible_matches(c2)
+  expect_true(identical(nemc2, list(`1`=as.integer(6), `2`=as.integer(6))))
+
+  expect_true(num_eligible_matches(optmatch:::as.InfinitySparseMatrix(c)) == 12)
+
+  d <- matrix(rep(1:2, 10), 10, 2)
+  d <- caliper(d, 1.5)
+  expect_true(num_eligible_matches(d) == 10)
+
+
+
+})

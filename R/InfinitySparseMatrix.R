@@ -442,7 +442,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 ##' @return A list of the dimensions of each valid subproblem. Any subproblems with 0 controls
 ##' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
 ##' subproblems, if they exist.
-##' @author Josh Errickson
+##' @export
 subdim <- function(x) {
   UseMethod("subdim")
 }
@@ -466,6 +466,44 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
   names(out) <- levels(x@groups)
   # drop off any subproblems lacking at least one treatment/control
   out[unlist(lapply(out, function(t) all(t > 0)))]
+}
+##' Returns the number of eligible matches for the distance.
+##'
+##' This will return a list of the number of finite entries in a distance
+##' matrix. If the distance has no subgroups, it will be a list of length 1. If
+##' the distance has subgroups (i.e. \code{x} is an
+##' \code{BlockedInfinitySparseMatrix}, it will be a named list.)
+##' @param x Any distance object.
+##' @return A list counting the number of eligible matches in the distance.
+##' @export
+num_eligible_matches <- function(x) {
+  UseMethod("num_eligible_matches")
+}
+
+#' @S3method num_eligible_matches optmatch.dlist
+#' @rdname num_eligible_matches
+num_eligible_matches.optmatch.dlist <-function(x) {
+  list(sum(is.finite(x)))
+}
+
+#' @S3method num_eligible_matches matrix
+#' @rdname num_eligible_matches
+num_eligible_matches.matrix <- function(x) {
+  list(sum(is.finite(x)))
+}
+
+#' @S3method num_eligible_matches InfinitySparseMatrix
+#' @rdname num_eligible_matches
+num_eligible_matches.InfinitySparseMatrix <- function(x) {
+  list(length(x@.Data))
+}
+
+#' @S3method num_eligible_matches BlockedInfinitySparseMatrix
+#' @rdname num_eligible_matches
+num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
+  out <- lapply(levels(x@groups), function(k) length(x[x@groups == k]@.Data))
+  names(out) <- levels(x@groups)
+  out
 }
 
 # Splits out the blocked matrix into its consitutent parts
