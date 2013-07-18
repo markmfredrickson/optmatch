@@ -447,20 +447,14 @@ subdim <- function(x) {
   UseMethod("subdim")
 }
 
-#' @S3method subdim InfinitySparseMatrix
-#' @rdname subdim
 subdim.InfinitySparseMatrix <- function(x) {
   list(dim(x))
 }
 
-#' @S3method subdim matrix
-#' @rdname subdim
 subdim.matrix <- function(x) {
   list(dim(x))
 }
 
-#' @S3method subdim BlockedInfinitySparseMatrix
-#' @rdname subdim
 subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]), sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
@@ -480,26 +474,18 @@ num_eligible_matches <- function(x) {
   UseMethod("num_eligible_matches")
 }
 
-#' @S3method num_eligible_matches optmatch.dlist
-#' @rdname num_eligible_matches
 num_eligible_matches.optmatch.dlist <-function(x) {
   list(sum(is.finite(x)))
 }
 
-#' @S3method num_eligible_matches matrix
-#' @rdname num_eligible_matches
 num_eligible_matches.matrix <- function(x) {
   list(sum(is.finite(x)))
 }
 
-#' @S3method num_eligible_matches InfinitySparseMatrix
-#' @rdname num_eligible_matches
 num_eligible_matches.InfinitySparseMatrix <- function(x) {
   list(length(x@.Data))
 }
 
-#' @S3method num_eligible_matches BlockedInfinitySparseMatrix
-#' @rdname num_eligible_matches
 num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) length(x[x@groups == k]@.Data))
   names(out) <- levels(x@groups)

@@ -124,7 +124,7 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param ... Additional arguments.
+#' @param ... Additional arguments, including \code{within}, which may be passed to \code{match_on}.
 #'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
@@ -156,10 +156,6 @@ fullmatch <- function(x,
   UseMethod("fullmatch")
 }
 
-##' @param within Passed to \code{match_on}.
-##' @aliases fullmatch
-##' @S3method fullmatch default
-##' @rdname fullmatch
 fullmatch.default <- function(x,
     min.controls = 0,
     max.controls = Inf,
@@ -240,8 +236,6 @@ fullmatch.numeric <- function(x,
   out
 }
 
-
-##' @aliases fullmatch
 fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
     min.controls = 0,
     max.controls = Inf,
