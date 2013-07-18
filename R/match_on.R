@@ -1,5 +1,5 @@
 ################################################################################
-# Mdist: distance matrix creation functions
+# match_on: distance matrix creation functions
 ################################################################################
 
 #' Create treated to control distances for matching problems
