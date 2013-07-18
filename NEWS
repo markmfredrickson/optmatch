@@ -40,7 +40,7 @@ CHANGES IN OPTMATCH VERSION 0.8-2
 
 * boxplot methods for fitted propensity score methods (glm and bigglm)
 
-* fill.NAs now takes `constrats.arg` argument to mimic model.matrix()
+* fill.NAs now takes `contrasts.arg` argument to mimic model.matrix()
 
 * Several bug fixes in examples, documentation
 
