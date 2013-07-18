@@ -1,4 +1,4 @@
-#' (Internal) Sets up option to try recovery in fullmatch.
+#' (Internal) Sets up option to try recovery in \code{fullmatch}.
 #
 # @return NULL
 setTryRecovery <- function() {
@@ -45,7 +45,7 @@ setTryRecovery <- function() {
 #' \code{x} and any optional arguments to generate a distance before performing
 #' the matching.
 #'
-#' Alternatively, a pre-computed distance may be entered. A matrix of
+#' Alternatively, a precomputed distance may be entered. A matrix of
 #' non-negative discrepancies, each indicating the permissibility and
 #' desirability of matching the unit corresponding to its row (a 'treatment') to
 #' the unit corresponding to its column (a 'control'); or, better, a distance

@@ -438,7 +438,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 ##'
 ##' Returns a list containing the dimensions of all valid subproblems.
 ##'
-##' @param x A distance specification to get the subdimesions of.
+##' @param x A distance specification to get the sub-dimensions of.
 ##' @return A list of the dimensions of each valid subproblem. Any subproblems with 0 controls
 ##' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
 ##' subproblems, if they exist.
