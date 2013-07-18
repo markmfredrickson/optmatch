@@ -209,6 +209,9 @@ optmatch_same_distance <- function(obj, newdist) {
 }
 ##' Performs an update on an \code{optmatch} object.
 ##'
+##' NB: THIS CODE IS CURRENTLY VERY MUCH ALPHA AND SOMEWHAT UNTESTED, ESPECICALLY CALLING \code{update} ON AN
+##' OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
+##'
 ##' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 ##' \code{optmatch} object differs from the hash of the new \code{data}.
 ##' @param optmatch \code{Optmatch} object to update.

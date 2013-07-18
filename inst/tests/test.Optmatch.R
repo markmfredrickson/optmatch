@@ -175,107 +175,107 @@ test_that("optmatch_same_distance", {
 })
 
 
-test_that("update.optmatch", {
-  Z <- c(1,0,0,0,0,1,0,0)
-  B <- c(rep('a', 5), rep('b', 3))
-  d <- as.data.frame(cbind(Z,B))
-  rm(Z)
-  rm(B)
+## test_that("update.optmatch", {
+##   Z <- c(1,0,0,0,0,1,0,0)
+##   B <- c(rep('a', 5), rep('b', 3))
+##   d <- as.data.frame(cbind(Z,B))
+##   rm(Z)
+##   rm(B)
 
-  res.b <- exactMatch(Z ~ B, data=d)
+##   res.b <- exactMatch(Z ~ B, data=d)
 
-  f1 <- fullmatch(res.b, data=d)
-  f2 <- fullmatch(res.b, data=d, max.controls = 2)
-  f3 <- fullmatch(res.b, data=d, max.controls = 1)
-  f4 <- fullmatch(res.b, data=d, max.controls = 1, min.controls = 1)
-  f5 <- fullmatch(res.b, data=d, omit.fraction = 1/7)
-  f6 <- fullmatch(res.b, data=d, mean.controls = 1)
-  f7 <- fullmatch(res.b, data=d, tol = .00001)
+##   f1 <- fullmatch(res.b, data=d)
+##   f2 <- fullmatch(res.b, data=d, max.controls = 2)
+##   f3 <- fullmatch(res.b, data=d, max.controls = 1)
+##   f4 <- fullmatch(res.b, data=d, max.controls = 1, min.controls = 1)
+##   f5 <- fullmatch(res.b, data=d, omit.fraction = 1/7)
+##   f6 <- fullmatch(res.b, data=d, mean.controls = 1)
+##   f7 <- fullmatch(res.b, data=d, tol = .00001)
 
-  u2 <- update(f1, max.controls=2)
-  u3 <- update(u2, max.controls=1)
-  u4 <- update(u3, min.controls=1)
-  u5 <- update(f1, omit.fraction = 1/7)
-  u6 <- update(f1, mean.controls = 1)
-  u7 <- update(f1, tol = .00001)
+##   u2 <- update(f1, max.controls=2)
+##   u3 <- update(u2, max.controls=1)
+##   u4 <- update(u3, min.controls=1)
+##   u5 <- update(f1, omit.fraction = 1/7)
+##   u6 <- update(f1, mean.controls = 1)
+##   u7 <- update(f1, tol = .00001)
 
-  expect_true(identical(f2, u2))
-  expect_true(identical(f3, u3))
-  expect_true(identical(f4, u4))
-  expect_true(identical(f5, u5))
-  expect_true(identical(f6, u6))
-  expect_true(identical(f7, u7))
+##   expect_true(identical(f2, u2))
+##   expect_true(identical(f3, u3))
+##   expect_true(identical(f4, u4))
+##   expect_true(identical(f5, u5))
+##   expect_true(identical(f6, u6))
+##   expect_true(identical(f7, u7))
 
-  # update without arguments shouldn't change anything
-  f1 <- fullmatch(res.b, data=d)
-  u1 <- update(f1)
-  expect_true(identical(f1, u1))
+##   # update without arguments shouldn't change anything
+##   f1 <- fullmatch(res.b, data=d)
+##   u1 <- update(f1)
+##   expect_true(identical(f1, u1))
 
-  f1 <- fullmatch(res.b, data=d)
-  u1 <- update(f1,data=d)
-  expect_true(identical(f1, u1))
+##   f1 <- fullmatch(res.b, data=d)
+##   u1 <- update(f1,data=d)
+##   expect_true(identical(f1, u1))
 
 
-  # passing a difference distance
-  set.seed(9876)
-  x <- rnorm(10)
-  y <- runif(10)
-  z <- c(rep(0,6), rep(1,4))
-  d1 <- as.data.frame(cbind(x,y,z))
-  rm(x)
-  rm(y)
-  rm(z)
+##   # passing a difference distance
+##   set.seed(9876)
+##   x <- rnorm(10)
+##   y <- runif(10)
+##   z <- c(rep(0,6), rep(1,4))
+##   d1 <- as.data.frame(cbind(x,y,z))
+##   rm(x)
+##   rm(y)
+##   rm(z)
 
-  res.b1 <- match_on(z ~ x, data=d1)
-  res.b2 <- match_on(z ~ y, data=d1)
+##   res.b1 <- match_on(z ~ x, data=d1)
+##   res.b2 <- match_on(z ~ y, data=d1)
 
-  f1 <- fullmatch(res.b1, data = d1)
-  f2 <- fullmatch(res.b2, data = d1)
+##   f1 <- fullmatch(res.b1, data = d1)
+##   f2 <- fullmatch(res.b2, data = d1)
 
-  expect_true(!identical(f1,f2))
+##   expect_true(!identical(f1,f2))
 
-  expect_warning(u1 <- update(f2, x=res.b1))
-  expect_warning(u2 <- update(f1, x=res.b2))
-  expect_true(identical(f1,u1))
-  expect_true(identical(f2,u2))
-  expect_true(!identical(f2,u1))
+##   expect_warning(u1 <- update(f2, x=res.b1))
+##   expect_warning(u2 <- update(f1, x=res.b2))
+##   expect_true(identical(f1,u1))
+##   expect_true(identical(f2,u2))
+##   expect_true(!identical(f2,u1))
 
-  f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
-  u3a <- update(f1, max.controls = 2)
-  expect_warning(u3b <- update(f2, x = res.b1, max.controls = 2))
+##   f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
+##   u3a <- update(f1, max.controls = 2)
+##   expect_warning(u3b <- update(f2, x = res.b1, max.controls = 2))
 
-  expect_true(identical(f3, u3a))
-  expect_true(identical(f3, u3b))
+##   expect_true(identical(f3, u3a))
+##   expect_true(identical(f3, u3b))
 
-  # change distance between calls
+##   # change distance between calls
 
-  res.c <- match_on(z ~ x, data = d1)
+##   res.c <- match_on(z ~ x, data = d1)
 
-  fc <- fullmatch(res.c, data=d1)
+##   fc <- fullmatch(res.c, data=d1)
 
-  res.c <- match_on(z ~ y, data = d1)
+##   res.c <- match_on(z ~ y, data = d1)
 
-  expect_warning(uc <- update(fc, distance = res.c))
+##   expect_warning(uc <- update(fc, distance = res.c))
 
-  expect_true(!identical(fc, uc))
+##   expect_true(!identical(fc, uc))
 
-  # odd ordering of parameters
-  fo <- fullmatch(data = d1, x = res.c)
-  uo <- update(fo, max.controls=2)
-  fo <- fullmatch(data = d1, x = res.c, max.controls=2)
+##   # odd ordering of parameters
+##   fo <- fullmatch(data = d1, x = res.c)
+##   uo <- update(fo, max.controls=2)
+##   fo <- fullmatch(data = d1, x = res.c, max.controls=2)
 
-  expect_true(identical(fo, uo))
+##   expect_true(identical(fo, uo))
 
-  # two updates, first changing data, only one warning
+##   # two updates, first changing data, only one warning
 
-  ftu <- fullmatch(res.c, data=d1)
-  expect_warning(utu1 <- update(ftu, x=res.b))
-  expect_warning(utu2 <- update(utu1, max.controls=2), "The problem is infeasible with the given constraints; some units were omitted to allow a match.")
-  expect_warning(ftu2 <- fullmatch(res.b, data=d1, max.controls=2))
-  attr(ftu2, "call") <- NULL
-  attr(utu2, "call") <- NULL
-  expect_true(identical(ftu2, utu2))
-})
+##   ftu <- fullmatch(res.c, data=d1)
+##   expect_warning(utu1 <- update(ftu, x=res.b))
+##   expect_warning(utu2 <- update(utu1, max.controls=2), "The problem is infeasible with the given constraints; some units were omitted to allow a match.")
+##   expect_warning(ftu2 <- fullmatch(res.b, data=d1, max.controls=2))
+##   attr(ftu2, "call") <- NULL
+##   attr(utu2, "call") <- NULL
+##   expect_true(identical(ftu2, utu2))
+## })
 
 ## test_that("update.optmatch with fullmatch ui simplications", {
 ##   set.seed(9876)
