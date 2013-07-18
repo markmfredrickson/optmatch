@@ -442,30 +442,54 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 ##' @return A list of the dimensions of each valid subproblem. Any subproblems with 0 controls
 ##' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
 ##' subproblems, if they exist.
-##' @author Josh Errickson
+##' @export
 subdim <- function(x) {
   UseMethod("subdim")
 }
 
-#' @S3method subdim InfinitySparseMatrix
-#' @rdname subdim
 subdim.InfinitySparseMatrix <- function(x) {
   list(dim(x))
 }
 
-#' @S3method subdim matrix
-#' @rdname subdim
 subdim.matrix <- function(x) {
   list(dim(x))
 }
 
-#' @S3method subdim BlockedInfinitySparseMatrix
-#' @rdname subdim
 subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]), sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
   # drop off any subproblems lacking at least one treatment/control
   out[unlist(lapply(out, function(t) all(t > 0)))]
+}
+##' Returns the number of eligible matches for the distance.
+##'
+##' This will return a list of the number of finite entries in a distance
+##' matrix. If the distance has no subgroups, it will be a list of length 1. If
+##' the distance has subgroups (i.e. \code{x} is an
+##' \code{BlockedInfinitySparseMatrix}, it will be a named list.)
+##' @param x Any distance object.
+##' @return A list counting the number of eligible matches in the distance.
+##' @export
+num_eligible_matches <- function(x) {
+  UseMethod("num_eligible_matches")
+}
+
+num_eligible_matches.optmatch.dlist <-function(x) {
+  list(sum(is.finite(x)))
+}
+
+num_eligible_matches.matrix <- function(x) {
+  list(sum(is.finite(x)))
+}
+
+num_eligible_matches.InfinitySparseMatrix <- function(x) {
+  list(length(x@.Data))
+}
+
+num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
+  out <- lapply(levels(x@groups), function(k) length(x[x@groups == k]@.Data))
+  names(out) <- levels(x@groups)
+  out
 }
 
 # Splits out the blocked matrix into its consitutent parts

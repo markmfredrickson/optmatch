@@ -162,12 +162,13 @@ makeOptmatch <- function(distance,
 #' optmatch object, it is returned; otherwise \code{omit.fraction} is given.
 #'
 #' Note that if the matching algorithm attempted to recover from initial
-#' infeasible restrictions, the output from this function is likely different
-#' from the original function call.
+#' infeasible restrictions, the output from this function may not be the same as
+#' the original function call.
 #'
 #' @title optmatch_restrictions
 #' @param obj An optmatch object
-#' @return A list of \code{min.controls}, \code{max.controls} and either \code{omit.fraction} or \code{mean.controls}.
+#' @return A list of \code{min.controls}, \code{max.controls} and either
+#' \code{omit.fraction} or \code{mean.controls}.
 #' @author Josh Errickson
 #' @export
 optmatch_restrictions <- function(obj) {
@@ -188,6 +189,11 @@ optmatch_restrictions <- function(obj) {
 #' instead of the original object. This checks if the hash of \code{newdist} is
 #' identical to the hash currently saved in \code{obj}.
 #'
+#' Note that the distance is hashed with its \code{call} set to
+#' \code{NULL}. (This avoids issues where, for example, \code{match_on(Z~X,
+#' data=d, caliper=NULL)} and \code{match_on(Z~x, data=d)} produce identical
+#' matches (since the default argument to \code{caliper} is \code{NULL}) but
+#' distinct calls.)
 #' @param obj An optmatch object.
 #' @param newdist A distance
 #' @return Boolean whether the two distance specifications are identical.
@@ -203,23 +209,21 @@ optmatch_same_distance <- function(obj, newdist) {
 
   return(attr(obj, "hashed.distance") == dist_digest(newdist))
 }
-
-#' Performs an update on an \code{optmatch} object.
-#'
-#' Note that passing \code{distance} again is strongly recommended. A warning
-#' will be printed if the hash of the distance used to generate the
-#' \code{optmatch} object differs from the hash of the new \code{distance}.
-#'
-#' @param object \code{Optmatch} object to update.
-#' @param ... Additional arguments to the call, or arguments with changed values.
-#' @param evaluate If true evaluate the new call eslse return the call.
-#' @return An updated \code{optmatch} object.
-#' @author Josh Errickson
-#' @method update optmatch
-#' @S3method update optmatch
-update.optmatch <- function(object, ..., evaluate = TRUE) {
-  if (is.null(call <- attr(object, "call")))
-    stop("object must have a call attribute")
+##' Performs an update on an \code{optmatch} object.
+##'
+##' NB: THIS CODE IS CURRENTLY VERY MUCH ALPHA AND SOMEWHAT UNTESTED, ESPECICALLY CALLING \code{update} ON AN
+##' OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
+##'
+##' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
+##' \code{optmatch} object differs from the hash of the new \code{data}.
+##' @param optmatch \code{Optmatch} object to update.
+##' @param ... Additional arguments to the call, or arguments with changed values.
+##' @param evaluate If true evaluate the new call eslse return the call.
+##' @return An updated \code{optmatch} object.
+##' @author Josh Errickson
+update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
+  if (is.null(call <- attr(optmatch, "call")))
+    stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
 
   if (length(extras)) {
@@ -233,11 +237,12 @@ update.optmatch <- function(object, ..., evaluate = TRUE) {
 
   if (evaluate) {
     newmatch <- eval(call, parent.frame())
-    if (attr(newmatch, "hashed.distance") != attr(object, "hashed.distance")) {
+    if (attr(newmatch, "hashed.distance") != attr(optmatch, "hashed.distance")) {
       warning(paste("Distance given in update (", attr(newmatch, "hashed.distance"),
                     ") is different than distance used to generate fullmatch (",
-                    attr(object,"hashed.distance"), ").", sep=''))
+                    attr(optmatch,"hashed.distance"), ").", sep=''))
     }
     newmatch
   } else call
+
 }

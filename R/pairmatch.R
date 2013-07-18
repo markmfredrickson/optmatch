@@ -128,7 +128,7 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
     saveopt <- options()$fullmatch_try_recovery
     options("fullmatch_try_recovery" = FALSE)
   }
-  out <- fullmatch(distance = distance,
+  out <- fullmatch(x = distance,
             min.controls = controls,
             max.controls = controls,
             omit.fraction = omf,

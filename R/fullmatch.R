@@ -5,7 +5,7 @@ setTryRecovery <- function() {
   options("fullmatch_try_recovery" = TRUE)
 }
 
-#' #' Optimal full matching
+#' Optimal full matching
 #'
 #' Given two groups, such as a treatment and a control group, and a
 #' treatment-by-control discrepancy matrix indicating desirability and
@@ -41,10 +41,15 @@ setTryRecovery <- function() {
 #' find a feasible match. The auto recovery is controlled by
 #' \code{options("fullmatch_try_recovery")}.
 #'
-#' @param distance A matrix of non-negative discrepancies, each indicating the
-#' permissibility and desirability of matching the unit corresponding to its row
-#' (a 'treatment') to the unit corresponding to its column (a 'control'); or,
-#' better, a distance specification as produced by \code{\link{match_on}}.
+#' @param x Any valid input to \code{match_on}. \code{fullmatch} will use
+#' \code{x} and any optional arguments to generate a distance before performing
+#' the matching.
+#'
+#' Alternatively, a pre-computed distance may be entered. A matrix of
+#' non-negative discrepancies, each indicating the permissibility and
+#' desirability of matching the unit corresponding to its row (a 'treatment') to
+#' the unit corresponding to its column (a 'control'); or, better, a distance
+#' specification as produced by \code{\link{match_on}}.
 #'
 #' @param min.controls The minimum ratio of controls to treatments that is to
 #' be permitted within a matched set: should be non-negative and finite.  If
@@ -123,6 +128,8 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
+#' @param ... Additional arguments, including \code{within}, which may be passed to \code{match_on}.
+#'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
 #' @references
@@ -140,32 +147,124 @@ setTryRecovery <- function() {
 #' @example inst/examples/fullmatch.R
 #' @keywords nonparametric optimize
 #' @export
-fullmatch <- function(distance,
+fullmatch <- function(x,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
     mean.controls = NULL,
     tol = .001,
-    data = NULL) {
-
-  ### Checking Input ###
-
-  # this will throw an error if not valid
-  validDistanceSpecification(distance)
-
+    data = NULL,
+    ...) {
+  cl <- match.call()
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")
   }
+  UseMethod("fullmatch")
+}
+
+fullmatch.default <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    mean.controls = NULL,
+    tol = .001,
+    data = NULL,
+    within = NULL,
+    ...) {
+  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+    stop("Invalid input, must be a potential argument to match_on")
+  }
+  mfd <- if (!is.null(data)) {
+    model.frame(data)
+  } else {
+    if (inherits(x, "function")) {
+      stop("A data argument must be given when passing a function")
+    }
+    model.frame(x)
+  }
+  if (!class(mfd) == "data.frame") {
+    stop("Please pass data argument")
+  }
+  m <- match_on(x, within=within, data=mfd, ...)
+  out <- fullmatch(m,
+                   min.controls=min.controls,
+                   max.controls=max.controls,
+                   omit.fraction=omit.fraction,
+                   mean.controls=mean.controls,
+                   tol=tol,
+                   data=mfd,
+                   ...)
+  if (!exists("cl")) cl <- match.call()
+  attr(out, "call") <- cl
+  out
+}
+
+##' \code{fullmatch} method for a vector of numeric inputs.
+##'
+##' An additional argument, \code{z}, must be given, which is the treatment
+##' status of each individual.
+##'
+##' If \code{data} is not specified, \code{x} and \code{z} must be named vectors.
+##' @param x A vector of numeric values.
+##' @param z A vector of treatment flags.
+##' @param within See \code{fullmatch} for full specification.
+##' @param min.controls See \code{fullmatch} for full specification.
+##' @param max.controls See \code{fullmatch} for full specification.
+##' @param omit.fraction See \code{fullmatch} for full specification.
+##' @param mean.controls See \code{fullmatch} for full specification.
+##' @param tol See \code{fullmatch} for full specification.
+##' @param data See \code{fullmatch} for full specification.
+##' @param ... Additional arguments to \code{match_on}.
+##' @return See \code{fullmatch} for full specification.
+##' @S3method fullmatch numeric
+fullmatch.numeric <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    mean.controls = NULL,
+    tol = .001,
+    data = NULL,
+    z,
+    within=NULL,
+    ...) {
+
+  m <- match_on(x, within=within, z=z, ...)
+  out <- fullmatch(m,
+                   min.controls=min.controls,
+                   max.controls=max.controls,
+                   omit.fraction=omit.fraction,
+                   mean.controls=mean.controls,
+                   tol=tol,
+                   data=data,
+                   ...)
+  if (!exists("cl")) cl <- match.call()
+  attr(out, "call") <- cl
+  out
+}
+
+fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    mean.controls = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
+
+  ### Checking Input ###
+
+  # this will throw an error if not valid
+  validDistanceSpecification(x)
 
   # note: we might want to move these checks to validDistSpec
-  dnms <- dimnames(distance)
+  dnms <- dimnames(x)
   if (is.null(dnms) | is.null(dnms[[1]]) | is.null(dnms[[2]])) {
-    stop("argument \'distance\' must have dimnames")
+    stop("argument \'x\' must have dimnames")
   }
 
   if (any(duplicated(unlist(dnms)))){
-    stop("dimnames of argument \'distance\' contain duplicates")
+    stop("dimnames of argument \'x\' contain duplicates")
   }
 
   nmtrt <- dnms[[1]]
@@ -173,8 +272,8 @@ fullmatch <- function(distance,
 
   # note: this next _should_ be unnecessary, the objects should do this
   # but better safe than sorry
-  if (!isTRUE(all.equal(dim(distance), c(length(nmtrt), length(nmctl))))) {
-    stop("argument \'distance\' dimensions do not match row and column names")
+  if (!isTRUE(all.equal(dim(x), c(length(nmtrt), length(nmctl))))) {
+    stop("argument \'x\' dimensions do not match row and column names")
   }
 
   if (!is.numeric(min.controls)) {
@@ -200,7 +299,7 @@ fullmatch <- function(distance,
 
   # problems is guaranteed to be a list of DistanceSpecifictions
   # it may only have 1 entry
-  problems <- findSubproblems(distance)
+  problems <- findSubproblems(x)
 
   # the number of problems should match the argument lengths for
   # min, max, and omit
@@ -256,7 +355,7 @@ fullmatch <- function(distance,
   }
 
   if (any(!is.na(mean.controls))) {
-    if (any(mean.controls > lapply(subdim(distance), function(x) x[2]/x[1]), na.rm=TRUE)) {
+    if (any(mean.controls > lapply(subdim(x), function(x) x[2]/x[1]), na.rm=TRUE)) {
       stop("mean.controls cannot be larger than the ratio of number of controls to treatments")
     }
   }
@@ -273,10 +372,10 @@ fullmatch <- function(distance,
 
   if (any(!is.na(mean.controls) & is.na(omit.fraction))) {
     user.input.mean.controls <- TRUE
-    omit.fraction <- 1 - mapply(function(x,y) x*y[1]/y[2], mean.controls, subdim(distance))
+    omit.fraction <- 1 - mapply(function(x,y) x*y[1]/y[2], mean.controls, subdim(x))
   }
 
-  total.n <- sum(dim(distance))
+  total.n <- sum(dim(x))
 
   TOL <- tol * total.n
 
@@ -373,14 +472,19 @@ fullmatch <- function(distance,
   # In case we need to try and recover from infeasible, save the new.omit.fraction's used for output to user
   new.omit.fraction <- numeric(0)
 
+  if (is.null(options()$fullmatch_try_recovery)) {
+    warning("The flag fullmatch_try_recovery is unset, setting to TRUE")
+    setTryRecovery()
+  }
+
   # Include NULL in case something odd is going on - assume user still wants recovery
-  if (options()$fullmatch_try_recovery == TRUE | is.null(options()$fullmatch_try_recovery)) {
+  if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {
     solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   }
 
-  mout <- makeOptmatch(distance, solutions, match.call(), data)
+  mout <- makeOptmatch(x, solutions, match.call(), data)
 
   names(min.controls) <- names(problems)
   names(max.controls) <- names(problems)
@@ -393,7 +497,7 @@ fullmatch <- function(distance,
   } else {
     out.omit.fraction <- omit.fraction
   }
-  out.mean.controls <- mapply(function(x,y) (1 - x)*y[2]/y[1], out.omit.fraction, subdim(distance))
+  out.mean.controls <- mapply(function(x,y) (1 - x)*y[2]/y[1], out.omit.fraction, subdim(x))
 
   names(out.mean.controls) <- names(problems)
   names(out.omit.fraction) <- names(problems)
@@ -414,8 +518,10 @@ fullmatch <- function(distance,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- dist_digest(distance)
+  attr(mout, "hashed.distance") <- dist_digest(x)
 
+  if (!exists("cl")) cl <- match.call()
+  attr(mout, "call") <- cl
   return(mout)
 }
 

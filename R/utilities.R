@@ -45,8 +45,6 @@ setMethod("toZ", "factor", function(x) {
   toZ(as.numeric(x) - 1)
 })
 
-
-
 #' (Internal) Remove the call before digesting a distance so things like
 #' omitting caliper and calling caliper=NULL give the same digest
 #'
