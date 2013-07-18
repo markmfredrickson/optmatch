@@ -153,6 +153,10 @@ fullmatch <- function(x,
     data = NULL,
     ...) {
   cl <- match.call()
+  if (is.null(data)) {
+    warning("Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.")
+  }
   UseMethod("fullmatch")
 }
 
@@ -174,8 +178,6 @@ fullmatch.default <- function(x,
     if (inherits(x, "function")) {
       stop("A data argument must be given when passing a function")
     }
-    warning("Without 'data' argument the order of the match is not guaranteed
-    to be the same as your original data.")
     model.frame(x)
   }
   if (!class(mfd) == "data.frame") {
@@ -190,6 +192,7 @@ fullmatch.default <- function(x,
                    tol=tol,
                    data=mfd,
                    ...)
+  if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
   out
 }
@@ -232,6 +235,7 @@ fullmatch.numeric <- function(x,
                    tol=tol,
                    data=data,
                    ...)
+  if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
   out
 }
@@ -249,11 +253,6 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
   # this will throw an error if not valid
   validDistanceSpecification(x)
-
-  if (is.null(data)) {
-    warning("Without 'data' argument the order of the match is not guaranteed
-    to be the same as your original data.")
-  }
 
   # note: we might want to move these checks to validDistSpec
   dnms <- dimnames(x)
@@ -518,6 +517,8 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   # save hash of distance
   attr(mout, "hashed.distance") <- dist_digest(x)
 
+  if (!exists("cl")) cl <- match.call()
+  attr(mout, "call") <- cl
   return(mout)
 }
 
