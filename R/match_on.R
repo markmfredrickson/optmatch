@@ -325,6 +325,32 @@ are there missing values in data?")
   match_on(theps, within = within, caliper = caliper, z = z, ... )
 })
 
+### These are temporary fixes until making match_on S3 generic can be fully implemented. See issue #51.
+#' @usage \S4method{match_on}{brglm}(x, within = NULL, caliper = NULL, data =
+#' NULL, standardization.scale = mad, ...)
+#' @rdname match_on-methods
+#' @aliases match_on,brglm-method
+setMethod("match_on", "brglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+{
+  realclass <- class(x)
+  class(x) <- "glm"
+  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+  class(x) <- realclass
+  out
+})
+#' @usage \S4method{match_on}{bayesglm}(x, within = NULL, caliper = NULL, data =
+#' NULL, standardization.scale = mad, ...)
+#' @rdname match_on-methods
+#' @aliases match_on,bayesglm-method
+setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+{
+  realclass <- class(x)
+  class(x) <- "glm"
+  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+  class(x) <- realclass
+  out
+})
+
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
 # benefits of calipers -- if that's changed here, adjust there accordingly.
