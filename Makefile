@@ -40,7 +40,7 @@ interactive: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/
 
 ### Package release scripts ###
 
-VERSION=0.8-3
+VERSION=0.8-4
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
