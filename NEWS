@@ -1,4 +1,4 @@
-CHANGES IN OPTMATCH VERSION 0.9-0
+CHANGES IN OPTMATCH VERSION
 
 NEW FEATURES
 
@@ -20,6 +20,8 @@ NEW FEATURES
 * Creating a distance matrix prior to matching is now optional. fullmatch()
   now accepts arguments from which match_on() would create a distance, and
   create the match behind the scenes.
+
+* Performance enhancements for distance calculations.
 
 * Several new utility functions, including subdim(), optmatch_restrictions(),
   optmatch_same_distance(), num_eligible_matches(). See their help
