@@ -21,6 +21,8 @@ NEW FEATURES
   now accepts arguments from which match_on() would create a distance, and
   create the match behind the scenes.
 
+* mdist() is now deprecated, in favor of match_on().
+
 * Several new utility functions, including subdim(), optmatch_restrictions(),
   optmatch_same_distance(), num_eligible_matches(). See their help
   documentation for additional details.
