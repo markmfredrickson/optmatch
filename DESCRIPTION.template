@@ -3,7 +3,7 @@ Version: VERSION
 Date: DATE
 Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredrickson@gmail.com>,
-  and Josh Buckner <bucknerj at umich.edu>
+  Josh Buckner <bucknerj at umich.edu> and Josh Errickson <jerrick at umich.edu>,
   with embedded Fortran code due to Dimitri P. Bertsekas
   <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
