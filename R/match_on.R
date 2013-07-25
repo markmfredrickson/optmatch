@@ -193,13 +193,13 @@ compute_mahalanobis <- function(index, data, z) {
 	
 	nv <- nrow(index)
 	
-	result <- .C('mahalanobisHelper',
-    as.integer(nv),
-    as.integer(ncol(data)),
-    t(data[index[, 1], ]),
-    t(data[index[, 2], ]),
-    t(inv.scale.matrix),
-    result=numeric(nv), PACKAGE='optmatch')$result
+        result <- .C('mahalanobisHelper',
+                     as.integer(nv),
+                     as.integer(ncol(data)),
+                     t(data[index[, 1], ]),
+                     t(data[index[, 2], ]),
+                     t(inv.scale.matrix),
+                     result=numeric(nv), PACKAGE='optmatch')$result
 	
 	return(result)
 }
@@ -215,6 +215,29 @@ compute_smahal <- function(index, data, z) {
     return(
         .Call('smahal', index, data, z, PACKAGE='optmatch')
     )
+}
+
+compute_new_mahal <- function(index, data, z) {
+    if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
+
+    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    cv <- mt + mc
+    
+    inv.scale.matrix <- try(solve(cv))
+    
+    if (inherits(inv.scale.matrix,"try-error")) {
+        dnx <- dimnames(cv)
+    	s <- svd(cv)
+    	nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+    	if (!any(nz)) stop("covariance has rank zero")
+    
+	inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+    	dimnames(inv.scale.matrix) <- dnx[2:1]
+    }
+    
+    result <- .Call('z', data, rownames(data), index, inv.scale.matrix)
+    return(result)
 }
 
 compute_euclidean <- function(index, data, z) {

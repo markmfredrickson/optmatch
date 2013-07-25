@@ -29,9 +29,11 @@ makedist <- function(z, data, distancefn, within = NULL) {
   } else {
     namefn <- rownames
   }
+  rns <- namefn(data)[as.logical(z)]
+  cns <- namefn(data)[!as.logical(z)]
 
-  rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
-  cns <- namefn(subset(data, !as.logical(z)))
+  # rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
+  # cns <- namefn(subset(data, !as.logical(z)))
 
   if (length(cns) == 0 | length(rns) == 0) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
@@ -41,10 +43,6 @@ makedist <- function(z, data, distancefn, within = NULL) {
     # without a within, make a dense matrix    
     nc <- length(cns)
     nr <- length(rns)
-    
-    res <- new("DenseMatrix", matrix(0, nrow = nr, ncol = nc, dimnames =
-                                     list(treatment = rns, control = cns)))
-    
     # matrices have column major order
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
@@ -58,15 +56,14 @@ argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details."
 
   } else {
     # with a within, make a copy and only fill in the finite entries of within
-    res <- within
     
     if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
         !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
       stop("Row and column names of within must match those of the data.")  
     }
 
-    treatmentids <- res@rownames[res@rows]
-    controlids <- res@colnames[res@cols]
+    treatmentids <- within@rownames[within@rows]
+    controlids <- within@colnames[within@cols]
 
     # TODO: check that the rownames, colnames of within match data
     subprobs <- findSubproblems(within)
@@ -86,8 +83,12 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
 
   dists <- distancefn(cbind(treatmentids, controlids), data, z)
 
-  res <- replace(res, 1:length(res), dists)
-
+  if(is.null(within)) {
+      res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
+                                       list(treatment = rns, control = cns)))
+  } else {
+      res <- replace(within, 1:length(within), dists)
+  }
   return(res)
 }
 
