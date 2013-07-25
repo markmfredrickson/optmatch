@@ -318,3 +318,42 @@ test_that("BlockedISM addition", {
   expect_is(matrix(1, nrow = 8, ncol = 8) + res.b2,
     "BlockedInfinitySparseMatrix")
 })
+
+test_that("Get subproblem size of each block", {
+  Z <- rep(c(0,1), 8)
+  B1 <- c(rep('a',3),rep('b', 3), rep('c', 6), rep('d', 4))
+  B2 <- c(rep(0, 7), rep(1, 9))
+  B3 <- c('a', rep('b', 15)) # group a has no treatment.
+
+  res.b1 <- exactMatch(Z ~ B1)
+  res.b2 <- exactMatch(Z ~ B2)
+  res.b3 <- exactMatch(Z ~ B3)
+
+  expect_equal(subdim(res.b1), list('a' = c(1, 2),'b' = c(2, 1),'c' = c(3, 3),'d' = c(2, 2)))
+  expect_equal(subdim(res.b2), list('0' = c(3, 4),'1' = c(5, 4)))
+  expect_equal(subdim(res.b3), list('b' = c(8, 7)))
+
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
+              dimnames = list(control = c("A", "B"),
+                  treated = c("C", "D")))
+  a <- as.InfinitySparseMatrix(m)
+
+  # subdim on a matrix or non-blocked ISM is equivalent to calling dim
+  expect_equal(subdim(m), list(dim(m)))
+  expect_equal(subdim(a), list(dim(a)))
+
+  # test on optmatch.dlist
+  od <- list(matrix(c(0,0,0,0, Inf,Inf,Inf,Inf, rep(0, 12)), nrow = 2, ncol = 10, dimnames = list(letters[1:2], letters[3:12])),
+             matrix(c(0,0,0,0, rep(Inf, 16)), byrow = T, nrow = 5, ncol = 4, dimnames = list(letters[10:14], letters[15:18])))
+
+  class(od) <- c("optmatch.dlist", "list")
+
+  expect_equal(subdim(od), list(c(2, 10), c(5, 4)))
+
+  # test on DenseMatrix
+  W <- rnorm(16)
+
+  m <- match_on(Z ~ W)
+
+  expect_equal(subdim(m), list(dim(m)))
+})

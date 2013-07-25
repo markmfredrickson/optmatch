@@ -1,8 +1,7 @@
 
-R version 2.15.2 (2012-10-26) -- "Trick or Treat"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
-Platform: x86_64-apple-darwin12.2.1 (64-bit)
+R version 3.0.1 (2013-05-16) -- "Good Sport"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -18,6 +17,7 @@ Type 'q()' to quit R.
 
 > require('optmatch')
 Loading required package: optmatch
+Loading required package: digest
 You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
@@ -36,7 +36,7 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
    Q    R    S    T    U    V    W    X    Y    Z 
  1.4  1.5 <NA> <NA>  1.6 <NA> <NA>  1.7 <NA> <NA> 
 Warning message:
-In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > pairmatch(plantdist, controls=2)
@@ -45,19 +45,21 @@ In fullmatch(distance = distance, min.controls = controls, max.controls = contro
    Q    R    S    T    U    V    W    X    Y    Z 
  1.4  1.5  1.5  1.3  1.6 <NA>  1.1  1.7  1.7  1.6 
 Warning message:
-In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > ## Not run: pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
 > pairmatch(plantdist + caliper(plantdist, 5, compare = `<`), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
- 1.1  1.2  1.3  1.4  1.5 <NA>  1.6 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA> 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
- 1.4  1.5 <NA> <NA> <NA> <NA> <NA>  1.6 <NA> <NA> 
-Warning message:
-In fullmatch(distance = distance, min.controls = controls, max.controls = controls,  :
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+Warning messages:
+1: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
+2: In fullmatch.InfinitySparseMatrix(x = distance, min.controls = controls,  :
+  The problem is infeasible with the given constraints; some units were omitted to allow a match.
 > 
 > data(nuclearplants)
 > # in both of match_on calls below use sd to maintain backwards compatibility with
@@ -83,4 +85,4 @@ In fullmatch(distance = distance, min.controls = controls, max.controls = contro
 > 
 > proc.time()
    user  system elapsed 
-  0.823   0.030   0.835 
+  1.116   0.048   1.162 

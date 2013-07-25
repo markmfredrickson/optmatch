@@ -1,16 +1,16 @@
 ################################################################################
-# Mdist: distance matrix creation functions
+# match_on: distance matrix creation functions
 ################################################################################
 
 #' Create treated to control distances for matching problems
-#' 
+#'
 #' A function with which to produce matching distances, for instance Mahalanobis
-#' distances, propensity score discrepancies or calipers, or combinations thereof, for 
+#' distances, propensity score discrepancies or calipers, or combinations thereof, for
 #' \code{\link{pairmatch}} or \code{\link{fullmatch}} to subsequently \dQuote{match on}.
-#' Conceptually, the result of a call \code{match_on} is a treatment-by-control matrix of distances. 
-#' Because these matrices can grow quite large, in practice \code{match_on} produces either an 
+#' Conceptually, the result of a call \code{match_on} is a treatment-by-control matrix of distances.
+#' Because these matrices can grow quite large, in practice \code{match_on} produces either an
 #' ordinary dense matrix or a special sparse matrix structure (that can make use of caliper and exact matching
-#' constraints to reduce storage requirements).  Methods are supplied for these sparse structures, 
+#' constraints to reduce storage requirements).  Methods are supplied for these sparse structures,
 #'\code{InfinitySparseMatrix}es, so that they can be manipulated and modified in much the same way as dense matrices.
 #'
 #' \code{match_on} is generic. There are several supplied methods, all providing the same basic output: a matrix (or
@@ -40,7 +40,7 @@
 #' \code{match_on}, but \code{mdist} is still supplied for users familiar with the
 #' interface. For the most part, the two functions can be used interchangeably by
 #' users.
-#' 
+#'
 #' @param x An object defining how to create the distances. All methods require
 #' some form of names (e.g. \code{names} for vectors or \code{rownames} for
 #' matrix like objects)
@@ -54,7 +54,7 @@
 #' \code{\link{caliper}} function on an existing distance specification.
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
-#' or \code{\link{pairmatch}}. 
+#' or \code{\link{pairmatch}}.
 #' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
@@ -86,10 +86,10 @@ setGeneric("match_on", def = function(x, within = NULL, caliper = NULL, ...) {
 #' function should return the distance between the treated unit and control unit.
 #' This may sound complicated, but is simple to use. For example, a function that
 #' returned the absolute difference between two units using a vector of data would
-#' be 
+#' be
 #' \code{f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
 #' (Note: This simple case is precisely handled by the \code{numeric} method.)
-#' 
+#'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
 #' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, z = NULL, data = NULL, ...)
@@ -104,9 +104,9 @@ setMethod("match_on", "function", function(x, within = NULL, caliper = NULL, z =
   theFun <- match.fun(x)
 
   tmp <- makedist(z, data, theFun, within)
-  
+
   if (is.null(caliper)) {
-    return(tmp)  
+    return(tmp)
   }
 
   return(tmp + optmatch::caliper(tmp, width = caliper))
@@ -115,29 +115,29 @@ setMethod("match_on", "function", function(x, within = NULL, caliper = NULL, z =
 
 #' @details The formula method produces, by default, a Mahalanobis distance specification
 #' based on the formula \code{Z ~ X1 + X2 + ... }, where
-#' \code{Z} is the treatment indicator. The Mahalanobis distance is calculated as the 
+#' \code{Z} is the treatment indicator. The Mahalanobis distance is calculated as the
 #' square root of d'Cd, where d is the vector of X-differences on a pair of observations and C
 #' is an inverse (generalized inverse) of the pooled covariance of Xes. (The pooling is of the
-#' covariance of X within the subset defined by \code{Z==0} and within the complement of that 
-#' subset. This is similar to a Euclidean distance calculated after reexpressing the Xes in 
-#' standard units, such that the reexpressed variables all have pooled SDs of 1; except that 
-#' it addresses redundancies among the variables by scaling down variables contributions in 
-#' proportion to their correlations with other included variables.) 
-#' 
-#' Euclidean distance is also available, via \code{method="euclidean"}. Or, implement your own;  
+#' covariance of X within the subset defined by \code{Z==0} and within the complement of that
+#' subset. This is similar to a Euclidean distance calculated after reexpressing the Xes in
+#' standard units, such that the reexpressed variables all have pooled SDs of 1; except that
+#' it addresses redundancies among the variables by scaling down variables contributions in
+#' proportion to their correlations with other included variables.)
+#'
+#' Euclidean distance is also available, via \code{method="euclidean"}. Or, implement your own;
 #' for hints as to how, refer to\cr
 #' \url{https://github.com/markmfredrickson/optmatch/wiki/How-to-write-your-own-compute-method}
-#' 
+#'
 #' @param subset A subset of the data to use in creating the distance specification.
-#' @param method A string indicating which method to use in computing the distances from the data. 
-#' The current possibilities are \code{"mahalanobis", "euclidean"}. 
+#' @param method A string indicating which method to use in computing the distances from the data.
+#' The current possibilities are \code{"mahalanobis", "euclidean"}.
 #' @usage \S4method{match_on}{formula}(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...)
 #' @rdname match_on-methods
 #' @aliases match_on,formula-method
-setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, 
+setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL,
                                        method = "mahalanobis", ...) {
   if (length(x) != 3) {
-    stop("Formula must have a left hand side.")  
+    stop("Formula must have a left hand side.")
   }
 
   mf <- match.call(expand.dots = FALSE)
@@ -150,20 +150,20 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   mf <- eval(mf, parent.frame())
 
   if (dim(mf)[2] < 2) {
-    stop("Formula must have a right hand side with at least one variable.")   
+    stop("Formula must have a right hand side with at least one variable.")
   }
 
   data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
- 
+
   f <- match.fun(paste("compute_", method, sep = ""))
 
   tmp <- makedist(z, data, f, within)
 
   if (is.null(caliper)) {
-    return(tmp)  
+    return(tmp)
   }
 
   return(tmp + optmatch::caliper(tmp, width = caliper))
@@ -176,9 +176,9 @@ compute_mahalanobis <- function(index, data, z) {
 	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
 	mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
 	cv <- mt + mc
-	
+
 	inv.scale.matrix <- try(solve(cv))
-	
+
 	if (inherits(inv.scale.matrix,"try-error"))
 	{
 		dnx <- dimnames(cv)
@@ -186,13 +186,13 @@ compute_mahalanobis <- function(index, data, z) {
 		nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
 		if (!any(nz))
 		stop("covariance has rank zero")
-		
+
 		inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
 		dimnames(inv.scale.matrix) <- dnx[2:1]
 	}
-	
+
 	nv <- nrow(index)
-	
+
         result <- .C('mahalanobisHelper',
                      as.integer(nv),
                      as.integer(ncol(data)),
@@ -200,7 +200,7 @@ compute_mahalanobis <- function(index, data, z) {
                      t(data[index[, 2], ]),
                      t(inv.scale.matrix),
                      result=numeric(nv), PACKAGE='optmatch')$result
-	
+
 	return(result)
 }
 
@@ -247,7 +247,7 @@ compute_euclidean <- function(index, data, z) {
 
     pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
     t(pair.diff) %*% pair.diff
-  
+
   }))
 }
 
@@ -256,28 +256,28 @@ compute_euclid <- compute_euclidean
 
 #' @details The \code{glm} method assumes its first argument to be a fitted propensity
 #' model. From this it extracts distances on the \emph{linear} propensity score: fitted values
-#' of the linear predictor, the link function applied to the estimated conditional probabilities, 
-#' as opposed to the estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).  
-#' For example, a logistic model (\code{glm} with \code{family=binomial()}) has the logit function 
+#' of the linear predictor, the link function applied to the estimated conditional probabilities,
+#' as opposed to the estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).
+#' For example, a logistic model (\code{glm} with \code{family=binomial()}) has the logit function
 #' as its link, so from such models \code{match_on} computes distances in terms of logits of
-#' the estimated conditional probabilities, i.e. the estimated log odds. 
-#' 
-#' Optionally these distances are also rescaled. The default is to rescale, by the reciprocal of 
+#' the estimated conditional probabilities, i.e. the estimated log odds.
+#'
+#' Optionally these distances are also rescaled. The default is to rescale, by the reciprocal of
 #' an outlier-resistant variant of the pooled s.d. of propensity scores.
-#' (Outlier resistance is obtained by the application of \code{mad}, as opposed to \code{sd}, 
+#' (Outlier resistance is obtained by the application of \code{mad}, as opposed to \code{sd},
 #' to linear propensity scores in the treatment; this can be
 #' changed to the actual s.d., or rescaling can be skipped entirely, by
-#' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.) 
+#' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.)
 #' The overall result records absolute differences between treated and
-#' control units on linear, possibly rescaled, propensity scores. 
-#' 
-#' In addition, one can impose a caliper in terms of these distances by providing a scalar as a 
-#' \code{caliper} argument, forbidding matches between treatment and control units differing in the 
-#' calculated propensity score by more than the specified caliper.  For example, Rosenbaum and Rubin's (1985) 
-#' caliper of one-fifth of a pooled propensity score s.d. would be imposed by specifying \code{caliper=.2}, 
-#' in tandem either with the default rescaling or, to follow their example even more closely, with the 
-#' additional specification \code{standardization.scale=sd}. Propensity calipers are beneficial 
-#' computationally as well as statistically, for reasons indicated in the below discussion of 
+#' control units on linear, possibly rescaled, propensity scores.
+#'
+#' In addition, one can impose a caliper in terms of these distances by providing a scalar as a
+#' \code{caliper} argument, forbidding matches between treatment and control units differing in the
+#' calculated propensity score by more than the specified caliper.  For example, Rosenbaum and Rubin's (1985)
+#' caliper of one-fifth of a pooled propensity score s.d. would be imposed by specifying \code{caliper=.2},
+#' in tandem either with the default rescaling or, to follow their example even more closely, with the
+#' additional specification \code{standardization.scale=sd}. Propensity calipers are beneficial
+#' computationally as well as statistically, for reasons indicated in the below discussion of
 #' the \code{numeric} method.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
@@ -289,7 +289,7 @@ setMethod("match_on", "glm", function(x, within = NULL, caliper = NULL, standard
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
   pooled.sd <- if (is.null(standardization.scale)) {
-    1 
+    1
   } else {
     szn.scale(x$linear.predictors, z ,standardization.scale)
   }
@@ -300,7 +300,7 @@ setMethod("match_on", "glm", function(x, within = NULL, caliper = NULL, standard
 })
 
 szn.scale <- function(x, Tx, standardizer = mad, ...) {
-  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 + 
+  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
         (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
 }
 
@@ -338,27 +338,53 @@ are there missing values in data?")
   z <- Data[, 1]
   pooled.sd <- if (is.null(standardization.scale)) {
     1
-  } else { 
+  } else {
     szn.scale(theps, z, standardizer=standardization.scale,...)
   }
 
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
 
-  match_on(theps, within = within, caliper = caliper, z = z, ... )    
+  match_on(theps, within = within, caliper = caliper, z = z, ... )
+})
+
+### These are temporary fixes until making match_on S3 generic can be fully implemented. See issue #51.
+#' @usage \S4method{match_on}{brglm}(x, within = NULL, caliper = NULL, data =
+#' NULL, standardization.scale = mad, ...)
+#' @rdname match_on-methods
+#' @aliases match_on,brglm-method
+setMethod("match_on", "brglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+{
+  realclass <- class(x)
+  class(x) <- "glm"
+  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+  class(x) <- realclass
+  out
+})
+#' @usage \S4method{match_on}{bayesglm}(x, within = NULL, caliper = NULL, data =
+#' NULL, standardization.scale = mad, ...)
+#' @rdname match_on-methods
+#' @aliases match_on,bayesglm-method
+setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+{
+  realclass <- class(x)
+  class(x) <- "glm"
+  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+  class(x) <- realclass
+  out
 })
 
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
-# benefits of calipers -- if that's changed here, adjust there accordingly. 
+# benefits of calipers -- if that's changed here, adjust there accordingly.
 #' @details The \code{numeric} method returns absolute differences between treated and control units'
-#' values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it 
-#' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of 
-#' \code{caliper} and \code{within} has been specified then only information about permissible pairings 
-#' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here, 
-#' as opposed to omitting it and afterwards applying the \code{\link{caliper}} function, reduces 
+#' values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it
+#' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of
+#' \code{caliper} and \code{within} has been specified then only information about permissible pairings
+#' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
+#' as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
-#' 
+#'
 #' For the numeric method, \code{x} must have names.
 #' @usage \S4method{match_on}{numeric}(x, within = NULL, caliper = NULL, z, ...)
 #' @rdname match_on-methods
@@ -381,14 +407,14 @@ setMethod("match_on", "numeric", function(x, within = NULL, caliper = NULL, z, .
     }
 
     allowed <- scoreCaliper(x, z, caliper)
-    
+
     if (!is.null(within)) {
       within <- within + allowed
     } else {
       within <- allowed
     }
   }
-  
+
   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
   makedist(z, x, f, within)
@@ -410,19 +436,19 @@ scoreCaliper <- function(x, z, caliper) {
   # the following uses findInterval, which requires a sorted vector
   # there may be a speed increase in pulling out the guts of that function and calling them directly
   control <- sort(control)
-  
+
   treatedids <- c()
   controlids <- c()
-  
+
   # NB: for reasons unknown, you must add the double.eps in the function
   # call, saving it in a variable (e.g. width.eps <- width +
   # .Machine$double.eps) will not work.
-  # The use of double.eps is to get a <= treated <= b intervals 
+  # The use of double.eps is to get a <= treated <= b intervals
 
   stops <- findInterval(treated + caliper + .Machine$double.eps, control)
   starts <- length(control) - findInterval(-(treated - caliper -
                                              .Machine$double.eps), rev(-control))
-  
+
   for (i in 1:k) {
     if (starts[i] < length(control) && stops[i] > 0 && starts[i] < stops[i]) {
       tmp <- seq(starts[i] + 1, stops[i])
@@ -436,11 +462,11 @@ scoreCaliper <- function(x, z, caliper) {
 
 #' @details The \code{matrix} and \code{InfinitySparseMatrix} just return their
 #' arguments as these objects are already valid distance specifications.
-#' 
+#'
 #' @rdname match_on-methods
 #' @aliases match_on,InfinitySparseMatrix-method
 setMethod("match_on", "InfinitySparseMatrix", function(x, within = NULL, caliper = NULL, ...) {
-  if(is.null(caliper)) { return(x) }   
+  if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
 }) # just return the argument
@@ -448,8 +474,7 @@ setMethod("match_on", "InfinitySparseMatrix", function(x, within = NULL, caliper
 #' @rdname match_on-methods
 #' @aliases match_on,matrix-method
 setMethod("match_on", "matrix", function(x, within = NULL, caliper = NULL, ...) {
-  if(is.null(caliper)) { return(x) }   
+  if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
 }) # just return the argument
-
