@@ -1,5 +1,9 @@
+#define _GNU_SOURCE
+
 #include <limits.h>
 #include <search.h>
+
+extern int errno; // from search.h
 
 #include <R.h>
 #include <Rinternals.h>
@@ -54,15 +58,16 @@ int digits(int n) {
   return 1;
 }
 
-void names_to_indexes(SEXP names, SEXP index_names, int * out_index)
-{
+void names_to_indexes(SEXP names, SEXP index_names, int * out_index) {
   int
     n_index = length(index_names),
     n_names = length(names),
-    n_hash = 2 * n_index;
+    n_hash = ceil((4.0 * (double) n_names) / 3.0);
 
-  if( 0 == hcreate(n_hash) )
-    error("failed to create hash to index data row names\npossibly out of memory\n");
+  struct hsearch_data * htab = Calloc(n_hash, struct hsearch_data);
+
+  if( 0 == hcreate_r(n_hash, htab) )
+    error("in names_to_indexes: failed to create hash to index data row names\npossibly out of memory\n");
 
   int n_data;
   ENTRY * entries = Calloc(n_index, ENTRY);
@@ -71,21 +76,24 @@ void names_to_indexes(SEXP names, SEXP index_names, int * out_index)
     n_data = 1 + digits(i); 
     entries[i].data = Calloc(n_data, char);
     sprintf(entries[i].data, "%d", i);
-    hsearch(entries[i], ENTER);
+    if( 0 == hsearch_r(entries[i], ENTER, NULL, htab) )
+	error("in names_to_indexes: unknown error on inserting key into hash table; table might be full\n");
   }
 
   ENTRY to_find, * found;
   for(int i = 0; i < n_index; i++) {
     to_find.key = (char *) CHAR(STRING_ELT(index_names, i));
-    found = hsearch(to_find, FIND);
+    if( 0 == hsearch_r(to_find, FIND, &found, htab) )
+	error("in names_to_indexes: element of index not found among rownames\n");
     out_index[i] = (int) strtol(found->data, NULL, 0);
   }
 
-  hdestroy();
+  hdestroy_r(htab);
   for(int i = 0; i < n_index; i++)
     Free(entries[i].data);
 
   Free(entries);
+  Free(htab);
 }
 
 SEXP z(SEXP data, SEXP data_row_names, SEXP index, SEXP invScaleMat) {
