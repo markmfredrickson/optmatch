@@ -3,8 +3,6 @@
 #include <limits.h>
 #include <search.h>
 
-extern int errno; // from search.h
-
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Lapack.h>
@@ -69,18 +67,18 @@ void names_to_indexes(SEXP names, SEXP index_names, int * out_index) {
   if( 0 == hcreate_r(n_hash, htab) )
     error("in names_to_indexes: failed to create hash to index data row names\npossibly out of memory\n");
 
-  int n_data;
-  ENTRY * entries = Calloc(n_index, ENTRY);
+  ENTRY
+    to_find, * found,
+    * entries = Calloc(n_index, ENTRY);
+
   for(int i = 0; i < n_names; i++) {
     entries[i].key = (char *) CHAR(STRING_ELT(names, i));
-    n_data = 1 + digits(i); 
-    entries[i].data = Calloc(n_data, char);
+    entries[i].data = Calloc(1 + digits(i), char);
     sprintf(entries[i].data, "%d", i);
-    if( 0 == hsearch_r(entries[i], ENTER, NULL, htab) )
+    if( 0 == hsearch_r(entries[i], ENTER, &found, htab) )
 	error("in names_to_indexes: unknown error on inserting key into hash table; table might be full\n");
   }
 
-  ENTRY to_find, * found;
   for(int i = 0; i < n_index; i++) {
     to_find.key = (char *) CHAR(STRING_ELT(index_names, i));
     if( 0 == hsearch_r(to_find, FIND, &found, htab) )
