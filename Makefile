@@ -40,7 +40,7 @@ interactive: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/
 
 ### Package release scripts ###
 
-VERSION=0.8-3
+VERSION=0.8-4
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
@@ -73,7 +73,8 @@ $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static .local/roxygen2/INS
 	$(LR) -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/* \
+	$(PKGDEPS)
 	$(LR) CMD build $(PKG)
 
 # a convenience target to get the current .tar.gz with having to know the
@@ -88,8 +89,8 @@ lexicon.txt: package
 	$(LR) -q --no-save -e "source('checkspelling.R') ; make_dictionary('$(PKG)')"
 
 # the full (and slow) check process
-check: $(PKG).tar.gz .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED
-	$(LR) CMD check --as-cran --no-multiarch $(PKG).tar.gz
+check: $(PKG).tar.gz 	
+	$(LR) CMD check --library=.local --as-cran --no-multiarch $(PKG).tar.gz
 
 # getting ready to release
 release: check spell
@@ -117,6 +118,22 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 
 .local/profr/INSTALLED:
 	$(call installpkg,profr)
+
+.local/brglm/INSTALLED:
+	$(call installpkg,brglm)
+
+.local/arm/INSTALLED:
+	$(call installpkg,arm)
+
+.local/digest/INSTALLED:
+	$(call installpkg,digest)
+
+PKGDEPS = .local/testthat/INSTALLED \
+					.local/RItools/INSTALLED \
+					.local/biglm/INSTALLED \
+					.local/brglm/INSTALLED \
+					.local/arm/INSTALLED \
+					.local/digest/INSTALLED
 
 # This is a change from the upstream optmatch.
 # Upstream uses a fork of roxygen that properly handles S4 documentation
