@@ -102,11 +102,10 @@ SEXP z(SEXP data, SEXP data_row_names, SEXP index, SEXP invScaleMat) {
   int
     va, vb,
     * index_row_i = Calloc(2 * nv, int);
-  double
-    * pairDiff = Calloc(nv * n, double),
-    * product = Calloc(nv * n, double);
 
   names_to_indexes(data_row_names, index, index_row_i);
+
+  double * pairDiff = Calloc(nv * n, double);
   for(int i = 0; i < nv; i++) {
     va = index_row_i[i];
     vb = index_row_i[i + nv];
@@ -120,8 +119,8 @@ SEXP z(SEXP data, SEXP data_row_names, SEXP index, SEXP invScaleMat) {
   char
     side = 'R', uplo = 'U';
   double
-    alpha = 1.0, beta = 0.0;
-
+    alpha = 1.0, beta = 0.0,
+    * product = Calloc(nv * n, double);
   // pairDiff * invScaleMat
   F77_CALL(dsymm)(&side, &uplo, &nv, &n, &alpha, REAL(invScaleMat), &n,
 		  pairDiff, &nv, &beta, product, &nv);
