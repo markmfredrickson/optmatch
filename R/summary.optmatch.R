@@ -44,7 +44,7 @@ summary.optmatch <- function(object,
   matchdists <- attr(object, "matched.distances")[levels(object[!mfd, drop=TRUE])]
   matchdists <- unlist(matchdists)
   so$total.distance <- sum(matchdists)
-  so$total.tolerances <- sum(attr(object, "exceedances"))
+  so$total.tolerances <- sum(unlist(attr(object, "exceedances")))
   so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
 
   ## optional call to xbalance if it is loaded
