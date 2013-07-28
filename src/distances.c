@@ -7,27 +7,35 @@
 #include <Rinternals.h>
 #include <R_ext/Lapack.h>
 
-void rPrintV(int n, int stride, int start, const double * v) {
-  for(int i = start; i < n; i += stride)
-    Rprintf("%g ", v[i]);
+void mahalanobisHelper(const int * nPairs, const int * vectorLength,
+		       const double * vectorSet1, const double * vectorSet2,
+		       const double * mat, double * result)
+{
+  int
+    j, k,
+    nv = *nPairs, n = *vectorLength;
+  double
+    sum, innerSum;
+  const double
+    * v1i, * v2i, * matCol;
+	
+  for(int i = 0; i < nv; i++) {
+    sum = 0;
 
-  Rprintf("\n");
-}
+    v1i = vectorSet1 + i * n;
+    v2i = vectorSet2 + i * n;
 
-void rPrintMat(int rows, int cols, const double * mat) {
-  for(int i = 0; i < rows; i++)
-    rPrintV(cols, rows , i, mat);
+    for(j = 0; j < n; j++) {
+      innerSum = 0;
+      matCol = mat + j * n;
 
-  Rprintf("\n");
-}
+      for(k = 0; k < n; k++)
+	innerSum += (v1i[k] - v2i[k]) * matCol[k];
 
-int get_name_index(const char * name, SEXP names) {
-  int n = length(names);
-  for(int i = 0; i < n; i++) {
-    if( 0 == strcmp(CHAR(STRING_ELT(names, i)), name) )
-      return i;
+      sum += innerSum * (v1i[j] - v2i[j]);
+    }
+    result[i] = sqrt(sum);
   }
-  return -n;
 }
 
 int digits(int n) {
@@ -115,23 +123,27 @@ int get_pos(const char * to_find, MAP * strpos) {
   return strtol(found->data, NULL, 0);
 }
 
-SEXP z(SEXP data, SEXP data_row_names, SEXP index, SEXP invScaleMat) {
+SEXP new_mahal(SEXP data, SEXP treat_ids, SEXP control_ids, SEXP invScaleMat)
+{
   int
-    nv = nrows(index), n = ncols(data),
+    nv = length(treat_ids),
+    n = ncols(data),
     data_rows = nrows(data);
 
-  double * pairDiff = Calloc(nv * n, double);
-
-  MAP * strpos = create_map(data_row_names);
+  SEXP row_names, cl;
+  const char * rn, * cn;
+  GetMatrixDimnames(data, &row_names, &cl, &rn, &cn); 
+  MAP * strpos = create_map(row_names);
   // TODO: check for valid strpos
 
   int va, vb;
+  double * pairDiff = Calloc(nv * n, double);
   for(int i = 0; i < nv; i++) {
-    va = get_pos(CHAR(STRING_ELT(index, i)), strpos);
-    vb = get_pos(CHAR(STRING_ELT(index, i + nv)), strpos);
+    va = get_pos(CHAR(STRING_ELT(treat_ids, i)), strpos);
+    vb = get_pos(CHAR(STRING_ELT(control_ids, i)), strpos);
     for(int j = 0; j < n; j++) {
       pairDiff[i + j * nv] = REAL(data)[va + j * data_rows]
-	    - REAL(data)[vb + j * data_rows];
+	- REAL(data)[vb + j * data_rows];
     }
   }
   delete_map(strpos);

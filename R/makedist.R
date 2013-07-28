@@ -81,7 +81,7 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
     }
   }
 
-  dists <- distancefn(cbind(treatmentids, controlids), data, z)
+  dists <- distancefn(treatmentids, controlids, data, z)
 
   if(is.null(within)) {
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =

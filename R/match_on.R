@@ -144,6 +144,9 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
+
+  rm(m)
+  
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
@@ -157,10 +160,12 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
-
+  
+  rm(mf)
+  
   f <- match.fun(paste("compute_", method, sep = ""))
-
-  tmp <- makedist(z, data, f, within)
+ 
+  tmp <- makedist(z, data, f)
 
   if (is.null(caliper)) {
     return(tmp)
@@ -169,7 +174,7 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   return(tmp + optmatch::caliper(tmp, width = caliper))
 })
 
-compute_mahalanobis <- function(index, data, z) {
+compute_mahalanobis <- function(treat_ids, control_ids, data, z) {
 
         if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
@@ -191,15 +196,12 @@ compute_mahalanobis <- function(index, data, z) {
 		dimnames(inv.scale.matrix) <- dnx[2:1]
 	}
 
-	nv <- nrow(index)
-
+        nt <- length(treat_ids)
         result <- .C('mahalanobisHelper',
-                     as.integer(nv),
-                     as.integer(ncol(data)),
-                     t(data[index[, 1], ]),
-                     t(data[index[, 2], ]),
+                     as.integer(nt), as.integer(ncol(data)),
+                     t(data[treat_ids, ]), t(data[control_ids, ]),
                      t(inv.scale.matrix),
-                     result=numeric(nv), PACKAGE='optmatch')$result
+                     result=numeric(nt), PACKAGE='optmatch')$result
 
 	return(result)
 }
@@ -207,22 +209,13 @@ compute_mahalanobis <- function(index, data, z) {
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
-compute_smahal <- function(index, data, z) {
-    if (!all(is.finite(data))) {
-        stop("Infinite or NA values detected in data for Mahalanobis computations.")
-    }
-
-    return(
-        .Call('smahal', index, data, z, PACKAGE='optmatch')
-    )
-}
-
-compute_new_mahal <- function(index, data, z) {
+compute_new_mahal <- function(treat_ids, control_ids, data, z) {
     if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
     mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
     mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
     cv <- mt + mc
+    rm(mt, mc)
     
     inv.scale.matrix <- try(solve(cv))
     
@@ -234,16 +227,19 @@ compute_new_mahal <- function(index, data, z) {
     
 	inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
     	dimnames(inv.scale.matrix) <- dnx[2:1]
+        rm(dnx, s, nz)
     }
     
-    result <- .Call('z', data, rownames(data), index, inv.scale.matrix)
+    result <- .Call('new_mahal',
+                    data, treat_ids, control_ids, inv.scale.matrix,
+                    PACKAGE='optmatch')
     return(result)
 }
 
-compute_euclidean <- function(index, data, z) {
+compute_euclidean <- function(treat_ids, control_ids, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
-  sqrt(apply(index, 1, function(pair) {
+  sqrt(apply(cbind(treat_ids, control_ids), 1, function(pair) {
 
     pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
     t(pair.diff) %*% pair.diff
