@@ -175,41 +175,6 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
 })
 
 compute_mahalanobis <- function(treat_ids, control_ids, data, z) {
-
-        if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
-
-	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-	mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
-	cv <- mt + mc
-
-	inv.scale.matrix <- try(solve(cv))
-
-	if (inherits(inv.scale.matrix,"try-error"))
-	{
-		dnx <- dimnames(cv)
-		s <- svd(cv)
-		nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-		if (!any(nz))
-		stop("covariance has rank zero")
-
-		inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-		dimnames(inv.scale.matrix) <- dnx[2:1]
-	}
-
-        nt <- length(treat_ids)
-        result <- .C('mahalanobisHelper',
-                     as.integer(nt), as.integer(ncol(data)),
-                     t(data[treat_ids, ]), t(data[control_ids, ]),
-                     t(inv.scale.matrix),
-                     result=numeric(nt), PACKAGE='optmatch')$result
-
-	return(result)
-}
-
-# short alias if we need it
-compute_mahal <- compute_mahalanobis
-
-compute_new_mahal <- function(treat_ids, control_ids, data, z) {
     if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
     mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
@@ -230,11 +195,14 @@ compute_new_mahal <- function(treat_ids, control_ids, data, z) {
         rm(dnx, s, nz)
     }
     
-    result <- .Call('new_mahal',
-                    data, treat_ids, control_ids, inv.scale.matrix,
-                    PACKAGE='optmatch')
+    result <- .Call(mahalanobisHelper, data,
+    	            treat_ids, control_ids,
+                    inv.scale.matrix)
     return(result)
 }
+
+# short alias if we need it
+compute_mahal <- compute_mahalanobis
 
 compute_euclidean <- function(treat_ids, control_ids, data, z) {
 

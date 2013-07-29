@@ -277,9 +277,7 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")
   }
 
-  subset.data <- .Call('subsetInfSparseMatrix',
-    subset, select, x, PACKAGE="optmatch")
-
+  subset.data <- .Call(subsetInfSparseMatrix, subset, select, x)
   return(makeInfinitySparseMatrix(subset.data[, 3],
                                   subset.data[, 2],
                                   subset.data[, 1],

@@ -3,40 +3,9 @@
 #include <limits.h>
 #include <search.h>
 
-#include <R.h>
-#include <Rinternals.h>
+#include"optmatch.h"
+
 #include <R_ext/Lapack.h>
-
-void mahalanobisHelper(const int * nPairs, const int * vectorLength,
-		       const double * vectorSet1, const double * vectorSet2,
-		       const double * mat, double * result)
-{
-  int
-    j, k,
-    nv = *nPairs, n = *vectorLength;
-  double
-    sum, innerSum;
-  const double
-    * v1i, * v2i, * matCol;
-	
-  for(int i = 0; i < nv; i++) {
-    sum = 0;
-
-    v1i = vectorSet1 + i * n;
-    v2i = vectorSet2 + i * n;
-
-    for(j = 0; j < n; j++) {
-      innerSum = 0;
-      matCol = mat + j * n;
-
-      for(k = 0; k < n; k++)
-	innerSum += (v1i[k] - v2i[k]) * matCol[k];
-
-      sum += innerSum * (v1i[j] - v2i[j]);
-    }
-    result[i] = sqrt(sum);
-  }
-}
 
 int digits(int n) {
   if(n == INT_MIN) return 11;
@@ -123,7 +92,9 @@ int get_pos(const char * to_find, MAP * strpos) {
   return strtol(found->data, NULL, 0);
 }
 
-SEXP new_mahal(SEXP data, SEXP treat_ids, SEXP control_ids, SEXP invScaleMat)
+SEXP mahalanobisHelper(SEXP data,
+		       SEXP treat_ids, SEXP control_ids,
+		       SEXP invScaleMat)
 {
   int
     nv = length(treat_ids),

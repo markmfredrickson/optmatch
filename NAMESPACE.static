@@ -1,4 +1,4 @@
-useDynLib(optmatch)
+useDynLib(optmatch, .registration = TRUE)
 
 export(mdist,
        matched.distances,
@@ -60,3 +60,4 @@ S3method(boxplot, bigglm)
 
 ### S4 Stuff
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)
+
