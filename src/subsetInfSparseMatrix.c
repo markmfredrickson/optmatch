@@ -1,4 +1,4 @@
-#include"optmatch.h"
+#include "register.h"
 
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
     SEXP

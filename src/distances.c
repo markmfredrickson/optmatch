@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <search.h>
 
-#include"optmatch.h"
+#include"register.h"
 
 #include <R_ext/Lapack.h>
 
