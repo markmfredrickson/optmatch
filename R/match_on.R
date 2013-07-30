@@ -165,7 +165,7 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   
   f <- match.fun(paste("compute_", method, sep = ""))
  
-  tmp <- makedist(z, data, f)
+  tmp <- makedist(z, data, f, within)
 
   if (is.null(caliper)) {
     return(tmp)
