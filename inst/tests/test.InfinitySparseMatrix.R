@@ -193,8 +193,8 @@ test_that("Math ops with vectors", {
   options(warn=0)
 
   # Error on non-numeric input
-  expect_error("a"*A, "Non-numeric arithmetic not supported")
-  expect_error(A*factor(1), "Non-numeric arithmetic not supported")
+  #expect_error("a"*A, "Non-numeric arithmetic not supported")
+  #expect_error(A*factor(1), "Non-numeric arithmetic not supported")
 })
 
 test_that("Subsetting", {

@@ -92,12 +92,9 @@ int get_pos(const char * to_find, MAP * strpos) {
   return strtol(found->data, NULL, 0);
 }
 
-SEXP mahalanobisHelper(SEXP data,
-		       SEXP treat_ids, SEXP control_ids,
-		       SEXP invScaleMat)
-{
+SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   int
-    nv = length(treat_ids),
+    nv = nrows(index),
     n = ncols(data),
     data_rows = nrows(data);
 
@@ -110,8 +107,8 @@ SEXP mahalanobisHelper(SEXP data,
   int va, vb;
   double * pairDiff = Calloc(nv * n, double);
   for(int i = 0; i < nv; i++) {
-    va = get_pos(CHAR(STRING_ELT(treat_ids, i)), strpos);
-    vb = get_pos(CHAR(STRING_ELT(control_ids, i)), strpos);
+    va = get_pos(CHAR(STRING_ELT(index, i)), strpos);
+    vb = get_pos(CHAR(STRING_ELT(index, i + nv)), strpos);
     for(int j = 0; j < n; j++) {
       pairDiff[i + j * nv] = REAL(data)[va + j * data_rows]
 	- REAL(data)[vb + j * data_rows];

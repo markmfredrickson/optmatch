@@ -3,7 +3,7 @@
 
 void R_init_optmatch(DllInfo *info) {
   R_CallMethodDef callMethods[]  = {
-    {"mahalanobisHelper", (DL_FUNC) &mahalanobisHelper, 4},
+    {"mahalanobisHelper", (DL_FUNC) &mahalanobisHelper, 3},
     {"subsetInfSparseMatrix", (DL_FUNC) &subsetInfSparseMatrix, 3},
     {NULL, NULL, 0}
   };

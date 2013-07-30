@@ -174,7 +174,7 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   return(tmp + optmatch::caliper(tmp, width = caliper))
 })
 
-compute_mahalanobis <- function(treat_ids, control_ids, data, z) {
+compute_mahalanobis <- function(index, data, z) {
     if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
     mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
@@ -194,20 +194,16 @@ compute_mahalanobis <- function(treat_ids, control_ids, data, z) {
     	dimnames(inv.scale.matrix) <- dnx[2:1]
         rm(dnx, s, nz)
     }
-    
-    result <- .Call(mahalanobisHelper, data,
-    	            treat_ids, control_ids,
-                    inv.scale.matrix)
-    return(result)
+    return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
 # short alias if we need it
 compute_mahal <- compute_mahalanobis
 
-compute_euclidean <- function(treat_ids, control_ids, data, z) {
+compute_euclidean <- function(index, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
-  sqrt(apply(cbind(treat_ids, control_ids), 1, function(pair) {
+  sqrt(apply(index, 1, function(pair) {
 
     pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
     t(pair.diff) %*% pair.diff
