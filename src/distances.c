@@ -94,55 +94,42 @@ int get_pos(const char * to_find, MAP * strpos) {
 
 SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   int
+    j, k,
+    va, vb,
     nv = nrows(index),
-    n = ncols(data),
-    data_rows = nrows(data);
+    n = ncols(data), nr = nrows(data);
+  double
+    sum, innerSum;
 
   SEXP row_names, cl;
   const char * rn, * cn;
   GetMatrixDimnames(data, &row_names, &cl, &rn, &cn); 
   MAP * strpos = create_map(row_names);
-  // TODO: check for valid strpos
-
-  int va, vb;
-  double * pairDiff = Calloc(nv * n, double);
-  for(int i = 0; i < nv; i++) {
-    va = get_pos(CHAR(STRING_ELT(index, i)), strpos);
-    vb = get_pos(CHAR(STRING_ELT(index, i + nv)), strpos);
-    for(int j = 0; j < n; j++) {
-      pairDiff[i + j * nv] = REAL(data)[va + j * data_rows]
-	- REAL(data)[vb + j * data_rows];
-    }
-  }
-  delete_map(strpos);
-
-  char
-    side = 'R', uplo = 'U';
-  double
-    alpha = 1.0, beta = 0.0,
-    * product = Calloc(nv * n, double);
-
-  // pairDiff * invScaleMat
-  F77_CALL(dsymm)(&side, &uplo, &nv, &n, &alpha, REAL(invScaleMat), &n,
-		  pairDiff, &nv, &beta, product, &nv);
-
-  for(int i = 0; i < nv * n; i++)
-    product[i] *= pairDiff[i];
-
-  Free(pairDiff);
 
   SEXP result;
   PROTECT(result = allocVector(REALSXP, nv));
+  double
+    * real_data = REAL(data),
+    * mj, * real_m = REAL(invScaleMat),
+    * real_result = REAL(result);
+
   for(int i = 0; i < nv; i++) {
-    REAL(result)[i] = 0.0;
-    for(int j = 0; j < n; j++)
-      REAL(result)[i] += product[i + j * nv];
-    
-    REAL(result)[i] = sqrt(REAL(result)[i]);
+    sum = 0.0;
+    va = get_pos(CHAR(STRING_ELT(index, i)), strpos);
+    vb = get_pos(CHAR(STRING_ELT(index, i + nv)), strpos);
+    for(j = 0; j < n; j++) {
+      innerSum = 0.0;
+      mj = real_m + j * n;
+      for(k = 0; k < n; k++) {
+	innerSum += (real_data[va + k * nr]
+		     - real_data[vb + k * nr])
+	            * mj[k];
+      }
+      sum += innerSum * (real_data[va + j * nr] - real_data[vb + j * nr]);
+    }
+    real_result[i] = sqrt(sum);
   }
-
-  Free(product);
+  delete_map(strpos);
   UNPROTECT(1);
-
   return result;
 }
