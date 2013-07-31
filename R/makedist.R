@@ -83,6 +83,10 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
 
   dists <- distancefn(cbind(treatmentids, controlids), data, z)
 
+  # z was copied <- toZ(z) so should be safe to rm
+  # before massive matrix alloc
+  rm(treatmentids, controlids, z)
+  
   if(is.null(within)) {
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
                                        list(treatment = rns, control = cns)))
