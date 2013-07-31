@@ -1,15 +1,21 @@
-#define _GNU_SOURCE
+#define _GNU_SOURCE // for the hash map gnu extension to libc
 
-#include <limits.h>
-#include <search.h>
+#include <limits.h> // for INT_MIN
+#include <search.h> // for gnu extension hash map functions
 
-#include"register.h"
+#include"register.h" // to register the mahalanobisHelper with R
 
-#include <R_ext/Lapack.h>
+/* function: digits
+   computes the number characters required to store an integer base 10
+   as a string. It will include a character for the negative sign. It
+   will not include a character for the string termination symbol.
 
+   This function should be much faster than the usual call to a
+   logarithm function.
+ */
 int digits(int n) {
   if(n == INT_MIN) return 11;
-  if(n < 0) 1 + digits(-n);
+  if(n < 0) return(1 + digits(-n));
 
   if(n >= 10000) {
     if(n >= 10000000) {
@@ -33,12 +39,31 @@ int digits(int n) {
   return 1;
 }
 
+/* the MAP type
+
+   This struct was implemented to encapsulate the details of a hash map
+   from a rowname label to a row index for an R dataframe, array or matrix.
+
+   The GNU extension hash map was used so that the space for the hash map
+   could be alloced from R's heap. So one needs to eventually Free the 
+   entries as well as the hash table. This is why the struct is needed.
+ */
 typedef struct map {
   struct hsearch_data * hash_tab;
   ENTRY * entries;
   size_t n_entries;
 } MAP;
 
+/* function: create_map
+   This function accepts a character vector SEXP and returns a hash map
+   of a string in the character vector to it's position in the vector strs.
+   The position is converted to a string for storage. The storage for the
+   entries and the map are allocated using R's Calloc. The storage must be
+   Freed using the delete_map function. The delete map function will Free
+   each entry as well as the hash table.
+
+   If SEXP strs is not a character vector, bad things will happen.
+*/
 MAP * create_map(SEXP strs) {
 
   // TODO: check to see that strs is a character vector
@@ -67,6 +92,11 @@ MAP * create_map(SEXP strs) {
   return strpos;
 }
 
+/* function: delete_map
+   Free's each entry of the MAP pointer strpos as well as the hash table.
+   The storage must have been allocated with R's Calloc or bad things will
+   happen.
+ */
 void delete_map(MAP * strpos) {
 
   // TODO: check for NULL pointers (strpos members too)
@@ -80,18 +110,35 @@ void delete_map(MAP * strpos) {
   Free(strpos);
 }
 
+/* function: get_pos
+   consumes: a string to_find, a MAP pointer strpos allocated by
+     create_map; if strpos has not been eaten by create_map first,
+     bad things will happen
+   returns: an integer resulting from applying the hash map defined
+     by strpos to to_find. The integer will be returned from the GNU
+     hsearch_r function as a string and will need to be converted to
+     an integer before this function returns
+ */
 int get_pos(const char * to_find, MAP * strpos) {
 
   // TODO: check for NULL pointers (strpos members too)
 
   ENTRY to_find_e, * found;
+
+  // ENTRY's key is not const but R character vectors are always const
+  // so we need the cast to avoid compiler warnings.
   to_find_e.key = (char *) to_find;
   if( 0 == hsearch_r(to_find_e, FIND, &found, strpos->hash_tab) )
     error("In get_pos: String not found.");
 
+  // convert hashed string to long and return
   return strtol(found->data, NULL, 0);
 }
 
+/* function: mahalanobisHelper
+     consumes: SEXP data, index, invScaleMat
+     returns: SEXP results, a real vector (double precision) of distances
+ */
 SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   int
     j, k,
