@@ -31,13 +31,21 @@ summary.optmatch <- function(object,
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
+      so$matching.failed <- table(attr(object, "subproblem"), attr(object, "contrast.group"))
+      dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
       so$warnings <- c(so$warnings,
                        list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
                        )
       return(so)
     }
   subprobs <- attr(object, "subproblem")
-  so$matching.failed <- tapply(mfd, subprobs, function(x) if (all(x)) sum(x) else 0)
+  match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
+  so$matching.failed <- table(attr(object, "subproblem"), attr(object, "contrast.group"), exclude=names(match.succeed)[match.succeed])
+  if (prod(dim(so$matching.failed)) == 0) {
+    so$matching.failed <- NULL
+  } else {
+    dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
+  }
   so$matched.set.structures <- stratumStructure(object,min.controls=min.controls,max.controls=max.controls)
   so$effective.sample.size <- attr(so$matched.set.structures, "comparable.num.matched.pairs")
 
@@ -106,17 +114,23 @@ summary.optmatch <- function(object,
 print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...)
   {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
-  if (all(x$matching.failed > 0))
+
+  numsubprob <- length(levels(attr(x$thematch, "subproblem")))
+  numsubprobfail <- if (is.null(x$matching.failed)) 0 else nrow(x$matching.failed)
+  numobs <- length(x$thematch)
+  numobsfail <- sum(x$matching.failed)
+
+  if (numsubprob == numsubprobfail)
     {
       do.call(cat, warns)
       return(invisible(x))
     }
 
-    if (any(x$matching.failed > 0))  {
-      cat(paste("Matching failed in subclasses containing",sum(x$matching.failed),
-                "of",length(x$thematch),"observations.\n"))
-      cat("Reporting on subclasses where matching worked. (Enter ?matchfailed for more info.)\n")
-    }
+  if (numsubprobfail > 0)  {
+    cat(paste("Matching succeeded in", numsubprob - numsubprobfail,"of", numsubprob,
+              "subgroups, accounting for", numobs - numobsfail, "of", numobs, "total observations.\n"))
+    cat("(Enter ?matchfailed for more info.)\n\n")
+  }
 
   attr(x$matched.set.structures, "comparable.num.matched.pairs") <- NULL
   cat("Structure of matched sets:\n")

@@ -41,8 +41,82 @@ test_that("Failing subgroups", {
   tmp <- fullmatch(em + x)
   tmp[c(letters[9:16])] <- NA
   res.b.subgrp.fail <- summary(tmp)
-  expect_equal(as.vector(res.b.subgrp.fail$matching.failed), c(0,8))
+  expect_true(all(res.b.subgrp.fail$matching.failed ==  c(4,4)))
 })
-  
 
+test_that("New matching.failed", {
+  data(nuclearplants)
+  # one subproblem, good
+  # should be NULL
 
+  f <- fullmatch(pt ~ cost, data=nuclearplants)
+
+  expect_true(is.null(summary(f)$matching.failed))
+
+  # one subproblem, bad
+  # should be row matrix
+
+  f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8)
+
+  expect_true(all(summary(f)$matching.failed ==  c(26,6)))
+
+  # many subproblems, all good
+  # should be NULL
+
+  np <- nuclearplants[nuclearplants$pt==0,]
+
+  frame <- exactMatch(pr ~ ne + ct, data=np)
+  frame@.Data[frame@rows==2] <- Inf
+
+  m <- match_on(pr ~ cost, within=frame, data=np)
+
+  f <- fullmatch(m, data=np)
+
+  expect_true(is.null(summary(f)$matching.failed))
+
+  # many subproblems, all good, some excluded individuals
+  # should be empty matrix
+
+  f <- fullmatch(pt ~ cost, data=nuclearplants, within=exactMatch(pt ~ ne, data=nuclearplants))
+
+  expect_true(is.null(summary(f)$matching.failed))
+
+  # many subproblems, 1 bad
+  # should be row matrix
+
+  f <- fullmatch(m, data=np)
+  f[attr(f, "subproblem") == "0.0"] <- NA
+
+  expect_true(all(summary(f)$matching.failed ==  c(7,3)))
+
+  # many subproblems, many bad
+  # should be matrix of 2 rows
+
+  f[attr(f, "subproblem") == "0.0"] <- NA
+  f[attr(f, "subproblem") == "1.0"] <- NA
+
+  mf <- summary(f)$matching.failed
+  expect_true(all(row.names(mf) == c("0.0", "1.0")))
+  expect_true(all(as.numeric(mf) == c(7,3,3,1)))
+
+  # many subproblems, all bad
+  # should be table of all z's
+
+  f[1:26] <- NA
+
+  mf <- summary(f)$matching.failed
+  expect_true(all(row.names(mf) == c("0.0", "0.1", "1.0", "1.1")))
+  expect_true(all(as.numeric(mf) == c(7,6,3,3,3,2,1,1)))
+
+  # recovered
+  data(nuclearplants)
+  m <- match_on(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ct + ne, data=nuclearplants))
+  m@.Data[m@rows==2] <- Inf
+
+  f <- fullmatch(m, data=nuclearplants)
+  f[1] <- NA
+
+  # there are 5 NA's, but matching.failed only reports the 4 in the bad subgroup
+  expect_equal(sum(is.na(f)), 5)
+  expect_true(all(summary(f)$matching.failed ==  c(3,1)))
+})
