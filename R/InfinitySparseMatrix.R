@@ -445,14 +445,17 @@ subdim <- function(x) {
   UseMethod("subdim")
 }
 
+##' @export
 subdim.InfinitySparseMatrix <- function(x) {
   list(dim(x))
 }
 
+##' @export
 subdim.matrix <- function(x) {
   list(dim(x))
 }
 
+##' @export
 subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]), sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
