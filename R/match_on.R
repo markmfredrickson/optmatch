@@ -215,6 +215,8 @@ compute_mahalanobis <- function(index, data, z) {
     	dimnames(inv.scale.matrix) <- dnx[2:1]
         rm(dnx, s, nz)
     }
+    rm(cv)
+    
     return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
