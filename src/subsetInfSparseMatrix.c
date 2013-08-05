@@ -1,4 +1,6 @@
-#include "register.h"
+#include "subsetInfSparseMatrix.h"
+
+#include<Rdefines.h>
 
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
     SEXP

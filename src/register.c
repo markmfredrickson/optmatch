@@ -1,5 +1,8 @@
+#include <R.h>
+
 #include "register.h"
-#include <R_ext/Rdynload.h>
+#include "distances.h"
+#include "subsetInfSparseMatrix.h"
 
 void R_init_optmatch(DllInfo *info) {
   R_CallMethodDef callMethods[]  = {
