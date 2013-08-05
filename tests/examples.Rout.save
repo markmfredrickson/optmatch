@@ -1,0 +1,586 @@
+
+R version 3.0.1 (2013-05-16) -- "Good Sport"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(optmatch)
+Loading required package: digest
+You're loading optmatch, by B. Hansen and M. Fredrickson.
+ The optmatch package makes essential use of D. P. Bertsekas
+ and P. Tseng's RELAX-IV algorithm and code, as well as
+ Bertsekas' AUCTION algorithm and code.  Using the software
+ to 'satisfy in any part commercial delivery requirements to
+ government or industry' requires a special agreement with
+ Dr. Bertsekas. For more information, enter
+ relaxinfo() at the command line.
+
+> 
+> exdir <- system.file("examples", package = "optmatch")
+> 
+> exs <- Sys.glob(file.path(exdir, "*"))
+> 
+> for (e in exs) {
++   # jump through a few extra hoops to ensure examples don't conflict on vars, etc.
++   etmp <- new.env()
++   eval(envir = etmp,
++        source(e, echo = T, local = TRUE, max.deparse.length = -1))
++ }
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+       control
+treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y
+      A Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      B Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      C Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      D Inf Inf Inf   0 Inf   0 Inf   0 Inf   0 Inf Inf Inf Inf Inf Inf Inf   0
+      E Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      F Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      G Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      a Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0 Inf   0 Inf   0   0 Inf
+      b   0 Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf Inf   0   0 Inf Inf   0 Inf
+      c Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0 Inf   0 Inf   0   0 Inf
+       control
+treated   Z   d   e   f
+      A   0 Inf Inf Inf
+      B   0 Inf Inf Inf
+      C Inf   0   0   0
+      D Inf Inf Inf Inf
+      E   0 Inf Inf Inf
+      F Inf   0   0   0
+      G Inf   0   0   0
+      a Inf Inf   0   0
+      b Inf   0   0 Inf
+      c Inf Inf   0   0
+
+ .... [TRUNCATED] 
+       control
+treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y
+      A Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      B Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      C Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      D Inf Inf Inf   0 Inf   0 Inf   0 Inf   0 Inf Inf Inf Inf Inf Inf Inf   0
+      E Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      F Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      G Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      a Inf Inf Inf Inf   0 Inf   0 Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf
+      b   0 Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf Inf   0 Inf Inf Inf   0 Inf
+      c Inf Inf Inf Inf   0 Inf   0 Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf
+       control
+treated   Z   d   e   f
+      A   0 Inf Inf Inf
+      B   0 Inf Inf Inf
+      C Inf   0   0   0
+      D Inf Inf Inf Inf
+      E   0 Inf Inf Inf
+      F Inf   0   0   0
+      G Inf   0   0   0
+      a Inf Inf   0   0
+      b Inf   0   0 Inf
+      c Inf Inf   0   0
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+       control
+treated   H   I   J   K   L M N   O   P Q   R S   T   U V   W X   Y   Z d   e
+      A Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0   0 0   0 0 Inf Inf 0 Inf
+      B Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf
+      C   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0
+      D Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf
+      E   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf
+      F Inf Inf Inf Inf Inf 0 0 Inf Inf 0   0 0 Inf   0 0 Inf 0   0   0 0 Inf
+      G   0   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf
+      a   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf
+      b Inf   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf
+      c Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0 Inf 0   0 0 Inf Inf 0 Inf
+       control
+treated   f
+      A   0
+      B   0
+      C   0
+      D   0
+      E   0
+      F Inf
+      G   0
+      a   0
+      b   0
+      c   0
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+   N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+
+ .... [TRUNCATED] 
+       control
+treated   H   I   J   K   L M N   O   P Q   R S   T   U V   W X   Y   Z d   e f
+      A   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0 0
+      B Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf 0
+      C   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0 0
+      D Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf 0
+      E   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      F Inf Inf Inf Inf Inf 0 0 Inf Inf 0   0 0 Inf   0 0 Inf 0   0   0 0 Inf 0
+      G   0   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      a   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      b Inf   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      c Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0 Inf 0   0 0 Inf Inf 0 Inf 0
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.3  1.3  1.8  1.8  1.3  1.5  1.3  1.9 1.10 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.3  1.6  1.3  1.3  1.3  1.8  1.9 1.10 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+ 1:1  1:2  1:3 1:5+ 
+   7    1    1    1 
+Effective Sample Size:  11.7 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=21.4
+(within 0.0201 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.933 1.520 2.700 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.5  1.3  1.8  1.8  1.3  1.5  1.5  1.9  1.8 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.7  1.6  1.9 1.10  1.9  1.8  1.9 1.10 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:1 1:2 1:3 1:4 
+  5   1   1   3 
+Effective Sample Size:  12.6 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=23.3
+(within 0.0213 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.952 1.760 3.720 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.1  1.1 1.10  1.2 <NA> <NA>  1.3  1.3  1.8 <NA> <NA>  1.5 <NA>  1.9 <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 <NA>  1.6 <NA> <NA> <NA>  1.8  1.9 1.10 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:1 1:2 0:1 
+  9   1  11 
+Effective Sample Size:  10.3 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.8
+(within 0.0262 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.703 1.490 1.520 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.9 <NA>  1.2  1.1 <NA> <NA>  1.2  1.2  1.2  1.2 <NA>  1.2  1.2  1.4  1.1 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.5  1.3  1.3  1.4  1.2  1.5  1.2  1.5 <NA>  1.4  1.7 <NA>  1.2  1.7  1.3  1.9 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+ 1:0  2:1  1:1  1:2 1:5+  0:1 
+   1    2    3    1    1    6 
+Effective Sample Size:  8.8 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=18.1
+(within 0.0209 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.298 0.952 1.630 1.690 
+
+ .... [TRUNCATED] 
+Loading required package: RItools
+Structure of matched sets:
+ 1:0  2:1  1:1  1:2 1:5+  0:1 
+   1    2    3    1    1    6 
+Effective Sample Size:  8.8 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=18.1
+(within 0.0209 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.298 0.952 1.630 1.690 
+Balance test overall result:
+  chisquare df p.value
+       7.93  9   0.542
+
+ .... [TRUNCATED] 
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0    <NA>
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.9
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0    <NA>
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0     1.2
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.1
+K 345.39 67.92 13 51  514  0  1  1  0     3  0    <NA>
+L 272.37 68.17 12 50  822  0  0  0  0     5  0    <NA>
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.2
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.2
+N 690.19 68.33 12 71  792  0  1  1  1     2  0     1.2
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.2
+P 402.59 68.75 13 47  790  0  1  0  0     6  0    <NA>
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0     1.2
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.2
+S 394.36 68.92 13 65  850  0  0  0  1    16  0     1.4
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.1
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.5
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.3
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0     1.3
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.4
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.2
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.5
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.2
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.5
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0    <NA>
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.4
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.7
+e 288.48 67.17  9 48  821  0  0  1  0     7  1    <NA>
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.2
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.7
+b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.3
+c 270.71 67.83  7 80  886  1  0  0  1    11  1     1.9
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+       control
+treated   X   Y   Z
+      a   1   2 Inf
+      b   3 Inf   4
+      c Inf Inf Inf
+
+ .... [TRUNCATED] 
+       control
+treated   X   Y   Z
+      a   1   2 Inf
+      b   3 Inf   4
+      c Inf Inf Inf
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+Call:  glm(formula = pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
+
+Coefficients:
+(Intercept)         date           t1           t2          cap           ne  
+  43.909419    -1.220088     0.938645     0.396002     0.001197    -0.995651  
+         ct           bw        cum.n           pt  
+  -2.615671    -0.088696     0.033575    -0.352112  
+
+Degrees of Freedom: 31 Total (i.e. Null);  22 Residual
+Null Deviance:	    39.75 
+Residual Deviance: 20.92 	AIC: 40.92
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+  H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E 
+1.3 1.5 1.1 1.3 1.2 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.5 1.3 1.2 1.1 1.1 1.5 
+  W   F   X   G   Y   Z   d   e   f   a   b   c 
+1.3 1.1 1.3 1.2 1.3 1.3 1.5 1.3 1.3 1.1 1.1 1.2 
+
+ .... [TRUNCATED] 
+  H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E 
+1.3 1.5 1.1 1.3 1.2 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.3 1.5 1.3 1.2 1.1 1.1 1.5 
+  W   F   X   G   Y   Z   d   e   f   a   b   c 
+1.3 1.1 1.3 1.2 1.3 1.3 1.5 1.3 1.3 1.1 1.1 1.2 
+
+ .... [TRUNCATED] 
+[1] FALSE
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+$`0`
+       control
+treated H  I  J K  L M  N  O P Q R S  T U V  W X Y  Z
+      A 4  0  1 3  2 4  2  2 3 5 7 3  1 8 5  1 6 9 10
+      B 3  1  0 2  1 3  1  1 2 4 6 2  0 7 4  0 5 8  9
+      C 1  5  4 2  3 1  3  3 2 0 2 2  4 3 0  4 1 4  5
+      D 1  5  4 2  3 1  3  3 2 0 2 2  4 3 0  4 1 4  5
+      E 2  6  5 3  4 2  4  4 3 1 1 3  5 2 1  5 0 3  4
+      F 8 12 11 9 10 8 10 10 9 7 5 9 11 4 7 11 6 3  2
+      G 5  9  8 6  7 5  7  7 6 4 2 6  8 1 4  8 3 0  1
+
+$`1`
+       control
+treated d e f
+      a 1 3 0
+      b 0 4 1
+      c 6 2 5
+
+
+ .... [TRUNCATED] 
+   A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
+ 0.1  0.2  0.3  0.4  0.5  0.6  0.7 <NA>  0.1 <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+   Q    R    S    T    U    V    W    X    Y    Z    a    b    c    d    e    f 
+ 0.4 <NA> <NA> <NA> <NA>  0.3  0.2  0.5  0.7  0.6  1.1  1.2  1.3  1.2  1.3  1.1 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+  H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E 
+0.3 0.5 0.1 0.3 0.2 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.5 0.3 0.2 0.1 0.1 0.5 
+  W   F   X   G   Y   Z   d   e   f   a   b   c 
+0.3 0.1 0.3 0.2 0.3 0.3 1.2 1.3 1.1 1.1 1.2 1.3 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.4 <NA>  1.2  1.1 <NA> <NA>  1.2  1.2  1.2  1.2 <NA>  1.2  1.2  1.4  1.2 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.1  1.3  1.3  1.4  1.2  1.3  1.2  1.1 <NA>  1.2  1.4 <NA>  1.2  1.3  1.3  1.1 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  0.1 <NA>  0.2  0.1 <NA> <NA>  0.2  0.2  0.2  0.2 <NA>  0.2  0.2  0.4  0.2 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 0.5  0.3  0.3  0.4  0.2  0.5  0.2  0.5 <NA>  0.4  1.1 <NA> <NA>  1.1 <NA>  1.1 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7  1.8  1.9 1.10 <NA>  1.1 1.10 <NA> <NA>  1.3 
+   N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+ 1.8 <NA> <NA> <NA> <NA>  1.9 <NA>  1.7  1.4  1.2  1.5 <NA>  1.6 <NA> <NA> <NA> 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.45
+(within 0.0265 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.796 1.490 1.520 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7  1.8  1.9 1.10 <NA> 1.10 <NA> <NA> <NA>  1.3 
+   N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+ 1.2 <NA> <NA> <NA> <NA>  1.4  1.8  1.7  1.9 <NA>  1.5 <NA>  1.6  1.1 <NA> <NA> 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=8.76
+(within 0.0233 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.728 2.150 2.370 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=8.76
+(within 0.0233 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.728 2.150 2.370 
+Balance test overall result:
+  chisquare df p.value
+          6  6   0.423
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+Structure of matched sets:
+1:2 0:1 
+ 10   2 
+Effective Sample Size:  13.3 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=24.7
+(within 0.0225 of optimum).
+Percentiles of matched distances:
+  0%  50%  95% 100% 
+0.00 1.14 2.44 3.19 
+
+ .... [TRUNCATED] 
+[1] "32 string mismatches"
+
+ .... [TRUNCATED] 
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0     1.1
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.2
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0     1.3
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0     1.4
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.5
+K 345.39 67.92 13 51  514  0  1  1  0     3  0     1.6
+L 272.37 68.17 12 50  822  0  0  0  0     5  0     1.7
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.8
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.9
+N 690.19 68.33 12 71  792  0  1  1  1     2  0    1.10
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.3
+P 402.59 68.75 13 47  790  0  1  0  0     6  0     1.1
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0    1.10
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.3
+S 394.36 68.92 13 65  850  0  0  0  1    16  0    1.10
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.5
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.8
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.8
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0    <NA>
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.4
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.7
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.9
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.1
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.7
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0     1.4
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.2
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.5
+e 288.48 67.17  9 48  821  0  0  1  0     7  1     1.6
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.6
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.9
+b 217.38 67.25 13 72  745  1  0  0  0     8  1    <NA>
+c 270.71 67.83  7 80  886  1  0  0  1    11  1     1.2
+
+ .... [TRUNCATED] 
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0     1.3
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.1
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0     1.1
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0    1.10
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.2
+K 345.39 67.92 13 51  514  0  1  1  0     3  0     1.3
+L 272.37 68.17 12 50  822  0  0  0  0     5  0    1.10
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.5
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.3
+N 690.19 68.33 12 71  792  0  1  1  1     2  0     1.8
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.8
+P 402.59 68.75 13 47  790  0  1  0  0     6  0    <NA>
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0     1.4
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.7
+S 394.36 68.92 13 65  850  0  0  0  1    16  0     1.9
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.1
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.7
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.4
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0     1.4
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.5
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.2
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.6
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.5
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.7
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0     1.6
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.6
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.9
+e 288.48 67.17  9 48  821  0  0  1  0     7  1    <NA>
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.2
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.8
+b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.9
+c 270.71 67.83  7 80  886  1  0  0  1    11  1    1.10
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+
+ .... [TRUNCATED] 
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.3  1.3  1.8  1.8  1.3  1.5  1.3  1.9 1.10 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.3  1.6  1.3  1.3  1.3  1.8  1.9 1.10 
+
+ .... [TRUNCATED] 
+ Group                         Members
+   1.1                            I, A
+  1.10                            T, c
+   1.2                            B, W
+   1.3 H, K, L, M, C, P, R, Y, d, e, f
+   1.4                            D, V
+   1.5                         Q, E, X
+   1.6                            F, Z
+   1.7                            U, G
+   1.8                      J, N, O, a
+   1.9                            S, b
+Warning messages:
+1: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+2: In fullmatch(match_on.examples$ps1) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+3: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+4: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+5: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+6: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> 
+> proc.time()
+   user  system elapsed 
+  1.859   0.096   1.940 
