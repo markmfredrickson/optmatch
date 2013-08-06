@@ -24,6 +24,11 @@
 #' tolerance is as small as the given value of argument \code{tol}, then
 #' matching proceeds but a warning is issued.  
 #'
+#' If the program detects a large problem as been requested that may exceed the
+#' computational power of the user's computer, a warning is issued. If you wish
+#' to disable this warning, set \code{options("optmatch_warn_on_big_problem" =
+#' FALSE)}.
+#'
 #' @param distance A matrix of non-negative discrepancies, each indicating the
 #' permissibility and desirability of matching the unit corresponding to its row
 #' (a 'treatment') to the unit corresponding to its column (a 'control'); or,

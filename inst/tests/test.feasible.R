@@ -203,7 +203,13 @@ test_that("match_on does not allow too large problems (via makedist fn)", {
   expect_warning(match_on(Z ~ X))
   expect_warning(match_on(Z ~ X, within = blocking), "within")
 
+  # now turn off the warning via the option optmatch_warn_on_big_problem
+  options(warn = 2, "optmatch_warn_on_big_problem" = FALSE)
+  match_on(Z ~ X)
+  options(warn = 0)
+
   setFeasibilityConstants() 
   
+
 })
 

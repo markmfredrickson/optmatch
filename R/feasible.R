@@ -1,10 +1,11 @@
 # Constant to control the maximum feasible (sub)problem
-MAX_FEASIBLE <- 1e07 - 2
+MAX_FEASIBLE <- 1e07
 
 #' (Internal) Sets up the default values for maximum feasible problems
 #
 # @return NULL
 setFeasibilityConstants <- function() {
+  options("optmatch_warn_on_big_problem" = TRUE)
   options("optmatch_max_problem_size" = MAX_FEASIBLE)    
 }
 

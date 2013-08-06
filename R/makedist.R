@@ -37,6 +37,8 @@ makedist <- function(z, data, distancefn, within = NULL) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
   }
 
+  warning.requested <- getOption("optmatch_warn_on_big_problem", default = TRUE)
+
   if (is.null(within)) {
     # without a within, make a dense matrix    
     nc <- length(cns)
@@ -49,11 +51,13 @@ makedist <- function(z, data, distancefn, within = NULL) {
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
     
-    if (nc * nr > getMaxProblemSize()) {
+    if ((nc * nr > getMaxProblemSize()) && warning.requested) {
+
       warning("I've been asked to compute a large number of treatment-control distances. 
 The result will present too large an optimization problem for optimal matching.  
 You can split up or simplify the problem by providing an appropriate 'within'
 argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details.")  
+
     }
 
   } else {
@@ -75,7 +79,7 @@ argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details."
       issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
     }
    
-    if(issue.warning) {
+    if(issue.warning && warning.requested) {
       warning("I've been asked to compute a large number of treatment-control distances. 
 Even with the provided 'within' argument, the result will present too large 
 an optimization problem for optimal matching. Please use a more restrictive 
