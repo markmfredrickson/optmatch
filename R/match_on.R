@@ -57,7 +57,6 @@
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}.
-#' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
 #' P.~R. Rosenbaum and D.~B. Rubin (1985),
@@ -90,7 +89,6 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' (Note: This simple case is precisely handled by the \code{numeric} method.)
 #'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
-#' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
 #' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...)
 #' @rdname match_on-methods
 #' @aliases match_on,function-method
@@ -271,8 +269,8 @@ compute_euclidean <- function(index, data, z) {
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
-  lp <- if(is.null(x$data)) {
-    scores(x, newdata=x$formula)
+  lp <- if (is.null(x$data) | is.environment(x$data)) {
+    scores(x, newdata=model.frame(x$formula))
   } else {
     scores(x, newdata=x$data)
   }
@@ -283,6 +281,11 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     szn.scale(lp, z ,standardization.scale)
   }
   lp.adj <- lp/pooled.sd
+
+  # drop any cases with missing response
+  if (!is.null(x$na.action)) {
+    lp.adj <- lp.adj[-x$na.action]
+  }
 
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
@@ -334,33 +337,6 @@ are there missing values in data?")
 
   match_on(theps, within = within, caliper = caliper, z = z, ... )
 }
-
-## ### These are temporary fixes until making match_on S3 generic can be fully implemented. See issue #51.
-## #' @usage \S4method{match_on}{brglm}(x, within = NULL, caliper = NULL, data =
-## #' NULL, standardization.scale = mad, ...)
-## #' @rdname match_on-methods
-## #' @aliases match_on,brglm-method
-## setMethod("match_on", "brglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
-## {
-##   realclass <- class(x)
-##   class(x) <- "glm"
-##   out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
-##   class(x) <- realclass
-##   out
-## })
-## #' @usage \S4method{match_on}{bayesglm}(x, within = NULL, caliper = NULL, data =
-## #' NULL, standardization.scale = mad, ...)
-## #' @rdname match_on-methods
-## #' @aliases match_on,bayesglm-method
-## setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
-## {
-##   realclass <- class(x)
-##   class(x) <- "glm"
-##   out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
-##   class(x) <- realclass
-##   out
-## })
-
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
 # benefits of calipers -- if that's changed here, adjust there accordingly.

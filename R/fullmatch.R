@@ -178,7 +178,7 @@ fullmatch.default <- function(x,
     data = NULL,
     within = NULL,
     ...) {
-  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+  if (!inherits(x, as.character(substr(methods("match_on"), start=10, stop=100)))) {
     stop("Invalid input, must be a potential argument to match_on")
   }
   mfd <- if (!is.null(data)) {
