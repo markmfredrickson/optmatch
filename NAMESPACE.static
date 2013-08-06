@@ -1,4 +1,4 @@
-useDynLib(optmatch)
+useDynLib(optmatch, .registration = TRUE)
 
 export(mdist,
        matched.distances,
@@ -10,8 +10,7 @@ export(mdist,
        relaxinfo,
        stratumStructure,
        fill.NAs,
-       exactMatch,
-       scores)
+       exactMatch)
 
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
@@ -25,7 +24,6 @@ S3method(dim, optmatch.dlist)
 S3method(dimnames, optmatch.dlist)
 S3method(as.matrix, optmatch.dlist)
 
-S3method(print, optmatch)
 S3method("[", optmatch)
 S3method(print, summary.optmatch)
 S3method(dim, InfinitySparseMatrix)
@@ -53,11 +51,28 @@ S3method(match_on, glm)
 S3method(match_on, bigglm)
 S3method(match_on, numeric)
 
+S3method(fullmatch, default)
+S3method(fullmatch, numeric)
+S3method(fullmatch, InfinitySparseMatrix)
+S3method(fullmatch, BlockedInfinitySparseMatrix)
+S3method(fullmatch, optmatch.dlist)
+S3method(fullmatch, matrix)
 
+S3method(pairmatch, default)
+S3method(pairmatch, numeric)
+S3method(pairmatch, InfinitySparseMatrix)
+S3method(pairmatch, BlockedInfinitySparseMatrix)
+S3method(pairmatch, optmatch.dlist)
+S3method(pairmatch, matrix)
 
+S3method(stratumStructure, default)
+S3method(stratumStructure, optmatch)
+
+S3method(effectiveSampleSize, table)
+S3method(effectiveSampleSize, factor)
 
 S3method(boxplot, glm)
 S3method(boxplot, bigglm)
-### S4 Stuff
 
+### S4 Stuff
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)

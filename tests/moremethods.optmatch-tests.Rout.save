@@ -1,8 +1,7 @@
 
-R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
-Platform: x86_64-apple-darwin12.0.0 (64-bit)
+R version 3.0.1 (2013-05-16) -- "Good Sport"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -17,6 +16,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(optmatch)
+Loading required package: digest
 You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
@@ -318,7 +318,7 @@ $exceedances
 0.01283333 
 
 $call
-fullmatch(distance = plantdist)
+fullmatch(x = plantdist)
 
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
@@ -359,6 +359,18 @@ $subproblem
 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 Levels: 1
+
+$min.controls
+[1] 0
+
+$max.controls
+[1] Inf
+
+$omit.fraction
+[1] NA
+
+$hashed.distance
+[1] "98b211900409daae2d6516e5d89c7947"
 
 $class
 [1] "optmatch" "factor"  
@@ -446,4 +458,4 @@ X Y
 > 
 > proc.time()
    user  system elapsed 
-  0.758   0.030   0.771 
+  1.020   0.040   1.059 

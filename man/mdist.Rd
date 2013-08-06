@@ -1,6 +1,6 @@
 \name{mdist}
 \alias{mdist}
-\title{Create matching distances}
+\title{(Deprecated, in favor of \code{\link{match_on}}) Create matching distances}
 \description{
   A generic function, with several supplied methods, for creating
   matrices of distances between observations to be used in the match process.

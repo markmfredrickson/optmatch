@@ -29,7 +29,6 @@ test_that("Distances from glms", {
 
   expect_true(validDistanceSpecification(result.foo))
   expect_equal(length(result.foo), (n/2)^2)
-
 })
 
 test_that("Distances from formulas", {
@@ -356,4 +355,21 @@ test_that("Issue 48: caliper is a universal argument", {
 
   res.fmla <- match_on(Z ~ X, caliper = 1)
   expect_true(all(res.fmla <= 1))
+})
+
+test_that("bayesglm, brglm temporary tests", {
+  library(brglm)
+  library(arm)
+
+  data(nuclearplants)
+
+  by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
+  expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
+  m1 <- match_on(by, data=nuclearplants)
+  expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+
+  br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
+  expect_true(all(class(br) == c("brglm", "glm", "lm")))
+  m2 <- match_on(br, data=nuclearplants)
+  expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 })

@@ -1,5 +1,5 @@
 ################################################################################
-# Mdist: distance matrix creation functions
+# match_on: distance matrix creation functions
 ################################################################################
 
 #' Create treated to control distances for matching problems
@@ -57,6 +57,7 @@
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}.
+#' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
 #' P.~R. Rosenbaum and D.~B. Rubin (1985),
@@ -147,6 +148,9 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
+
+  rm(m)
+
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
@@ -177,41 +181,55 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   return(tmp)
 }
 
+# compute_mahalanobis computes mahalanobis distances between treatment and
+# control pairs
+#
+# Arguments:
+#   index: a 2 col array of rownames from the 'data' argument.
+#     Col 1: treatment rownames
+#     Col 2: control rownames
+#   data: a matrix containing rows of treatment and control data. The
+#     rownames are used in index to indicate which treatment and control pairs
+#     get measured
+#   z: a logical vector of length nrows(data); TRUE indicates treatment
+#
+# If called from the makedist function, index is most likely a cross product of
+# treatment and control rownames.
+#
+# Value: a vector of distances a distance for each pair indicated in index
+#
+# This is the default method for calculating distances in the match_on methods.
+# It calls a registered C routine mahalanobisHelper found in distances.c
+# after computing the inverse of a covariate matrix
+
 compute_mahalanobis <- function(index, data, z) {
+    if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
-	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-	mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
-	cv <- mt + mc
+    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    cv <- mt + mc
+    rm(mt, mc)
 
-	inv.scale.matrix <- try(solve(cv))
+    inv.scale.matrix <- try(solve(cv))
 
-	if (inherits(inv.scale.matrix,"try-error"))
-	{
-		dnx <- dimnames(cv)
-		s <- svd(cv)
-		nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-		if (!any(nz))
-		stop("covariance has rank zero")
+    if (inherits(inv.scale.matrix,"try-error")) {
+        dnx <- dimnames(cv)
+    	s <- svd(cv)
+    	nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+    	if (!any(nz)) stop("covariance has rank zero")
 
-		inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-		dimnames(inv.scale.matrix) <- dnx[2:1]
-	}
+	inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+    	dimnames(inv.scale.matrix) <- dnx[2:1]
+        rm(dnx, s, nz)
+    }
+    rm(cv)
 
-	nv <- nrow(index)
-
-	result <- .C('mahalanobisHelper',
-    as.integer(nv),
-    as.integer(ncol(data)),
-    t(data[index[, 1], ]),
-    t(data[index[, 2], ]),
-    t(inv.scale.matrix),
-    result=numeric(nv), PACKAGE='optmatch')$result
-
-	return(result)
+    return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
 compute_euclidean <- function(index, data, z) {
 
+  if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
   sqrt(apply(index, 1, function(pair) {
 
     pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
@@ -253,7 +271,6 @@ compute_euclidean <- function(index, data, z) {
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
-
   lp <- if(is.null(x$data)) {
     scores(x, newdata=x$formula)
   } else {
@@ -318,6 +335,32 @@ are there missing values in data?")
   match_on(theps, within = within, caliper = caliper, z = z, ... )
 }
 
+## ### These are temporary fixes until making match_on S3 generic can be fully implemented. See issue #51.
+## #' @usage \S4method{match_on}{brglm}(x, within = NULL, caliper = NULL, data =
+## #' NULL, standardization.scale = mad, ...)
+## #' @rdname match_on-methods
+## #' @aliases match_on,brglm-method
+## setMethod("match_on", "brglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+## {
+##   realclass <- class(x)
+##   class(x) <- "glm"
+##   out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+##   class(x) <- realclass
+##   out
+## })
+## #' @usage \S4method{match_on}{bayesglm}(x, within = NULL, caliper = NULL, data =
+## #' NULL, standardization.scale = mad, ...)
+## #' @rdname match_on-methods
+## #' @aliases match_on,bayesglm-method
+## setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+## {
+##   realclass <- class(x)
+##   class(x) <- "glm"
+##   out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
+##   class(x) <- realclass
+##   out
+## })
+
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
 # benefits of calipers -- if that's changed here, adjust there accordingly.
@@ -326,7 +369,7 @@ are there missing values in data?")
 #' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of
 #' \code{caliper} and \code{within} has been specified then only information about permissible pairings
 #' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
-#' as opposed to omitting it and afterwards applying the \code{\link{caliper}} function, reduces
+#' as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
 #'
 #' For the numeric method, \code{x} must have names.
