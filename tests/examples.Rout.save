@@ -1,7 +1,7 @@
 
 R version 3.0.1 (2013-05-16) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -230,6 +230,9 @@ Percentiles of matched distances:
 
  .... [TRUNCATED] 
 Loading required package: RItools
+Package SparseM (0.99) loaded.
+	   To cite, see citation("SparseM")
+
 Structure of matched sets:
  1:0  2:1  1:1  1:2 1:5+  0:1 
    1    2    3    1    1    6 
@@ -562,25 +565,25 @@ c 270.71 67.83  7 80  886  1  0  0  1    11  1    1.10
    1.8                      J, N, O, a
    1.9                            S, b
 Warning messages:
-1: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+1: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 2: In fullmatch(match_on.examples$ps1) :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-3: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+3: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-4: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+4: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-5: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+5: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-6: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+6: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > 
 > proc.time()
    user  system elapsed 
-  1.859   0.096   1.940 
+  2.296   0.056   2.364 

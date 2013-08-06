@@ -50,6 +50,13 @@ S3method(fullmatch, BlockedInfinitySparseMatrix)
 S3method(fullmatch, optmatch.dlist)
 S3method(fullmatch, matrix)
 
+S3method(pairmatch, default)
+S3method(pairmatch, numeric)
+S3method(pairmatch, InfinitySparseMatrix)
+S3method(pairmatch, BlockedInfinitySparseMatrix)
+S3method(pairmatch, optmatch.dlist)
+S3method(pairmatch, matrix)
+
 S3method(stratumStructure, default)
 S3method(stratumStructure, optmatch)
 
@@ -60,4 +67,3 @@ S3method(boxplot, bigglm)
 
 ### S4 Stuff
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)
-

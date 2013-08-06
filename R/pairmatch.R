@@ -35,7 +35,7 @@
 #' \code{fullmatch}.  (Such a bound is also printed by
 #' \code{print.optmatch} and by \code{summary.optmatch}.)
 #'
-#' @param distance A matrix of non-negative discrepancies,
+#' @param x A matrix of non-negative discrepancies,
 #' each indicating the permissibility and desirability of matching the unit
 #' corresponding to its row (a 'treatment') to the unit
 #' corresponding to its column (a 'control'); or a list of such matrices
@@ -45,11 +45,10 @@
 #' Matrix \code{distance}, or the matrix elements of \code{distance},
 #' must have row and column names.
 #' @param controls The number of controls to be matched to each treatment
+#' @param data Optional data set.
 #' @param remove.unmatchables Should treatment group members for which there are no eligible controls be removed prior to matching?
 #' @param ... Additional arguments to pass to \code{\link{fullmatch}}.
-#' It is strongly suggested that you pass a \code{data} argument.
-#' It is
-#' an error to pass \code{min.controls}, \code{max.controls},
+#' It is an error to pass \code{min.controls}, \code{max.controls}, \code{mean.controls}
 #' or \code{omit.fraction} as \code{pairmatch} must set these values.
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #' @references
@@ -61,24 +60,89 @@
 #' @example inst/examples/pairmatch.R
 #' @keywords nonparametric optimize
 #' @export
-pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) {
-
-  validDistanceSpecification(distance) # will stop() on error
-
-  if (!all(floor(controls) == controls) | !all(controls > 0)) {
-    stop("Minimum controls must be greater than treated units")
-  }
+pairmatch <- function(x,
+                      controls = 1,
+                      data = NULL,
+                      remove.unmatchables = FALSE,
+                      ...) {
 
   # Check that max/min.controls and omit.fraction is not passed in ...
   dots <- names(match.call(expand.dots = TRUE))[-1] # first is always ""
-  not.allowed <- c("min.controls", "max.controls", "omit.fraction")
+  not.allowed <- c("min.controls", "max.controls", "mean.controls", "omit.fraction")
   found <- not.allowed %in% dots
   if (any(found)) {
     stop("Invalid argument(s) to pairmatch: ", paste(not.allowed[found],
       collapse = ", "))
   }
 
-  subprobs <- findSubproblems(distance)
+  cl <- match.call()
+  UseMethod("pairmatch")
+}
+
+pairmatch.default <- function(x,
+                      controls = 1,
+                      data = NULL,
+                      remove.unmatchables = FALSE,
+                      within = NULL,
+                      ...) {
+  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+    stop("Invalid input, must be a potential argument to match_on")
+  }
+  mfd <- if (!is.null(data)) {
+    model.frame(data)
+  } else {
+    if (inherits(x, "function")) {
+      stop("A data argument must be given when passing a function")
+    }
+    model.frame(x)
+  }
+  if (!class(mfd) == "data.frame") {
+    stop("Please pass data argument")
+  }
+  m <- match_on(x, within=within, data=mfd, ...)
+  out <- pairmatch(m,
+                   controls=controls,
+                   data=mfd,
+                   remove.unmatchables=remove.unmatchables,
+                   ...)
+  if (!exists("cl")) cl <- match.call()
+  attr(out, "call") <- cl
+  out
+}
+
+pairmatch.numeric <- function(x,
+                      controls = 1,
+                      data = NULL,
+                      remove.unmatchables = FALSE,
+                      z,
+                      within = NULL,
+                      ...) {
+
+  m <- match_on(x, within=within, z=z, ...)
+  out <- pairmatch(m,
+                   controls=controls,
+                   data=data,
+                   remove.unmatchables=remove.unmatchables,
+                   ...)
+  if (!exists("cl")) cl <- match.call()
+  attr(out, "call") <- cl
+  out
+}
+
+
+pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <- pairmatch.BlockedInfinitySparseMatrix <- function(x,
+                      controls = 1,
+                      data = NULL,
+                      remove.unmatchables = FALSE,
+                      ...) {
+
+  validDistanceSpecification(x) # will stop() on error
+
+  if (!all(floor(controls) == controls) | !all(controls > 0)) {
+    stop("Minimum controls must be greater than treated units")
+  }
+
+  subprobs <- findSubproblems(x)
 
   if (length(controls) > 1 & !(length(subprobs) == length(controls))) {
     stop(paste("Controls argument must have same length as the number of subproblems (",
@@ -128,14 +192,17 @@ pairmatch <- function(distance, controls = 1, remove.unmatchables = FALSE, ...) 
     saveopt <- options()$fullmatch_try_recovery
     options("fullmatch_try_recovery" = FALSE)
   }
-  out <- fullmatch(x = distance,
+  out <- fullmatch(x = x,
             min.controls = controls,
             max.controls = controls,
             omit.fraction = omf,
+            data = data,
             ...)
   if(!remove.unmatchables) {
     options("fullmatch_try_recovery" = saveopt)
   }
+  if (!exists("cl")) cl <- match.call()
+  attr(out, "call") <- cl
   return(out)
 }
 
