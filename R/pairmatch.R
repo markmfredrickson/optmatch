@@ -85,9 +85,14 @@ pairmatch.default <- function(x,
                       remove.unmatchables = FALSE,
                       within = NULL,
                       ...) {
-  if (!inherits(x, as.character(substr(methods("match_on"), start=10, stop=100)))) {
+
+  klass <- class(x)[1]
+  if (is.object(x)) klass <- oldClass(x)[1]
+
+  if (is.null(getS3method("match_on", klass, optional = T))) {
     stop("Invalid input, must be a potential argument to match_on")
   }
+
   mfd <- if (!is.null(data)) {
     model.frame(data)
   } else {

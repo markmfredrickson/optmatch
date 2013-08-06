@@ -386,3 +386,4 @@ test_that("numeric standardization scale", {
 
   result.glm <- match_on(test.glm, standardization.scale=1)
 })
+

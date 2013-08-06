@@ -162,6 +162,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
+
   which.method <- pmatch(method, c("mahalanobis", "euclidean"), 3)
   tmp <- switch(which.method,
                 makedist(z, data, compute_mahalanobis, within),
@@ -169,6 +170,8 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
                 makedist(z, data, match.fun(method), within)
                 )
 
+  rm(mf)
+  
   if (is.null(caliper)) {
     tmp@call <- cl
     return(tmp)
@@ -200,6 +203,27 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # It calls a registered C routine mahalanobisHelper found in distances.c
 # after computing the inverse of a covariate matrix
 
+# compute_mahalanobis computes mahalanobis distances between treatment and
+# control pairs
+#
+# Arguments:
+#   index: a 2 col array of rownames from the 'data' argument.
+#     Col 1: treatment rownames
+#     Col 2: control rownames
+#   data: a matrix containing rows of treatment and control data. The
+#     rownames are used in index to indicate which treatment and control pairs
+#     get measured
+#   z: a logical vector of length nrows(data); TRUE indicates treatment
+#
+# If called from the makedist function, index is most likely a cross product of
+# treatment and control rownames.
+#
+# Value: a vector of distances a distance for each pair indicated in index
+#
+# This is the default method for calculating distances in the match_on methods.
+# It calls a registered C routine mahalanobisHelper found in distances.c
+# after computing the inverse of a covariate matrix
+
 compute_mahalanobis <- function(index, data, z) {
     if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
@@ -207,21 +231,22 @@ compute_mahalanobis <- function(index, data, z) {
     mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
     cv <- mt + mc
     rm(mt, mc)
-
+    
     inv.scale.matrix <- try(solve(cv))
-
+    
     if (inherits(inv.scale.matrix,"try-error")) {
-        dnx <- dimnames(cv)
-    	s <- svd(cv)
-    	nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-    	if (!any(nz)) stop("covariance has rank zero")
+      dnx <- dimnames(cv)
+      s <- svd(cv)
+      nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+      if (!any(nz)) stop("covariance has rank zero")
 
-	inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-    	dimnames(inv.scale.matrix) <- dnx[2:1]
-        rm(dnx, s, nz)
+      inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+      dimnames(inv.scale.matrix) <- dnx[2:1]
+      rm(dnx, s, nz)
     }
-    rm(cv)
 
+    rm(cv)
+    
     return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
@@ -439,6 +464,7 @@ scoreCaliper <- function(x, z, caliper) {
 #' @rdname match_on-methods
 #' @aliases match_on,InfinitySparseMatrix-method
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
@@ -451,3 +477,4 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
+
