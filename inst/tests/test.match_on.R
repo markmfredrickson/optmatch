@@ -373,3 +373,16 @@ test_that("bayesglm, brglm", {
   m2 <- match_on(br, data=nuclearplants)
   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 })
+
+test_that("numeric standardization scale", {
+  n <- 16
+  Z <- numeric(n)
+  Z[sample.int(n, n/2)] <- 1
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
+
+  test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
+
+  result.glm <- match_on(test.glm, standardization.scale=1)
+})

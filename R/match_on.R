@@ -278,7 +278,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    szn.scale(lp, z ,standardization.scale)
+    match_on_szn_scale(lp, z, standardization.scale)
   }
   lp.adj <- lp/pooled.sd
 
@@ -290,9 +290,16 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
 
-szn.scale <- function(x, Tx, standardizer = mad, ...) {
-  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
-        (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
+  if (is.function(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
+          (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+  } else if (is.numeric(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer^2 +
+          (sum(!!Tx) - 1) * standardizer^2) / (length(x) - 2))
+  } else {
+    stop("Invalid standardizer")
+  }
 }
 
 #' @details The \code{bigglm}
@@ -329,7 +336,7 @@ are there missing values in data?")
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    szn.scale(theps, z, standardizer=standardization.scale,...)
+    match_on_szn_scale(theps, z, standardizer=standardization.scale,...)
   }
 
   theps <- as.vector(theps / pooled.sd)
