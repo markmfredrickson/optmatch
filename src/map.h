@@ -31,8 +31,8 @@ ACTION;
 
 typedef struct entry
   {
-    char *key;
-    void *data;
+    const char *key;
+    int data;
   }
 ENTRY;
 

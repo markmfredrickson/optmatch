@@ -19,12 +19,6 @@
 // Modified -- Josh Buckner -- 5 Aug 2013
 
 // let R handle all memory allocation
-#include<R.h>
-#include<Rinternals.h>
-
-#include <errno.h>
-#include <string.h>
-
 #include "map.h"
 #include "cuseful.h"
 
@@ -51,7 +45,7 @@ MAP * create_map(SEXP strs) {
   // hash must be >= 20% empty for efficient look up
 
   MAP * strpos = Calloc(1, MAP);
-  strpos->hash_tab = Calloc(n_map, struct hsearch_data);
+  strpos->hash_tab = Calloc(1, struct hsearch_data);
   if( 0 == hcreate_r(n_map, strpos->hash_tab) )
     error("In create_strpos: Failed to create hash table. Out of memory?");
 
@@ -60,9 +54,8 @@ MAP * create_map(SEXP strs) {
 
   ENTRY * inserted;
   for(int i = 0; i < n_strs; i++) {
-    strpos->entries[i].key = (char *) CHAR(STRING_ELT(strs, i));
-    strpos->entries[i].data = Calloc(1 + digits(i), char);
-    sprintf(strpos->entries[i].data, "%d", i);
+    strpos->entries[i].key = CHAR(STRING_ELT(strs, i));
+    strpos->entries[i].data = i;
     if( 0 == hsearch_r(strpos->entries[i], ENTER, &inserted, strpos->hash_tab) )
 	error("In create_strpos: Can't insert key. Table full?");
   }
@@ -79,9 +72,6 @@ void delete_map(MAP * strpos) {
   // TODO: check for NULL pointers (strpos members too)
 
   hdestroy_r(strpos->hash_tab);
-  for(int i = 0; i < strpos->n_entries; i++)
-    Free(strpos->entries[i].data);
-
   Free(strpos->entries);
   Free(strpos->hash_tab);
   Free(strpos);
@@ -104,12 +94,11 @@ int get_pos(const char * to_find, MAP * strpos) {
 
   // ENTRY's key is not const but R character vectors are always const
   // so we need the cast to avoid compiler warnings.
-  to_find_e.key = (char *) to_find;
+  to_find_e.key = to_find;
   if( 0 == hsearch_r(to_find_e, FIND, &found, strpos->hash_tab) )
     error("In get_pos: String not found.");
 
-  // convert hashed string to long and return
-  return strtol(found->data, NULL, 0);
+  return found->data;
 }
 
 // end new stuff
@@ -145,7 +134,6 @@ isprime (unsigned int number)
 
   return number % div != 0;
 }
-
 
 /* Before using the hash table we must allocate memory for it.
    Test for an existing table are done. We allocate one element
@@ -198,7 +186,7 @@ hdestroy_r (htab)
       return;
 
   /* Free used memory.  */
-  Free (htab->table);
+  Free(htab->table);
 
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;
