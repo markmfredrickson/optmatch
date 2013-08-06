@@ -432,7 +432,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   rbind(as.InfinitySparseMatrix(x), y, ...)
 }
 
-##' (Internal) Returns the dimension of each valid subproblem
+##' Returns the dimension of each valid subproblem
 ##'
 ##' Returns a list containing the dimensions of all valid subproblems.
 ##'
@@ -445,23 +445,21 @@ subdim <- function(x) {
   UseMethod("subdim")
 }
 
-##' @export
 subdim.InfinitySparseMatrix <- function(x) {
   list(dim(x))
 }
 
-##' @export
 subdim.matrix <- function(x) {
   list(dim(x))
 }
 
-##' @export
 subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]), sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
   # drop off any subproblems lacking at least one treatment/control
   out[unlist(lapply(out, function(t) all(t > 0)))]
 }
+
 ##' Returns the number of eligible matches for the distance.
 ##'
 ##' This will return a list of the number of finite entries in a distance
