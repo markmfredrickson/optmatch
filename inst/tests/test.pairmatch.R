@@ -98,6 +98,7 @@ test_that("Pass additional arguments to fullmatch", {
 test_that("pairmatch UI cleanup", {
   n <- 14
   Z <- c(rep(0, n/2), rep(1, n/2))
+  set.seed(124202)
   X1 <- rnorm(n, mean = 5)
   X2 <- rnorm(n, mean = -2, sd = 2)
   B <- rep(c(0,1), n/2)
@@ -128,20 +129,21 @@ test_that("pairmatch UI cleanup", {
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
 
-  m <- match_on(ps, data=test.data, caliper=2.7)
+  m <- match_on(ps, data=test.data, caliper=2.5)
   # one unmatchable treatment
 
-  pm.ps <- pairmatch(ps, data=test.data, caliper=2.7, remove.unmatchables=TRUE)
+  pm.ps <- pairmatch(ps, data=test.data, caliper=2.5, remove.unmatchables=TRUE)
 
   pm.match <- pairmatch(m, remove.unmatchables=TRUE, data=test.data)
 
-  pm.glm <- pairmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2.7, remove.unmatchables=TRUE)
+  pm.glm <- pairmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2.5, remove.unmatchables=TRUE)
 
   attr(pm.ps, "call") <- NULL
   attr(pm.match, "call") <- NULL
   attr(pm.glm, "call") <- NULL
   expect_true(identical(pm.ps, pm.glm))
   expect_true(identical(pm.ps, pm.match))
+  expect_true(identical(pm.glm, pm.match))
 
   # with scores
 
