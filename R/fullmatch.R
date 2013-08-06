@@ -214,7 +214,7 @@ fullmatch.numeric <- function(x,
     tol = .001,
     data = NULL,
     z,
-    within=NULL,
+    within = NULL,
     ...) {
 
   m <- match_on(x, within=within, z=z, ...)
@@ -465,7 +465,6 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     setTryRecovery()
   }
 
-  # Include NULL in case something odd is going on - assume user still wants recovery
   if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {

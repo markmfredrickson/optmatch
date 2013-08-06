@@ -260,3 +260,18 @@ test_that("fullmatch_try_recovery", {
   # back to fixing.
   expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
 })
+
+
+test_that("n_t > n_c", {
+  data(nuclearplants)
+
+  nuclearplants$pr <- abs(1-nuclearplants$pr)
+  # 22 treatment, 10 control
+  m <- match_on(pr ~ cost, data=nuclearplants)
+
+  # should pass here without problems
+  expect_true(any(!is.na(fullmatch(m, data=nuclearplants))))
+
+  # min.controls = 1/2, so we need 11 controls. Can't accomodate.
+  expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants))))
+})
