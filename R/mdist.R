@@ -116,7 +116,7 @@ mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...
   mf <- eval(mf, parent.frame())
 
 ###  return(mf)
-  ans <- mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
+  ans <- old.mahal.dist(x, data = mf, structure.fmla = structure.fmla, ...)
   attr(ans, "call") <- cl
   ans
 }
@@ -142,9 +142,48 @@ update.formula(fmla, structure.fmla)
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
   if (!exists("cl")) cl <- match.call()
-  ans <- pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
+  ans <- old.pscore.dist(x,  structure.fmla = structure.fmla, standardization.scale=standardization.scale, ...)
   attr(ans, "call") <- cl
   ans
+}
+
+old.pscore.dist <- function(glmobject, structure.fmla=NULL,standardization.scale=sd)
+  {
+stopifnot(all(c('y', 'linear.predictors','data')%in%names(glmobject)))
+
+if (is.null(structure.fmla))
+  {
+    structure.fmla <- as.formula("ZzZz~1")
+} else
+{
+structure.fmla <- update.formula(structure.fmla, ZzZz~.)
+if (!all(all.vars(structure.fmla)%in%c('ZzZz',names(model.frame(glmobject)))))
+  warning('stratifying variables (in structure.fmla) not in propensity specification')
+}
+ZzZz <- glmobject$y>0
+pooled.sd <- if (is.null(standardization.scale)){
+  1 } else szn.scale(glmobject$linear.predictors,ZzZz,standardization.scale)
+PpTy <- glmobject$linear.predictors/pooled.sd
+
+attr(structure.fmla, 'generation.increment') <- 1
+
+makedistOptmatchDlist(structure.fmla,
+         data.frame(ZzZz, PpTy,model.frame(glmobject)),
+         fn=function(trtvar,data)
+         {
+           sclr <- data[names(trtvar), 'PpTy']
+           names(sclr) <- names(trtvar)
+           abs(outer(sclr[trtvar], sclr[!trtvar], '-'))
+         }
+           )
+
+}
+
+szn.scale <- function(x,Tx,standardizer=mad,...) {
+sqrt( ((sum(!Tx)-1)*standardizer(x[!Tx])^2 + 
+       (sum(!!Tx)-1)*standardizer(x[!!Tx])^2)/
+     (length(x)-2)
+     )
 }
 
 # parsing formulas for creating mdists
@@ -314,7 +353,7 @@ warning("fn value not given dimnames; assuming they are list(names(trtvar)[trtva
   ans
   }
 
-mahal.dist <- function(distance.fmla, data, structure.fmla=NULL, inverse.cov=NULL)
+old.mahal.dist <- function(distance.fmla, data, structure.fmla=NULL, inverse.cov=NULL)
   {
     
 if (is.null(structure.fmla))

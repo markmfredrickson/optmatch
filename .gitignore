@@ -7,4 +7,12 @@ src-*
 OPTMATCH_TIMESTAMP
 DESCRIPTION
 optmatch_*
+performance.aux
+performance.fdb_latexmk
+performance.fls
+performance.log
+performance.pdf
+performance.tex
+performance-*.pdf
+vignettes/performance/*.rda
 *.swp

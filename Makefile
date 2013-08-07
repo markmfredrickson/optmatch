@@ -21,7 +21,8 @@
 #		release: Builds the package, tests, and spellchecks in preparation for
 #		sending to CRAN.
 #
-#		clean: removes all locally built files and packages.
+#		clean: removes all locally built files; to remove the downloaded
+#		libraries, use `make clean-deps`.
 #
 # The version number of the package is set through the VERSION variable. This
 # variable will change the name of the built .tar.gz file.
@@ -39,7 +40,7 @@ interactive: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/
 
 ### Package release scripts ###
 
-VERSION=0.8-1
+VERSION=0.8-4
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
@@ -55,7 +56,7 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
 		--exclude=lexicon.txt --exclude=README.md --exclude=checkspelling.R \
 		--exclude=optmatch.Rcheck \
-		--exclude=load.R \
+		--exclude=vignettes \
 		. $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
@@ -72,7 +73,8 @@ $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static .local/roxygen2/INS
 	$(LR) -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/*
+$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/* \
+	$(PKGDEPS)
 	$(LR) CMD build $(PKG)
 
 # a convenience target to get the current .tar.gz with having to know the
@@ -87,8 +89,8 @@ lexicon.txt: package
 	$(LR) -q --no-save -e "source('checkspelling.R') ; make_dictionary('$(PKG)')"
 
 # the full (and slow) check process
-check: $(PKG).tar.gz .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED
-	$(LR) CMD check --as-cran --no-multiarch $(PKG).tar.gz
+check: $(PKG).tar.gz 	
+	$(LR) CMD check --library=.local --as-cran --no-multiarch $(PKG).tar.gz
 
 # getting ready to release
 release: check spell
@@ -105,9 +107,6 @@ release: check spell
 # additional dependencies from CRAN
 installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http://streaming.stat.iastate.edu/CRAN/')" ; date > .local/$(1)/INSTALLED
 	
-.local/devtools/INSTALLED:
-	$(call installpkg,devtools)
-
 .local/testthat/INSTALLED:
 	$(call installpkg,testthat)
 
@@ -117,18 +116,78 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/biglm/INSTALLED:
 	$(call installpkg,biglm)
 
+.local/profr/INSTALLED:
+	$(call installpkg,profr)
+
+.local/brglm/INSTALLED:
+	$(call installpkg,brglm)
+
+.local/arm/INSTALLED:
+	$(call installpkg,arm)
+
+.local/digest/INSTALLED:
+	$(call installpkg,digest)
+
+PKGDEPS = .local/testthat/INSTALLED \
+					.local/RItools/INSTALLED \
+					.local/biglm/INSTALLED \
+					.local/brglm/INSTALLED \
+					.local/arm/INSTALLED \
+					.local/digest/INSTALLED
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
 # time to see if the released version gets the bug fix.
-.local/roxygen2/INSTALLED: .local/devtools/INSTALLED
+# this is is the sha hash of the commit we want to use:
+ROXYGENV= ce302fdd7620f4a9bcc4174374c4296318671b53
+.local/roxygen2/INSTALLED: 
 	mkdir -p .local
-	$(LR) -e "library(devtools) ; options(repos = 'http://streaming.stat.iastate.edu/CRAN/'); install_github(repo = 'roxygen', user = 'klutometis', branch = 's4',args=c('--no-multiarch'))"
+	$(call installpkg,stringr)
+	$(call installpkg,brew) 
+	$(call installpkg,digest)
+	rm -rf .local/roxygen*
+	curl https://codeload.github.com/klutometis/roxygen/zip/$(ROXYGENV) > .local/roxygen-s4-branch.zip
+	cd .local && unzip roxygen-s4-branch.zip
+	$(LR) CMD INSTALL .local/roxygen-$(ROXYGENV)
 	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
 test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
 	$(LR) -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
-# this will delete everything, including the CRAN dependencies in .local
+# this will delete everything, except the CRAN dependencies in .local
 clean:
-	git clean -xfd
+	if [ -d .local ]; then mv .local .local-clean; fi
+	git clean -Xfd
+	if [ -d .local-clean ]; then mv .local-clean .local; fi
+
+clean-deps:
+	rm -rf .local
+
+################################################################################
+# Performance Testing
+################################################################################
+
+vignettes/performance/performance.pdf: .local/optmatch/INSTALLED .local/profr/INSTALLED \
+																			 vignettes/performance/performance.Rnw \
+																			 vignettes/performance/setup.rda \
+																			 vignettes/performance/distance.rda \
+																			 vignettes/performance/matching.rda \
+																			 vignettes/performance/mdist.rda \
+																			 vignettes/performance/scaling.rda 
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
+	cd vignettes/performance && latexmk -pdf performance.tex
+
+vignettes/performance/setup.rda: .local/optmatch/INSTALLED vignettes/performance/setup.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f setup.R
+
+vignettes/performance/distance.rda: vignettes/performance/setup.rda vignettes/performance/distance.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f distance.R
+
+vignettes/performance/matching.rda: vignettes/performance/setup.rda vignettes/performance/matching.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f matching.R
+
+vignettes/performance/mdist.rda: vignettes/performance/setup.rda vignettes/performance/mdist.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f mdist.R
+
+vignettes/performance/scaling.rda: .local/optmatch/INSTALLED vignettes/performance/scaling.R
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -f scaling.R

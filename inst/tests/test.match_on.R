@@ -7,7 +7,7 @@ library(testthat)
 context("match_on function")
 
 test_that("Distances from glms", {
-  
+
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -16,12 +16,12 @@ test_that("Distances from glms", {
   B <- rep(c(0,1), n/2)
 
   test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
-   
+
   result.glm <- match_on(test.glm)
-  
+
   expect_true(validDistanceSpecification(result.glm))
   expect_equal(length(result.glm), (n/2)^2)
-  
+
 })
 
 test_that("Distances from formulas", {
@@ -44,14 +44,14 @@ test_that("Distances from formulas", {
   expect_error(match_on(Z ~ 1, data = test.data))
 
   # checking diferent classes of responses
-  res.one <- match_on(Z ~ X1) 
+  res.one <- match_on(Z ~ X1)
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
   res.factor <- match_on(as.factor(Z) ~ X1)
   expect_equivalent(res.one, res.factor)
 
-  # euclidean distances 
+  # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
   z <- as.logical(Z)
@@ -76,10 +76,10 @@ test_that("Mahalanobis distance calcualtions", {
                         badf2 = c(rep(0,3), rep(1,7)))
 
   expect_error(match_on(Z ~ all1, data = badData), "contrasts can be applied only to factors with 2 or more levels")
-  
-  # even though the supplied data is a bad idea, it should work using the svd() decomposition  
+
+  # even though the supplied data is a bad idea, it should work using the svd() decomposition
   res <- match_on(Z ~ badf1 + badf2, data = badData)
-  
+
 })
 
 test_that("Distances from functions", {
@@ -88,11 +88,11 @@ test_that("Distances from functions", {
   X1 <- rep(c(1,2,3,4), each = n/4)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, B)
-  
+
   sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
   }
-  
+
   result.function <- match_on(sdiffs, z = Z, data = test.data)
   expect_equal(dim(result.function), c(8,8))
 
@@ -101,20 +101,20 @@ test_that("Distances from functions", {
   # | 3 2 |
 
   expect_equal(mean(result.function), 2)
- 
+
   # no treatment indicator
   expect_error(match_on(sdiffs, data = test.data))
 
   # no data
   expect_error(match_on(sdiffs, z = Z))
-  
+
 })
 
 ###### Using mad() instead of sd() for GLM distances
 ###
 ###result <- match_on(glm(pr ~ t1 + t2 + cost, data = nuclearplants, family = binomial()))
 ###
-#### this is an odd test, but a simple way to make sure mad is running, not SD(). 
+#### this is an odd test, but a simple way to make sure mad is running, not SD().
 #### I would like a better test of the actual values, but it works
 ###test(mean(result$m) > 2)
 ###
@@ -179,7 +179,7 @@ test_that("Bigglm distances", {
 
     # compare to glm
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
-    expect_equivalent(res.bg, res.glm) 
+    expect_equivalent(res.bg, res.glm)
   }
 })
 
@@ -197,7 +197,7 @@ test_that("Numeric: simple differences of scores", {
 
   expect_true(all(match_on(z * -2, z = z) == 2))
 
-  # proper errors 
+  # proper errors
   expect_error(match_on(scores), "treatment")
   expect_error(match_on(scores, z = c(1,2)), "length")
   expect_error(match_on(c(1,2,3,4), z = c(0,1,0,1)), "names")
@@ -229,11 +229,11 @@ test_that("Numeric: simple differences of scores", {
   # repeat with match_on
   expect_equal(length(match_on(scores, z = z, caliper = 1)), 28) # 6 * 6 - 8
   expect_equal(length(match_on(scores, z = z, caliper = 1.5)), 28)
-  
+
   # combine the caliper width with an within argument
   b <- rep(1:3, 4)
   ez <- exactMatch(z ~ b)
-  
+
   res <- match_on(scores, z = z, caliper = 1, within = ez)
   expect_equal(length(res), 9)
 
@@ -245,6 +245,8 @@ test_that("Numeric: simple differences of scores", {
   res <- match_on(scores2, z = z2, caliper = 1)
   expect_equal(length(res), 28) # effectively same result as without the new units
 
+  # caliper must be of length 1
+  expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
 
@@ -288,4 +290,75 @@ test_that("update() of match_on created objects", {
   expect_equivalent(stratified, unstratified + em)
 
   expect_error(update(unstratified + em, x = X2))
+})
+
+test_that("Issue #44", {
+  # problem: `within` negates proper caliper
+
+  scores <- rep(c(1,2,2,3), each = 25)
+  z <- rep(c(0,1), each = 50)
+
+  names(scores) <- paste("A", 1:100, sep = "")
+
+  # get the caliper only results
+  res.cal <- match_on(scores, z = z, caliper = 1)
+  expect_equal(max(res.cal), 1)
+
+  # now make up a within arg
+  names(z) <- names(scores)
+  www  <- exactMatch(x = as.factor(rep(c(0,1), 50)),
+                     treatment = z)
+
+  res.w  <- match_on(scores, z = z, within = www)
+  expect_true(max(res.w) > 1)
+
+  # they should safely interact
+  res.cal.w <- match_on(scores, z = z, within = www, caliper = 1)
+  expect_equal(max(res.cal.w), 1)
+
+  # this is the test case from:
+  # https://github.com/markmfredrickson/optmatch/issues/44
+  library(survival)
+
+  coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
+  names(coxps) <- row.names(heart)
+  coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
+  expect_true(max(coxmoA) <= 1)
+
+  coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
+  expect_true(max(coxmoC) <= 1)
+
+})
+
+test_that("Issue 48: caliper is a universal argument", {
+
+  Z <- rep(c(1,0), 5)
+  X <- -4:5
+  names(X) <- names(Z) <- letters[1:10]
+
+  res.num <- match_on(X, z = Z, caliper = 1)
+  expect_true(all(res.num <= 1))
+
+  res.glm <- match_on(glm(Z ~ X, family = binomial), caliper = 1)
+  expect_true(all(res.glm <= 1))
+
+  res.fmla <- match_on(Z ~ X, caliper = 1)
+  expect_true(all(res.fmla <= 1))
+})
+
+test_that("bayesglm, brglm temporary tests", {
+  library(brglm)
+  library(arm)
+
+  data(nuclearplants)
+
+  by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
+  expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
+  m1 <- match_on(by, data=nuclearplants)
+  expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+
+  br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
+  expect_true(all(class(br) == c("brglm", "glm", "lm")))
+  m2 <- match_on(br, data=nuclearplants)
+  expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 })
