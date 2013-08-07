@@ -10,13 +10,12 @@ match_on.examples$ps1 <- match_on(aGlm)
 plantsPS <- predict(aGlm)
 match_on.examples$ps2 <- match_on(pr~plantsPS, data=nuclearplants)
 ### Full matching on the propensity score.
-fullmatch(match_on.examples$ps1, data = nuclearplants)
-fullmatch(match_on.examples$ps2, data = nuclearplants)
-### Because match_on.glm uses robust estimates of spread, 
+fm1 <- fullmatch(match_on.examples$ps1, data = nuclearplants)
+fm2 <- fullmatch(match_on.examples$ps2, data = nuclearplants)
+### Because match_on.glm uses robust estimates of spread,
 ### the results differ in detail -- but they are close enough
 ### to yield similar optimal matches.
-all(fullmatch(match_on.examples$ps1) == 
-    fullmatch(match_on.examples$ps2, data = nuclearplants)) # The same
+all(fm1 == fm2) # The same
 
 ### Mahalanobis distance:
 match_on.examples$mh1 <- match_on(pr ~ t1 + t2, data = nuclearplants)
@@ -25,11 +24,11 @@ match_on.examples$mh1 <- match_on(pr ~ t1 + t2, data = nuclearplants)
 tmp <- nuclearplants$t1
 names(tmp) <- rownames(nuclearplants)
 
-(absdist <- match_on(tmp, z = nuclearplants$pr, 
+(absdist <- match_on(tmp, z = nuclearplants$pr,
                   within = exactMatch(pr ~ pt, nuclearplants)))
 
 ### Pair matching on the variable `t1`:
-pairmatch(absdist)
+pairmatch(absdist, data = nuclearplants)
 
 
 ### Propensity score matching within subgroups:
