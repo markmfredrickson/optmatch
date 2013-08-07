@@ -35,13 +35,14 @@ setTryRecovery <- function() {
 #' matching proceeds but a warning is issued.
 #'
 #' By default, \code{fullmatch} will attempt, if the given constraints are
-#' infeasible, to find a feasible problem using the same constraints.  This will
-#' almost surely involve using a more restrictive \code{omit.fraction} or
-#' \code{mean.controls}. Note that this does not guarantee that the returned
-#' match has the least possible number of omitted subjects, it only gives a match
-#' that is feasible within the given constraints. It may often be possible to
-#' loosen the \code{omit.fraction} or \code{mean.controls} constraint and still
-#' find a feasible match. The auto recovery is controlled by
+#' infeasible, to find a feasible problem using the same constraints.  This
+#' will almost surely involve using a more restrictive \code{omit.fraction} or
+#' \code{mean.controls}. (This will never automatically omit treatment units.)
+#' Note that this does not guarantee that the returned match has the least
+#' possible number of omitted subjects, it only gives a match that is feasible
+#' within the given constraints. It may often be possible to loosen the
+#' \code{omit.fraction} or \code{mean.controls} constraint and still find a
+#' feasible match. The auto recovery is controlled by
 #' \code{options("fullmatch_try_recovery")}.
 #'
 #' If the program detects a large problem as been requested that may exceed the
