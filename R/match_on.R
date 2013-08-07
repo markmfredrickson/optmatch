@@ -89,9 +89,8 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' (Note: This simple case is precisely handled by the \code{numeric} method.)
 #'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
-#' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...)
+#' @method match_on function
 #' @rdname match_on-methods
-#' @aliases match_on,function-method
 match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
@@ -132,9 +131,8 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param method A string indicating which method to use in computing the distances from the data.
 #' The current possibilities are \code{"mahalanobis", "euclidean"}, or pass a user created distance function.
-#' @usage \S4method{match_on}{formula}(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...)
+#' @method match_on formula
 #' @rdname match_on-methods
-#' @aliases match_on,formula-method
 match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
@@ -288,9 +286,8 @@ compute_euclidean <- function(index, data, z) {
 #' the \code{numeric} method.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
-#' @usage \S4method{match_on}{glm}(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
+#' @method match_on glm
 #' @rdname match_on-methods
-#' @aliases match_on,glm-method
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
@@ -332,10 +329,8 @@ match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
 #' the \code{bigglm} function from package \sQuote{biglm}, which can
 #' handle bigger data sets than the ordinary glm function can.
 #'
-#' @usage \S4method{match_on}{bigglm}(x, within = NULL, caliper = NULL, data =
-#' NULL, standardization.scale = mad, ...)
+#' @method match_on bigglm
 #' @rdname match_on-methods
-#' @aliases match_on,bigglm-method
 match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
@@ -381,9 +376,8 @@ are there missing values in data?")
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
 #'
 #' For the numeric method, \code{x} must have names.
-#' @usage \S4method{match_on}{numeric}(x, within = NULL, caliper = NULL, data = NULL, z, ...)
+#' @method match_on numeric
 #' @rdname match_on-methods
-#' @aliases match_on,numeric-method
 match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
 
   if(missing(z) || is.null(z)) {
@@ -462,7 +456,7 @@ scoreCaliper <- function(x, z, caliper) {
 #' arguments as these objects are already valid distance specifications.
 #'
 #' @rdname match_on-methods
-#' @aliases match_on,InfinitySparseMatrix-method
+#' @method match_on InfinitySparseMatrix
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
   if(is.null(caliper)) { return(x) }
@@ -471,7 +465,7 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 } # just return the argument
 
 #' @rdname match_on-methods
-#' @aliases match_on,matrix-method
+#' @method match_on matrix
 match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
   if(is.null(caliper)) { return(x) }
 
