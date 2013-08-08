@@ -4,7 +4,7 @@
 #' new data to predict on; e.g. in a \code{lm} or \code{glm} model, will use the data in that
 #' model.
 #'
-#' If \code{newdata} (either the explicit argument, or the impicit data generated from
+#' If \code{newdata} (either the explicit argument, or the implicit data generated from
 #' \code{object}) has \code{NA} values, imputation will be performed on the missing data via
 #' the \code{\link{fill.NAs}} function and \code{object} will be refit using the imputed data
 #' frame, before calling \code{predict}

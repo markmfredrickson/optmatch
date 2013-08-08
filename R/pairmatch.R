@@ -7,7 +7,7 @@
 #'
 #' This is a wrapper to \code{\link{fullmatch}}; see its documentation for more
 #' information, especially on additional arguments to pass, additional discussion
-#' of valid input for parameter \code{x}, and feasiblity recovery.
+#' of valid input for parameter \code{x}, and feasibility recovery.
 #'
 #' If \code{remove.unmatchables} is \code{FALSE}, then if there are unmatchable
 #' treated units then the matching as a whole will fail and no units will be
