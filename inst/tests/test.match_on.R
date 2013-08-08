@@ -3,6 +3,8 @@
 ################################################################################
 
 library(testthat)
+library(biglm)
+library(survival)
 
 context("match_on function")
 
@@ -177,7 +179,6 @@ test_that("Errors for numeric vectors", {
 ###     )
 ###test(all.equal(unlist(result.combined), unlist(with(nuclearplants, match_on(pr ~ t1 + t2, structure.fmla=strat.fmla)))))
 test_that("Bigglm distances", {
-  if (require('biglm')) {
     n <- 16
     Z <- c(rep(0, n/2), rep(1, n/2))
     X1 <- rnorm(n, mean = 5)
@@ -191,7 +192,6 @@ test_that("Bigglm distances", {
     # compare to glm
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
     expect_equivalent(res.bg, res.glm)
-  }
 })
 
 test_that("Numeric: simple differences of scores", {
@@ -329,7 +329,6 @@ test_that("Issue #44", {
 
   # this is the test case from:
   # https://github.com/markmfredrickson/optmatch/issues/44
-  library(survival)
 
   coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
   names(coxps) <- row.names(heart)
@@ -357,22 +356,21 @@ test_that("Issue 48: caliper is a universal argument", {
   expect_true(all(res.fmla <= 1))
 })
 
-test_that("bayesglm, brglm", {
-
-  data(nuclearplants)
-
-  require('arm')
-  by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
-  expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
-  m1 <- match_on(by, data=nuclearplants)
-  expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
-
-  require('brglm')
-  br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
-  expect_true(all(class(br) == c("brglm", "glm", "lm")))
-  m2 <- match_on(br, data=nuclearplants)
-  expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
-})
+# test_that("bayesglm, brglm", {
+# 
+#   # packaages are added at top of file
+#   data(nuclearplants)
+# 
+#   by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
+#   expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
+#   m1 <- match_on(by, data=nuclearplants)
+#   expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+# 
+#   br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
+#   expect_true(all(class(br) == c("brglm", "glm", "lm")))
+#   m2 <- match_on(br, data=nuclearplants)
+#   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+# })
 
 test_that("numeric standardization scale", {
   n <- 16
