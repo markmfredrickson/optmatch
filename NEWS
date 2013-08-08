@@ -2,6 +2,14 @@ CHANGES IN OPTMATCH VERSION
 
 NEW FEATURES
 
+* Solver limits now depend on machine limits, not arbitrary constants defined
+  by the optmatch maintainers. For large problems, users will see a warning,
+  but the solver will attempt to solve.
+
+* fullmatch() and pairmatch() can now take distance generating arguments
+  directly, instead of having to first call match_on(). See the documentation
+  for these two functions for more details.
+
 * Infeasibility recovery in fullmatch(). When passing a combination of
   constraints (e.g. max.controls) that would make the matching infeasible,
   fullmatch() will now attempt to find a feasible match that respects those
@@ -21,8 +29,6 @@ NEW FEATURES
   now accepts arguments from which match_on() would create a distance, and
   create the match behind the scenes.
 
-* mdist() is now deprecated, in favor of match_on().
-
 * Performance enhancements for distance calculations.
 
 * Several new utility functions, including subdim(), optmatch_restrictions(),
@@ -31,6 +37,24 @@ NEW FEATURES
 
 * Arithmetic operations between InfinitySparseMatrices and vectors are
   supported. The operation is carried out as column by vector steps.
+
+* scores() function allows including model predictions (such as propensity
+  scores) in formulas directly (such as combining multiple propensity scores).
+  The scores() function is preferred to predict() as it makes several smart
+  choices to avoid dropping observations due to partial missingness and other
+  useful preparations for matching.
+
+BUG FIXES
+
+* match_on is now a S3 generic function, which solves several bugs using
+  propensity models from other packages.
+
+* summary() method was giving overly pessimistic warnings about failures.
+
+* fixed bug in how optmatch objects were printing.
+
+DEPRECATED AND DEFUNCT
+* mdist() is now deprecated, in favor of match_on().
 
 CHANGES IN OPTMATCH VERSION 0.8-3
 * Changes to make examples compatible with PDF manual
