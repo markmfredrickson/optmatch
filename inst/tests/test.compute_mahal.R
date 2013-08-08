@@ -20,7 +20,7 @@ trad.mahal <- function(index, x, z) {
 
 make.data <- function(k) {
     # generate some interesting but random vectors
-    set.seed(as.integer(format(Sys.time(), "%s")))
+    set.seed(20130811)
 
     x <- MASS::mvrnorm(k, mu = c(-1, 0, 1),
                   Sigma = matrix(c(1, 0.25, 0.25,
