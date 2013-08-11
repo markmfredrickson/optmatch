@@ -301,6 +301,15 @@ test_that("fullmatch UI cleanup", {
   attr(fm.glm, "call") <- NULL
   expect_true(identical(fm.ps, fm.glm))
 
+  # passing inherited from glm
+
+  class(ps) <- c("foo", class(ps))
+
+  fm.foo <- fullmatch(ps, data=test.data, caliper=2)
+
+  attr(fm.foo, "call") <- NULL
+  expect_true(identical(fm.ps, fm.foo))
+
   # with scores
 
   ps <- glm(Z~X2, data=test.data, family=binomial)
