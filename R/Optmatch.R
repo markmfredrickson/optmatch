@@ -138,6 +138,13 @@ makeOptmatch <- function(distance,
     attr(y,"contrast.group") <- "["(cgs,...)
     names(attr(y, "contrast.group")) <-  NULL
   }
+  if  (!is.null(attr(x, "subproblem"))) {
+    cgs <- attr(x, "subproblem")
+    names(cgs) <- names(x)
+
+    attr(y,"subproblem") <- "["(cgs,...)
+    names(attr(y, "subproblem")) <-  NULL
+  }
 
   ### The following is something of a kluge.  It would make more sense
   ### to remove matched distances that have been removed from the optmatch
