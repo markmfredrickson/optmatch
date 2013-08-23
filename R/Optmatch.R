@@ -140,10 +140,14 @@ makeOptmatch <- function(distance,
   }
   if  (!is.null(attr(x, "subproblem"))) {
     cgs <- attr(x, "subproblem")
-    names(cgs) <- names(x)
+    # converting to numeric to avoid a bug with subsetting
+    # names get dropped with as.numeric
+    nms <- names(cgs)
+    cgs <- as.numeric(cgs)
+    names(cgs) <- nms
 
-    attr(y,"subproblem") <- "["(cgs,...)
-    names(attr(y, "subproblem")) <-  NULL
+    attr(y, "subproblem") <- "["(cgs,...)
+    attr(y, "subproblem") <- as.factor(attr(y, "subproblem"))
   }
 
   ### The following is something of a kluge.  It would make more sense

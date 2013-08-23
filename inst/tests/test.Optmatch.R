@@ -44,6 +44,39 @@ test_that("Object subsetting", {
 
 })
 
+test_that("Subsetting preserves subproblem", {
+  data(nuclearplants)
+
+  # 1 subproblem
+  f <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  ssf <- f[25:28]
+  spssf <- attr(ssf, "subproblem")
+
+  expect_true(all(spssf ==  c(1,1,1,1)))
+  expect_true(all.equal(names(spssf),names(ssf)))
+
+
+  # 2 subproblems
+  f <- fullmatch(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants), data=nuclearplants)
+
+  ssf <- f[25:28]
+  spssf <- attr(ssf, "subproblem")
+
+  expect_true(all(spssf ==  c(1,1,2,2)))
+  expect_true(all.equal(names(spssf),names(ssf)))
+
+  # no subproblems
+  f <- fullmatch(pr ~ cost, data=nuclearplants)
+  attr(f, "subproblem") <- NULL
+
+  ssf <- f[25:28]
+  spssf <- attr(ssf, "subproblem")
+
+  expect_true(is.null(spssf))
+
+})
+
 test_that("Matched distances", {
   # see R/matched.distances.R for the function
   # it is only called by makeOptmatch internally, so putting the tests here

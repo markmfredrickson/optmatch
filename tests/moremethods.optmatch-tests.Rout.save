@@ -48,6 +48,11 @@ $class
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
+$subproblem
+A B C D E F G H I J 
+1 1 1 1 1 1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -90,6 +95,11 @@ $class
 
 $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
+
+$subproblem
+E F G H I J 
+1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -137,6 +147,11 @@ $class
 $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
 
+$subproblem
+A B C D E 
+1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -179,6 +194,11 @@ $class
 
 $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
+
+$subproblem
+A B C D E 
+1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -226,6 +246,11 @@ $class
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
+$subproblem
+A B C D E F G H I J 
+1 1 1 1 1 1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -268,6 +293,11 @@ $class
 
 $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
+
+$subproblem
+E F G H I J 
+1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -402,6 +432,11 @@ $contrast.group
 [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
 [25]  TRUE  TRUE
 
+$subproblem
+Z Y X W V U T S R Q P O N M L K J I H G F E D C B A 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -458,4 +493,4 @@ X Y
 > 
 > proc.time()
    user  system elapsed 
-  1.020   0.040   1.059 
+  0.976   0.056   1.031 
