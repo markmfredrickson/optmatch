@@ -53,7 +53,7 @@ test_that("Subsetting preserves subproblem", {
   ssf <- f[25:28]
   spssf <- attr(ssf, "subproblem")
 
-  expect_true(all(spssf ==  c(1,1,1,1)))
+  expect_true(all(spssf ==  attr(f, "subproblem")[25:28]))
   expect_true(all.equal(names(spssf),names(ssf)))
 
 
@@ -63,7 +63,7 @@ test_that("Subsetting preserves subproblem", {
   ssf <- f[25:28]
   spssf <- attr(ssf, "subproblem")
 
-  expect_true(all(spssf ==  c(1,1,2,2)))
+  expect_true(all(spssf ==  attr(f, "subproblem")[25:28]))
   expect_true(all.equal(names(spssf),names(ssf)))
 
   # no subproblems

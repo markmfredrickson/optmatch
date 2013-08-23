@@ -139,14 +139,14 @@ makeOptmatch <- function(distance,
     names(attr(y, "contrast.group")) <-  NULL
   }
   if  (!is.null(attr(x, "subproblem"))) {
-    cgs <- attr(x, "subproblem")
-    # converting to numeric to avoid a bug with subsetting
+    sps <- attr(x, "subproblem")
+    # converting to character to avoid a bug with subsetting
     # names get dropped with as.numeric
-    nms <- names(cgs)
-    cgs <- as.numeric(cgs)
-    names(cgs) <- nms
+    nms <- names(sps)
+    sps <- as.character(sps)
+    names(sps) <- nms
 
-    attr(y, "subproblem") <- "["(cgs,...)
+    attr(y, "subproblem") <- "["(sps,...)
     attr(y, "subproblem") <- as.factor(attr(y, "subproblem"))
   }
 
