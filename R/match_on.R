@@ -169,7 +169,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
                 )
 
   rm(mf)
-  
+
   if (is.null(caliper)) {
     tmp@call <- cl
     return(tmp)
@@ -229,9 +229,9 @@ compute_mahalanobis <- function(index, data, z) {
     mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
     cv <- mt + mc
     rm(mt, mc)
-    
+
     inv.scale.matrix <- try(solve(cv))
-    
+
     if (inherits(inv.scale.matrix,"try-error")) {
       dnx <- dimnames(cv)
       s <- svd(cv)
@@ -244,19 +244,15 @@ compute_mahalanobis <- function(index, data, z) {
     }
 
     rm(cv)
-    
+
     return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
 compute_euclidean <- function(index, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
-  sqrt(apply(index, 1, function(pair) {
 
-    pair.diff <- as.matrix(data[pair[1],] - data[pair[2],])
-    t(pair.diff) %*% pair.diff
-
-  }))
+  return(.Call(mahalanobisHelper, data, index, diag(ncol(data))))
 }
 
 #' @details The \code{glm} method assumes its first argument to be a fitted propensity
@@ -471,4 +467,3 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
-
