@@ -3,6 +3,8 @@
 ################################################################################
 
 library(testthat)
+library(biglm)
+library(survival)
 
 context("match_on function")
 
@@ -22,6 +24,13 @@ test_that("Distances from glms", {
   expect_true(validDistanceSpecification(result.glm))
   expect_equal(length(result.glm), (n/2)^2)
 
+  # what about classes that inherit from glm?
+  class(test.glm) <- c("foo", class(test.glm))
+
+  result.foo <- match_on(test.glm)
+
+  expect_true(validDistanceSpecification(result.foo))
+  expect_equal(length(result.foo), (n/2)^2)
 })
 
 test_that("Distances from formulas", {
@@ -57,6 +66,10 @@ test_that("Distances from formulas", {
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "euclidean") - euclid) <
+    .00001)) # there is some rounding error, but it is small
+
+  # passing a function name for method
+  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "compute_euclidean") - euclid) <
     .00001)) # there is some rounding error, but it is small
 
 
@@ -166,7 +179,6 @@ test_that("Errors for numeric vectors", {
 ###     )
 ###test(all.equal(unlist(result.combined), unlist(with(nuclearplants, match_on(pr ~ t1 + t2, structure.fmla=strat.fmla)))))
 test_that("Bigglm distances", {
-  if (require('biglm')) {
     n <- 16
     Z <- c(rep(0, n/2), rep(1, n/2))
     X1 <- rnorm(n, mean = 5)
@@ -180,7 +192,6 @@ test_that("Bigglm distances", {
     # compare to glm
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
     expect_equivalent(res.bg, res.glm)
-  }
 })
 
 test_that("Numeric: simple differences of scores", {
@@ -318,7 +329,6 @@ test_that("Issue #44", {
 
   # this is the test case from:
   # https://github.com/markmfredrickson/optmatch/issues/44
-  library(survival)
 
   coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
   names(coxps) <- row.names(heart)
@@ -346,19 +356,32 @@ test_that("Issue 48: caliper is a universal argument", {
   expect_true(all(res.fmla <= 1))
 })
 
-test_that("bayesglm, brglm temporary tests", {
-  library(brglm)
-  library(arm)
+# test_that("bayesglm, brglm", {
+# 
+#   # packaages are added at top of file
+#   data(nuclearplants)
+# 
+#   by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
+#   expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
+#   m1 <- match_on(by, data=nuclearplants)
+#   expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+# 
+#   br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
+#   expect_true(all(class(br) == c("brglm", "glm", "lm")))
+#   m2 <- match_on(br, data=nuclearplants)
+#   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+# })
 
-  data(nuclearplants)
+test_that("numeric standardization scale", {
+  n <- 16
+  Z <- numeric(n)
+  Z[sample.int(n, n/2)] <- 1
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
 
-  by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
-  expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
-  m1 <- match_on(by, data=nuclearplants)
-  expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+  test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
 
-  br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
-  expect_true(all(class(br) == c("brglm", "glm", "lm")))
-  m2 <- match_on(br, data=nuclearplants)
-  expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
+  result.glm <- match_on(test.glm, standardization.scale=1)
 })
+

@@ -22,12 +22,8 @@ test_that("Works like predict with 'with' and 'attach'", {
 ### function as predict correctly
   pred <- predict(pg, newdata=nuclearplants)
   scores1 <- with(nuclearplants, scores(pg))
-#  attach(nuclearplants)
-#  scores2 <- scores(pg)
-#  detach(nuclearplants)
-  expect_equal(pred, scores1, check.attributes=FALSE)
-#  expect_equal(pred, scores2, check.attributes=FALSE)
 
+  expect_equal(pred, scores1, check.attributes=FALSE)
 })
 
 test_that("Correct in a model", {
@@ -42,20 +38,26 @@ test_that("Correct in a model", {
   expect_equal(fitted(ps1), fitted(ps3), check.attributes=FALSE)
 })
 
-test_that("Correct in a model using 'with' or 'attach'", {
+test_that("Correct in a model using 'with'", {
   pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
 
   options(warn=-1)
   ps1 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
   ps2 <- with(nuclearplants, glm(pr ~ cap + date + t1 + bw + scores(pg)))
-  ## attach(nuclearplants)
-  ## expect_error(ps3 <- glm(pr ~ cap + date + t1 + bw + predict(pg)))
-  ## # Note that while predict bombs in this scenario, scores actually works!
-  ## ps4<- glm(pr ~ cap + date + t1 + bw + scores(pg))
-  ## detach(nuclearplants)
 
   expect_equal(fitted(ps1), fitted(ps2), check.attributes=FALSE)
-  ## expect_equal(fitted(ps1), fitted(ps4), check.attributes=FALSE)
+})
+
+test_that("Works in match_on", {
+  pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
+
+  m1 <- match_on(pr~cap + predict(pg, newdata=nuclearplants), data=nuclearplants)
+  m2 <- match_on(pr~cap + scores(pg), data=nuclearplants)
+  m3 <- with(match_on(pr~cap + scores(pg)), data=nuclearplants)
+
+  expect_equal(m1@.Data, m2@.Data)
+  expect_true(all.equal(m1@.Data, m3@.Data, check.attributes=FALSE))
+
 })
 
 test_that("Finds variables", {

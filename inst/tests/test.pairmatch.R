@@ -88,7 +88,127 @@ test_that("Pass additional arguments to fullmatch", {
                "Invalid argument\\(s\\) to pairmatch: max\\.controls")
   expect_error(pairmatch(m, data = df, min.controls = 2),
                "Invalid argument\\(s\\) to pairmatch: min\\.controls")
+  expect_error(pairmatch(m, data = df, mean.controls = 2),
+               "Invalid argument\\(s\\) to pairmatch: mean\\.controls")
   expect_error(pairmatch(m, data = df, omit.fraction = 2),
                "Invalid argument\\(s\\) to pairmatch: omit\\.fraction")
+
+})
+
+test_that("pairmatch UI cleanup", {
+  n <- 14
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  set.seed(124202)
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, X2, B)
+  rm(Z)
+  rm(X1)
+  rm(X2)
+  rm(B)
+  rm(n)
+
+  m <- match_on(Z~X1 + X2, data=test.data)
+
+  pm.dist <- pairmatch(m, data=test.data)
+
+  pm.form <- pairmatch(Z~X1 + X2, data=test.data)
+
+  attr(pm.dist, "call") <- NULL
+  attr(pm.form, "call") <- NULL
+  expect_true(identical(pm.dist, pm.form))
+
+  # with "with()"
+
+  pm.with <- with(data=test.data, pairmatch(Z~X1 + X2))
+
+  attr(pm.with, "call") <- NULL
+  expect_true(identical(pm.dist, pm.with))
+
+  # passing a glm
+  ps <- glm(Z~X1+X2, data=test.data, family=binomial)
+
+  m <- match_on(ps, data=test.data, caliper=2.5)
+  # one unmatchable treatment
+
+  pm.ps <- pairmatch(ps, data=test.data, caliper=2.5, remove.unmatchables=TRUE)
+
+  pm.match <- pairmatch(m, remove.unmatchables=TRUE, data=test.data)
+
+  pm.glm <- pairmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2.5, remove.unmatchables=TRUE)
+
+  attr(pm.ps, "call") <- NULL
+  attr(pm.match, "call") <- NULL
+  attr(pm.glm, "call") <- NULL
+  expect_true(identical(pm.ps, pm.glm))
+  expect_true(identical(pm.ps, pm.match))
+  expect_true(identical(pm.glm, pm.match))
+
+  # with scores
+
+  ps <- glm(Z~X1, data=test.data, family=binomial)
+
+  m <- match_on(Z ~ X2 + scores(ps), data=test.data)
+
+  pm.dist <- pairmatch(m, data=test.data)
+
+  pm.form <- pairmatch(Z~ X2 + scores(ps), data=test.data)
+
+  attr(pm.dist, "call") <- NULL
+  attr(pm.form, "call") <- NULL
+  expect_true(identical(pm.dist, pm.form))
+
+  # passing numeric
+
+  X1 <- test.data$X1
+  Z <- test.data$Z
+
+  names(X1) <- row.names(test.data)
+  names(Z) <- row.names(test.data)
+  pm.vector <- pairmatch(X1,z=Z, data=test.data, caliper=2)
+  expect_warning(pm.vector2 <- pairmatch(X1,z=Z, caliper=2))
+  # should be the same, but different group names
+  expect_true(all.equal(attr(pm.vector, "matched.distances"), attr(pm.vector2, "matched.distances")))
+
+  m <- match_on(X1, z=Z, caliper=2)
+  pm.mi <- pairmatch(m, data=test.data)
+
+  attr(pm.vector, "call") <- NULL
+  attr(pm.mi, "call") <- NULL
+  expect_true(identical(pm.vector, pm.mi))
+
+  # function
+
+  n <- 16
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rep(c(1,2,3,4), each = n/4)
+  B <- rep(c(0,1), n/2)
+  test.data <- data.frame(Z, X1, B)
+  rm(n)
+  rm(Z)
+  rm(X1)
+  rm(B)
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "X1"] - data[index[,2], "X1"])
+  }
+
+  result.function <- match_on(sdiffs, z = test.data$Z, data = test.data)
+
+  pm.funcres <- pairmatch(result.function, data=test.data)
+
+  pm.func <- pairmatch(sdiffs, z = test.data$Z, data=test.data)
+  expect_error(pairmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
+
+  attr(pm.funcres, "call") <- NULL
+  attr(pm.func, "call") <- NULL
+  expect_true(identical(pm.funcres, pm.func))
+
+  # passing bad arguments
+
+  expect_error(pairmatch(test.data), "Invalid input, must be a potential argument to match_on")
+  expect_error(pairmatch(TRUE), "Invalid input, must be a potential argument to match_on")
+
 
 })

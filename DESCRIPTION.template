@@ -5,7 +5,7 @@ Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredrickson@gmail.com>,
   Josh Buckner <bucknerj at umich.edu> and Josh Errickson <jerrick at umich.edu>,
   with embedded Fortran code due to Dimitri P. Bertsekas
-  <dimitrib@mit.edu> and Paul Tseng
+  <dimitrib@mit.edu> and Paul Tseng (with updates by Peter Solenberger)
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest
 Suggests: boot, RItools, biglm, testthat, survival, brglm, arm

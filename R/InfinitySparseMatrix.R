@@ -277,9 +277,7 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")
   }
 
-  subset.data <- .Call('subsetInfSparseMatrix',
-    subset, select, x, PACKAGE="optmatch")
-
+  subset.data <- .Call(subsetInfSparseMatrix, subset, select, x)
   return(makeInfinitySparseMatrix(subset.data[, 3],
                                   subset.data[, 2],
                                   subset.data[, 1],
@@ -434,7 +432,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   rbind(as.InfinitySparseMatrix(x), y, ...)
 }
 
-##' (Internal) Returns the dimension of each valid subproblem
+##' Returns the dimension of each valid subproblem
 ##'
 ##' Returns a list containing the dimensions of all valid subproblems.
 ##'
@@ -461,6 +459,7 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
   # drop off any subproblems lacking at least one treatment/control
   out[unlist(lapply(out, function(t) all(t > 0)))]
 }
+
 ##' Returns the number of eligible matches for the distance.
 ##'
 ##' This will return a list of the number of finite entries in a distance

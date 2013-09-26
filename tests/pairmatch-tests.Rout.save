@@ -36,7 +36,7 @@ You're loading optmatch, by B. Hansen and M. Fredrickson.
    Q    R    S    T    U    V    W    X    Y    Z 
  1.4  1.5 <NA> <NA>  1.6 <NA> <NA>  1.7 <NA> <NA> 
 Warning message:
-In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > pairmatch(plantdist, controls=2)
@@ -45,7 +45,7 @@ In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
    Q    R    S    T    U    V    W    X    Y    Z 
  1.4  1.5  1.5  1.3  1.6 <NA>  1.1  1.7  1.7  1.6 
 Warning message:
-In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > ## Not run: pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
@@ -55,10 +55,10 @@ In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
    Q    R    S    T    U    V    W    X    Y    Z 
 <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
 Warning messages:
-1: In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+1: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-2: In fullmatch.InfinitySparseMatrix(x = distance, min.controls = controls,  :
+2: In fullmatch.InfinitySparseMatrix(x = x, min.controls = controls,  :
   The problem is infeasible with the given constraints; some units were omitted to allow a match.
 > 
 > data(nuclearplants)
@@ -85,4 +85,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-  1.116   0.048   1.162 
+  1.112   0.040   1.150 

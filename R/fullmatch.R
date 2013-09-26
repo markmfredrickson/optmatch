@@ -35,14 +35,20 @@ setTryRecovery <- function() {
 #' matching proceeds but a warning is issued.
 #'
 #' By default, \code{fullmatch} will attempt, if the given constraints are
-#' infeasible, to find a feasible problem using the same constraints.  This will
-#' almost surely involve using a more restrictive \code{omit.fraction} or
-#' \code{mean.controls}. Note that this does not guarantee that the returned
-#' match has the least possible number of omitted subjects, it only gives a match
-#' that is feasible within the given constraints. It may often be possible to
-#' loosen the \code{omit.fraction} or \code{mean.controls} constraint and still
-#' find a feasible match. The auto recovery is controlled by
+#' infeasible, to find a feasible problem using the same constraints.  This
+#' will almost surely involve using a more restrictive \code{omit.fraction} or
+#' \code{mean.controls}. (This will never automatically omit treatment units.)
+#' Note that this does not guarantee that the returned match has the least
+#' possible number of omitted subjects, it only gives a match that is feasible
+#' within the given constraints. It may often be possible to loosen the
+#' \code{omit.fraction} or \code{mean.controls} constraint and still find a
+#' feasible match. The auto recovery is controlled by
 #' \code{options("fullmatch_try_recovery")}.
+#'
+#' If the program detects a large problem as been requested that may exceed the
+#' computational power of the user's computer, a warning is issued. If you wish
+#' to disable this warning, set \code{options("optmatch_warn_on_big_problem" =
+#' FALSE)}.
 #'
 #' @param x Any valid input to \code{match_on}. \code{fullmatch} will use
 #' \code{x} and any optional arguments to generate a distance before performing
@@ -178,9 +184,14 @@ fullmatch.default <- function(x,
     data = NULL,
     within = NULL,
     ...) {
-  if (!inherits(x, unlist(findMethods("match_on")@signatures))) {
+
+  klass <- class(x)[1]
+  if (is.object(x)) klass <- oldClass(x)[1]
+
+  if (is.null(getS3method("match_on", klass, optional = T))) {
     stop("Invalid input, must be a potential argument to match_on")
   }
+
   mfd <- if (!is.null(data)) {
     model.frame(data)
   } else {
@@ -214,7 +225,7 @@ fullmatch.numeric <- function(x,
     tol = .001,
     data = NULL,
     z,
-    within=NULL,
+    within = NULL,
     ...) {
 
   m <- match_on(x, within=within, z=z, ...)
@@ -465,7 +476,6 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     setTryRecovery()
   }
 
-  # Include NULL in case something odd is going on - assume user still wants recovery
   if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   } else {

@@ -20,8 +20,7 @@ caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3)
 ### of 1 pooled SD in the propensity score:
 mhd.pptyc <- caliper(ppty.dist, width = 1) +
           match_on(pr ~ t1 + t2, data = nuclearplants)
-pairmatch(mhd.pptyc)
+pairmatch(mhd.pptyc, data = nuclearplants)
 
 ### Excluding observations from caliper requirements:
 caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f"))
-

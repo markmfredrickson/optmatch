@@ -184,7 +184,7 @@ Loading required package: DBI
 > absdist1 <- mdist(sdiffs, structure.fmla = pr ~ 1|pt, data = nuclearplants)
 > test(length(pairmatch(absdist1)) > 0)
 Warning message:
-In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
+In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
 > 
@@ -216,4 +216,4 @@ In fullmatch(x = distance, min.controls = controls, max.controls = controls,  :
 > 
 > proc.time()
    user  system elapsed 
-  1.504   0.036   1.545 
+  1.472   0.048   1.537 

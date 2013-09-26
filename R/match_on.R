@@ -52,10 +52,11 @@
 #' pairs with values greater than the width. For some methods, there may be a
 #' speed advantage to passing a width rather than using the
 #' \code{\link{caliper}} function on an existing distance specification.
+#' @param data An optional data frame.
+#' @param ... Other arguments for methods.
 #' @return A distance specification (a matrix or similar object) which is
 #' suitable to be given as the \code{distance} argument to \code{\link{fullmatch}}
 #' or \code{\link{pairmatch}}.
-#' @param ... Other arguments for methods.
 #' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}}, \code{\link{exactMatch}}, \code{\link{caliper}}
 #' @references
 #' P.~R. Rosenbaum and D.~B. Rubin (1985),
@@ -67,13 +68,10 @@
 #' @docType methods
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
-setGeneric("match_on", def = function(x, within = NULL, caliper = NULL, ...) {
-
-  tmp <- standardGeneric("match_on")
-  tmp@call <- match.call()
-  return(tmp)
-
-})
+match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+  cl <- match.call()
+  UseMethod("match_on")
+}
 
 #' @details The \code{function} method takes as its \code{x} argument a
 #' function of three arguments: \code{index}, \code{data}, and \code{z}. The \code{data} and \code{z}
@@ -91,26 +89,28 @@ setGeneric("match_on", def = function(x, within = NULL, caliper = NULL, ...) {
 #' (Note: This simple case is precisely handled by the \code{numeric} method.)
 #'
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
-#' @param data A \code{data.frame} or \code{matrix} containing variables used by the method to construct the distance matrix.
-#' @usage \S4method{match_on}{function}(x, within = NULL, caliper = NULL, z = NULL, data = NULL, ...)
+#' @method match_on function
 #' @rdname match_on-methods
-#' @aliases match_on,function-method
-setMethod("match_on", "function", function(x, within = NULL, caliper = NULL, z = NULL, data = NULL, ...) {
+match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
   }
+  if (!exists("cl")) cl <- match.call()
 
   theFun <- match.fun(x)
 
   tmp <- makedist(z, data, theFun, within)
 
   if (is.null(caliper)) {
+    tmp@call <- cl
     return(tmp)
   }
 
-  return(tmp + optmatch::caliper(tmp, width = caliper))
-})
+  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
+  tmp@call <- cl
+  return(tmp)
+}
 
 
 #' @details The formula method produces, by default, a Mahalanobis distance specification
@@ -130,20 +130,23 @@ setMethod("match_on", "function", function(x, within = NULL, caliper = NULL, z =
 #'
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param method A string indicating which method to use in computing the distances from the data.
-#' The current possibilities are \code{"mahalanobis", "euclidean"}.
-#' @usage \S4method{match_on}{formula}(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...)
+#' The current possibilities are \code{"mahalanobis", "euclidean"}, or pass a user created distance function.
+#' @method match_on formula
 #' @rdname match_on-methods
-#' @aliases match_on,formula-method
-setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL,
-                                       method = "mahalanobis", ...) {
+match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
   }
+  if (!exists("cl")) cl <- match.call()
 
   mf <- match.call(expand.dots = FALSE)
+
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
   mf <- mf[c(1L, m)]
+
+  rm(m)
+
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
@@ -158,63 +161,91 @@ setMethod("match_on", "formula", function(x, within = NULL, caliper = NULL, data
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
 
-  f <- match.fun(paste("compute_", method, sep = ""))
+  which.method <- pmatch(method, c("mahalanobis", "euclidean"), 3)
+  tmp <- switch(which.method,
+                makedist(z, data, compute_mahalanobis, within),
+                makedist(z, data, compute_euclidean, within),
+                makedist(z, data, match.fun(method), within)
+                )
 
-  tmp <- makedist(z, data, f, within)
-
+  rm(mf)
+  
   if (is.null(caliper)) {
+    tmp@call <- cl
     return(tmp)
   }
 
-  return(tmp + optmatch::caliper(tmp, width = caliper))
-})
-
-compute_mahalanobis <- function(index, data, z) {
-
-        if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
-
-	mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-	mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
-	cv <- mt + mc
-
-	inv.scale.matrix <- try(solve(cv))
-
-	if (inherits(inv.scale.matrix,"try-error"))
-	{
-		dnx <- dimnames(cv)
-		s <- svd(cv)
-		nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-		if (!any(nz))
-		stop("covariance has rank zero")
-
-		inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-		dimnames(inv.scale.matrix) <- dnx[2:1]
-	}
-
-	nv <- nrow(index)
-
-	result <- .C('mahalanobisHelper',
-    as.integer(nv),
-    as.integer(ncol(data)),
-    t(data[index[, 1], ]),
-    t(data[index[, 2], ]),
-    t(inv.scale.matrix),
-    result=numeric(nv), PACKAGE='optmatch')$result
-
-	return(result)
+  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
+  tmp@call <- cl
+  return(tmp)
 }
 
-# short alias if we need it
-compute_mahal <- compute_mahalanobis
+# compute_mahalanobis computes mahalanobis distances between treatment and
+# control pairs
+#
+# Arguments:
+#   index: a 2 col array of rownames from the 'data' argument.
+#     Col 1: treatment rownames
+#     Col 2: control rownames
+#   data: a matrix containing rows of treatment and control data. The
+#     rownames are used in index to indicate which treatment and control pairs
+#     get measured
+#   z: a logical vector of length nrows(data); TRUE indicates treatment
+#
+# If called from the makedist function, index is most likely a cross product of
+# treatment and control rownames.
+#
+# Value: a vector of distances a distance for each pair indicated in index
+#
+# This is the default method for calculating distances in the match_on methods.
+# It calls a registered C routine mahalanobisHelper found in distances.c
+# after computing the inverse of a covariate matrix
 
-compute_smahal <- function(index, data, z) {
-    if (!all(is.finite(data))) {
-        stop("Infinite or NA values detected in data for Mahalanobis computations.")
+# compute_mahalanobis computes mahalanobis distances between treatment and
+# control pairs
+#
+# Arguments:
+#   index: a 2 col array of rownames from the 'data' argument.
+#     Col 1: treatment rownames
+#     Col 2: control rownames
+#   data: a matrix containing rows of treatment and control data. The
+#     rownames are used in index to indicate which treatment and control pairs
+#     get measured
+#   z: a logical vector of length nrows(data); TRUE indicates treatment
+#
+# If called from the makedist function, index is most likely a cross product of
+# treatment and control rownames.
+#
+# Value: a vector of distances a distance for each pair indicated in index
+#
+# This is the default method for calculating distances in the match_on methods.
+# It calls a registered C routine mahalanobisHelper found in distances.c
+# after computing the inverse of a covariate matrix
+
+compute_mahalanobis <- function(index, data, z) {
+    if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
+
+    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    cv <- mt + mc
+    rm(mt, mc)
+    
+    inv.scale.matrix <- try(solve(cv))
+    
+    if (inherits(inv.scale.matrix,"try-error")) {
+      dnx <- dimnames(cv)
+      s <- svd(cv)
+      nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+      if (!any(nz)) stop("covariance has rank zero")
+
+      inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+      dimnames(inv.scale.matrix) <- dnx[2:1]
+      rm(dnx, s, nz)
     }
 
-    return(
-        .Call('smahal', index, data, z, PACKAGE='optmatch')
-    )
+    rm(cv)
+    
+    return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
 compute_euclidean <- function(index, data, z) {
@@ -227,9 +258,6 @@ compute_euclidean <- function(index, data, z) {
 
   }))
 }
-
-# short alias
-compute_euclid <- compute_euclidean
 
 #' @details The \code{glm} method assumes its first argument to be a fitted propensity
 #' model. From this it extracts distances on the \emph{linear} propensity score: fitted values
@@ -258,27 +286,42 @@ compute_euclid <- compute_euclidean
 #' the \code{numeric} method.
 #'
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
-#' @usage \S4method{match_on}{glm}(x, within = NULL, caliper = NULL, standardization.scale = mad, ...)
+#' @method match_on glm
 #' @rdname match_on-methods
-#' @aliases match_on,glm-method
-setMethod("match_on", "glm", function(x, within = NULL, caliper = NULL, standardization.scale = mad, ...)
-{
+match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
+  lp <- if (is.null(x$data) | is.environment(x$data)) {
+    scores(x, newdata=model.frame(x$formula))
+  } else {
+    scores(x, newdata=x$data)
+  }
+
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    szn.scale(x$linear.predictors, z ,standardization.scale)
+    match_on_szn_scale(lp, z, standardization.scale)
+  }
+  lp.adj <- lp/pooled.sd
+
+  # drop any cases with missing response
+  if (!is.null(x$na.action)) {
+    lp.adj <- lp.adj[-x$na.action]
   }
 
-  lp.adj <- x$linear.predictors/pooled.sd
-
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
-})
+}
 
-szn.scale <- function(x, Tx, standardizer = mad, ...) {
-  sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
-        (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
+  if (is.function(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
+          (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+  } else if (is.numeric(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer^2 +
+          (sum(!!Tx) - 1) * standardizer^2) / (length(x) - 2))
+  } else {
+    stop("Invalid standardizer")
+  }
 }
 
 #' @details The \code{bigglm}
@@ -286,12 +329,9 @@ szn.scale <- function(x, Tx, standardizer = mad, ...) {
 #' the \code{bigglm} function from package \sQuote{biglm}, which can
 #' handle bigger data sets than the ordinary glm function can.
 #'
-#' @usage \S4method{match_on}{bigglm}(x, within = NULL, caliper = NULL, data =
-#' NULL, standardization.scale = mad, ...)
+#' @method match_on bigglm
 #' @rdname match_on-methods
-#' @aliases match_on,bigglm-method
-setMethod("match_on", "bigglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
-{
+match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -300,7 +340,7 @@ setMethod("match_on", "bigglm", function(x, within = NULL, caliper = NULL, data 
     stop("match_on doesn't understand data arguments that aren't data frames.")
   }
 
-  theps <- predict(x, data, type = 'link', se.fit = FALSE)
+  theps <- scores(x, data, type = 'link', se.fit = FALSE)
 
   if (length(theps) != dim(data)[1]) {
     stop("predict.bigglm() returns a vector of the wrong length;
@@ -316,41 +356,14 @@ are there missing values in data?")
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    szn.scale(theps, z, standardizer=standardization.scale,...)
+    match_on_szn_scale(theps, z, standardizer=standardization.scale,...)
   }
 
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
 
   match_on(theps, within = within, caliper = caliper, z = z, ... )
-})
-
-### These are temporary fixes until making match_on S3 generic can be fully implemented. See issue #51.
-#' @usage \S4method{match_on}{brglm}(x, within = NULL, caliper = NULL, data =
-#' NULL, standardization.scale = mad, ...)
-#' @rdname match_on-methods
-#' @aliases match_on,brglm-method
-setMethod("match_on", "brglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
-{
-  realclass <- class(x)
-  class(x) <- "glm"
-  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
-  class(x) <- realclass
-  out
-})
-#' @usage \S4method{match_on}{bayesglm}(x, within = NULL, caliper = NULL, data =
-#' NULL, standardization.scale = mad, ...)
-#' @rdname match_on-methods
-#' @aliases match_on,bayesglm-method
-setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...)
-{
-  realclass <- class(x)
-  class(x) <- "glm"
-  out <- match_on(x=x, within=within, caliper=caliper, standardization.scale=standardization.scale, ...)
-  class(x) <- realclass
-  out
-})
-
+}
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
 # benefits of calipers -- if that's changed here, adjust there accordingly.
@@ -363,10 +376,9 @@ setMethod("match_on", "bayesglm", function(x, within = NULL, caliper = NULL, dat
 #' storage requirements and may otherwise improve performance, particularly in larger problems.
 #'
 #' For the numeric method, \code{x} must have names.
-#' @usage \S4method{match_on}{numeric}(x, within = NULL, caliper = NULL, z, ...)
+#' @method match_on numeric
 #' @rdname match_on-methods
-#' @aliases match_on,numeric-method
-setMethod("match_on", "numeric", function(x, within = NULL, caliper = NULL, z, ...) {
+match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
 
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric match_on method.")
@@ -375,6 +387,7 @@ setMethod("match_on", "numeric", function(x, within = NULL, caliper = NULL, z, .
   if(length(z) != length(x)) {
     stop("The scores, 'x', and the treatment vector, 'z', must be the same length.")
   }
+  if (!exists("cl")) cl <- match.call()
 
   z <- toZ(z)
 
@@ -394,8 +407,10 @@ setMethod("match_on", "numeric", function(x, within = NULL, caliper = NULL, z, .
 
   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
-  makedist(z, x, f, within)
-})
+  tmp <- makedist(z, x, f, within)
+  tmp@call <- cl
+  return(tmp)
+}
 
 #' (Internal) Helper function to create an InfinitySparseMatrix from a set of scores, a treatment indicator, and a caliper width.
 #'
@@ -441,17 +456,19 @@ scoreCaliper <- function(x, z, caliper) {
 #' arguments as these objects are already valid distance specifications.
 #'
 #' @rdname match_on-methods
-#' @aliases match_on,InfinitySparseMatrix-method
-setMethod("match_on", "InfinitySparseMatrix", function(x, within = NULL, caliper = NULL, ...) {
+#' @method match_on InfinitySparseMatrix
+match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
-}) # just return the argument
+} # just return the argument
 
 #' @rdname match_on-methods
-#' @aliases match_on,matrix-method
-setMethod("match_on", "matrix", function(x, within = NULL, caliper = NULL, ...) {
+#' @method match_on matrix
+match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
-}) # just return the argument
+} # just return the argument
+

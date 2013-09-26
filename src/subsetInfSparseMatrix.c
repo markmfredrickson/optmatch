@@ -1,6 +1,6 @@
-#include<R.h>
+#include "subsetInfSparseMatrix.h"
+
 #include<Rdefines.h>
-#include<Rinternals.h>
 
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
     SEXP

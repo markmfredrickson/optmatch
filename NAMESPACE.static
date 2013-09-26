@@ -1,4 +1,4 @@
-useDynLib(optmatch)
+useDynLib(optmatch, .registration = TRUE)
 
 export(mdist,
        matched.distances,
@@ -43,6 +43,14 @@ S3method(mdist, "function")
 S3method(mdist, numeric)
 S3method(mdist, bigglm)
 
+S3method(match_on, "function")
+S3method(match_on, formula)
+S3method(match_on, InfinitySparseMatrix)
+S3method(match_on, matrix)
+S3method(match_on, glm)
+S3method(match_on, bigglm)
+S3method(match_on, numeric)
+
 S3method(fullmatch, default)
 S3method(fullmatch, numeric)
 S3method(fullmatch, InfinitySparseMatrix)
@@ -50,11 +58,19 @@ S3method(fullmatch, BlockedInfinitySparseMatrix)
 S3method(fullmatch, optmatch.dlist)
 S3method(fullmatch, matrix)
 
+S3method(pairmatch, default)
+S3method(pairmatch, numeric)
+S3method(pairmatch, InfinitySparseMatrix)
+S3method(pairmatch, BlockedInfinitySparseMatrix)
+S3method(pairmatch, optmatch.dlist)
+S3method(pairmatch, matrix)
+
 S3method(stratumStructure, default)
 S3method(stratumStructure, optmatch)
 
 S3method(effectiveSampleSize, table)
 S3method(effectiveSampleSize, factor)
+
 S3method(boxplot, glm)
 S3method(boxplot, bigglm)
 
