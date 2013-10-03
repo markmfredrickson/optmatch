@@ -1,5 +1,5 @@
 # Constant to control the maximum feasible (sub)problem
-MAX_FEASIBLE <- 1e07
+MAX_FEASIBLE <- 1e09
 
 #' (Internal) Sets up the default values for maximum feasible problems
 #
