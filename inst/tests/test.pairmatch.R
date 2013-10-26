@@ -141,9 +141,12 @@ test_that("pairmatch UI cleanup", {
   attr(pm.ps, "call") <- NULL
   attr(pm.match, "call") <- NULL
   attr(pm.glm, "call") <- NULL
-  expect_true(identical(pm.ps, pm.glm))
-  expect_true(identical(pm.ps, pm.match))
-  expect_true(identical(pm.glm, pm.match))
+  attr(pm.ps, "hashed.distance") <- attr(pm.match, "hashed.distance") <- attr(pm.glm, "hashed.distance") <- NULL
+  
+  
+  expect_true(all.equal(pm.ps, pm.glm))
+  expect_true(all.equal(pm.ps, pm.match))
+  expect_true(all.equal(pm.glm, pm.match))
 
   # with scores
 

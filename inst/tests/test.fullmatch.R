@@ -299,6 +299,13 @@ test_that("fullmatch UI cleanup", {
 
   attr(fm.ps, "call") <- NULL
   attr(fm.glm, "call") <- NULL
+  attr(fm.ps, "hashed.distance") <- attr(fm.glm, "hashed.distance") <- NULL
+  expect_true(all.equal(attr(fm.ps, "exceedances"),attr(fm.glm, "exceedances")))
+  attr(fm.ps, "exceedances") <- attr(fm.glm, "exceedances") <- NULL
+  expect_true(all.equal(attr(fm.ps, "matched.distances"),
+                        attr(fm.glm, "matched.distances")))
+  attr(fm.ps, "matched.distances") <- attr(fm.glm, "matched.distances") <- NULL
+  
   expect_true(identical(fm.ps, fm.glm))
 
   # passing inherited from glm
