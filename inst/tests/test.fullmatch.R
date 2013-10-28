@@ -7,6 +7,27 @@ library(optmatch)
 
 context("fullmatch function")
 
+# test whether two matches are the same. Uses all.equal on matched.distances
+# and exceedances to ignore errors below some tolerance. After checking those,
+# strips attributes that may differ but not break `identical` status.
+match_compare <- function(match1, match2) {
+  expect_true(all.equal(attr(match1, "matched.distances"),
+                        attr(match2, "matched.distances")))
+  expect_true(all.equal(attr(match1, "exceedances"),
+                        attr(match2, "exceedances")))
+
+  attr(match1, "matched.distances") <- NULL
+  attr(match2, "matched.distances") <- NULL
+  attr(match1, "hashed.distances") <- NULL
+  attr(match2, "hashed.distances") <- NULL
+  attr(match1, "exceedances") <- NULL
+  attr(match2, "exceedances") <- NULL
+  attr(match1, "call") <- NULL
+  attr(match2, "call") <- NULL
+
+  expect_true(identical(match1, match2))
+}
+
 test_that("No cross strata matches", {
   # test data
   Z <- rep(c(0,1), 4)
@@ -264,11 +285,7 @@ test_that("fullmatch UI cleanup", {
   X2 <- rnorm(n, mean = -2, sd = 2)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, X2, B)
-  rm(Z)
-  rm(X1)
-  rm(X2)
-  rm(B)
-  rm(n)
+  rm(list=c("Z", "X1", "X2", "B", "n"))
 
   m <- match_on(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
@@ -276,16 +293,13 @@ test_that("fullmatch UI cleanup", {
 
   fm.form <- fullmatch(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
-  attr(fm.dist, "call") <- NULL
-  attr(fm.form, "call") <- NULL
-  expect_true(identical(fm.dist, fm.form))
+  match_compare(fm.dist, fm.form)
 
   # with "with()"
 
   expect_warning(fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2)))
 
-  attr(fm.with, "call") <- NULL
-  expect_true(identical(fm.dist, fm.with))
+  match_compare(fm.dist, fm.with)
 
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
@@ -297,16 +311,7 @@ test_that("fullmatch UI cleanup", {
   # should be the same, but different group names
   expect_true(all.equal(attr(fm.glm, "matched.distances"), attr(fm.glm2, "matched.distances")))
 
-  attr(fm.ps, "call") <- NULL
-  attr(fm.glm, "call") <- NULL
-  attr(fm.ps, "hashed.distance") <- attr(fm.glm, "hashed.distance") <- NULL
-  expect_true(all.equal(attr(fm.ps, "exceedances"),attr(fm.glm, "exceedances")))
-  attr(fm.ps, "exceedances") <- attr(fm.glm, "exceedances") <- NULL
-  expect_true(all.equal(attr(fm.ps, "matched.distances"),
-                        attr(fm.glm, "matched.distances")))
-  attr(fm.ps, "matched.distances") <- attr(fm.glm, "matched.distances") <- NULL
-  
-  expect_true(identical(fm.ps, fm.glm))
+  match_compare(fm.ps, fm.glm)
 
   # passing inherited from glm
 
@@ -314,8 +319,7 @@ test_that("fullmatch UI cleanup", {
 
   fm.foo <- fullmatch(ps, data=test.data, caliper=2)
 
-  attr(fm.foo, "call") <- NULL
-  expect_true(identical(fm.ps, fm.foo))
+  match_compare(fm.ps, fm.foo)
 
   # with scores
 
@@ -327,9 +331,7 @@ test_that("fullmatch UI cleanup", {
 
   fm.form <- fullmatch(Z~ X1 + scores(ps), within=exactMatch(Z~B, data=test.data), data=test.data)
 
-  attr(fm.dist, "call") <- NULL
-  attr(fm.form, "call") <- NULL
-  expect_true(identical(fm.dist, fm.form))
+  match_compare(fm.dist, fm.form)
 
   # passing numeric
 
@@ -346,9 +348,7 @@ test_that("fullmatch UI cleanup", {
   m <- match_on(X1, z=Z, caliper=1)
   fm.mi <- fullmatch(m, data=test.data)
 
-  attr(fm.vector, "call") <- NULL
-  attr(fm.mi, "call") <- NULL
-  expect_true(identical(fm.vector, fm.mi))
+  match_compare(fm.vector, fm.mi)
 
   # function
 
@@ -373,9 +373,7 @@ test_that("fullmatch UI cleanup", {
   fm.func <- fullmatch(sdiffs, z = test.data$Z, data=test.data)
   expect_error(fullmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
 
-  attr(fm.funcres, "call") <- NULL
-  attr(fm.func, "call") <- NULL
-  expect_true(identical(fm.funcres, fm.func))
+  match_compare(fm.funcres, fm.func)
 
   # passing bad arguments
 
