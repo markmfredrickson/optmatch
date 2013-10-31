@@ -18,8 +18,8 @@ match_compare <- function(match1, match2) {
 
   attr(match1, "matched.distances") <- NULL
   attr(match2, "matched.distances") <- NULL
-  attr(match1, "hashed.distances") <- NULL
-  attr(match2, "hashed.distances") <- NULL
+  attr(match1, "hashed.distance") <- NULL
+  attr(match2, "hashed.distance") <- NULL
   attr(match1, "exceedances") <- NULL
   attr(match2, "exceedances") <- NULL
   attr(match1, "call") <- NULL
