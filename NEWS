@@ -1,4 +1,15 @@
-CHANGES IN OPTMATCH VERSION
+CHANGES IN OPTMATCH VERSION 0.9-1
+
+* Subsetting of optmatch objects now preserves (and subsets)
+  the subproblem attribute.
+* Performance improvements for match_on applied to glm's. 
+* The solver update of version 0.9-0 had a bug that in some
+  circumstances caused hangups or malloc's [Issue #70].  We 
+  believe this is now fixed -- but please notify maintainer if 
+  you continue to experience the problem.  (If you do, we'll 
+  reward you with an easy workaround.)
+
+CHANGES IN OPTMATCH VERSION 0.9-0
 
 NEW FEATURES
 
