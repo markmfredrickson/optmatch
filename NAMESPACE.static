@@ -12,6 +12,7 @@ export(mdist,
        fill.NAs,
        exactMatch)
 
+import(methods)
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
 
