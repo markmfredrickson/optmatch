@@ -12,6 +12,7 @@ export(mdist,
        fill.NAs,
        exactMatch)
 
+import(methods)
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
 
@@ -73,6 +74,15 @@ S3method(effectiveSampleSize, factor)
 
 S3method(boxplot, glm)
 S3method(boxplot, bigglm)
+
+S3method(subdim, InfinitySparseMatrix)
+S3method(subdim, BlockedInfinitySparseMatrix)
+S3method(subdim, matrix)
+
+S3method(num_eligible_matches, optmatch.dlist)
+S3method(num_eligible_matches, matrix)
+S3method(num_eligible_matches, InfinitySparseMatrix)
+S3method(num_eligible_matches, BlockedInfinitySparseMatrix)
 
 ### S4 Stuff
 exportClasses(InfinitySparseMatrix, BlockedInfinitySparseMatrix)

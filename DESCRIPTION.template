@@ -3,12 +3,12 @@ Version: VERSION
 Date: DATE
 Title: Functions for optimal matching
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredrickson@gmail.com>,
-  Josh Buckner <bucknerj at umich.edu> and Josh Errickson <jerrick at umich.edu>,
+  Josh Buckner, Josh Errickson, and Peter Solenberger,
   with embedded Fortran code due to Dimitri P. Bertsekas
-  <dimitrib@mit.edu> and Paul Tseng (with updates by Peter Solenberger)
+  <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest
 Suggests: boot, RItools, biglm, testthat, survival, brglm, arm
 Description: Functions for optimal matching, including full matching
 License: file LICENSE
-URL: http://www.r-project.org, http://www.stat.lsa.umich.edu/~bbh/optmatch.html
+URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch

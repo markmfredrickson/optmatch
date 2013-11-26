@@ -1,11 +1,11 @@
 ################################################################################
 # Development tools for optmatch
 #
-# The main targets available for use are: 
+# The main targets available for use are:
 #
 #   interactive: (the default) Launches an interactive R session with the current
 #   working copy built into a package and automatically loaded.
-#   
+#
 #   package: Builds a .tar.gz archive of the package suitable for installing,
 #   etc.
 #
@@ -13,7 +13,7 @@
 #   details.
 #
 #		test: Runs the 'testthat' package based tests and outputs any failing
-#		tests. 'testthat' will be automatically installed in .local/ 
+#		tests. 'testthat' will be automatically installed in .local/
 #
 #		check: Performs `R CMD check` on the package, which is a slightly longer
 #		process than just running the tests.
@@ -36,32 +36,36 @@
 # of the package from being overwritten by the version from CRAN.
 ################################################################################
 interactive: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
-	R_LIBS=.local R_PROFILE=load.R R -q --no-save 
+	R_LIBS=.local R_PROFILE=load.R R -q --no-save
+interactive-emacs: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
+	R_LIBS=.local R_PROFILE=load.R emacs -nw -f R
 
 ### Package release scripts ###
 
-VERSION=0.8-5
+VERSION=0.9-1
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
 # a useful helper for scripts who need to know what the package name is going to be
 # use: R CMD INSTALL path/to/optmatch/$(cd path/to/optmatch && make current)
-current: 
+current:
 	@echo $(PKG).tar.gz
 
 # depend on the makefile so that updates to the version number will force a rebuild
 $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 	rm -rf $(PKG)
+	git ls-files --other --exclude-standard > .pkgexclude
 	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
 		--exclude=DESCRIPTION.template --exclude=NAMESPACE.static \
 		--exclude=lexicon.txt --exclude=README.md --exclude=checkspelling.R \
 		--exclude=optmatch.Rcheck \
 		--exclude=vignettes \
+		--exclude-from=.pkgexclude \
 		--exclude=load.R . $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
 # add them to DESCRIPTION.template
-$(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template 
+$(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template
 	sed s/VERSION/$(VERSION)/ DESCRIPTION.template | sed s/DATE/$(RELEASE_DATE)/ > $(PKG)/DESCRIPTION
 
 # a macro for using the local directory only
@@ -82,14 +86,14 @@ $(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/*
 package: $(PKG).tar.gz
 
 # the spell task doesn't need the tar.gz particularly, but it does need DESCRIPTION and roxygen
-spell: package 
+spell: package
 	$(LR) -q --no-save -e "source('checkspelling.R') ; check_spelling('$(PKG)')"
 
 lexicon.txt: package
 	$(LR) -q --no-save -e "source('checkspelling.R') ; make_dictionary('$(PKG)')"
 
 # the full (and slow) check process
-check: $(PKG).tar.gz 	
+check: $(PKG).tar.gz
 	$(LR) CMD check --library=.local --as-cran --no-multiarch $(PKG).tar.gz
 
 # getting ready to release
@@ -106,13 +110,13 @@ release: check spell
 
 # additional dependencies from CRAN
 installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http://streaming.stat.iastate.edu/CRAN/')" ; date > .local/$(1)/INSTALLED
-	
+
 .local/testthat/INSTALLED:
 	$(call installpkg,testthat)
 
 .local/RItools/INSTALLED:
 	$(call installpkg,RItools)
-	
+
 .local/biglm/INSTALLED:
 	$(call installpkg,biglm)
 
@@ -165,7 +169,7 @@ vignettes/performance/performance.pdf: .local/optmatch/INSTALLED .local/profr/IN
 																			 vignettes/performance/distance.rda \
 																			 vignettes/performance/matching.rda \
 																			 vignettes/performance/mdist.rda \
-																			 vignettes/performance/scaling.rda 
+																			 vignettes/performance/scaling.rda
 	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
 	cd vignettes/performance && latexmk -pdf performance.tex
 

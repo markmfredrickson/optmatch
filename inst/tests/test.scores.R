@@ -116,8 +116,8 @@ test_that("NA imputation", {
   l10 <- lm(pr ~ cap + predict(pgscore, newdata=np3), data=np3)
 
   expect_true(!exists("l5"))
-  expect_true(all(fitted(l7) == fitted(l6)))
-  expect_true(all(fitted(l7) == fitted(l8)))
-  expect_true(all(fitted(l7) == fitted(l9)))
-  expect_true(all(fitted(l7) == fitted(l10)))
+  expect_true(all.equal(fitted(l7), fitted(l6)))
+  expect_true(all.equal(fitted(l7), fitted(l8)))
+  expect_true(all.equal(fitted(l7), fitted(l9)))
+  expect_true(all.equal(fitted(l7), fitted(l10)))
 })

@@ -157,6 +157,9 @@ subset.optmatch.dlist <- function(x, subset, select, ...) {
   subset(as.matrix(x), subset, select, ...)
 }
 
+
+##' @method subdim optmatch.dlist
+##' @rdname subdim-methods
 subdim.optmatch.dlist <- function(x) {
   lapply(x, dim)
 }

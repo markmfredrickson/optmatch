@@ -7,6 +7,28 @@ library(optmatch)
 
 context("pairmatch function")
 
+# test whether two matches are the same. Uses all.equal on matched.distances
+# and exceedances to ignore errors below some tolerance. After checking those,
+# strips attributes that may differ but not break `identical` status.
+match_compare <- function(match1, match2) {
+  expect_true(all.equal(attr(match1, "matched.distances"),
+                        attr(match2, "matched.distances")))
+  expect_true(all.equal(attr(match1, "exceedances"),
+                        attr(match2, "exceedances")))
+
+  attr(match1, "matched.distances") <- NULL
+  attr(match2, "matched.distances") <- NULL
+  attr(match1, "hashed.distance") <- NULL
+  attr(match2, "hashed.distance") <- NULL
+  attr(match1, "exceedances") <- NULL
+  attr(match2, "exceedances") <- NULL
+  attr(match1, "call") <- NULL
+  attr(match2, "call") <- NULL
+
+  expect_true(identical(match1, match2))
+}
+
+
 test_that("No cross strata matches", {
   # test data
   Z <- rep(c(0,1), 4)
@@ -103,11 +125,7 @@ test_that("pairmatch UI cleanup", {
   X2 <- rnorm(n, mean = -2, sd = 2)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, X2, B)
-  rm(Z)
-  rm(X1)
-  rm(X2)
-  rm(B)
-  rm(n)
+  rm(list=c("Z", "X1", "X2", "B", "n"))
 
   m <- match_on(Z~X1 + X2, data=test.data)
 
@@ -115,16 +133,13 @@ test_that("pairmatch UI cleanup", {
 
   pm.form <- pairmatch(Z~X1 + X2, data=test.data)
 
-  attr(pm.dist, "call") <- NULL
-  attr(pm.form, "call") <- NULL
-  expect_true(identical(pm.dist, pm.form))
+  match_compare(pm.dist, pm.form)
 
   # with "with()"
 
   pm.with <- with(data=test.data, pairmatch(Z~X1 + X2))
 
-  attr(pm.with, "call") <- NULL
-  expect_true(identical(pm.dist, pm.with))
+  match_compare(pm.dist, pm.with)
 
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
@@ -138,12 +153,9 @@ test_that("pairmatch UI cleanup", {
 
   pm.glm <- pairmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2.5, remove.unmatchables=TRUE)
 
-  attr(pm.ps, "call") <- NULL
-  attr(pm.match, "call") <- NULL
-  attr(pm.glm, "call") <- NULL
-  expect_true(identical(pm.ps, pm.glm))
-  expect_true(identical(pm.ps, pm.match))
-  expect_true(identical(pm.glm, pm.match))
+  match_compare(pm.ps, pm.glm)
+  match_compare(pm.ps, pm.match)
+  match_compare(pm.glm, pm.match)
 
   # with scores
 
@@ -155,9 +167,7 @@ test_that("pairmatch UI cleanup", {
 
   pm.form <- pairmatch(Z~ X2 + scores(ps), data=test.data)
 
-  attr(pm.dist, "call") <- NULL
-  attr(pm.form, "call") <- NULL
-  expect_true(identical(pm.dist, pm.form))
+  match_compare(pm.dist, pm.form)
 
   # passing numeric
 
@@ -174,9 +184,7 @@ test_that("pairmatch UI cleanup", {
   m <- match_on(X1, z=Z, caliper=2)
   pm.mi <- pairmatch(m, data=test.data)
 
-  attr(pm.vector, "call") <- NULL
-  attr(pm.mi, "call") <- NULL
-  expect_true(identical(pm.vector, pm.mi))
+  match_compare(pm.vector, pm.mi)
 
   # function
 
@@ -185,10 +193,7 @@ test_that("pairmatch UI cleanup", {
   X1 <- rep(c(1,2,3,4), each = n/4)
   B <- rep(c(0,1), n/2)
   test.data <- data.frame(Z, X1, B)
-  rm(n)
-  rm(Z)
-  rm(X1)
-  rm(B)
+  rm(list=c("n", "Z", "X1", "B"))
 
   sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
@@ -201,9 +206,7 @@ test_that("pairmatch UI cleanup", {
   pm.func <- pairmatch(sdiffs, z = test.data$Z, data=test.data)
   expect_error(pairmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
 
-  attr(pm.funcres, "call") <- NULL
-  attr(pm.func, "call") <- NULL
-  expect_true(identical(pm.funcres, pm.func))
+  match_compare(pm.funcres, pm.func)
 
   # passing bad arguments
 
