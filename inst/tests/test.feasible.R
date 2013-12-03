@@ -35,15 +35,14 @@ test_that("Problems bigger than the max are not feasible", {
 })
 
 test_that("minExactMatch creates minimal exact match", {
-  # no subproblem can be bigger than 8x8
-  oldopts <- options("optmatch_max_problem_size" = 37) 
+  maxarcs <- 37
 
   df <- data.frame(Z = rep(c(1,0), 16),
                    E1 = rep(c(1,1,0,0,0,0,0,0), each = 4), # cuts size in 1/2, too big still
                    E2 = rep(c(1,1,0,0), 8),
                    E3 = rep(c(1,1,1,1,0,0,0,0), 4))
   
-  res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
+  res <- minExactMatch(Z ~ E1 + E2 + E3, data = df, maxarcs = maxarcs)
 
   expect_equal(length(levels(res)), 3) # uses E1 and partial E2, not E3
   expect_true(all(table(res) %in% c(8, 12)))
@@ -53,21 +52,32 @@ test_that("minExactMatch creates minimal exact match", {
 
   scores <- rep(1:8,4)
   # minExactMatch can also take a caliper width and a set of scores
-  minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 1)
+  minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 1, maxarcs = maxarcs)
 
   # if you pass one, you must pass both arguments
   expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, scores = scores), "width")
   expect_error(minExactMatch(Z ~ E1 + E2 + E3, data = df, width = 1), "scores")
 
   # the caliper whould allow the problem to be feasible, without using E2
-  res <- minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 0.5) # very narrow caliper
+  res <- minExactMatch(Z ~ E1 + E2, data = df, scores = scores, width = 0.5, maxarcs = maxarcs) # very narrow caliper
   expect_equal(length(levels(res)), 2) # goal: only split on E1
 
-  setFeasibilityConstants() # reset the values to make sure that other tests pass
-
   # don't oversplit: e.g. I(E1 + E2)
-  res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df)
-  expect_equal(length(levels(res)), 3)
+  # in the resulting factor the levels are 0, 1.0, 1.1, 2
+  # which indicate that E1 + E2 generates a factor with levels 0,1,2
+  # Level 0 and 2 are small enough that they can be kept after the first round
+  # Level 1 needs to be split again using E3 => 1.0 and 1.1
+  res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df, maxarcs = maxarcs)
+  expect_equal(length(levels(res)), 4) 
+
+  # now if we bump the max arcs to 65 we should be able to keep just the 3 levels of E1 + E2
+  res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df, maxarcs = 65)
+  expect_equal(length(levels(res)), 3) 
+
+  # short circuit if we don't need ot split
+  res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
+  expect_true(all(1 == res))
+  
 
 })
 
