@@ -47,6 +47,10 @@ test_that("minExactMatch creates minimal exact match", {
   expect_equal(length(levels(res)), 3) # uses E1 and partial E2, not E3
   expect_true(all(table(res) %in% c(8, 12)))
 
+  # checking that exactMatch can consume the results
+  em <- exactMatch(df$Z ~ res)
+  expect_equal(dim(em), c(16, 16))
+
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")
 
@@ -77,7 +81,10 @@ test_that("minExactMatch creates minimal exact match", {
   # short circuit if we don't need ot split
   res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
   expect_true(all(1 == res))
-  
+
+  # we should double check that the return during a short circuit is safe for exactMatch.
+  em <- exactMatch(df$Z ~ res)
+  expect_equal(dim(em), c(16, 16))
 
 })
 
