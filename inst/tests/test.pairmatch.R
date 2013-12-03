@@ -79,14 +79,23 @@ test_that("Compute omit fraction based on reachable treated units", {
 
   expect_true(!all(is.na(pairmatch(m[,1:4]))))
 
+  ## 12/3/13: The below is no longer correct. Per issue #74, 0.4 is the correct omit.fraction,
+  ## since subDivStrat now handles adjusting it for unmatchable controls automatically.
   # when the wrong omit.fraction value is computed both of these tests should fail
   # note: the correct omit.fraction to pass to fullmatch is 0.25
   # it is wrong to pass 0.4
   # and remove.unmatchables does not solve the problem
-  expect_true(!all(is.na(pairmatch(m))))
-  expect_true(!all(is.na(pairmatch(m, remove.unmatchables = TRUE))))
+  # expect_true(!all(is.na(pairmatch(m))))
+  # expect_true(!all(is.na(pairmatch(m, remove.unmatchables = TRUE))))
 
+  ## 12/3/13: With the update, 0.4 is correct. Remove.unmatchables = TRUE should operate the same here
+  p1 <- pairmatch(m)
+  p2 <- pairmatch(m, remove.unmatchables=TRUE)
 
+  expect_true(sum(is.na(p1)) == 2)
+  expect_true(all(p1==p2, na.rm=TRUE))
+  attr(p1, "call") <- attr(p2, "call") <- NULL
+  expect_true(identical(p1, p2))
 })
 
 test_that("Pass additional arguments to fullmatch", {

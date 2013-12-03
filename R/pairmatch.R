@@ -167,19 +167,8 @@ pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <
       }
     }
 
-    # a similar procedure is used to remove all control cols that
-    # are unreachable
-
-    if (inherits(prob, "matrix")) {
-      # drop any cols that are entirely NA
-      prob <- prob[, apply(prob, 2, function(col) {
-        any(is.finite(col)) })]
-    } else {
-        # assuming an InfinitySparseMatrix here
-        validcols <- which(1:(ncol(prob)) %in% prob@cols)
-        prob@dimension <- c(nrow(prob), length(validcols))
-        prob@colnames <- prob@colnames[validcols]
-    }
+    # No longer need to remove all controls that are unreachable because
+    # subDivStrat adjust omit.fraction automatically to accomodate them.
 
     nt <- nrow(prob)
     nc <- ncol(prob)
