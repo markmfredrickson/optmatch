@@ -73,6 +73,11 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
     return(as.factor(rep(1, dim(bigzb)[1])))
   }
 
+  msg <- getOption("optmatch_verbose_messaging")
+  if (msg) {
+    warning("minExactMatch: problem is large enough to require blocking. Entering loop.", date())
+  }
+
   previous <- rep(NA, dim(bigzb)[1]) # we store good subgroups here
 
   for(i in 1:k) {
@@ -96,6 +101,10 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
     good <- arcs <= maxarcs
 
     if (all(good[!is.na(good)])) { # some levels may be NAs
+        if (msg) {
+            warning("minExactMatch: exiting loop. Arcs:", arcs, "Selected levels:" , levels(B), date())
+        }
+
       names(B) <- rownames(z.b)
       return(B)  
     }
