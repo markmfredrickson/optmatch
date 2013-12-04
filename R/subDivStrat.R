@@ -32,9 +32,9 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   # needs to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction)) {
     omit.fraction <- (omit.fraction*length(colnames) - (length(colnames) - cfeas))/cfeas
-    # I don't think this should ever happen, but just in case...
-    if (omit.fraction > 1) {
-      stop("omit.fraction is too high in the presence of unmatchable controls")
+    # This can happen if the number to be omitted is less than the number of unmatchables
+    if (omit.fraction <= 0) {
+      omit.fraction <- NULL
     }
   }
 
