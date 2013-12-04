@@ -395,9 +395,9 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
     tol.frac <- (nrow + ncol - 2)/(total.n - 2 * np)
 
-    # if omf is specified (i.e. not NA), see if is greater than 0
+    # if omf is specified (i.e. not NA), see if is non-negative
     # if omf is not specified, check to see if mxctl is > .5
-    if (switch(1 + is.na(omf), omf > 0,  mxctl > .5)) {
+    if (switch(1 + is.na(omf), omf >= 0,  mxctl > .5)) {
       maxc <- min(mxctl, ncol)
       minc <- max(mnctl, 1/nrow)
       omf.calc <- omf
