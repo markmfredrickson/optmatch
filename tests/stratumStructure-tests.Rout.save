@@ -1,7 +1,7 @@
 
-R version 3.0.0 (2013-04-03) -- "Masked Marvel"
+R version 3.0.1 (2013-05-16) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -16,6 +16,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(optmatch)
+Loading required package: digest
 You're loading optmatch, by B. Hansen and M. Fredrickson.
  The optmatch package makes essential use of D. P. Bertsekas
  and P. Tseng's RELAX-IV algorithm and code, as well as
@@ -77,14 +78,16 @@ In fullmatch(psd/(psd < 0.25)) :
 +               standardization.scale = sd,
 +               within = exactMatch(pr ~ pt, nuclearplants))
 > stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1))
-1:0 1:1 0:1 
-  7   3  19 
+1:1 0:1 
+ 10  12 
 attr(,"comparable.num.matched.pairs")
-[1] 3
-Warning message:
-In fullmatch(psd2, min.controls = 1, max.controls = 1) :
+[1] 10
+Warning messages:
+1: In fullmatch(psd2, min.controls = 1, max.controls = 1) :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
+2: In fullmatch.BlockedInfinitySparseMatrix(psd2, min.controls = 1,  :
+  The problem is infeasible with the given constraints; some units were omitted to allow a match.
 > stratumStructure(fullmatch(psd2,min.controls=3,max.controls=3))
 1:0 0:1 
  10  22 
@@ -132,4 +135,4 @@ attr(,"comparable.num.matched.pairs")
 > 
 > proc.time()
    user  system elapsed 
-  1.199   0.059   1.239 
+  1.296   0.020   1.317 

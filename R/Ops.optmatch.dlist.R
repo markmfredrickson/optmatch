@@ -1,11 +1,11 @@
-Ops.optmatch.dlist <- function (e1, e2=NULL) 
+Ops.optmatch.dlist <- function (e1, e2=NULL)
 {
     ok <- switch(.Generic, "%%" = , "%/%" = FALSE, TRUE)
     if (!ok) {
         warning(.Generic, " not meaningful for matching distances; returning 1st arg")
         return(e1)
     }
-    
+
     unary <- nargs() == 1
 
     if (nchar(.Method[1])) {
@@ -33,29 +33,29 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     if (any(is.na(rn12rn2)) && any(is.na(rn22rn1))) stop("arguments\' row names attributes don't match")
     if (!any(is.na(rn12rn2)) && any(diff(rn12rn2)<0)) stop("arguments\' row names inconsistently ordered")
     if (!any(is.na(rn22rn1)) && any(diff(rn22rn1)<0)) stop("arguments\' row names inconsistently ordered")
-    
+
     # the proper behavior is:
     # - make sure the two objects have same length
     # - in each item, make sure the row and column names are the same
     # if either is not met, fail
 
     if (setequal(sc1,sc2)) {
-      # if they have the same names, great. proceed, perhaps reording e2 
+      # if they have the same names, great. proceed, perhaps reording e2
       e2 <- e2[sc1]
     } else {
       if (length(sc1) != length(sc2)) {
-        stop("arguments must have equal number of subproblems")  
+        stop("arguments must have equal number of subproblems")
       }
-      
-      k <- length(sc1) 
+
+      k <- length(sc1)
       for (i in 1:k) {
         if (!identical(dimnames(e1[[i]]), dimnames(e2[[i]]))) {
-          stop("arguments must have identically named subproblem matrices")  
-        }  
+          stop("arguments must have identically named subproblem matrices")
+        }
       }
     }
 
-     
+
      dm11 <- lapply(e1, function(x) {if (is.null(dim(x))) {length(x)} else {dim(x)[1]}})
      dm11 <- unlist(dm11)
      dm12 <- lapply(e2, function(x) {if (is.null(dim(x))) {1} else {dim(x)[2]}})
@@ -70,12 +70,12 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
   }
     value <- list()
     FUN <- get(.Generic, envir = parent.frame(), mode = "function")
-     f <- if (unary) 
+     f <- if (unary)
         quote(FUN(left))
     else quote(FUN(left, right))
 
 
-    
+
     if (nchar(.Method[1]) )
       {
       for (j in 1:length(e1))
@@ -88,7 +88,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
         }
           value[[j]] <- eval(f)
         }
-      
+
       names(value) <- sc1
 
       if (length(e1.nullentries))
@@ -106,9 +106,9 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
           left <- e1
           value[[j]] <- eval(f)
         }
-      
+
       names(value) <- sc2
-          
+
           if (length(e2.nullentries))
             {
             value <- c(value, e2.nullentries)
@@ -116,7 +116,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
             }
         }
     }
-    
+
     class(value) <- c('optmatch.dlist', 'list')
     if (length(rn1)>length(rn2))
       {
@@ -124,7 +124,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
         } else {
           attr(value, "row.names") <- rn2
         }
-    
+
     value
   }
 
@@ -150,9 +150,16 @@ as.matrix.optmatch.dlist <- function(x, ...) {
     subcols <- colnames(submatrix)
     tmp[subrows, subcols] <- submatrix
   }
-  return(tmp)  
+  return(tmp)
 }
 
 subset.optmatch.dlist <- function(x, subset, select, ...) {
-  subset(as.matrix(x), subset, select, ...)  
+  subset(as.matrix(x), subset, select, ...)
+}
+
+
+##' @method subdim optmatch.dlist
+##' @rdname subdim-methods
+subdim.optmatch.dlist <- function(x) {
+  lapply(x, dim)
 }

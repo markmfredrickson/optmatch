@@ -24,7 +24,7 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   expect_equal(dim(res), c(7,4)) # seven non-Inf entries
 
-  # check that A-D is a pair and A-B is not a match 
+  # check that A-D is a pair and A-B is not a match
   expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
   expect_equal(res[res$control == "A" & res$treated == "B",
     "solution"], numeric(0))
@@ -55,7 +55,7 @@ test_that("Solutions -> factor helper", {
   groupOfFour <- cbind(skeleton, solution = c(1,1,0,1,1,0,1))
   gof.expected <- c(1,2,1,1,2,1)
   names(gof.expected) <- c("D", "E", "F", "A", "B", "C")
-  
+
   expect_equal(solution2factor(groupOfFour), gof.expected)
 
   treatedNotMatched <- cbind(skeleton, solution = c(1,0,0,1,1,0,0))
@@ -67,13 +67,42 @@ test_that("Solutions -> factor helper", {
   controlNotMatched <- cbind(skeleton, solution = c(0,0,1,1,0,0,1))
   cnm.expected <- c(1, 1, 3, NA, 1, 3)
   names(cnm.expected) <- c("D", "E", "F", "A", "B", "C")
-  
+
   expect_equal(solution2factor(controlNotMatched), cnm.expected)
 
   # handles failed matchings by returning NULL
   noMatches <- cbind(skeleton, solution = -1)
-  
+
   expect_true(is.null(solution2factor(noMatches)))
 })
 
+test_that("Fallback version of optmatch solver", {
+  data(nuclearplants)
 
+  expect_true(is.null(options()$use_fallback_optmatch_solver))
+
+  f1 <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  # turn fallback on
+
+  options("use_fallback_optmatch_solver" = TRUE)
+  f2 <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  expect_true(!is.null(options()$use_fallback_optmatch_solver))
+
+  # turn fallback off again
+
+  options("use_fallback_optmatch_solver" = FALSE)
+  f3 <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  # And make it nonsense
+
+  options("use_fallback_optmatch_solver" = "fdjsklf")
+  f4 <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  # There should be no practical difference between these
+  expect_identical(f1,f2)
+  expect_identical(f1,f3)
+  expect_identical(f1,f4)
+
+})

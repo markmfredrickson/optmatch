@@ -29,44 +29,45 @@ makedist <- function(z, data, distancefn, within = NULL) {
   } else {
     namefn <- rownames
   }
+  rns <- namefn(data)[as.logical(z)]
+  cns <- namefn(data)[!as.logical(z)]
 
-  rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
-  cns <- namefn(subset(data, !as.logical(z)))
+  # rns <- namefn(subset(data, as.logical(z))) # the d.f subset requries the as.logical. weird
+  # cns <- namefn(subset(data, !as.logical(z)))
 
   if (length(cns) == 0 | length(rns) == 0) {
     stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
   }
 
+  warning.requested <- getOption("optmatch_warn_on_big_problem", default = TRUE)
+
   if (is.null(within)) {
     # without a within, make a dense matrix    
     nc <- length(cns)
     nr <- length(rns)
-    
-    res <- new("DenseMatrix", matrix(0, nrow = nr, ncol = nc, dimnames =
-                                     list(treatment = rns, control = cns)))
-    
     # matrices have column major order
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
     
-    if (nc * nr > getMaxProblemSize()) {
+    if ((nc * nr > getMaxProblemSize()) && warning.requested) {
+
       warning("I've been asked to compute a large number of treatment-control distances. 
 The result will present too large an optimization problem for optimal matching.  
 You can split up or simplify the problem by providing an appropriate 'within'
 argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details.")  
+
     }
 
   } else {
     # with a within, make a copy and only fill in the finite entries of within
-    res <- within
     
     if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
         !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
       stop("Row and column names of within must match those of the data.")  
     }
 
-    treatmentids <- res@rownames[res@rows]
-    controlids <- res@colnames[res@cols]
+    treatmentids <- within@rownames[within@rows]
+    controlids <- within@colnames[within@cols]
 
     # TODO: check that the rownames, colnames of within match data
     subprobs <- findSubproblems(within)
@@ -75,7 +76,7 @@ argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details."
       issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
     }
    
-    if(issue.warning) {
+    if(issue.warning && warning.requested) {
       warning("I've been asked to compute a large number of treatment-control distances. 
 Even with the provided 'within' argument, the result will present too large 
 an optimization problem for optimal matching. Please use a more restrictive 
@@ -86,8 +87,16 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
 
   dists <- distancefn(cbind(treatmentids, controlids), data, z)
 
-  res <- replace(res, 1:length(res), dists)
-
+  # z was copied <- toZ(z) so should be safe to rm
+  # before massive matrix alloc
+  rm(treatmentids, controlids, z)
+  
+  if(is.null(within)) {
+      res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
+                                       list(treatment = rns, control = cns)))
+  } else {
+      res <- replace(within, 1:length(within), dists)
+  }
   return(res)
 }
 
