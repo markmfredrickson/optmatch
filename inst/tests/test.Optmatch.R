@@ -361,3 +361,100 @@ test_that("num_eligible_matches", {
 
 
 })
+
+test_that("equality of matches", {
+  data(nuclearplants)
+
+  # Truly identical matches
+  f1 <- fullmatch(pr ~ cost, data=nuclearplants)
+  f2 <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  expect_true(match_equality(f1, f2))
+
+  # Completely different matched
+  data(plantdist)
+  expect_warning(p1 <- fullmatch(plantdist), "Without \'data\'")
+
+  expect_false(match_equality(p1,f1))
+
+  # Same match, different call
+  f3 <- fullmatch(pr ~ cost, data=nuclearplants, max=100)
+
+  expect_true(match_equality(f1, f3))
+
+  # Matches with unmatched objects
+  expect_warning(f4 <- fullmatch(pr ~ cost, data=nuclearplants, max=1), "infeasible")
+  expect_warning(f5 <- fullmatch(pr ~ cost, data=nuclearplants, max=1, min=1), "infeasible")
+
+  expect_true(match_equality(f4,f5))
+
+  # Make sure its not returning true for everything!
+  expect_false(match_equality(f1,f4))
+  expect_false(match_equality(f3,f5))
+
+  # Re-ordering
+  nuclearplants2 <- nuclearplants[sample(1:nrow(nuclearplants)),]
+
+  f6 <- fullmatch(pr ~ cost, data=nuclearplants2)
+  # f1, f2, f6 are all the same, but f6 has a different order
+  expect_true(all(f1 == f2))
+  expect_false(all(f1 == f6))
+  # But match_equality doesn't care!
+  expect_true(match_equality(f1, f6))
+
+  # Try with blocked
+  b1 <- fullmatch(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ne, data=nuclearplants))
+  nuclearplants$ne2 <- 1 - nuclearplants$ne
+  b2 <- fullmatch(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ne2, data=nuclearplants))
+
+  expect_error(all(b1 == b2), "sets of factors are different")
+  # But match_equality doesn't care!
+  expect_true(match_equality(b1, b2))
+
+  # Make some wonky observation names
+  row.names(nuclearplants) <- sapply(1:nrow(nuclearplants), function(x)
+                                     paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
+
+  w1 <- fullmatch(pr ~ cost, data=nuclearplants)
+  w2 <- fullmatch(pr ~ cost, data=nuclearplants, max=10)
+  expect_true(match_equality(w1,w2))
+
+  wb1 <- fullmatch(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ne, data=nuclearplants))
+  wb2 <- fullmatch(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ne2, data=nuclearplants))
+
+  expect_error(all(wb1 == wb2), "sets of factors are different")
+  # But match_equality doesn't care!
+  expect_true(match_equality(wb1, wb2))
+
+  # If we drop NA members, should be the same match
+  f4_dropna<- f4[!is.na(f4)]
+  expect_true(match_equality(f4, f4_dropna))
+
+  # The problem that motivated this function: Two matches are identical, except one has an extra NA
+  f4b <- f4
+  f4b[1] <- NA
+
+  # This doesn't catch it!
+  expect_true(all(f4 == f4b, na.rm=TRUE))
+
+  # This does!
+  expect_false(match_equality(f4, f4b))
+
+  # Differing names should always be false.
+  f1b <- f1
+  names(f1b)[1] <- "Z"
+  expect_false(match_equality(f1, f1b))
+
+  f1c <- f1
+  names(f1c)[1] <- "A"
+  expect_false(match_equality(f1, f1c))
+
+  ## # Saving this to test time.
+  ## n <- 20000
+  ## s1 <- as.factor(sample(letters, n, TRUE))
+  ## names(s1) <- sample(LETTERS, n, TRUE)
+  ## s2 <- s1[sample(seq_along(s1), n, TRUE)]
+  ## system.time(match_equality(s1,s2))
+  ## # Taking about .3sec on laptop.
+
+})
