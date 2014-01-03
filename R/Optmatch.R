@@ -271,7 +271,7 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
 ##' @param o1 First optmatch object.
 ##' @param o2 Second optmatch object.
 ##' @return TRUE if the two matches have the same memberships.
-match_equality <- function(o1, o2) {
+compare_optmatch <- function(o1, o2) {
   if (length(setdiff(names(o1[!is.na(o1)]), names(o2[!is.na(o2)]))) > 0) {
     return(FALSE)
   }
