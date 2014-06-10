@@ -279,12 +279,17 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     stop("argument \'max.controls\' must be numeric")
   }
   if (!is.null(omit.fraction)) {
-    if (any(abs(omit.fraction) > 1, na.rm = TRUE) | !is.numeric(omit.fraction)) {
+    # A vector of all NA's is logical, not numeric, so the first condition is needed.
+    if (all(is.na(omit.fraction))) {
+      omit.fraction <- NULL
+    } else if (any(abs(omit.fraction) > 1, na.rm = TRUE) | !is.numeric(omit.fraction)) {
       stop("omit.fraction must be NULL or numeric between -1 and 1")
     }
   }
   if (!is.null(mean.controls)) {
-    if (any(mean.controls <= 0, na.rm = TRUE) | !is.numeric(mean.controls)) {
+    if (all(is.na(mean.controls))) {
+      mean.controls <- NULL
+    } else if (any(mean.controls <= 0, na.rm = TRUE) | !is.numeric(mean.controls)) {
       stop("mean.controls must be NULL or numeric greater than 0")
     }
   }

@@ -75,6 +75,42 @@ test_that("mean.controls should do the same as omit.fraction", {
 
 })
 
+test_that("Allow passing all NA to mean.controls or omit.fraction", {
+  data(nuclearplants)
+  m <- exactMatch(pr ~ pt, data=nuclearplants)
+
+  f <- fullmatch(m, data=nuclearplants)
+
+  fm1 <- fullmatch(m, data=nuclearplants, mean.controls=c(NA,NA))
+  fm2 <- fullmatch(m, data=nuclearplants, mean.controls=NA)
+  fm3 <- fullmatch(m, data=nuclearplants, mean.controls=c(NULL, NULL))
+  fm4 <- fullmatch(m, data=nuclearplants, mean.controls=NULL)
+  fm5 <- fullmatch(m, data=nuclearplants, mean.controls=c(NA, NULL))
+
+  fo1 <- fullmatch(m, data=nuclearplants, omit.fraction=c(NA,NA))
+  fo2 <- fullmatch(m, data=nuclearplants, omit.fraction=NA)
+  fo3 <- fullmatch(m, data=nuclearplants, omit.fraction=c(NULL, NULL))
+  fo4 <- fullmatch(m, data=nuclearplants, omit.fraction=NULL)
+  fo5 <- fullmatch(m, data=nuclearplants, omit.fraction=c(NA, NULL))
+
+  attr(f, "call") <- NULL
+  attr(fm1, "call") <- attr(fm2, "call") <- attr(fm3, "call") <- attr(fm4, "call") <- attr(fm5, "call") <- NULL
+  attr(fo1, "call") <- attr(fo2, "call") <- attr(fo3, "call") <- attr(fo4, "call") <- attr(fo5, "call") <- NULL
+
+  expect_true(identical(f, fm1))
+  expect_true(identical(f, fm2))
+  expect_true(identical(f, fm3))
+  expect_true(identical(f, fm4))
+  expect_true(identical(f, fm5))
+
+  expect_true(identical(f, fo1))
+  expect_true(identical(f, fo2))
+  expect_true(identical(f, fo3))
+  expect_true(identical(f, fo4))
+  expect_true(identical(f, fo5))
+
+})
+
 test_that("Correctly apply max.controls", {
   set.seed(2)
   x <- runif(20)

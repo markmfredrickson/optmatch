@@ -19,6 +19,9 @@ test_that("Caliper return values", {
 
   # make sure that matrix input does same thing
   expect_equivalent(caliper(A, 2), caliper(m, 2))
+
+  # values option returns the value from the object directly
+  expect_equivalent(caliper(A,2) + A, caliper(A, 2, values = T))
 })
 
 test_that("Caliper exclusion", {

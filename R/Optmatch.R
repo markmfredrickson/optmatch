@@ -257,3 +257,28 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   } else call
 
 }
+
+##' Compares the equality of optmatch objects, ignoring attributes and group names.
+##'
+##' This checks the equality of two optmatch objects. The only bits that matter are unit names
+##' and the grouping. Other bits such as attributes, group names, order, etc are ignored.
+##'
+##' The names of the units can differ on any unmatched units, e.g., units whose value in the optmatch
+##' object is \code{NA}. If matched objects have differing names, this is automatically \code{FALSE}.
+##'
+##' Note this ignores the names of the subgroups. So four members in subgroups either
+##' \code{c("a", "a", "b", "b")} or \code{c("b", "b", "a", "a")} would be identical to this call.
+##' @param o1 First optmatch object.
+##' @param o2 Second optmatch object.
+##' @return TRUE if the two matches have the same memberships.
+compare_optmatch <- function(o1, o2) {
+  if (length(setdiff(names(o1[!is.na(o1)]), names(o2[!is.na(o2)]))) > 0) {
+    return(FALSE)
+  }
+
+  # Creates a list of the names of the members of each subgroup
+  l1 <- lapply(levels(o1), function(x) sort(names(o1)[o1 == x]))
+  l2 <- lapply(levels(o2), function(x) sort(names(o2)[o2 == x]))
+
+  return(length(setdiff(l1,l2)) == 0)
+}

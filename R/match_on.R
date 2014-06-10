@@ -161,13 +161,19 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
 
-  which.method <- pmatch(method, c("mahalanobis", "euclidean"), 3)
-  tmp <- switch(which.method,
-                makedist(z, data, compute_mahalanobis, within),
-                makedist(z, data, compute_euclidean, within),
-                makedist(z, data, match.fun(method), within)
-                )
+ 
+  if(is.character(method)){ 
+    methodname <- method
+  } else { 
+    methodname <- as.character(class(method)) 
+  } 
 
+  which.method <- pmatch(methodname, c("mahalanobis", "euclidean","function"), 3)
+  tmp <- switch(which.method,
+		makedist(z, data, compute_mahalanobis, within),
+		makedist(z, data, compute_euclidean, within),
+		makedist(z, data, match.fun(method), within)
+		)
   rm(mf)
 
   if (is.null(caliper)) {
@@ -230,7 +236,7 @@ compute_mahalanobis <- function(index, data, z) {
     cv <- mt + mc
     rm(mt, mc)
 
-    inv.scale.matrix <- try(solve(cv))
+    inv.scale.matrix <- try(solve(cv), silent = TRUE)
 
     if (inherits(inv.scale.matrix,"try-error")) {
       dnx <- dimnames(cv)
