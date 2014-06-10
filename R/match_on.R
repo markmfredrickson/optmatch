@@ -236,7 +236,7 @@ compute_mahalanobis <- function(index, data, z) {
     cv <- mt + mc
     rm(mt, mc)
 
-    inv.scale.matrix <- try(solve(cv))
+    inv.scale.matrix <- try(solve(cv), silent = TRUE)
 
     if (inherits(inv.scale.matrix,"try-error")) {
       dnx <- dimnames(cv)
