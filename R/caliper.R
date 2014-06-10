@@ -40,7 +40,12 @@ NA
 #' @param x A distance specification created with \code{\link{match_on}} or similar.
 #' @param width The width of the caliper: how wide of a margin to allow in matches. Must be a scalar value.
 #' @param exclude (Optional) A character vector of observations (corresponding to row and column names) to exclude from the caliper.
-#' @param compare A function that decides that whether two observations are with the caliper. The default is \code{`<=`}. \code{`<`} is a common alternative.
+#' @param compare A function that decides that whether two
+#' observations are with the caliper. The default is
+#' \code{`<=`}. \code{`<`} is a common alternative.
+#' @param values Should the returned object be made of all zeros
+#' (\code{values = FALSE}, the default) or should the object include
+#' the values of the original object (\code{values = TRUE})?
 #' @return A matrix like object that is suitable to be given
 #' as \code{distance} argument to \code{\link{fullmatch}} or
 #' \code{\link{pairmatch}}. The caliper will be only zeros and \code{Inf} values,
@@ -51,7 +56,7 @@ NA
 #' @export
 #' @docType methods
 #' @rdname caliper-methods
-setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`) {
+setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
   if (length(width) > 1) {
     stop("Argument `width` must be a scalar value, not a vector.")
   }
@@ -64,7 +69,7 @@ setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`) {
 #' @rdname caliper-methods
 #' @aliases caliper,InfinitySparseMatrix-method
 setMethod("caliper", "InfinitySparseMatrix",
-function(x, width = 1, exclude = c(), compare = `<=`) {
+function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
 
   excluded.rows <- which(x@rownames %in% exclude)
   excluded.cols <- which(x@colnames %in% exclude)
@@ -73,7 +78,9 @@ function(x, width = 1, exclude = c(), compare = `<=`) {
                      x@rows %in% excluded.rows |
                      x@cols %in% excluded.cols)
 
-  y@.Data <- rep(0, length(y@.Data))
+  if (!values) {
+    y@.Data <- rep(0, length(y@.Data))
+  }
 
   return(y)
 })
@@ -81,13 +88,13 @@ function(x, width = 1, exclude = c(), compare = `<=`) {
 #' @rdname caliper-methods
 #' @aliases caliper,matrix-method
 setMethod("caliper", "matrix",
-function(x, width = 1, exclude = c(), compare = `<=`) {
-  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare)  
+function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, values = values)  
 })
 
 #' @rdname caliper-methods
 #' @aliases caliper,optmatch.dlist-method
 setMethod("caliper", "optmatch.dlist",
-function(x, width = 1, exclude = c(), compare = `<=`) {
-  caliper(as.matrix(x), width = width, exclude = exclude, compare = compare)  
+function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+  caliper(as.matrix(x), width = width, exclude = exclude, compare = compare, values = values)  
 })
