@@ -33,10 +33,6 @@ test_that("ISM Basics", {
   expect_equivalent(as(D, "matrix"), y)
   expect_equivalent(A, as(m, "InfinitySparseMatrix"))
 
-  # should not be able to convert non-numeric matrices
-  charmat <- matrix(letters[1:4], nrow = 2, dimnames = list(c(1,2), c(3,4)))
-  expect_error(as.InfinitySparseMatrix(charmat))
-
 })
 
 test_that("ISM Handles Names", {
@@ -124,7 +120,7 @@ test_that("Math ops with vectors", {
 
   # Small matrix with manual calculation
   m <- matrix(c(1, 4, 2, 3), nrow = 2, ncol = 2)
-  A <- as.InfinitySparseMatrix(m)
+  A <- optmatch:::as.InfinitySparseMatrix(m)
   v <- 1:2
 
   expect_true(all.equal(attributes(A), attributes(A/v)))
@@ -158,6 +154,14 @@ test_that("Math ops with vectors", {
   expect_true(all(as.vector(v^A) == c(1,16,1,8)))
   expect_true(all(as.vector(v%%A) == c(0,2,1,2)))
   expect_true(all(as.vector(v%/%A) == c(1,0,0,0)))
+
+  # Logical operations
+  m2 <- m
+  m2[1,2] <- Inf
+  A2 <- optmatch:::as.InfinitySparseMatrix(m2)
+  expect_is(A2 <= c(1,3), "InfinitySparseMatrix")
+  expect_equal(as.vector(A2 <= c(1,3)), c(T, F, T))
+  expect_equal(as.vector(c(1,3) >= A2), c(T, F, T))
 
   # BlockedInfinitySparseMatrix
   x <- c(rep(1,4), rep(2,2), rep(3,5))
@@ -193,8 +197,8 @@ test_that("Math ops with vectors", {
   options(warn=0)
 
   # Error on non-numeric input
-  expect_error("a"*A, "Non-numeric arithmetic not supported")
-  expect_error(A*factor(1), "Non-numeric arithmetic not supported")
+  expect_error("a"*A, "non-numeric")
+
 })
 
 test_that("Subsetting", {
