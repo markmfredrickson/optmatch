@@ -222,18 +222,21 @@ function(e1, e2) {
   callGeneric(e1, as.matrix(e2))
 })
 
+binaryOpHelperVector <- function(i, v) {
+  vn <- length(v)
+  vpos <- ((i@cols - 1) * i@dimension[1] + i@rows) %% vn
+  vpos[vpos == 0] <- vn
+  return(v[vpos])
+}
+
 setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "vector"),
 function(e1, e2) {
   if(!is.numeric(e2)) {
     stop("Non-numeric arithmetic not supported")
   }
-  out <- e1 # all attributes should be identical
-  # calculate which entry in the vector each entry in the ISM corresponds to, to allow
-  # replication of the vector
-  e2pos <- ((e1@cols - 1)*e1@dimension[1] + e1@rows)%%length(e2)
-  e2pos[e2pos == 0] <- length(e2)
-  out@.Data <- callGeneric(e1@.Data, e2[e2pos])
-  return(out)
+  newv <- binaryOpHelperVector(e1, e2)
+  e1@.Data <- callGeneric(e1@.Data, newv)
+  return(e1)
 })
 
 setMethod("Arith", signature(e1 = "vector", e2 = "InfinitySparseMatrix"),
@@ -241,13 +244,9 @@ function(e1, e2) {
   if(!is.numeric(e1)) {
     stop("Non-numeric arithmetic not supported")
   }
-  out <- e2 # all attributes should be identical
-  # calculate which entry in the vector each entry in the ISM corresponds to, to allow
-  # replication of the vector
-  e1pos <- ((e2@cols - 1)*e2@dimension[1] + e2@rows)%%length(e1)
-  e1pos[e1pos == 0] <- length(e1)
-  out@.Data <- callGeneric(e1[e1pos], e2@.Data)
-  return(out)
+  newv <- binaryOpHelperVector(e2, e1)
+  e2@.Data <- callGeneric(newv, e2@.Data)
+  return(e2)
 })
 
 
