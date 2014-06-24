@@ -74,7 +74,7 @@ function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
   excluded.rows <- which(x@rownames %in% exclude)
   excluded.cols <- which(x@colnames %in% exclude)
 
-  y <- discardOthers(x, compare(x@.Data, width) | 
+  y <- discardOthers(x, as.vector(compare(x, width)) | 
                      x@rows %in% excluded.rows |
                      x@cols %in% excluded.cols)
 
