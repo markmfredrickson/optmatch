@@ -24,3 +24,6 @@ pairmatch(mhd.pptyc, data = nuclearplants)
 
 ### Excluding observations from caliper requirements:
 caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f"))
+
+### Returning values directly (equal up to the the attributes)
+all.equal(caliper(ppty.dist) + ppty.dist, caliper(ppty.dist, values = TRUE), check.attributes = FALSE)

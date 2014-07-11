@@ -24,7 +24,7 @@ setClass("InfinitySparseMatrix",
   representation(cols = "numeric", rows = "numeric", dimension = "numeric",
     colnames = "OptionalCharacter", rownames = "OptionalCharacter",
     call = "OptionalCall"),
-  contains = "numeric")
+  contains = "vector")
 
 # using a maker function for now, probably should be an initialize function
 #' (Internal) Creating sparse matching problems
@@ -106,9 +106,6 @@ setAs("InfinitySparseMatrix", "matrix", function(from) { as.matrix(from) })
 # })
 
 setAs("matrix", "InfinitySparseMatrix", function(from) {
-  if (!is.numeric(from)) {
-    stop("matrix must be numeric")
-  }
 
   dims <- dim(from) ; nrow <- dims[1] ; ncol <- dims[2]
   finite <- is.finite(from)
@@ -152,9 +149,9 @@ setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
 })
 
 ################################################################################
-# Infinity Sparse Matrix: Math Ops
+# Infinity Sparse Matrix: Binary Ops
 ################################################################################
-setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
 function(e1, e2) {
   if (!identical(dim(e1), dim(e2))) {
     stop(paste("non-conformable matrices"))
@@ -202,55 +199,50 @@ function(e1, e2) {
   return(tmp)
 })
 
-setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"),
+setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"),
 function(e1, e2) {
   callGeneric(e1, as.InfinitySparseMatrix(e2))
 })
 
-setMethod("Arith", signature(e1 = "matrix", e2 = "InfinitySparseMatrix"),
+setMethod("Ops", signature(e1 = "matrix", e2 = "InfinitySparseMatrix"),
 function(e1, e2) {
   callGeneric(as.InfinitySparseMatrix(e1), e2)
 })
 
-setMethod("Arith", signature(e1 = "optmatch.dlist", e2 = "InfinitySparseMatrix"),
+setMethod("Ops", signature(e1 = "optmatch.dlist", e2 = "InfinitySparseMatrix"),
 function(e1, e2) {
   callGeneric(as.matrix(e1), e2)
 })
 
-setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "optmatch.dlist"),
+setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "optmatch.dlist"),
 function(e1, e2) {
   callGeneric(e1, as.matrix(e2))
 })
 
-setMethod("Arith", signature(e1 = "InfinitySparseMatrix", e2 = "vector"),
+################################################################################
+# Operations over vectors and ISMs
+################################################################################
+
+binaryOpHelperVector <- function(i, v) {
+  vn <- length(v)
+  vpos <- ((i@cols - 1) * i@dimension[1] + i@rows) %% vn
+  vpos[vpos == 0] <- vn
+  return(v[vpos])
+}
+
+setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "vector"),
 function(e1, e2) {
-  if(!is.numeric(e2)) {
-    stop("Non-numeric arithmetic not supported")
-  }
-  out <- e1 # all attributes should be identical
-  # calculate which entry in the vector each entry in the ISM corresponds to, to allow
-  # replication of the vector
-  e2pos <- ((e1@cols - 1)*e1@dimension[1] + e1@rows)%%length(e2)
-  e2pos[e2pos == 0] <- length(e2)
-  out@.Data <- callGeneric(e1@.Data, e2[e2pos])
-  return(out)
+  newv <- binaryOpHelperVector(e1, e2)
+  e1@.Data <- callGeneric(e1@.Data, newv)
+  return(e1)
 })
 
-setMethod("Arith", signature(e1 = "vector", e2 = "InfinitySparseMatrix"),
+setMethod("Ops", signature(e1 = "vector", e2 = "InfinitySparseMatrix"),
 function(e1, e2) {
-  if(!is.numeric(e1)) {
-    stop("Non-numeric arithmetic not supported")
-  }
-  out <- e2 # all attributes should be identical
-  # calculate which entry in the vector each entry in the ISM corresponds to, to allow
-  # replication of the vector
-  e1pos <- ((e2@cols - 1)*e2@dimension[1] + e2@rows)%%length(e1)
-  e1pos[e1pos == 0] <- length(e1)
-  out@.Data <- callGeneric(e1[e1pos], e2@.Data)
-  return(out)
+  newv <- binaryOpHelperVector(e2, e1)
+  e2@.Data <- callGeneric(newv, e2@.Data)
+  return(e2)
 })
-
-
 
 ################################################################################
 # Manipulating matrices: subset, cbind, rbind, etc
@@ -389,7 +381,7 @@ setClass("BlockedInfinitySparseMatrix",
 # in both of the next two methods I use callGeneric(as(...), ...)
 # I would have prefered callNextMethod, but I kept getting errors,
 # so I manually made the call to the parent class.
-setMethod("Arith", signature(e1 = "BlockedInfinitySparseMatrix",
+setMethod("Ops", signature(e1 = "BlockedInfinitySparseMatrix",
                              e2 = "BlockedInfinitySparseMatrix"),
 function(e1, e2) {
   tmp <- callGeneric(as(e1, "InfinitySparseMatrix"), as(e2, "InfinitySparseMatrix"))
@@ -404,7 +396,7 @@ function(e1, e2) {
 })
 
 # the case where BISM is first is covered above
-setMethod("Arith", signature(e1 = "InfinitySparseMatrix",
+setMethod("Ops", signature(e1 = "InfinitySparseMatrix",
                              e2 = "BlockedInfinitySparseMatrix"),
 function(e1, e2) {
   tmp <- callGeneric(e1, as(e2, "InfinitySparseMatrix"))

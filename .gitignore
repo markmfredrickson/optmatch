@@ -16,3 +16,4 @@ performance.tex
 performance-*.pdf
 vignettes/performance/*.rda
 *.swp
+.pkgexclude

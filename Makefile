@@ -178,7 +178,7 @@ vignettes/performance/performance.pdf: .local/optmatch/INSTALLED .local/profr/IN
 																			 vignettes/performance/matching.rda \
 																			 vignettes/performance/mdist.rda \
 																			 vignettes/performance/scaling.rda
-	cd vignettes/performance && R_LIBS=../../.local R --vanilla CMD Sweave performance.Rnw
+	cd vignettes/performance && R_LIBS=../../.local R --vanilla -e "Sweave('performance.Rnw')"
 	cd vignettes/performance && latexmk -pdf performance.tex
 
 vignettes/performance/setup.rda: .local/optmatch/INSTALLED vignettes/performance/setup.R
