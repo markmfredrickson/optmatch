@@ -1,3 +1,20 @@
+CHANGES IN OPTMATCH VERSION 0.9-2
+
+* Fixed issue #74 by properly setting the `omit.fraction` argument
+  when there are unmatched controls.
+* Improvements to the `minExactMatch` function.
+* Added "optmatch_verbose_message" option to provide additional
+  warnings.
+* Fixed crash when all NULL or NA vectors passed as arguments to
+  `fullmatch`.
+* Added argument to `caliper` function that allows returning values
+  that fit the caliper instead of just indicators of which entries fit
+  the caliper width.
+* Calipers widths can be given per-treated unit, instead of globally.
+* Additional binary operators for sparse matrix representations.
+* Added new ranked Mahalanobis method for the formula method of
+  `match_on`.
+
 CHANGES IN OPTMATCH VERSION 0.9-1
 
 * Subsetting of optmatch objects now preserves (and subsets)
