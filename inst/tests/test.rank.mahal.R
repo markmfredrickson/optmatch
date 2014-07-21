@@ -43,6 +43,11 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
     X <- matrix(runif(nr * nc), nr)
 
-    expect_that(compute_rank.mahalanobis(NULL, X, as.logical(z)),
+    expect_that(compute_rank_mahalanobis(NULL, X, as.logical(z)),
                 is_equivalent_to(compute_smahal(z, X)))
+
+    expect_equivalent(as.matrix(match_on(z ~ X, method = "rank")), compute_smahal(z, X))
+
+    df <- data.frame(z = z, X)
+    expect_equivalent(as.matrix(match_on(z ~ ., data = df, method = "rank")), compute_smahal(z, X))
 })

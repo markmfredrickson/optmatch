@@ -69,7 +69,7 @@ test_that("Distances from formulas", {
     .00001)) # there is some rounding error, but it is small
 
   # passing a function name for method
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "compute_euclidean") - euclid) <
+  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = compute_euclidean) - euclid) <
     .00001)) # there is some rounding error, but it is small
 
 
