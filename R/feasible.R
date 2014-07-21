@@ -28,7 +28,8 @@ getMaxProblemSize <- function() {
   return(tmp[[1]])
 }
 
-#' Find the minimal exact match factors that will be feasible.
+#' Find the minimal exact match factors that will be feasible for a
+#' given maximum problem size.
 #'
 #' The \code{\link{exactMatch}} function creates a smaller matching problem by
 #' stratifying observations into smaller groups. For a problem that is larger
@@ -47,6 +48,7 @@ getMaxProblemSize <- function() {
 #' @param x The object for dispatching.
 #' @param scores Optional vector of scores that will be checked against a caliper width.
 #' @param width Optional width of a caliper to place on the scores.
+#' @param maxarcs The maximum problem size to attempt to fit.
 #' @param ... Additional arguments for methods.
 #' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
 #' @export
