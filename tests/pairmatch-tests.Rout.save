@@ -1,7 +1,7 @@
 
-R version 3.0.1 (2013-05-16) -- "Good Sport"
-Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R version 3.1.0 (2014-04-10) -- "Spring Dance"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -51,15 +51,13 @@ In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
 > ## Not run: pairmatch(plantdist + caliper(plantdist, 1)) # Matching fails everywhere
 > pairmatch(plantdist + caliper(plantdist, 5, compare = `<`), remove.unmatchables=TRUE) # Matching works after removing plant 'F'
    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O    P 
-<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5 <NA>  1.6 <NA>  1.1  1.2 <NA>  1.3 <NA> <NA> <NA> <NA> 
    Q    R    S    T    U    V    W    X    Y    Z 
-<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
-Warning messages:
-1: In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
+ 1.4  1.5 <NA> <NA> <NA> <NA> <NA>  1.6 <NA> <NA> 
+Warning message:
+In fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
-2: In fullmatch.InfinitySparseMatrix(x = x, min.controls = controls,  :
-  The problem is infeasible with the given constraints; some units were omitted to allow a match.
 > 
 > data(nuclearplants)
 > # in both of match_on calls below use sd to maintain backwards compatibility with
@@ -85,4 +83,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-  1.112   0.040   1.150 
+  0.856   0.032   0.879 
