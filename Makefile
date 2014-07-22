@@ -134,12 +134,7 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/digest/INSTALLED:
 	$(call installpkg,digest)
 
-PKGDEPS = .local/testthat/INSTALLED \
-					.local/RItools/INSTALLED \
-					.local/biglm/INSTALLED \
-					.local/brglm/INSTALLED \
-					.local/arm/INSTALLED \
-					.local/digest/INSTALLED
+PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
 # time to see if the released version gets the bug fix.
