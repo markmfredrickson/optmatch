@@ -69,6 +69,10 @@
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+  # look in data cols 2nd for x, z, etc.
+  attach(data)
+  on.exit(detach(data))
+
   cl <- match.call()
   UseMethod("match_on")
 }
@@ -396,7 +400,6 @@ are there missing values in data?")
 #' @method match_on numeric
 #' @rdname match_on-methods
 match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
-
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric match_on method.")
   }
@@ -423,6 +426,10 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   }
 
   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
+
+  # if x was found in data via attach in generic match_on,
+  # it may not have names
+  if(is.null(names(x))) names(x) <- row.names(data)
 
   tmp <- makedist(z, x, f, within)
   tmp@call <- cl
