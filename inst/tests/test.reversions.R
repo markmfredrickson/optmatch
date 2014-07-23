@@ -11,6 +11,12 @@ test_that("Issue 82", {
   x <- match_on(cap, z = pr, data = nuclearplants)
   expect_is(x, "DenseMatrix")
 
+  x <- fullmatch(cap, z = pr, data = nuclearplants)
+  expect_is(x, "factor")
+
+  x <- pairmatch(cap, z = pr, data = nuclearplants)
+  expect_is(x, "factor")
+
   # now test if we have an actual variable called cap
   
   n <- dim(nuclearplants)[1]
@@ -18,6 +24,5 @@ test_that("Issue 82", {
   names(cap) <- 1:n
   
   y <- match_on(cap, z = pr, data = nuclearplants)
-  
   expect_true(all(y == 0))
 })
