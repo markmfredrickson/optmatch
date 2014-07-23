@@ -172,6 +172,11 @@ fullmatch <- function(x,
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")
   }
+
+  # look in data cols 2nd for x, z, etc.
+  attach(data, warn.conflicts = FALSE)
+  on.exit(detach('data'))
+
   UseMethod("fullmatch")
 }
 
@@ -224,6 +229,10 @@ fullmatch.numeric <- function(x,
     z,
     within = NULL,
     ...) {
+
+  # if x was found in data via attach in generic match_on,
+  # it may not have names
+  if(is.null(names(x))) names(x) <- row.names(data)
 
   m <- match_on(x, within=within, z=z, ...)
   out <- fullmatch(m,

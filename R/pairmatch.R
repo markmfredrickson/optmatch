@@ -72,6 +72,10 @@ pairmatch <- function(x,
       collapse = ", "))
   }
 
+  # look in data cols 2nd for x, z, etc.
+  attach(data, warn.conflicts = FALSE)
+  on.exit(detach('data'))
+
   cl <- match.call()
   UseMethod("pairmatch")
 }
@@ -119,6 +123,10 @@ pairmatch.numeric <- function(x,
                       z,
                       within = NULL,
                       ...) {
+
+  # if x was found in data via attach in generic match_on,
+  # it may not have names
+  if(is.null(names(x))) names(x) <- row.names(data)
 
   m <- match_on(x, within=within, z=z, ...)
   out <- pairmatch(m,

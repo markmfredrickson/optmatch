@@ -70,7 +70,7 @@
 #' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   # look in data cols 2nd for x, z, etc.
-  attach(data)
+  attach(data, warn.conflicts = FALSE)
   on.exit(detach(data))
 
   cl <- match.call()
