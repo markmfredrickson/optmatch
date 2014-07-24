@@ -174,11 +174,9 @@ fullmatch <- function(x,
   }
 
   # look in data cols 2nd for x, z, etc.
-  if(is.data.frame(data)) {
-    attach(data, warn.conflicts = FALSE)
-    on.exit(detach('data'))
-  }
-  
+  attach(data, warn.conflicts = FALSE)
+  on.exit(detach('data'))
+
   UseMethod("fullmatch")
 }
 
