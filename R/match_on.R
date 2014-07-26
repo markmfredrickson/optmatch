@@ -1,3 +1,11 @@
+match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+  x_val <- eval(substitute(x), data)
+  tail_vals <- eval(substitute(list(...)), data)
+  do.call('match_on_dispatch',
+          c(list(x=x_val, within=within, caliper=caliper, data=data),
+          tail_vals))
+}
+
 ################################################################################
 # match_on: distance matrix creation functions
 ################################################################################
@@ -68,15 +76,9 @@
 #' @docType methods
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
-match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-  # look in data cols 2nd for x, z, etc.
-  if(is.data.frame(data)) {
-    attach(data, warn.conflicts = FALSE)
-    on.exit(detach(data))
-  }
-
+match_on_dispatch <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   cl <- match.call()
-  UseMethod("match_on")
+  UseMethod("match_on_dispatch")
 }
 
 #' @details The \code{function} method takes as its \code{x} argument a
@@ -97,7 +99,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
 #' @method match_on function
 #' @rdname match_on-methods
-match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
+match_on_dispatch.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
@@ -141,7 +143,7 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 #' The current possibilities are \code{"mahalanobis", "euclidean", "rank_mahalanobis"}, or pass a user created distance function.
 #' @method match_on formula
 #' @rdname match_on-methods
-match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
+match_on_dispatch.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
   }
@@ -311,7 +313,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
 #' @method match_on glm
 #' @rdname match_on-methods
-match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on_dispatch.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
   z <- x$y > 0
   lp <- if (is.null(x$data) | is.environment(x$data)) {
@@ -354,7 +356,7 @@ match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
 #'
 #' @method match_on bigglm
 #' @rdname match_on-methods
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on_dispatch.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -401,7 +403,8 @@ are there missing values in data?")
 #' For the numeric method, \code{x} must have names.
 #' @method match_on numeric
 #' @rdname match_on-methods
-match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
+match_on_dispatch.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
+
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric match_on method.")
   }
@@ -427,11 +430,10 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
     }
   }
 
-  f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
+  if(is.null(names(x)) && is.data.frame(data))
+    names(x) <- rownames(data)
 
-  # if x was found in data via attach in generic match_on,
-  # it may not have names
-  if(is.null(names(x))) names(x) <- row.names(data)
+  f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
   tmp <- makedist(z, x, f, within)
   tmp@call <- cl
@@ -483,7 +485,7 @@ scoreCaliper <- function(x, z, caliper) {
 #'
 #' @rdname match_on-methods
 #' @method match_on InfinitySparseMatrix
-match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+match_on_dispatch.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
   if(is.null(caliper)) { return(x) }
 
@@ -492,7 +494,7 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 
 #' @rdname match_on-methods
 #' @method match_on matrix
-match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+match_on_dispatch.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
