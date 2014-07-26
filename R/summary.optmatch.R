@@ -127,9 +127,8 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
     }
 
   if (numsubprobfail > 0)  {
-    cat(paste("Matching succeeded in", numsubprob - numsubprobfail,"of", numsubprob,
-              "subgroups, accounting for", numobs - numobsfail, "of", numobs, "total observations.\n"))
-    cat("(Enter ?matchfailed for more info.)\n\n")
+    cat(paste("Matches made in", numsubprob - numsubprobfail,"of", numsubprob,
+              "subgroups, accounting for", numobs - numobsfail, "of", numobs, "total observations.\n\n\n"))
   }
 
   attr(x$matched.set.structures, "comparable.num.matched.pairs") <- NULL
