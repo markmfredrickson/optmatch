@@ -1,9 +1,14 @@
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+  cl <- match.call()
   x_val <- eval(substitute(x), data)
   tail_vals <- eval(substitute(list(...)), data)
   do.call('match_on_dispatch',
-          c(list(x=x_val, within=within, caliper=caliper, data=data),
-          tail_vals))
+          c(list(x=x_val,
+                 within=within,
+                 caliper=caliper,
+                 data=data,
+                 cl=cl),
+            tail_vals))
 }
 
 ################################################################################
@@ -77,7 +82,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
 match_on_dispatch <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-  cl <- match.call()
+  if (!exists("cl")) cl <- match.call()
   UseMethod("match_on_dispatch")
 }
 
