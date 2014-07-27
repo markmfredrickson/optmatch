@@ -502,5 +502,48 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
   out
 }
 
+##' (Internal )Returns the number of eligible controls for the distance.
+##'
+##' This will return a list of the number of controls eligible to match to 
+##' at least one treatment, by subproblem.
+##' If the distance has no subgroups, it will be a list of length 1. If
+##' the distance has subgroups (i.e. \code{x} is a
+##' \code{BlockedInfinitySparseMatrix} or \code{optmatch.dlist), it will be a named list.
+##' @param x Any distance object.
+##' @return A list counting the number of eligible controls in the distance.
+##' @docType methods
+##' @rdname num_eligible_controls-methods
+num_eligible_controls <- function(x) {
+  UseMethod("num_eligible_controls")
+}
+
+##' @method num_eligible_controls optmatch.dlist
+##' @rdname num_eligible_controls-methods
+num_eligible_controls.optmatch.dlist <-function(x) {
+    lapply(x, function(x) sum(apply(is.finite(x), 2, any)))
+}
+
+##' @method num_eligible_controls matrix
+##' @rdname num_eligible_controls-methods
+num_eligible_controls.matrix <- function(x) {
+  list(sum(apply(is.finite(x), 2, any)))
+}
+
+##' @method num_eligible_controls InfinitySparseMatrix
+##' @rdname num_eligible_controls-methods
+num_eligible_controls.InfinitySparseMatrix <- function(x) {
+  list(length(unique(x@cols)))
+}
+
+##' @method num_eligible_controls BlockedInfinitySparseMatrix
+##' @usage \method{num_eligible_controls}{BlockedInfinitySparseMatrix}(x)
+##' @rdname num_eligible_controls-methods
+num_eligible_controls.BlockedInfinitySparseMatrix <- function(x) {
+    sp <- subproblems(x)
+    if (is.logical(sp)) return(num_eligible_controls.InfinitySparseMatrix(x))
+    ans <- lapply(sp, num_eligible_controls.InfinitySparseMatrix)
+    do.call('c', ans)
+}
+
 # Splits out the blocked matrix into its consitutent parts
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
