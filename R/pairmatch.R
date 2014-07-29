@@ -62,14 +62,18 @@ pairmatch <- function(x,
                       data = NULL,
                       remove.unmatchables = FALSE,
                       ...) {
-  x_val <- eval(substitute(x), data)
-  tail_vals <- eval(substitute(list(...)), data)
-  do.call('pairmatch_dispatch',
-          c(list(x=x_val,
-                 controls = controls,
-                 data = data,
-                 remove.unmatchables = remove.unmatchables),
-            tail_vals))
+  if(is.data.frame(data)) {
+    x_val <- eval(substitute(x), data)
+    tail_vals <- eval(substitute(list(...)), data)
+    do.call('pairmatch_dispatch',
+            c(list(x=x_val,
+                   controls = controls,
+                   data = data,
+                   remove.unmatchables = remove.unmatchables),
+              tail_vals))
+  } else {
+    pairmatch_dispatch(x, controls, data, remove.umatchables, ...)
+  }
 }
 
 pairmatch_dispatch <- function(x,

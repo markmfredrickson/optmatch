@@ -167,17 +167,23 @@ fullmatch <- function(x,
     tol = .001,
     data = NULL,
     ...) {
-  x_val <- eval(substitute(x), data)
-  tail_vals <- eval(substitute(list(...)), data)
-  do.call('fullmatch_dispatch',
-          c(list(x=x_val,
-                 min.controls = min.controls,
-                 max.controls = max.controls,
-                 omit.fraction = omit.fraction,
-                 mean.controls = mean.controls,
-                 tol = tol,
-                 data=data),
-            tail_vals))
+  if(is.data.frame(data)) {
+    x_val <- eval(substitute(x), data)
+    tail_vals <- eval(substitute(list(...)), data)
+    do.call('fullmatch_dispatch',
+            c(list(x=x_val,
+                   min.controls = min.controls,
+                   max.controls = max.controls,
+                   omit.fraction = omit.fraction,
+                   mean.controls = mean.controls,
+                   tol = tol,
+                   data=data),
+              tail_vals))
+  } else {
+    fullmatch_dispatch(x, min.controls, max.controls,
+                       omit.fraction, mean.controls,
+                       tol, data, ...)
+  }
 }
 
 fullmatch_dispatch <- function(x,

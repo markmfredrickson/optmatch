@@ -1,14 +1,3 @@
-match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-  x_val <- eval(substitute(x), data)
-  tail_vals <- eval(substitute(list(...)), data)
-  do.call('match_on_dispatch',
-          c(list(x=x_val,
-                 within=within,
-                 caliper=caliper,
-                 data=data),
-            tail_vals))
-}
-
 ################################################################################
 # match_on: distance matrix creation functions
 ################################################################################
@@ -79,6 +68,21 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @docType methods
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
+match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+  if(is.data.frame(data)) {
+    x_val <- eval(substitute(x), data)
+    tail_vals <- eval(substitute(list(...)), data)
+    do.call('match_on_dispatch',
+            c(list(x=x_val,
+                   within=within,
+                   caliper=caliper,
+                   data=data),
+              tail_vals))
+  } else {
+    match_on_dispatch(x, within, caliper, data, ...)
+  }
+}
+
 match_on_dispatch <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   cl <- match.call()
   cl[[1]] <- substitute(match_on)
