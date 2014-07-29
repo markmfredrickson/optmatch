@@ -11,7 +11,9 @@ export(mdist,
        stratumStructure,
        fill.NAs,
        exactMatch,
-       match_on)
+       match_on,
+       fullmatch,
+       pairmatch)
 
 import(methods)
 importFrom(stats, getCall)
@@ -53,19 +55,19 @@ S3method(match_on_dispatch, glm)
 S3method(match_on_dispatch, bigglm)
 S3method(match_on_dispatch, numeric)
 
-S3method(fullmatch, default)
-S3method(fullmatch, numeric)
-S3method(fullmatch, InfinitySparseMatrix)
-S3method(fullmatch, BlockedInfinitySparseMatrix)
-S3method(fullmatch, optmatch.dlist)
-S3method(fullmatch, matrix)
+S3method(fullmatch_dispatch, default)
+S3method(fullmatch_dispatch, numeric)
+S3method(fullmatch_dispatch, InfinitySparseMatrix)
+S3method(fullmatch_dispatch, BlockedInfinitySparseMatrix)
+S3method(fullmatch_dispatch, optmatch.dlist)
+S3method(fullmatch_dispatch, matrix)
 
-S3method(pairmatch, default)
-S3method(pairmatch, numeric)
-S3method(pairmatch, InfinitySparseMatrix)
-S3method(pairmatch, BlockedInfinitySparseMatrix)
-S3method(pairmatch, optmatch.dlist)
-S3method(pairmatch, matrix)
+S3method(pairmatch_dispatch, default)
+S3method(pairmatch_dispatch, numeric)
+S3method(pairmatch_dispatch, InfinitySparseMatrix)
+S3method(pairmatch_dispatch, BlockedInfinitySparseMatrix)
+S3method(pairmatch_dispatch, optmatch.dlist)
+S3method(pairmatch_dispatch, matrix)
 
 S3method(stratumStructure, default)
 S3method(stratumStructure, optmatch)

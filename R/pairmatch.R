@@ -62,6 +62,21 @@ pairmatch <- function(x,
                       data = NULL,
                       remove.unmatchables = FALSE,
                       ...) {
+  x_val <- eval(substitute(x), data)
+  tail_vals <- eval(substitute(list(...)), data)
+  do.call('pairmatch_dispatch',
+          c(list(x=x_val,
+                 controls = controls,
+                 data = data,
+                 remove.unmatchables = remove.unmatchables),
+            tail_vals))
+}
+
+pairmatch_dispatch <- function(x,
+                               controls = 1,
+                               data = NULL,
+                               remove.unmatchables = FALSE,
+                               ...) {
 
   # Check that max/min.controls and omit.fraction is not passed in ...
   dots <- names(match.call(expand.dots = TRUE))[-1] # first is always ""
@@ -79,10 +94,11 @@ pairmatch <- function(x,
   }
   
   cl <- match.call()
+  cl[[1]] <- substitute(pairmatch)
   UseMethod("pairmatch")
 }
 
-pairmatch.default <- function(x,
+pairmatch_dispatch.default <- function(x,
                       controls = 1,
                       data = NULL,
                       remove.unmatchables = FALSE,
@@ -118,13 +134,13 @@ pairmatch.default <- function(x,
   out
 }
 
-pairmatch.numeric <- function(x,
-                      controls = 1,
-                      data = NULL,
-                      remove.unmatchables = FALSE,
-                      z,
-                      within = NULL,
-                      ...) {
+pairmatch_dispatch.numeric <- function(x,
+                                       controls = 1,
+                                       data = NULL,
+                                       remove.unmatchables = FALSE,
+                                       z,
+                                       within = NULL,
+                                       ...) {
 
   # if x was found in data via attach in generic match_on,
   # it may not have names
@@ -136,17 +152,24 @@ pairmatch.numeric <- function(x,
                    data=data,
                    remove.unmatchables=remove.unmatchables,
                    ...)
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(pairmatch)
+  }
   attr(out, "call") <- cl
   out
 }
 
 
-pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <- pairmatch.BlockedInfinitySparseMatrix <- function(x,
-                      controls = 1,
-                      data = NULL,
-                      remove.unmatchables = FALSE,
-                      ...) {
+pairmatch_dispatch.matrix <-
+pairmatch_dispatch.optmatch.dlist <-
+pairmatch_dispatch.InfinitySparseMatrix <-
+pairmatch_dispatch.BlockedInfinitySparseMatrix <-
+function(x,
+         controls = 1,
+         data = NULL,
+         remove.unmatchables = FALSE,
+         ...) {
 
   validDistanceSpecification(x) # will stop() on error
 
@@ -202,7 +225,10 @@ pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <
   if(!remove.unmatchables) {
     options("fullmatch_try_recovery" = saveopt)
   }
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(pairmatch)
+  }
   attr(out, "call") <- cl
   return(out)
 }
