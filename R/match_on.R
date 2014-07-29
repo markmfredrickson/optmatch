@@ -1,13 +1,11 @@
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-  cl <- match.call()
   x_val <- eval(substitute(x), data)
   tail_vals <- eval(substitute(list(...)), data)
   do.call('match_on_dispatch',
           c(list(x=x_val,
                  within=within,
                  caliper=caliper,
-                 data=data,
-                 cl=cl),
+                 data=data),
             tail_vals))
 }
 
@@ -82,7 +80,8 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
 match_on_dispatch <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-  if (!exists("cl")) cl <- match.call()
+  cl <- match.call()
+  cl[[1]] <- substitute(match_on)
   UseMethod("match_on_dispatch")
 }
 
@@ -109,7 +108,10 @@ match_on_dispatch.function <- function(x, within = NULL, caliper = NULL, data = 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
   }
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(match_on)
+  }
 
   theFun <- match.fun(x)
 
@@ -152,9 +154,13 @@ match_on_dispatch.formula <- function(x, within = NULL, caliper = NULL, data = N
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
   }
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(match_on)
+  }
 
   mf <- match.call(expand.dots = FALSE)
+  mf[[1]] <- substitute(match_on)
 
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
              names(mf), 0L)
@@ -417,7 +423,10 @@ match_on_dispatch.numeric <- function(x, within = NULL, caliper = NULL, data = N
   if(length(z) != length(x)) {
     stop("The scores, 'x', and the treatment vector, 'z', must be the same length.")
   }
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(match_on)
+  }
 
   z <- toZ(z)
 
