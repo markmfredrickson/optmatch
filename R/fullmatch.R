@@ -167,7 +167,29 @@ fullmatch <- function(x,
     tol = .001,
     data = NULL,
     ...) {
+  x_val <- eval(substitute(x), data)
+  tail_vals <- eval(substitute(list(...)), data)
+  do.call('fullmatch_dispatch',
+          c(list(x=x_val,
+                 min.controls = min.controls,
+                 max.controls = max.controls,
+                 omit.fraction = omit.fraction,
+                 mean.controls = mean.controls,
+                 tol = tol,
+                 data=data),
+            tail_vals))
+}
+
+fullmatch_dispatch <- function(x,
+    min.controls = 0,
+    max.controls = Inf,
+    omit.fraction = NULL,
+    mean.controls = NULL,
+    tol = .001,
+    data = NULL,
+    ...) {
   cl <- match.call()
+  cl[[1]] <- substitute(fullmatch)
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")
@@ -179,10 +201,10 @@ fullmatch <- function(x,
     on.exit(detach('data'))
   }
   
-  UseMethod("fullmatch")
+  UseMethod("fullmatch_dispatch")
 }
 
-fullmatch.default <- function(x,
+fullmatch_dispatch.default <- function(x,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
@@ -216,12 +238,15 @@ fullmatch.default <- function(x,
                    tol=tol,
                    data=mfd,
                    ...)
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(fullmatch)
+  }
   attr(out, "call") <- cl
   out
 }
 
-fullmatch.numeric <- function(x,
+fullmatch_dispatch.numeric <- function(x,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
@@ -245,12 +270,19 @@ fullmatch.numeric <- function(x,
                    tol=tol,
                    data=data,
                    ...)
-  if (!exists("cl")) cl <- match.call()
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(fullmatch)
+  }
   attr(out, "call") <- cl
   out
 }
 
-fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
+fullmatch_dispatch.matrix <-
+fullmatch_dispatch.optmatch.dlist <-
+fullmatch_dispatch.InfinitySparseMatrix <-
+fullmatch_dispatch.BlockedInfinitySparseMatrix <-
+function(x,
     min.controls = 0,
     max.controls = Inf,
     omit.fraction = NULL,
@@ -495,7 +527,11 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
   }
 
-  mout <- makeOptmatch(x, solutions, match.call(), data)
+  if (!exists("cl")) {
+    cl <- match.call()
+    cl[[1]] <- substitute(fullmatch)
+  }
+  mout <- makeOptmatch(x, solutions, cl, data)
 
   names(min.controls) <- names(problems)
   names(max.controls) <- names(problems)
@@ -530,8 +566,6 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
 
   # save hash of distance
   attr(mout, "hashed.distance") <- dist_digest(x)
-
-  if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
   return(mout)
 }
