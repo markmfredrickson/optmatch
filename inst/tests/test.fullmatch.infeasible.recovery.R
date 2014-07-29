@@ -140,15 +140,6 @@ test_that("Correctly apply max.controls", {
   expect_true(max.controls <= 1)
 })
 
-test_that("omit frac understood to be a fraction of eligible controls",{
-  # controls that aren't eligible for matching to anyone are kicked out
-  # before the omit.fraction calculation is done. Maybe we should change; until then...
-  # Prior to the fix this test accompanies, the below led to "a" and "b" sharing a control
-    adist <- matrix(c(1:4, rep(Inf, 8)), 2, 6, dimnames=list(letters[1:2], letters[3:8]))
-    expect_true(all(table(fullmatch(adist, max.c=1))==2)) 
-}
-          )
-
 test_that("Omits occur only on controls", {
   set.seed(3)
   x <- runif(20)

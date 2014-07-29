@@ -362,42 +362,6 @@ test_that("num_eligible_matches", {
 
 })
 
-test_that("num_eligible_controls", {
-  x <- rnorm(10)
-  y <- as.factor(rep(c("a", "b"), 5))
-  y2 <- as.factor(rep(1:2, 5))
-  z <- c(rep(0,6), rep(1,4))
-  d1 <- as.data.frame(cbind(x,z))
-  d1$y <- y
-  d1$y2 <- y2
-  rm(x)
-  rm(y)
-  rm(y2)
-  rm(z)
-
-  a <- match_on(z ~ x, data = d1)
-  expect_true(num_eligible_controls(a) == 6)
-
-  b <- caliper(a, 1e-5)
-  expect_true(num_eligible_controls(b) == 0)
-
-  c <- exactMatch(z ~ y, data=d1)
-  nemc <- num_eligible_controls(c)
-  expect_true(identical(nemc, list(a=as.integer(3), b=as.integer(3))))
-
-  c2 <- exactMatch(z ~ y2, data=d1)
-  nemc2 <- num_eligible_controls(c2)
-  expect_true(identical(nemc2, list(`1`=as.integer(3), `2`=as.integer(3))))
-
-  expect_true(num_eligible_controls(optmatch:::as.InfinitySparseMatrix(c)) == 6)
-
-  d <- matrix(rep(1:2, 10), 2, 10, byrow=T)
-  d <- caliper(d, 1.5)
-  expect_true(num_eligible_controls(d) == 5)
-
-})
-
-
 test_that("equality of matches", {
   data(nuclearplants)
 

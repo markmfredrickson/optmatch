@@ -454,8 +454,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
         return(tmp)
       }
-      num.el.ctls <- sum(unlist(num_eligible_controls(d.r)))
-      new.omf.r <- 1 - num.controls/num.el.ctls
+      new.omf.r <- 1 - num.controls/dim(d.r)[2]
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
