@@ -31,6 +31,18 @@ test_that("Distances from glms", {
 
   expect_true(validDistanceSpecification(result.foo))
   expect_equal(length(result.foo), (n/2)^2)
+
+  # test that we can use GLMs with an attached data.frame
+  df <- data.frame(Z. = Z, X1. = X1, X2. = X2, B. = B)
+  expect_error(glm(Z. ~ X1. + X2. + B., family = binomial()))
+
+  attach(df)
+
+  model.attach <- glm(Z. ~ X1. + X2. + B., family = binomial())
+  res.attach <- match_on(model.attach)
+
+  expect_equal(result.foo, res.attach)
+
 })
 
 test_that("Missingness in treatment", {
