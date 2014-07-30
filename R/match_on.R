@@ -306,13 +306,34 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #' @method match_on glm
 #' @rdname match_on-methods
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
-  z <- x$y > 0
+
   lp <- if (is.null(x$data) | is.environment(x$data)) {
     scores(x, newdata=model.frame(x$formula))
   } else {
     scores(x, newdata=x$data)
   }
+
+  # Checking if x$formula is actually a formula, because apparently its a dataframe if glm was
+  # passed a dataframe. Pull treatment out of it in that case.
+  if (is.data.frame(x$formula)) {
+    z <- x$formula[,1]
+  } else {
+    treat <- as.character(x$formula[[2]])
+    if (treat %in% colnames(x$data)) {
+      z <- x$data[,treat]
+    } else {
+      z <- x$y > 0
+      ## if (!is.null(x$na.action)) {
+      ##   lp <- lp[-x$na.action]
+      ## }
+    }
+  }
+
+  # If z has any missingness, drop it from both z and lp
+  lp <- lp[!is.na(z)]
+  z <- z[!is.na(z)]
 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
@@ -320,11 +341,6 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     match_on_szn_scale(lp, z, standardization.scale)
   }
   lp.adj <- lp/pooled.sd
-
-  # drop any cases with missing response
-  if (!is.null(x$na.action)) {
-    lp.adj <- lp.adj[-x$na.action]
-  }
 
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
@@ -488,6 +504,3 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
-
-
-

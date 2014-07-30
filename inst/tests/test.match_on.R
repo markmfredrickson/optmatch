@@ -33,6 +33,50 @@ test_that("Distances from glms", {
   expect_equal(length(result.foo), (n/2)^2)
 })
 
+test_that("Missingness in treatment", {
+  set.seed(548243)
+  Z <- sample(0:1, 10, TRUE)
+  X <- rnorm(10)
+
+  g <- glm(Z ~ X, family=binomial)
+
+  expect_equal(sum(dim(match_on(g))), 10)
+
+  Z.na <- Z; X.na <- X
+
+  Z.na[1] <- NA
+  X.na[2] <- NA
+
+  g2 <- glm(Z ~ X.na, family=binomial)
+  # Here, since data isn't passed, we can't recover from missingness, and the observation is dropped
+  expect_equal(sum(dim(match_on(g2))), 9)
+
+  g3 <- glm(Z.na ~ X, family=binomial)
+  # We lose the missingness because treatment is the blank.
+  expect_equal(sum(dim(match_on(g3))), 9)
+
+  g4 <- glm(Z.na ~ X.na, family=binomial)
+  # Above two problems
+  expect_equal(sum(dim(match_on(g4))), 8)
+
+  d1 <- data.frame(Z,X.na)
+  d2 <- data.frame(Z.na, X)
+  d3 <- data.frame(Z.na, X.na)
+  rm("Z","X","Z.na","X.na")
+
+  h1 <- glm(Z ~ X.na, family=binomial, data=d1)
+  # We should recover from missingness here because we have data
+  expect_equal(sum(dim(match_on(h1, data=d1))), 10)
+
+  h2 <- glm(Z.na ~ X, family=binomial, data=d2)
+  # We shouldn't because of the missingness on treatment
+  expect_equal(sum(dim(match_on(h2, data=d2))), 9)
+
+  h3 <- glm(Z.na ~ X.na, family=binomial, data=d3)
+  # Should recover from missingness on x, but not on z
+  expect_equal(sum(dim(match_on(h3, data=d3))), 9)
+})
+
 test_that("Distances from formulas", {
   n <- 16
   Z <- rep(c(0,1), n/2)
@@ -357,15 +401,15 @@ test_that("Issue 48: caliper is a universal argument", {
 })
 
 # test_that("bayesglm, brglm", {
-# 
+#
 #   # packaages are added at top of file
 #   data(nuclearplants)
-# 
+#
 #   by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
 #   expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
 #   m1 <- match_on(by, data=nuclearplants)
 #   expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
-# 
+#
 #   br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
 #   expect_true(all(class(br) == c("brglm", "glm", "lm")))
 #   m2 <- match_on(br, data=nuclearplants)
@@ -384,4 +428,3 @@ test_that("numeric standardization scale", {
 
   result.glm <- match_on(test.glm, standardization.scale=1)
 })
-
