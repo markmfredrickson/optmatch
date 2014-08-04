@@ -309,27 +309,15 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
 
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
 
-  lp <- if (is.null(x$data) | is.environment(x$data)) {
-    scores(x, newdata=model.frame(x$formula))
+  # If the data is given, using x$data intead of model.frame avoids issue #39
+  if (is.data.frame(x$data)) {
+    themf <- model.frame(x$data, na.action=na.pass)
+    z <- themf[,all.vars(x$formula)[[1]]]
   } else {
-    scores(x, newdata=x$data)
+    themf <- model.frame(x$formula, na.action=na.pass)
+    z <- model.response(themf)
   }
-
-  # Checking if x$formula is actually a formula, because apparently its a dataframe if glm was
-  # passed a dataframe. Pull treatment out of it in that case.
-  if (is.data.frame(x$formula)) {
-    z <- x$formula[,1]
-  } else {
-    treat <- as.character(x$formula[[2]])
-    if (treat %in% colnames(x$data)) {
-      z <- x$data[,treat]
-    } else {
-      z <- x$y > 0
-      ## if (!is.null(x$na.action)) {
-      ##   lp <- lp[-x$na.action]
-      ## }
-    }
-  }
+  lp <- scores(x, newdata=themf)
 
   # If z has any missingness, drop it from both z and lp
   lp <- lp[!is.na(z)]

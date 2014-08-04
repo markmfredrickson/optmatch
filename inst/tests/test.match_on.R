@@ -61,7 +61,7 @@ test_that("Missingness in treatment", {
 
   g2 <- glm(Z ~ X.na, family=binomial)
   # Here, since data isn't passed, we can't recover from missingness, and the observation is dropped
-  expect_equal(sum(dim(match_on(g2))), 9)
+  expect_equal(sum(dim(match_on(g2))), 10)
 
   g3 <- glm(Z.na ~ X, family=binomial)
   # We lose the missingness because treatment is the blank.
@@ -69,7 +69,7 @@ test_that("Missingness in treatment", {
 
   g4 <- glm(Z.na ~ X.na, family=binomial)
   # Above two problems
-  expect_equal(sum(dim(match_on(g4))), 8)
+  expect_equal(sum(dim(match_on(g4))), 9)
 
   d1 <- data.frame(Z,X.na)
   d2 <- data.frame(Z.na, X)
