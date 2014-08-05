@@ -1,7 +1,18 @@
 #' Combine multiple distance specifications into a single distance specification.
 #'
+#' For combining multiple distance specifications with common
+#' controls, but different treated units, \code{\link{rbind}} provides
+#' a way to combine the different objects. Likewise,
+#' \code{\link{cbind}} provides a way to combine distance
+#' specifications over common treated units, but different control
+#' units.
+#'
+#' \code{distUnion} can combine distance units that have common
+#' treated and control units into a coherent single distance object.
+#' 
 #' @param ... The distance specifications.
-#' @return An InfinitySparseMatrix object with all treated and control units from the arguments.
+#' @return An InfinitySparseMatrix object with all treated and control
+#' units from the arguments.
 #' @export
 distUnion <- function(...) {
   arglst <- list(...)
