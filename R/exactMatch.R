@@ -74,3 +74,46 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
   # and Z is treatment, Z ~ B1 + B2 ... is also allowed
   exactMatch(blocking, treatment) # use the factor based method
 })
+
+#' Specificy a matching problem where units in a common factor cannot be matched.
+#'
+#' The \code{\link{exactMatch}} function provides a way of specifying
+#' a matching problem where only units within a factor level may be
+#' matched. This function provides the reverse scenario: a matching
+#' problem in which only units across factor levels are permitted to
+#' match.
+#'
+#' @param x A factor across which matches should be allowed.
+#' @param z A treatment indicator factor (a numeric vector of 1 and 0, a logical vector, or a 2 level factor).
+#' @return A distance specification that encodes the across factor level constraint.
+#' @export
+antiExactMatch <- function(x, z) {
+  z <- toZ(z)
+  x <- as.factor(x)
+
+  if (is.null(names(x)) && is.nul(names(z))) {
+    stop("Either 'x' or 'z' must have names")
+  }
+
+  nms <- names(x)
+  if (is.null(nms)) {
+    nms <- names(z)
+  }
+
+  ims <- lapply(levels(x), function(l) {
+    idx <- x == l
+    z2 <- z[idx]
+    nms2 <- nms[idx]
+    n <- length(z2)
+    nt <- sum(z2)
+    nc <- n - nt
+    matrix(0,
+           nrow = nt,
+           ncol = nc, 
+           dimnames = list(
+               treated = nms2[z2],
+               control = nms2[!z2]))
+  })
+
+  return(do.call(distUnion, ims))
+}
