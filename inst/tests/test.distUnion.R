@@ -34,4 +34,13 @@ test_that("distUnion Basics", {
   expect_equal(standardize(res.m), expected)
   expect_equal(standardize(res.i), expected)
 
+  # uh oh, duplicates!
+
+  mdup <- matrix(99, nrow = 1, ncol = 1, dimnames = list(c("B"), c("Z")))
+  
+  res.dup <- distUnion(mab, mac, mbc, mdup)
+
+  expect_equal(length(res.dup), 8)
+
+  expect_equal(standardize(res.dup), expected)
 }) 

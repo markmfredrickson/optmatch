@@ -8,7 +8,9 @@
 #' units.
 #'
 #' \code{distUnion} can combine distance units that have common
-#' treated and control units into a coherent single distance object.
+#' treated and control units into a coherent single distance
+#' object. If there are duplicate treated-control entries in multiple
+#' input distances, the first entry will be used.
 #' 
 #' @param ... The distance specifications.
 #' @return An InfinitySparseMatrix object with all treated and control
@@ -43,10 +45,19 @@ distUnion <- function(...) {
     return(i)
   })
 
+
+  pairs <- matrix(c(unlist(sapply(updated.isms, function(i) { i@cols })),
+                    unlist(sapply(updated.isms, function(i) { i@rows }))),
+                  ncol = 2)
+
+  dups <- duplicated(pairs)
+
+  pairs <- pairs[!dups, ]
+
   unionism <- makeInfinitySparseMatrix(
-      unlist(sapply(updated.isms, function(i) { i@.Data })),
-      unlist(sapply(updated.isms, function(i) { i@cols })),
-      unlist(sapply(updated.isms, function(i) { i@rows })),
+      unlist(sapply(updated.isms, function(i) { i@.Data }))[!dups],
+      cols = pairs[, 1],
+      rows = pairs[, 2],
       ucontrols,
       utreated)
   
