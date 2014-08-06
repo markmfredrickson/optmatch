@@ -75,7 +75,7 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
   exactMatch(blocking, treatment) # use the factor based method
 })
 
-#' Specificy a matching problem where units in a common factor cannot be matched.
+#' Specify a matching problem where units in a common factor cannot be matched.
 #'
 #' The \code{\link{exactMatch}} function provides a way of specifying
 #' a matching problem where only units within a factor level may be
@@ -100,20 +100,31 @@ antiExactMatch <- function(x, z) {
     nms <- names(z)
   }
 
-  ims <- lapply(levels(x), function(l) {
+  controlnms <- nms[!z]
+  treatednms <- nms[z]
+
+  cid <- 1:length(controlnms)
+  tid <- 1:length(treatednms)
+
+  names(cid) <- controlnms
+  names(tid) <- treatednms
+  
+  rowcols <- data.frame(rows = vector("numeric"), cols = vector("numeric"))
+  
+  for (l in levels(x)) {
     idx <- x == l
     z2 <- z[idx]
     nms2 <- nms[idx]
-    n <- length(z2)
-    nt <- sum(z2)
-    nc <- n - nt
-    matrix(0,
-           nrow = nt,
-           ncol = nc, 
-           dimnames = list(
-               treated = nms2[z2],
-               control = nms2[!z2]))
-  })
+    
+    tmp <- data.frame(rows = tid[nms2[z2]], cols = cid[nms2[!z2]])
+    rowcols <- rbind(rowcols, tmp)
+  }
 
-  return(do.call(distUnion, ims))
+  ret <- makeInfinitySparseMatrix(rep(0, dim(rowcols)[1]),
+                                  rows = rowcols$rows,
+                                  cols = rowcols$cols,
+                                  rownames = treatednms,
+                                  colnames = controlnms)
+
+  return(ret)
 }
