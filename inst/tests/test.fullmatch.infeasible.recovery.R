@@ -138,6 +138,12 @@ test_that("Correctly apply max.controls", {
   expect_warning(s3 <- stratumStructure(h <- fullmatch(mm,data=dd, max.controls=1)))
   max.controls <- max(as.numeric(unlist(lapply(strsplit(names(s3), ":"),"[",2))))
   expect_true(max.controls <= 1)
+
+  # size of control group is sum of treatment group of
+  # pmin of max.controls and control:treatment ratio for tx group member
+  # (prior to resolution of issue 74, the below led to a single 2:1 matched set)
+  adist <- matrix(c(1:4, rep(Inf, 8)), 2, 6, dimnames=list(letters[1:2], letters[3:8]))
+  expect_true(all(table(fullmatch(adist, max.c=1))==2))
 })
 
 test_that("Omits occur only on controls", {
