@@ -312,7 +312,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   # If the data is given, using x$data intead of model.frame avoids issue #39
   if (is.data.frame(x$data)) {
     themf <- model.frame(x$data, na.action=na.pass)
-    z <- themf[,all.vars(x$formula)[[1]]]
+    z <- themf[,all.vars(as.formula(x$formula))[[1]]] # the explicit cast is for characters
   } else {
     themf <- model.frame(x$formula, na.action=na.pass)
     z <- model.response(themf)
