@@ -26,7 +26,7 @@ test_that("Summary function adds RItools info", {
   expect_true(!is.null(res$balance))
 
   ## Method 2: using a formula and a data argument
-  
+
   test.fmla <- glm(Z ~ sin(X), data = test.data, family = binomial)
   match.fmla <- pairmatch(match_on(test.fmla), data = test.data)
 
@@ -48,11 +48,12 @@ test_that("Summary function adds RItools info", {
   res <- summary(match.fna, test.fna)
   expect_true(!is.null(res$balance))
 
-  ## Finally, we should issue a useful error message when users do not pass the data argument.
+  ## If data is not passed, and it can recover, it should produce the same result
   match.nodata <- pairmatch(match_on(test.fna)) # data not passed
 
-  expect_error(summary(match.nodata, test.fna), "'data' argument")
-  
+  expect_true(identical(summary(match.nodata, test.fna), summary(match.nodata, test.fna, data=test.data.na)))
+
+
 })
 
 }
