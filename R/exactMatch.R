@@ -91,7 +91,7 @@ antiExactMatch <- function(x, z) {
   z <- toZ(z)
   x <- as.factor(x)
 
-  if (is.null(names(x)) && is.nul(names(z))) {
+  if (is.null(names(x)) && is.null(names(z))) {
     stop("Either 'x' or 'z' must have names")
   }
 
@@ -113,11 +113,9 @@ antiExactMatch <- function(x, z) {
   
   for (l in levels(x)) {
     idx <- x == l
-    z2 <- z[idx]
-    nms2 <- nms[idx]
-    
-    tmp <- data.frame(rows = tid[nms2[z2]], cols = cid[nms2[!z2]])
-    rowcols <- rbind(rowcols, tmp)
+    in.treated      <- tid[nms[z & idx]]
+    across.controls <- cid[nms[!z & !idx]]
+    rowcols <- rbind(rowcols, expand.grid(rows = in.treated, cols = across.controls))
   }
 
   ret <- makeInfinitySparseMatrix(rep(0, dim(rowcols)[1]),
