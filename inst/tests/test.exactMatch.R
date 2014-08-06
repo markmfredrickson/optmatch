@@ -209,3 +209,20 @@ test_that("exactMatch objs can be update()'d", {
   updated <- update(simple)
   expect_equal(length(levels(updated@groups)), 2) 
 })
+
+
+test_that("antiExactMatch", {
+  x <- as.factor(c(1,1,2,2,3,3))
+  z <- c(0,1,0,1,0,1)
+  names(x) <- paste0("X", 1:6)
+
+  ex <- matrix(c(Inf, 0, 0, 0, Inf, 0, 0, 0, Inf), nrow = 3, ncol = 3,
+               dimnames =list(
+                   treated = c("X2", "X4", "X6"),
+                   control = c("X1", "X3", "X5")))
+
+  res <- antiExactMatch(x, z)
+  
+  expect_equal(as.matrix(res), ex)
+
+})

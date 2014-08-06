@@ -31,6 +31,59 @@ test_that("Distances from glms", {
 
   expect_true(validDistanceSpecification(result.foo))
   expect_equal(length(result.foo), (n/2)^2)
+
+  # test that we can use GLMs with an attached data.frame
+  df <- data.frame(Z. = Z, X1. = X1, X2. = X2, B. = B)
+  expect_error(glm(Z. ~ X1. + X2. + B., family = binomial()))
+
+  attach(df)
+
+  model.attach <- glm(Z. ~ X1. + X2. + B., family = binomial())
+  res.attach <- match_on(model.attach)
+
+  expect_equal(result.foo, res.attach)
+
+})
+
+test_that("Missingness in treatment", {
+  set.seed(548243)
+  Z <- sample(0:1, 10, TRUE)
+  X <- rnorm(10)
+
+  g <- glm(Z ~ X, family=binomial)
+
+  expect_equal(sum(dim(match_on(g))), 10)
+
+  Z.na <- Z; X.na <- X
+
+  Z.na[1] <- NA
+  X.na[2] <- NA
+
+  g2 <- glm(Z ~ X.na, family=binomial)
+  # Should have full recovery.
+  expect_equal(sum(dim(match_on(g2))), 10)
+
+  g3 <- glm(Z.na ~ X, family=binomial)
+  # With missing treatment, drop observation.
+  expect_equal(sum(dim(match_on(g3))), 9)
+
+  g4 <- glm(Z.na ~ X.na, family=binomial)
+  expect_equal(sum(dim(match_on(g4))), 9)
+
+  d1 <- data.frame(Z,X.na)
+  d2 <- data.frame(Z.na, X)
+  d3 <- data.frame(Z.na, X.na)
+  rm("Z","X","Z.na","X.na")
+
+  # Passing data should have same recovery structure as before
+  h1 <- glm(Z ~ X.na, family=binomial, data=d1)
+  expect_equal(sum(dim(match_on(h1, data=d1))), 10)
+
+  h2 <- glm(Z.na ~ X, family=binomial, data=d2)
+  expect_equal(sum(dim(match_on(h2, data=d2))), 9)
+
+  h3 <- glm(Z.na ~ X.na, family=binomial, data=d3)
+  expect_equal(sum(dim(match_on(h3, data=d3))), 9)
 })
 
 test_that("Distances from formulas", {
@@ -69,7 +122,7 @@ test_that("Distances from formulas", {
     .00001)) # there is some rounding error, but it is small
 
   # passing a function name for method
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "compute_euclidean") - euclid) <
+  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = compute_euclidean) - euclid) <
     .00001)) # there is some rounding error, but it is small
 
 
@@ -357,15 +410,15 @@ test_that("Issue 48: caliper is a universal argument", {
 })
 
 # test_that("bayesglm, brglm", {
-# 
+#
 #   # packaages are added at top of file
 #   data(nuclearplants)
-# 
+#
 #   by <- bayesglm(pr ~ cost, data=nuclearplants, family=binomial)
 #   expect_true(all(class(by) == c("bayesglm", "glm", "lm")))
 #   m1 <- match_on(by, data=nuclearplants)
 #   expect_true(class(m1)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
-# 
+#
 #   br <- brglm(pr ~ cost, data=nuclearplants, family=binomial, method="glm.fit")
 #   expect_true(all(class(br) == c("brglm", "glm", "lm")))
 #   m2 <- match_on(br, data=nuclearplants)
@@ -384,4 +437,3 @@ test_that("numeric standardization scale", {
 
   result.glm <- match_on(test.glm, standardization.scale=1)
 })
-

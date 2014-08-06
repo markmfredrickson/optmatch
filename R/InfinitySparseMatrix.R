@@ -478,7 +478,7 @@ num_eligible_matches <- function(x) {
 ##' @method num_eligible_matches optmatch.dlist
 ##' @rdname num_eligible_matches-methods
 num_eligible_matches.optmatch.dlist <-function(x) {
-  list(sum(is.finite(x)))
+    lapply(x, function(x) sum(is.finite(x)))
 }
 
 ##' @method num_eligible_matches matrix

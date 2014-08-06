@@ -42,7 +42,7 @@ interactive-emacs: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RI
 
 ### Package release scripts ###
 
-VERSION=0.9-1
+VERSION=0.9-2
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
@@ -61,7 +61,9 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/*
 		--exclude=optmatch.Rcheck \
 		--exclude=vignettes \
 		--exclude-from=.pkgexclude \
-		--exclude=load.R . $(PKG)
+		--exclude=load.R \
+		--exclude=check.R \
+		--exclude=\#* . $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
 # add them to DESCRIPTION.template
@@ -94,7 +96,7 @@ lexicon.txt: package
 
 # the full (and slow) check process
 check: $(PKG).tar.gz
-	$(LR) CMD check --library=.local --as-cran --no-multiarch $(PKG).tar.gz
+	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran --no-multiarch $(PKG).tar.gz
 
 # getting ready to release
 release: check spell

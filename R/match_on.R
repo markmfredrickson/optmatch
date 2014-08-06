@@ -124,13 +124,15 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 #' it addresses redundancies among the variables by scaling down variables contributions in
 #' proportion to their correlations with other included variables.)
 #'
-#' Euclidean distance is also available, via \code{method="euclidean"}. Or, implement your own;
+#' Euclidean distance is also available, via
+#' \code{method="euclidean"}, and ranked, Mahalanobis distance, via
+#' \code{method="rank_mahalanobis"}. Or, implement your own;
 #' for hints as to how, refer to\cr
 #' \url{https://github.com/markmfredrickson/optmatch/wiki/How-to-write-your-own-compute-method}
 #'
 #' @param subset A subset of the data to use in creating the distance specification.
 #' @param method A string indicating which method to use in computing the distances from the data.
-#' The current possibilities are \code{"mahalanobis", "euclidean"}, or pass a user created distance function.
+#' The current possibilities are \code{"mahalanobis", "euclidean", "rank_mahalanobis"}, or pass a user created distance function.
 #' @method match_on formula
 #' @rdname match_on-methods
 match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
@@ -161,17 +163,18 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
 
- 
-  if(is.character(method)){ 
-    methodname <- method
-  } else { 
-    methodname <- as.character(class(method)) 
-  } 
 
-  which.method <- pmatch(methodname, c("mahalanobis", "euclidean","function"), 3)
+  if(is.character(method)){
+    methodname <- method
+  } else {
+    methodname <- as.character(class(method))
+  }
+
+  which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 3)
   tmp <- switch(which.method,
 		makedist(z, data, compute_mahalanobis, within),
 		makedist(z, data, compute_euclidean, within),
+    makedist(z, data, compute_rank_mahalanobis, within),
 		makedist(z, data, match.fun(method), within)
 		)
   rm(mf)
@@ -229,7 +232,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # after computing the inverse of a covariate matrix
 
 compute_mahalanobis <- function(index, data, z) {
-    if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
+  if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
     mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
     mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
@@ -254,11 +257,23 @@ compute_mahalanobis <- function(index, data, z) {
     return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
 }
 
+
 compute_euclidean <- function(index, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
 
   return(.Call(mahalanobisHelper, data, index, diag(ncol(data))))
+}
+
+
+compute_rank_mahalanobis <- function(index, data, z) {
+    if (!all(is.finite(data))) {
+        stop("Infinite or NA values detected in data for Mahalanobis computations.")
+    }
+
+    return(
+        .Call('r_smahal', index, data, z, PACKAGE='optmatch')
+    )
 }
 
 #' @details The \code{glm} method assumes its first argument to be a fitted propensity
@@ -291,13 +306,22 @@ compute_euclidean <- function(index, data, z) {
 #' @method match_on glm
 #' @rdname match_on-methods
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
-  z <- x$y > 0
-  lp <- if (is.null(x$data) | is.environment(x$data)) {
-    scores(x, newdata=model.frame(x$formula))
+
+  # If the data is given, using x$data intead of model.frame avoids issue #39
+  if (is.data.frame(x$data)) {
+    themf <- model.frame(x$data, na.action=na.pass)
+    z <- themf[,all.vars(x$formula)[[1]]]
   } else {
-    scores(x, newdata=x$data)
+    themf <- model.frame(x$formula, na.action=na.pass)
+    z <- model.response(themf)
   }
+  lp <- scores(x, newdata=themf)
+
+  # If z has any missingness, drop it from both z and lp
+  lp <- lp[!is.na(z)]
+  z <- z[!is.na(z)]
 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
@@ -305,11 +329,6 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     match_on_szn_scale(lp, z, standardization.scale)
   }
   lp.adj <- lp/pooled.sd
-
-  # drop any cases with missing response
-  if (!is.null(x$na.action)) {
-    lp.adj <- lp.adj[-x$na.action]
-  }
 
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }

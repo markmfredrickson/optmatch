@@ -74,3 +74,55 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
   # and Z is treatment, Z ~ B1 + B2 ... is also allowed
   exactMatch(blocking, treatment) # use the factor based method
 })
+
+#' Specify a matching problem where units in a common factor cannot be matched.
+#'
+#' The \code{\link{exactMatch}} function provides a way of specifying
+#' a matching problem where only units within a factor level may be
+#' matched. This function provides the reverse scenario: a matching
+#' problem in which only units across factor levels are permitted to
+#' match.
+#'
+#' @param x A factor across which matches should be allowed.
+#' @param z A treatment indicator factor (a numeric vector of 1 and 0, a logical vector, or a 2 level factor).
+#' @return A distance specification that encodes the across factor level constraint.
+#' @export
+antiExactMatch <- function(x, z) {
+  z <- toZ(z)
+  x <- as.factor(x)
+
+  if (is.null(names(x)) && is.null(names(z))) {
+    stop("Either 'x' or 'z' must have names")
+  }
+
+  nms <- names(x)
+  if (is.null(nms)) {
+    nms <- names(z)
+  }
+
+  controlnms <- nms[!z]
+  treatednms <- nms[z]
+
+  cid <- 1:length(controlnms)
+  tid <- 1:length(treatednms)
+
+  names(cid) <- controlnms
+  names(tid) <- treatednms
+  
+  rowcols <- data.frame(rows = vector("numeric"), cols = vector("numeric"))
+  
+  for (l in levels(x)) {
+    idx <- x == l
+    in.treated      <- tid[nms[z & idx]]
+    across.controls <- cid[nms[!z & !idx]]
+    rowcols <- rbind(rowcols, expand.grid(rows = in.treated, cols = across.controls))
+  }
+
+  ret <- makeInfinitySparseMatrix(rep(0, dim(rowcols)[1]),
+                                  rows = rowcols$rows,
+                                  cols = rowcols$cols,
+                                  rownames = treatednms,
+                                  colnames = controlnms)
+
+  return(ret)
+}
