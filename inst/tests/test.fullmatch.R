@@ -392,3 +392,16 @@ test_that("fullmatch UI cleanup", {
 
 
 })
+
+test_that("NAs in irrelevant data slots don't trip us up", {
+  n <- 16
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rep(c(1,2,3,4), each = n/4)
+  B <- rep(c(0,1), n/2)
+  B[1] <- NA
+  test.data <- data.frame(Z, X1, B)
+  rm(Z)
+  rm(X1)
+  rm(B)
+  expect_equal(length(fullmatch(Z~X1, data=test.data)), n)
+})

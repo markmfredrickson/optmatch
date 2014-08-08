@@ -91,12 +91,12 @@ pairmatch.default <- function(x,
   }
 
   mfd <- if (!is.null(data)) {
-    model.frame(data)
+    model.frame(data, na.action=na.pass)
   } else {
     if (inherits(x, "function")) {
       stop("A data argument must be given when passing a function")
     }
-    model.frame(x)
+    model.frame(x, na.action=na.pass)
   }
   if (!class(mfd) == "data.frame") {
     stop("Please pass data argument")
