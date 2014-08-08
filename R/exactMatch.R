@@ -77,16 +77,29 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
 
 #' Specify a matching problem where units in a common factor cannot be matched.
 #'
+#' This function builds a distance specification where treated units
+#' are infinitely far away from control units that share the same
+#' level of a given factor variable. This can be useful for ensuring
+#' that matched groups come from qualitatively different groups.
+#'
 #' The \code{\link{exactMatch}} function provides a way of specifying
 #' a matching problem where only units within a factor level may be
 #' matched. This function provides the reverse scenario: a matching
 #' problem in which only units across factor levels are permitted to
-#' match.
+#' match. Like \link{exactMatch}, the results of this function will
+#' most often be used as a \code{within} argument to
+#' \code{\link{match_on}} or another distance specification creation
+#' function to limit the scope of the final distance specification
+#' (i.e., disallowing any match between units with the same value on
+#' the factor variable \code{x}).
 #'
 #' @param x A factor across which matches should be allowed.
-#' @param z A treatment indicator factor (a numeric vector of 1 and 0, a logical vector, or a 2 level factor).
+#' @param z A treatment indicator factor (a numeric vector of 1 and 0,
+#' a logical vector, or a 2 level factor).
 #' @return A distance specification that encodes the across factor level constraint.
+#' @seealso \code{\link{exactMatch}}, \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}
 #' @export
+#' @example inst/examples/antiExactMatch.R
 antiExactMatch <- function(x, z) {
   z <- toZ(z)
   x <- as.factor(x)

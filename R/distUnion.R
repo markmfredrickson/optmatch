@@ -1,5 +1,10 @@
 #' Combine multiple distance specifications into a single distance specification.
 #'
+#' Creates a new distance specification from the union of two or more
+#' distance specifications. The constituent distances specifications
+#' may have overlapping treated and control units (identified by the
+#' rownames and colnames respectively).
+#'
 #' For combining multiple distance specifications with common
 #' controls, but different treated units, \code{\link{rbind}} provides
 #' a way to combine the different objects. Likewise,
@@ -12,9 +17,16 @@
 #' object. If there are duplicate treated-control entries in multiple
 #' input distances, the first entry will be used.
 #' 
-#' @param ... The distance specifications.
+#' @param ... The distance specifications (as created with with
+#' \code{\link{match_on}}, \code{\link{exactMatch}}, or other distance
+#' creation function).
 #' @return An InfinitySparseMatrix object with all treated and control
-#' units from the arguments.
+#' units from the arguments combined. Duplicate entries are resolved
+#' in favor of the earliest argument (e.g., \code{distUnion(A, B)}
+#' will favor entries in \code{A} over entries in \code{B}).
+#' @seealso \code{\link{match_on}}, \code{\link{exactMatch}},
+#' \code{\link{fullmatch}}, \code{\link{pairmatch}},
+#' \code{\link{cbind}}, \code{\link{rbind}}
 #' @export
 distUnion <- function(...) {
   arglst <- list(...)
