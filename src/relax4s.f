@@ -122,6 +122,7 @@ C     ALLOCATE THE ARRAYS
          ENDN(I)=endn1(I)
          C(I)=c1(I)
          U(I)=u1(I)
+         X(I) = 0
 20    CONTINUE
 
       DO 30 I=1,N
@@ -1086,6 +1087,7 @@ C     ALLOCATE THE ARRAYS
         TFSTIN(I)=0
 80    CONTINUE
       DO 81 I=1,NA
+        PRDCSR(I) = 0
         TNXTIN(I)=-1
         TNXTOU(I)=-1
         IF (RC(I).EQ.0) THEN
