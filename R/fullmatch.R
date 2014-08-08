@@ -246,6 +246,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     mean.controls = NULL,
     tol = .001,
     data = NULL,
+    within = NULL,
     ...) {
 
   ### Checking Input ###
@@ -263,6 +264,8 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     stop("dimnames of argument \'x\' contain duplicates")
   }
 
+  if (!is.null(within)) warning("Ignoring non-null 'within' argument.  When using 'fullmatch' with\n pre-formed distances, please combine them using '+'.")
+  
   nmtrt <- dnms[[1]]
   nmctl <- dnms[[2]]
 

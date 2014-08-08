@@ -224,3 +224,13 @@ test_that("pairmatch UI cleanup", {
 
 
 })
+
+test_that("pairmatch warns when given a 'within' arg that it's going to ignore", {
+    m <- matrix(1, nrow = 2, ncol = 3,
+                dimnames = list(c("a", "b"), c('d', 'e', 'f')))
+    B <- rep(1:3, each = 2)
+    names(B) <- letters[1:6]
+    em <- exactMatch(B, rep(c(0,1), 3))
+    expect_warning(pairmatch(m, within=em), "gnor")    
+    expect_warning(pairmatch(as.InfinitySparseMatrix(m), within=em), "gnor")    
+})

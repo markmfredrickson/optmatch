@@ -136,6 +136,7 @@ pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <
                       controls = 1,
                       data = NULL,
                       remove.unmatchables = FALSE,
+                      within = NULL,
                       ...) {
 
   validDistanceSpecification(x) # will stop() on error
@@ -150,6 +151,8 @@ pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <
     stop(paste("Controls argument must have same length as the number of subproblems (",
       length(subprobs), ")", sep = ""))
   }
+
+    if (!is.null(within)) warning("Ignoring non-null 'within' argument. When using 'pairmatch' with\n pre-formed distances, please combine them using '+'.")
 
   omf <- mapply(controls, subprobs, FUN = function(control, prob) {
     # hard coding type based trimming for now. this should probably

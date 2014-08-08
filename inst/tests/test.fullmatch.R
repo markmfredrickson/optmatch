@@ -118,6 +118,16 @@ test_that("Checks input", {
 
 })
 
+test_that("fullmatch warns when given a 'within' arg that it's going to ignore", {
+    m <- matrix(1, nrow = 2, ncol = 3,
+                dimnames = list(c("a", "b"), c('d', 'e', 'f')))
+    B <- rep(1:3, each = 2)
+    names(B) <- letters[1:6]
+    em <- exactMatch(B, rep(c(0,1), 3))
+    expect_warning(fullmatch(m, within=em), "gnor")
+    expect_warning(fullmatch(as.InfinitySparseMatrix(m), within=em), "gnor")
+})
+
 test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
   # this bug was discovered while working on pairmatch, but it would appear to be
   # a fullmatch bug, though it might actually be in in subdivstrat or fmatch.
