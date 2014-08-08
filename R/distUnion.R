@@ -3,7 +3,7 @@
 #' Creates a new distance specification from the union of two or more
 #' distance specifications. The constituent distances specifications
 #' may have overlapping treated and control units (identified by the
-#' rownames and colnames respectively).
+#' \code{rownames} and \code{colnames} respectively).
 #'
 #' For combining multiple distance specifications with common
 #' controls, but different treated units, \code{\link{rbind}} provides

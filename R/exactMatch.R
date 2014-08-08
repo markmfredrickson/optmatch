@@ -86,7 +86,7 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
 #' a matching problem where only units within a factor level may be
 #' matched. This function provides the reverse scenario: a matching
 #' problem in which only units across factor levels are permitted to
-#' match. Like \link{exactMatch}, the results of this function will
+#' match. Like \code{\link{exactMatch}}, the results of this function will
 #' most often be used as a \code{within} argument to
 #' \code{\link{match_on}} or another distance specification creation
 #' function to limit the scope of the final distance specification
