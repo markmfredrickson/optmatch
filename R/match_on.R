@@ -69,6 +69,42 @@
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+#   missing_x_msg <- "can't find (expression provided as first arg). \
+# If it lives within a data frame provided as a data argument, \
+# try (expression given for data)$(expression provided as first arg), \
+# or (expression given for z)~(expression provided as first arg)."
+
+  x_val_str <- deparse(substitute(x))
+  if(!exists(x_val_str)) {
+    data_val_str <- deparse(substitute(data))
+    extra_args_str <- deparse(substitute(list(...)))
+    z_regex <- "z = (\\S+)[,\\)]"
+    z_search <- regexpr(z_regex, extra_args_str, perl=TRUE)
+    if(z_search != -1) {
+      z_match <- regmatches(extra_args_str, z_search)[1]
+      z_val_str <- sub(z_regex, "\\1", z_match, perl=TRUE)
+      if(data_val_str != 'NULL') {
+        stop(paste("Can't find", paste(x_val_str, ".", sep=""),
+             "If it lives within a data frame provided as a data argument,",
+             "try", paste(data_val_str, "$", x_val_str, sep=""),
+             "or", paste(z_val_str, "~", x_val_str, ".", sep="")))
+      } else {
+        stop(paste("Can't find", paste(x_val_str, ".", sep=""),
+             "If it lives within a data frame provided as a data argument,",
+             "try", paste("<data argument>$", x_val_str, sep=""),
+             "or", paste(z_val_str, "~", x_val_str, ".", sep="")))
+      }
+    } else if(data_val_str != 'NULL') {
+      stop(paste("Can't find", paste(x_val_str, ".", sep=""),
+           "If it lives within a data frame provided as a data argument,",
+           "try", paste(data_val_str, "$", x_val_str, ".", sep="")))
+    } else {
+      stop(paste("Can't find", paste(x_val_str, ".", sep=""),
+           "If it lives within a data frame provided as a data argument,",
+           "try", paste("<data argument>$", x_val_str, ".", sep="")))
+    }
+  }
+
   cl <- match.call()
   UseMethod("match_on")
 }
@@ -306,22 +342,13 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #' @method match_on glm
 #' @rdname match_on-methods
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
-
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
-
-  # If the data is given, using x$data intead of model.frame avoids issue #39
-  if (is.data.frame(x$data)) {
-    themf <- model.frame(x$data, na.action=na.pass)
-    z <- themf[,all.vars(as.formula(x$formula))[[1]]] # the explicit cast is for characters
+  z <- x$y > 0
+  lp <- if (is.null(x$data) | is.environment(x$data)) {
+    scores(x, newdata=model.frame(x$formula))
   } else {
-    themf <- model.frame(x$formula, na.action=na.pass)
-    z <- model.response(themf)
+    scores(x, newdata=x$data)
   }
-  lp <- scores(x, newdata=themf)
-
-  # If z has any missingness, drop it from both z and lp
-  lp <- lp[!is.na(z)]
-  z <- z[!is.na(z)]
 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
@@ -329,6 +356,11 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     match_on_szn_scale(lp, z, standardization.scale)
   }
   lp.adj <- lp/pooled.sd
+
+  # drop any cases with missing response
+  if (!is.null(x$na.action)) {
+    lp.adj <- lp.adj[-x$na.action]
+  }
 
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
@@ -492,3 +524,6 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
+
+
+
