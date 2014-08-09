@@ -1,6 +1,6 @@
 CHANGES IN OPTMATCH VERSION 0.9-3
 
-* Fixed memory issues in solver code. Addressed rare segfaults. (Thank
+* Fixed memory issues, potential segfaults in solver code. (Thank
   you, Peter Solenberger).
 * Fixed bug in dropping cases with extraneous NAs when using
   `fullmatch` or `pairmatch` to create distance specifications
