@@ -1,31 +1,3 @@
-missing_x_msg <- function(x_str, data = NULL, ...) {
-  data_str <- if(is.null(data))
-                "<data argument>"
-              else
-                deparse(substitute(data))
-  
-  z <- ""
-  extra_args_str <- deparse(substitute(list(...)))
-  z_regex <- "z = (\\S+)[,\\)]"
-  z_search <- regexpr(z_regex, extra_args_str, perl=TRUE)
-  if(z_search != -1) {
-    z_match <- regmatches(extra_args_str, z_search)[1]
-    z <- sub(z_regex, "\\1", z_match, perl=TRUE)
-  }
-
-  msg_tail <- if(z != "")
-                paste("or ", z, "~", x_str, sep="")
-              else
-                ""
-
-  paste("Can't find",
-        paste(x_str, ".", sep=""),
-        "If it lives within a data frame provided",
-        "as a data argument, try",
-        paste(data_str, "$", x_str, sep=""),
-        msg_tail)
-}
-
 ################################################################################
 # match_on: distance matrix creation functions
 ################################################################################
@@ -101,8 +73,11 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   # If x does not exist, then is.numeric(x) will raise an error, and our
   # error message will be printed. Don't need value of is.numeric
   # per se.
-  tryCatch(is.numeric(x),
-    error = stop(missing_x_msg(deparse(substitute(x)), data, ...)))
+  x_str <- deparse(substitute(x))
+  data_str <- deparse(substitute(data))
+  tryCatch(x, error = function(e) {
+    stop(missing_x_msg(x_str, data_str, ...))
+  })
 
   cl <- match.call()
   UseMethod("match_on")

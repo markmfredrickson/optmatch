@@ -64,3 +64,38 @@ dist_digest <- function(dist) {
   }
   stop("Must pass distance object")
 }
+
+#' (Internal) If the x argument does not exist for
+#' match_on, fullmatch, or pairmatch, use this function
+#' to print a helpful message.
+#'
+#' @param x_str x as a string of code, usually deparse(substitute(x))
+#' @param data_str data arg as string of code
+#' @param ... will look for 'z = <stuff>' in the extra args of caller
+#' @return string a helpful error message
+#' @author Josh Buckner
+missing_x_msg <- function(x_str, data_str, ...) {
+  if(data_str == "NULL")
+    data_str <- "<data argument>"
+
+  z <- ""
+  extra_args_str <- deparse(substitute(list(...)))
+  z_regex <- "z = (\\S+)[,\\)]"
+  z_search <- regexpr(z_regex, extra_args_str, perl=TRUE)
+  if(z_search != -1) {
+    z_match <- regmatches(extra_args_str, z_search)[1]
+    z <- sub(z_regex, "\\1", z_match, perl=TRUE)
+  }
+
+  msg_tail <- if(z != "")
+                paste("or ", z, "~", x_str, sep="")
+              else
+                ""
+
+  paste("Can't find",
+        paste(x_str, ".", sep=""),
+        "If it lives within the data frame provided",
+        "as the data argument, try",
+        paste(data_str, "$", x_str, sep=""),
+        msg_tail)
+}
