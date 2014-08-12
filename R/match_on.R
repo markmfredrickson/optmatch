@@ -1,3 +1,31 @@
+missing_x_msg <- function(x_str, data = NULL, ...) {
+  data_str <- if(is.null(data))
+                "<data argument>"
+              else
+                deparse(substitute(data))
+  
+  z <- ""
+  extra_args_str <- deparse(substitute(list(...)))
+  z_regex <- "z = (\\S+)[,\\)]"
+  z_search <- regexpr(z_regex, extra_args_str, perl=TRUE)
+  if(z_search != -1) {
+    z_match <- regmatches(extra_args_str, z_search)[1]
+    z <- sub(z_regex, "\\1", z_match, perl=TRUE)
+  }
+
+  msg_tail <- if(z != "")
+                paste("or ", z, "~", x_str, sep="")
+              else
+                ""
+
+  paste("Can't find",
+        paste(x_str, ".", sep=""),
+        "If it lives within a data frame provided",
+        "as a data argument, try",
+        paste(data_str, "$", x_str, sep=""),
+        msg_tail)
+}
+
 ################################################################################
 # match_on: distance matrix creation functions
 ################################################################################
@@ -69,41 +97,12 @@
 #' @rdname match_on-methods
 #' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
-#   missing_x_msg <- "can't find (expression provided as first arg). \
-# If it lives within a data frame provided as a data argument, \
-# try (expression given for data)$(expression provided as first arg), \
-# or (expression given for z)~(expression provided as first arg)."
 
-  x_val_str <- deparse(substitute(x))
-  if(!exists(x_val_str)) {
-    data_val_str <- deparse(substitute(data))
-    extra_args_str <- deparse(substitute(list(...)))
-    z_regex <- "z = (\\S+)[,\\)]"
-    z_search <- regexpr(z_regex, extra_args_str, perl=TRUE)
-    if(z_search != -1) {
-      z_match <- regmatches(extra_args_str, z_search)[1]
-      z_val_str <- sub(z_regex, "\\1", z_match, perl=TRUE)
-      if(data_val_str != 'NULL') {
-        stop(paste("Can't find", paste(x_val_str, ".", sep=""),
-             "If it lives within a data frame provided as a data argument,",
-             "try", paste(data_val_str, "$", x_val_str, sep=""),
-             "or", paste(z_val_str, "~", x_val_str, ".", sep="")))
-      } else {
-        stop(paste("Can't find", paste(x_val_str, ".", sep=""),
-             "If it lives within a data frame provided as a data argument,",
-             "try", paste("<data argument>$", x_val_str, sep=""),
-             "or", paste(z_val_str, "~", x_val_str, ".", sep="")))
-      }
-    } else if(data_val_str != 'NULL') {
-      stop(paste("Can't find", paste(x_val_str, ".", sep=""),
-           "If it lives within a data frame provided as a data argument,",
-           "try", paste(data_val_str, "$", x_val_str, ".", sep="")))
-    } else {
-      stop(paste("Can't find", paste(x_val_str, ".", sep=""),
-           "If it lives within a data frame provided as a data argument,",
-           "try", paste("<data argument>$", x_val_str, ".", sep="")))
-    }
-  }
+  # If x does not exist, then is.numeric(x) will raise an error, and our
+  # error message will be printed. Don't need value of is.numeric
+  # per se.
+  tryCatch(is.numeric(x),
+    error = stop(missing_x_msg(deparse(substitute(x)), data, ...)))
 
   cl <- match.call()
   UseMethod("match_on")
