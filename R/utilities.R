@@ -78,6 +78,8 @@ missing_x_msg <- function(x_str, data_str, ...) {
   if(data_str == "NULL")
     data_str <- "<data argument>"
 
+  # use a way of finding z that doesn't require z
+  # to exist as an actual R obj
   z <- ""
   extra_args_str <- deparse(substitute(list(...)))
   z_regex <- "z = (\\S+)[,\\)]"

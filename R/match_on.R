@@ -70,9 +70,7 @@
 #' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 
-  # If x does not exist, then is.numeric(x) will raise an error, and our
-  # error message will be printed. Don't need value of is.numeric
-  # per se.
+  # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
   data_str <- deparse(substitute(data))
   tryCatch(x, error = function(e) {

@@ -167,6 +167,14 @@ fullmatch <- function(x,
     tol = .001,
     data = NULL,
     ...) {
+
+  # if x does not exist then print helpful error msg
+  x_str <- deparse(substitute(x))
+  data_str <- deparse(substitute(data))
+  tryCatch(x, error = function(e) {
+    stop(missing_x_msg(x_str, data_str, ...))
+  })
+
   cl <- match.call()
   if (is.null(data)) {
     warning("Without 'data' argument the order of the match is not guaranteed

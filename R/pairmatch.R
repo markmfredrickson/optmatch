@@ -63,6 +63,13 @@ pairmatch <- function(x,
                       remove.unmatchables = FALSE,
                       ...) {
 
+  # if x does not exist then print helpful error msg
+  x_str <- deparse(substitute(x))
+  data_str <- deparse(substitute(data))
+  tryCatch(x, error = function(e) {
+    stop(missing_x_msg(x_str, data_str, ...))
+  })
+
   # Check that max/min.controls and omit.fraction is not passed in ...
   dots <- names(match.call(expand.dots = TRUE))[-1] # first is always ""
   not.allowed <- c("min.controls", "max.controls", "mean.controls", "omit.fraction")
