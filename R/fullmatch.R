@@ -172,8 +172,7 @@ fullmatch <- function(x,
   x_str <- deparse(substitute(x))
   data_str <- deparse(substitute(data))
   tryCatch(x, error = function(e) {
-    stop(missing_x_msg(x_str, data_str, ...))
-  })
+    stop(missing_x_msg(x_str, data_str, ...))})
 
   cl <- match.call()
   if (is.null(data)) {
