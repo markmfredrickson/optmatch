@@ -73,9 +73,8 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
   data_str <- deparse(substitute(data))
-  tryCatch(x, error = function(e) {
-    stop(missing_x_msg(x_str, data_str, ...))
-  })
+  tryCatch(exists(x_str), error = function(e) {
+           stop(missing_x_msg(x_str, data_str, ...)) })
 
   cl <- match.call()
   UseMethod("match_on")
