@@ -1,3 +1,22 @@
+CHANGES IN OPTMATCH VERSION 0.9-3
+
+* Fixed memory issues, potential segfaults in solver code. (Thank
+  you, Peter Solenberger).
+* Fixed bug in dropping cases with extraneous NAs when using
+  `fullmatch` or `pairmatch` to create distance specifications
+  directly.
+* Fixed bug (#83) in `glm` method for `match_on` that caused 
+  observations with fixable NAs to be dropped too often.
+* New function `distUnion` allows combining arbitrary distance
+  specifications.
+* New function `antiExactMatch` provides for matches that may only
+  occur between treated and control units with _different_ values on a
+  factor variable. This is the opposite of `exactMatch`, which ensures
+  matches occur within factor levels.
+* Can now infer `data` argument in more cases when using the `summary`
+  method when the RItools package is present.
+* Additional warnings and clarifications.
+
 CHANGES IN OPTMATCH VERSION 0.9-2
 
 * Fixed issue #74 by properly setting the `omit.fraction` argument

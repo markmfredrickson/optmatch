@@ -198,12 +198,12 @@ fullmatch.default <- function(x,
   }
 
   mfd <- if (!is.null(data)) {
-    model.frame(data)
+    model.frame(data, na.action=na.pass)
   } else {
     if (inherits(x, "function")) {
       stop("A data argument must be given when passing a function")
     }
-    model.frame(x)
+    model.frame(x, na.action=na.pass)
   }
   if (!class(mfd) == "data.frame") {
     stop("Please pass data argument")
@@ -254,6 +254,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     mean.controls = NULL,
     tol = .001,
     data = NULL,
+    within = NULL,
     ...) {
 
   ### Checking Input ###
@@ -271,6 +272,8 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     stop("dimnames of argument \'x\' contain duplicates")
   }
 
+  if (!is.null(within)) warning("Ignoring non-null 'within' argument.  When using 'fullmatch' with\n pre-formed distances, please combine them using '+'.")
+  
   nmtrt <- dnms[[1]]
   nmctl <- dnms[[2]]
 
