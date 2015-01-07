@@ -265,7 +265,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   }
 
   if (!is.null(within)) warning("Ignoring non-null 'within' argument.  When using 'fullmatch' with\n pre-formed distances, please combine them using '+'.")
-  
+
   nmtrt <- dnms[[1]]
   nmctl <- dnms[[2]]
 
@@ -432,7 +432,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
-    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], omf.r, na.rm=TRUE)) {
+    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
       tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover

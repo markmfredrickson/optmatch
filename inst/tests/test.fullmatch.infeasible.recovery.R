@@ -317,3 +317,18 @@ test_that("n_t > n_c", {
   # min.controls = 1/2, so we need 11 controls. Can't accomodate.
   expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants))))
 })
+
+test_that("Issue #92", {
+  # Bug can happen whenever <50% of the controls can be used (e.g. #tr * max.controls < #ctl * .5)
+  d <- data.frame("z" <- c(rep(0,1058), rep(1, 62)),
+                  "x" <- rnorm(1120))
+
+  # with min=1, max=2, we can use 2-4 of the controls. So omit.fraction's between .6 and .8 should not throw an
+  # infeasbility warning
+
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8), not(gives_warning("infeasible"))) # this shouldn't
+                                                                                                 # warn about
+                                                                                                 # infeasible
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=2, omit=.2), gives_warning("infeasible"))
+})
