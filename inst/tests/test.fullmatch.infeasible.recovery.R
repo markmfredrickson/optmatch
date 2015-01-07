@@ -319,12 +319,9 @@ test_that("n_t > n_c", {
 })
 
 test_that("Issue #92", {
-  # Bug can happen whenever <50% of the controls can be used (e.g. #tr * max.controls < #ctl * .5)
+  # Based upon data that had 1058 controls, 62 treated, and min=1, max=5, omit=.8.
   d <- data.frame("z" <- c(rep(0,1058), rep(1, 62)),
                   "x" <- rnorm(1120))
-
-  # with min=1, max=2, we can use 2-4 of the controls. So omit.fraction's between .6 and .8 should not throw an
-  # infeasbility warning
 
   expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
   expect_that(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8), not(gives_warning("infeasible"))) # this shouldn't
