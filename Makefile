@@ -63,6 +63,7 @@ $(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/* src/*.f src/Make
 		--exclude-from=.pkgexclude \
 		--exclude=load.R \
 		--exclude=check.R \
+		--exclude=demo \
 		--exclude=\#* . $(PKG)
 
 # You should probably use roxygen to add package dependecies, but if you must
