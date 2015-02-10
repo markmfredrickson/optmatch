@@ -190,12 +190,12 @@ fullmatch.default <- function(x,
   }
 
   mfd <- if (!is.null(data)) {
-    model.frame(data)
+    model.frame(data, na.action=na.pass)
   } else {
     if (inherits(x, "function")) {
       stop("A data argument must be given when passing a function")
     }
-    model.frame(x)
+    model.frame(x, na.action=na.pass)
   }
   if (!class(mfd) == "data.frame") {
     stop("Please pass data argument")
@@ -246,6 +246,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
     mean.controls = NULL,
     tol = .001,
     data = NULL,
+    within = NULL,
     ...) {
 
   ### Checking Input ###
@@ -262,6 +263,8 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   if (any(duplicated(unlist(dnms)))){
     stop("dimnames of argument \'x\' contain duplicates")
   }
+
+  if (!is.null(within)) warning("Ignoring non-null 'within' argument.  When using 'fullmatch' with\n pre-formed distances, please combine them using '+'.")
 
   nmtrt <- dnms[[1]]
   nmctl <- dnms[[2]]
@@ -429,7 +432,7 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
-    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], omf.r, na.rm=TRUE)) {
+    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
       tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover

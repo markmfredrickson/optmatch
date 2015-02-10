@@ -317,3 +317,15 @@ test_that("n_t > n_c", {
   # min.controls = 1/2, so we need 11 controls. Can't accomodate.
   expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants))))
 })
+
+test_that("Issue #92", {
+  # Based upon data that had 1058 controls, 62 treated, and min=1, max=5, omit=.8.
+  d <- data.frame("z" <- c(rep(0,1058), rep(1, 62)),
+                  "x" <- rnorm(1120))
+
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8), not(gives_warning("infeasible"))) # this shouldn't
+                                                                                                 # warn about
+                                                                                                 # infeasible
+  expect_that(fullmatch(z ~ x, data=d, min=1, max=2, omit=.2), gives_warning("infeasible"))
+})

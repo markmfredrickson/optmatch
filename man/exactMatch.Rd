@@ -49,7 +49,7 @@
 \author{Mark M. Fredrickson}
 
 
-\seealso{\code{\link{caliper}}, \code{\link{match_on}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
+\seealso{\code{\link{caliper}}, \code{\link{antiExactMatch}}, \code{\link{match_on}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}}
 
 \examples{
 data(nuclearplants)
