@@ -52,7 +52,7 @@ current:
 	@echo $(PKG).tar.gz
 
 # depend on the makefile so that updates to the version number will force a rebuild
-$(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/* src/*.f src/Makevars
+$(PKG): Makefile R/* tests/* inst/tests/* man/* inst/examples/* src/*.f src/*.c src/*.cc src/Makevars
 	rm -rf $(PKG)
 	git ls-files --other --exclude-standard > .pkgexclude
 	rsync -a --exclude-from=.gitignore --exclude=.git* --exclude Makefile \
@@ -135,7 +135,7 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/digest/INSTALLED:
 	$(call installpkg,digest)
 
-PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED
+PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED .local/Rcpp/INSTALLED
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
 # time to see if the released version gets the bug fix.

@@ -148,11 +148,14 @@ setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   x
 })
 
+#' @useDynLib your-package-name
+#' @importFrom Rcpp sourceCpp
+NULL
+
 ################################################################################
 # Infinity Sparse Matrix: Binary Ops
 ################################################################################
-setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
-function(e1, e2) {
+ismOpHandler <- function(binOp, e1, e2) {
   if (!identical(dim(e1), dim(e2))) {
     stop(paste("non-conformable matrices"))
   }
@@ -178,26 +181,19 @@ function(e1, e2) {
     }
   }
 
-  # even if in the same row, column order the two matrices might also be in different data order
-  pairs1 <- mapply(c, e1@rows, e1@cols, SIMPLIFY = F)
-  pairs2 <- mapply(c, e2@rows, e2@cols, SIMPLIFY = F)
+  return(
+    ismOps(binOp, e1, e2)
+  )
+}
 
-  # Note: This might be expensive. There may be a way to do this in one pass if the data
-  # were pre-sorted in into row/column order
-  idx1 <- which(pairs1 %in% pairs2)
-  idx2 <- match(pairs1, pairs2)
-
-  data1 <- e1@.Data[idx1]
-  data2 <- e2@.Data[idx2[!is.na(idx2)]]
-
-  res <- callGeneric(data1, data2)
-
-  tmp <- e1
-  tmp@.Data <- res
-  tmp@cols <- e1@cols[idx1]
-  tmp@rows <- e1@rows[idx1]
-  return(tmp)
-})
+setMethod("+", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('+', e1, e2))
+setMethod("-", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('-', e1, e2))
+setMethod("*", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('*', e1, e2))
+setMethod("/", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('/', e1, e2))
 
 setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"),
 function(e1, e2) {
