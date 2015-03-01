@@ -15,7 +15,6 @@ export(mdist,
 import(methods)
 importFrom(stats, getCall)
 importFrom(graphics, boxplot)
-importFrom(Rcpp, evalCpp)
 
 ### S3 Stuff
 S3method(Ops, optmatch.dlist)

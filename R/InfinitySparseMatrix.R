@@ -148,7 +148,6 @@ setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   x
 })
 
-#' @useDynLib your-package-name
 #' @importFrom Rcpp sourceCpp
 NULL
 

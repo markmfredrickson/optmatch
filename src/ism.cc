@@ -1,6 +1,5 @@
-#include<Rdefines.h>
-#include<Rcpp.h>
-#include<numeric>
+#include "ism.h"
+#include <numeric>
 
 // compare row col positions
 int cmp(int rowA, int colA, int rowB, int colB) {
@@ -68,8 +67,11 @@ int ismLubIndex(int findRow, int findCol,
   return right;
 }
 
-// [[Rcpp::export]]
-SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
+SEXP ismOps(SEXP o, SEXP a, SEXP b) {
+  const Rcpp::S4
+    ismA(a), ismB(b);
+  std::string op = Rcpp::as<std::string>(o);
+
   int i, ia, ib;
   const Rcpp::IntegerVector
     rowsA( ismA.slot("rows") ),
@@ -122,8 +124,9 @@ SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
     ansRows(nPairs),
     ansCols(nPairs);
 
-  switch (op) {
-  case '+':
+  // trying to avoid putting op test
+  // inside loop for efficiency (?)
+  if (op == "+") {
     for (i = 0; i < nPairs; i++) {
       ia = pairs(i, 0);
       ib = pairs(i, 1);
@@ -131,8 +134,7 @@ SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
       ansCols[i] = colsA[ia];
       ansData[i] = dataA[ia] + dataB[ib];
     }
-    break;
-  case '-':
+  }  else if (op == "-") {
     for (i = 0; i < nPairs; i++) {
       ia = pairs(i, 0);
       ib = pairs(i, 1);
@@ -140,8 +142,7 @@ SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
       ansCols[i] = colsA[ia];
       ansData[i] = dataA[ia] - dataB[ib];
     }
-    break;
-  case '*':
+  }  else if (op == "*") {
     for (i = 0; i < nPairs; i++) {
       ia = pairs(i, 0);
       ib = pairs(i, 1);
@@ -149,8 +150,7 @@ SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
       ansCols[i] = colsA[ia];
       ansData[i] = dataA[ia] * dataB[ib];
     }
-    break;
-  case '/':
+  }  else if (op == "/") {
     for (i = 0; i < nPairs; i++) {
       ia = pairs(i, 0);
       ib = pairs(i, 1);
@@ -158,7 +158,6 @@ SEXP ismOps(const char & op, const Rcpp::S4 & ismA, const Rcpp::S4 & ismB) {
       ansCols[i] = colsA[ia];
       ansData[i] = dataA[ia] / dataB[ib];
     }
-    break;
   }
 
   Rcpp::S4 ans("InfinitySparseMatrix");
