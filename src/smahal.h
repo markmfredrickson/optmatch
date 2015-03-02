@@ -12,6 +12,8 @@ typedef struct dmat {
   double * data;
 } DMAT;
 
-DMAT * smahal(int nr, int nc, double * data, int * z);
+extern "C" {
+  DMAT * smahal(int nr, int nc, double * data, int * z);
+}
 
 #endif

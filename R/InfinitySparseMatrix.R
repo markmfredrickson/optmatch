@@ -181,7 +181,7 @@ ismOpHandler <- function(binOp, e1, e2) {
   }
 
   return(
-    ismOps(binOp, e1, e2)
+    .Call('ismOps', binOp, e1, e2)
   )
 }
 
