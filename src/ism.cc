@@ -68,7 +68,7 @@ int ismLubIndex(int findRow, int findCol,
 }
 
 SEXP ismOps(SEXP o, SEXP a, SEXP b) {
-  const Rcpp::S4
+  Rcpp::S4
     ismA(a), ismB(b);
   std::string op = Rcpp::as<std::string>(o);
 
@@ -160,14 +160,9 @@ SEXP ismOps(SEXP o, SEXP a, SEXP b) {
     }
   }
 
-  Rcpp::S4 ans("InfinitySparseMatrix");
-  ans.slot(".Data") = ansData;
-  ans.slot("rows") = ansRows;
-  ans.slot("cols") = ansCols;
+  ismA.slot(".Data") = ansData;
+  ismA.slot("rows") = ansRows;
+  ismA.slot("cols") = ansCols;
 
-  std::string slots[] = {"dimension", "call", "rownames", "colnames"};
-  for(i = 0; i < 4; i++)
-    ans.slot(slots[i]) = ismA.slot(slots[i]);
-
-  return ans;
+  return ismA;
 }
