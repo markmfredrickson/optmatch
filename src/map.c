@@ -123,7 +123,9 @@ _ENTRY;
    algorithm is adequate because
    a)  the code is (most probably) called a few times per program run and
    b)  the number is small because the table must fit in the core  */
-static int isprime(unsigned int number) {
+static int
+isprime (unsigned int number)
+{
   /* no even number will be passed */
   unsigned int div = 3;
 
@@ -139,7 +141,11 @@ static int isprime(unsigned int number) {
    indexing as explained in the comment for the hsearch function.
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
-int hcreate_r(size_t nel, struct hsearch_data * htab) {
+int
+hcreate_r (nel, htab)
+     size_t nel;
+     struct hsearch_data *htab;
+{
   /* Test for correct arguments.  */
   if (htab == NULL)
       return 0;
@@ -171,7 +177,9 @@ int hcreate_r(size_t nel, struct hsearch_data * htab) {
 
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
-void hdestroy_r(struct hsearch_data *htab)
+void
+hdestroy_r (htab)
+     struct hsearch_data *htab;
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -197,7 +205,13 @@ void hdestroy_r(struct hsearch_data *htab)
    means used. The used field can be used as a first fast comparison for
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
-int hsearch_r(ENTRY item, ACTION action, ENTRY **retval, struct hsearch_data *htab) {
+int
+hsearch_r (item, action, retval, htab)
+     ENTRY item;
+     ACTION action;
+     ENTRY **retval;
+     struct hsearch_data *htab;
+{
   unsigned int hval;
   unsigned int count;
   unsigned int len = strlen (item.key);

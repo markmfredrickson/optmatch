@@ -19,13 +19,13 @@ void rank(int n, const double * data, double * ranks) {
   Free(sorted);
 }
 
-bool rerank_dups(int n, const double * data, double * ranks) {
+Rboolean rerank_dups(int n, const double * data, double * ranks) {
     int
       j, ndups,
       * dup_idx = Calloc(n, int),
       * visited = Calloc(n, int);
     double mean_rank;
-    bool any_ties = false;
+    Rboolean any_ties = FALSE;
 
     for(int i = 0; i < n ; i++) {
         if(visited[i] == 1) continue;
@@ -36,7 +36,7 @@ bool rerank_dups(int n, const double * data, double * ranks) {
             if(data[j] == data[i]) {
                 dup_idx[ndups] = j;
                 ndups++;
-		any_ties = true;
+		any_ties = TRUE;
                 mean_rank += ranks[j];
                 visited[j] = 1;
             }
@@ -223,9 +223,9 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
       * ranks = Calloc(nr * nc, double),
       * ranks_i = Calloc(nr, double);
 
-    bool
+    Rboolean
       tie,
-      any_ties = false;
+      any_ties = FALSE;
 
     memcpy(ranks, data, nr * nc * sizeof(double));
     for(int i = 0; i < nc; i++) {
@@ -244,12 +244,12 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
 	    cov(nr, ranks + i * nr, ranks + j * nr);
       }
     }
-    if(any_ties == true) adjust_ties(nr, nc, covs_inv);    
+    if(any_ties == TRUE) adjust_ties(nr, nc, covs_inv);    
     ginv_square(covs_inv, nc);
 
     int ncontrol, ntreat = 0;
     for(int i = 0; i < nr; i++) {
-      if(z[i] == 1)
+      if(z[i] == TRUE)
 	ntreat++;
     }
     ncontrol = nr - ntreat;
@@ -261,7 +261,7 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
     int
       c_treat_row = 0, c_control_row = 0;
     for(int i = 0; i < nr; i++) {
-      if(z[i] == 1) {
+      if(z[i] == TRUE) {
 	for(int j = 0; j < nc; j++)
 	  ranks_treat[c_treat_row + j * ntreat] = ranks[i + j * nr];
 	c_treat_row++;

@@ -8,8 +8,6 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredricks
   <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest
-LinkingTo: Rcpp
-Imports: Rcpp
 Suggests: boot, RItools, biglm, testthat, survival, brglm, arm
 Description: Functions for optimal matching, including full matching
 License: file LICENSE

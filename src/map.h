@@ -21,9 +21,6 @@
 #include <R.h>
 #include <Rinternals.h>
 
-#ifndef _MAP_H_
-#define _MAP_H_
-
 /* Action which shall be performed in the call the hsearch.  */
 typedef enum
   {
@@ -106,4 +103,3 @@ void delete_map(MAP * strpos);
 int get_pos(const char * to_find, MAP * strpos);
 
 // end new stuff
-#endif

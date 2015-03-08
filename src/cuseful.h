@@ -1,6 +1,3 @@
-#ifndef _CUSEFUL_H_
-#define _CUSEFUL_H_
-
 /* function: digits
    computes the number characters required to store an integer base 10
    as a string. It will include a character for the negative sign. It
@@ -10,5 +7,3 @@
    logarithm function.
  */
 int digits(int n);
-
-#endif
