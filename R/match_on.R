@@ -157,12 +157,18 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
 }
-  # Set up a contrasts.arg 
-  isF <- vapply(mf, is.factor, TRUE)
-  c.arg <- as.list(rep("contr.match_on", sum(isF)))
-  names(c.arg) <- names(mf)[isF]
   
-  data <- subset(model.matrix(x, mf, contrasts.arg=c.arg), T, -1) # drop the intercept
+###  isF <- vapply(mf, is.factor, TRUE)
+###  c.arg <- as.list(rep("contr.match_on", sum(isF)))
+###  names(c.arg) <- names(mf)[isF]
+###  data <- subset(model.matrix(x, mf, contrasts.arg=c.arg), T, -1)   
+### The approach below should limit duplication of factor variables, plus
+### make new defaults easier for users to override
+  old.o.c <- getOption("contrasts")
+  on.exit(options(contrasts=old.o.c))
+  options(contrasts=rep("contr.match_on", 2))
+
+  data <- subset(model.matrix(x, mf), TRUE, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
@@ -498,6 +504,9 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 } # just return the argument
 
 ##' @title A contrasts function suitable for use within match_on
+##' @details Scales the result of `contr.poly` by `2^-1`. Necessary for
+##' Euclidean distance to be the same when you apply it with a 2-level
+##' factor or with same factor after coercion to numeric.
 ##' @param n levels of the factor
 ##' @param contrasts (passed to contr.poly)
 ##' @param sparse (passed to contr.poly)

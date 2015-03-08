@@ -1,7 +1,14 @@
 CHANGES IN OPTMATCH VERSION 0.9-4
+
 * Fixed bug giving  spurious infeasibility warnings,
 sample size reductions when using `fullmatch` with feasible combinations
 of `min.controls`, `mean.controls`/`max.controls` and `max.controls` (#92)
+* Introducing `contr.match_on`, a new default contrasts function for
+making Mahalanobis and Euclidean distances. Previously we used R
+defaults, which (a) generated different answers for the same factor
+depending on the ordering of the levels and (b) led to different
+distances for {0,1}-valued numeric variables and two level
+factors.(#80)
 
 CHANGES IN OPTMATCH VERSION 0.9-3
 
