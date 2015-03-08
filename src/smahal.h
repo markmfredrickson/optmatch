@@ -2,6 +2,9 @@
 #include <Rinternals.h>
 #include <R_ext/Lapack.h>
 
+#ifndef _SMAHAL_H_
+#define _SMAHAL_H_
+
 #define SMAHAL_CUTOFF 1e-10
 
 typedef struct dmat {
@@ -9,4 +12,8 @@ typedef struct dmat {
   double * data;
 } DMAT;
 
-DMAT * smahal(int nr, int nc, double * data, int * z);
+extern "C" {
+  DMAT * smahal(int nr, int nc, double * data, int * z);
+}
+
+#endif
