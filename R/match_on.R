@@ -156,9 +156,13 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
-  }
-
-  data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
+}
+  # Set up a contrasts.arg 
+  isF <- vapply(mf, is.factor, TRUE)
+  c.arg <- as.list(rep("contr.match_on", sum(isF)))
+  names(c.arg) <- names(mf)[isF]
+  
+  data <- subset(model.matrix(x, mf, contrasts.arg=c.arg), T, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
@@ -492,3 +496,15 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
+
+##' @title A contrasts function suitable for use within match_on
+##' @param n levels of the factor
+##' @param contrasts (passed to contr.poly)
+##' @param sparse (passed to contr.poly)
+##' @return A matrix with `nn=length(n)` rows and `k` columns, with `k=nn-1` if `contrasts` is `TRUE` and `k=nn` if `contrasts` is `FALSE`.
+##' @export
+##' @author Ben B Hansen
+  contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE)
+    {
+        contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
+    }

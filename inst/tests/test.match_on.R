@@ -119,8 +119,24 @@ test_that("Distances from formulas", {
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "euclidean") - euclid) <
-    .00001)) # there is some rounding error, but it is small
+                      .00001)) # there is some rounding error, but it is small
 
+  # factor-related
+  f1 <- as.factor(rep(rep(1:2, each=2),n/4))
+  f2 <- as.factor(rep(3:4, each=n/2))
+  # first, set up test that options are properly reset on exit from the function
+  current.c <- getOption("contrasts")
+  options(contrasts=rep("foo", 2))
+  # Euclidean distances on a single factor should be 1 or 0
+  expect_true(all(match_on(Z~f1, method="euclidean") %in% 0:1))
+  # now check that the options were restored      
+  expect_equal(getOption("contrasts"), rep("foo", 2))
+  options(contrasts=current.c)
+  # with 2 orthogonal factors, distances should be 0, 1 or 2
+    expect_true(all(match_on(Z~f1+f2, method="euclidean") %in% sqrt(0:2)))
+  # with a single 2 level factor, numeric version to give same distances
+  expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="euclidean")), as.matrix(match_on(Z~f1, method="euclidean")))
+  
   # passing a function name for method
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = compute_euclidean) - euclid) <
     .00001)) # there is some rounding error, but it is small
