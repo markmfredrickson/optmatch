@@ -1,4 +1,3 @@
-#include <Rdefines.h>
 #include <Rcpp.h>
 
 #ifndef _ISM_H_

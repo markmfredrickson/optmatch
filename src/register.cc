@@ -1,4 +1,4 @@
-#include <R.h>
+#include <Rcpp.h>
 
 #include "register.h"
 #include "distances.h"
