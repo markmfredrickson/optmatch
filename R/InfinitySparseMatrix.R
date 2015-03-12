@@ -185,12 +185,75 @@ ismOpHandler <- function(binOp, e1, e2) {
   )
 }
 
+#' Elementwise addition
+#'
+#' \code{e1 + e2} returns the elementwise sum of
+#'   two InfinitySparseMatrix objects.
+#'   If either element summand is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise sum of the two ISM summands
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases +,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
 setMethod("+", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('+', e1, e2))
+
+#' Elementwise subtraction
+#'
+#' \code{e1 - e2} returns the elementwise subtraction of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise subtraction of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases -,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
 setMethod("-", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('-', e1, e2))
+
+#' Elementwise multiplication
+#'
+#' \code{e1 * e2} returns the elementwise multiplication of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise multiplication of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases *,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
 setMethod("*", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('*', e1, e2))
+
+#' Elementwise division
+#'
+#' \code{e1 / e2} returns the elementwise division of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise division of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases /,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
 setMethod("/", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('/', e1, e2))
 
