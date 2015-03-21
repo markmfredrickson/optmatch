@@ -73,45 +73,116 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   UseMethod("match_on")
 }
 
-#' @details The \code{function} method takes as its \code{x} argument a
-#' function of three arguments: \code{index}, \code{data}, and \code{z}. The \code{data} and \code{z}
-#' arguments will be the same as those passed directly to
-#' \code{match_on}. The \code{index} argument is a matrix of two columns,
-#' representing the pairs of treated and control units that are valid comparisons
-#' (given any \code{within} arguments). The first column is the row name or id of
-#' the treated unit in the \code{data} object. The second column is the id for the
-#' control unit, again in the \code{data} object. For each of these pairs, the
-#' function should return the distance between the treated unit and control unit.
-#' This may sound complicated, but is simple to use. For example, a function that
-#' returned the absolute difference between two units using a vector of data would
-#' be
-#' \code{f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
-#' (Note: This simple case is precisely handled by the \code{numeric} method.)
+#' @details The \code{glm} method assumes its first argument to be a fitted propensity
+#' model. From this it extracts distances on the \emph{linear} propensity score: fitted values
+#' of the linear predictor, the link function applied to the estimated conditional probabilities,
+#' as opposed to the estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).
+#' For example, a logistic model (\code{glm} with \code{family=binomial()}) has the logit function
+#' as its link, so from such models \code{match_on} computes distances in terms of logits of
+#' the estimated conditional probabilities, i.e. the estimated log odds.
 #'
-#' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
-#' @method match_on function
+#' Optionally these distances are also rescaled. The default is to rescale, by the reciprocal of
+#' an outlier-resistant variant of the pooled s.d. of propensity scores.
+#' (Outlier resistance is obtained by the application of \code{mad}, as opposed to \code{sd},
+#' to linear propensity scores in the treatment; this can be
+#' changed to the actual pooled s.d., or rescaling can be skipped entirely, by
+#' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.)
+#' The overall result records absolute differences between treated and
+#' control units on linear, possibly rescaled, propensity scores.
+#'
+#' In addition, one can impose a caliper in terms of these distances by providing a scalar as a
+#' \code{caliper} argument, forbidding matches between treatment and control units differing in the
+#' calculated propensity score by more than the specified caliper.  For example, Rosenbaum and Rubin's (1985)
+#' caliper of one-fifth of a pooled propensity score s.d. would be imposed by specifying \code{caliper=.2},
+#' in tandem either with the default rescaling or, to follow their example even more closely, with the
+#' additional specification \code{standardization.scale=sd}. Propensity calipers are beneficial
+#' computationally as well as statistically, for reasons indicated in the below discussion of
+#' the \code{numeric} method.
+#'
+#' @param standardization.scale Function for rescaling of \code{scores(x)}, or \code{NULL}; defaults to \code{mad}.  (See Details.)
+#' @seealso \code{\link{scores}}
+#' @method match_on glm
 #' @rdname match_on-methods
-match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
+match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
 
-  if (is.null(data) | is.null(z)) {
-    stop("Data and treatment indicator arguments are required.")
+  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
+
+  # If the data is given, using x$data intead of model.frame avoids issue #39
+  if (is.data.frame(x$data)) {
+    themf <- model.frame(x$data, na.action=na.pass)
+    z <- themf[,all.vars(as.formula(x$formula))[[1]]] # the explicit cast is for characters
+  } else {
+    themf <- model.frame(x$formula, na.action=na.pass)
+    z <- model.response(themf)
   }
-  if (!exists("cl")) cl <- match.call()
+  lp <- scores(x, newdata=themf)
 
-  theFun <- match.fun(x)
+  # If z has any missingness, drop it from both z and lp
+  lp <- lp[!is.na(z)]
+  z <- z[!is.na(z)]
 
-  tmp <- makedist(z, data, theFun, within)
-
-  if (is.null(caliper)) {
-    tmp@call <- cl
-    return(tmp)
+  pooled.sd <- if (is.null(standardization.scale)) {
+    1
+  } else {
+    match_on_szn_scale(lp, z, standardization.scale)
   }
+  lp.adj <- lp/pooled.sd
 
-  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
-  tmp@call <- cl
-  return(tmp)
+  match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
 
+match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
+  if (is.function(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
+          (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+  } else if (is.numeric(standardizer)) {
+    sqrt(((sum(!Tx) - 1) * standardizer^2 +
+          (sum(!!Tx) - 1) * standardizer^2) / (length(x) - 2))
+  } else {
+    stop("Invalid standardizer")
+  }
+}
+
+#' @details The \code{bigglm}
+#' method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
+#' the \code{bigglm} function from package \sQuote{biglm}, which can
+#' handle bigger data sets than the ordinary glm function can.
+#'
+#' @method match_on bigglm
+#' @rdname match_on-methods
+match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+  if (is.null(data)) {
+    stop("data argument is required for computing match_ons from bigglms")
+  }
+
+  if (!is.data.frame(data)) {
+    stop("match_on doesn't understand data arguments that aren't data frames.")
+  }
+
+  theps <- scores(x, data, type = 'link', se.fit = FALSE)
+
+  if (length(theps) != dim(data)[1]) {
+    stop("predict.bigglm() returns a vector of the wrong length;
+are there missing values in data?")
+  }
+
+  # this makes heavy use of the bigglm terms object, the original formula
+  # if this implementation detail changes in later versions of bigglm,
+  # look here for the problem.
+
+  Data <-  model.frame(x$terms, data = data)
+  z <- Data[, 1]
+  pooled.sd <- if (is.null(standardization.scale)) {
+    1
+  } else {
+    match_on_szn_scale(theps, z, standardizer=standardization.scale,...)
+  }
+
+  theps <- as.vector(theps / pooled.sd)
+  names(theps) <- rownames(data)
+
+  match_on(theps, within = within, caliper = caliper, z = z, ... )
+}
 
 #' @details The formula method produces, by default, a Mahalanobis distance specification
 #' based on the formula \code{Z ~ X1 + X2 + ... }, where
@@ -276,114 +347,43 @@ compute_rank_mahalanobis <- function(index, data, z) {
     )
 }
 
-#' @details The \code{glm} method assumes its first argument to be a fitted propensity
-#' model. From this it extracts distances on the \emph{linear} propensity score: fitted values
-#' of the linear predictor, the link function applied to the estimated conditional probabilities,
-#' as opposed to the estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).
-#' For example, a logistic model (\code{glm} with \code{family=binomial()}) has the logit function
-#' as its link, so from such models \code{match_on} computes distances in terms of logits of
-#' the estimated conditional probabilities, i.e. the estimated log odds.
+#' @details The \code{function} method takes as its \code{x} argument a
+#' function of three arguments: \code{index}, \code{data}, and \code{z}. The \code{data} and \code{z}
+#' arguments will be the same as those passed directly to
+#' \code{match_on}. The \code{index} argument is a matrix of two columns,
+#' representing the pairs of treated and control units that are valid comparisons
+#' (given any \code{within} arguments). The first column is the row name or id of
+#' the treated unit in the \code{data} object. The second column is the id for the
+#' control unit, again in the \code{data} object. For each of these pairs, the
+#' function should return the distance between the treated unit and control unit.
+#' This may sound complicated, but is simple to use. For example, a function that
+#' returned the absolute difference between two units using a vector of data would
+#' be
+#' \code{f <- function(index, data, z) { abs(apply(index, 1, function(pair) { data[pair[1]] - data[pair[2]] })) }}.
+#' (Note: This simple case is precisely handled by the \code{numeric} method.)
 #'
-#' Optionally these distances are also rescaled. The default is to rescale, by the reciprocal of
-#' an outlier-resistant variant of the pooled s.d. of propensity scores.
-#' (Outlier resistance is obtained by the application of \code{mad}, as opposed to \code{sd},
-#' to linear propensity scores in the treatment; this can be
-#' changed to the actual s.d., or rescaling can be skipped entirely, by
-#' setting argument \code{standardization.scale} to \code{sd} or \code{NULL}, respectively.)
-#' The overall result records absolute differences between treated and
-#' control units on linear, possibly rescaled, propensity scores.
-#'
-#' In addition, one can impose a caliper in terms of these distances by providing a scalar as a
-#' \code{caliper} argument, forbidding matches between treatment and control units differing in the
-#' calculated propensity score by more than the specified caliper.  For example, Rosenbaum and Rubin's (1985)
-#' caliper of one-fifth of a pooled propensity score s.d. would be imposed by specifying \code{caliper=.2},
-#' in tandem either with the default rescaling or, to follow their example even more closely, with the
-#' additional specification \code{standardization.scale=sd}. Propensity calipers are beneficial
-#' computationally as well as statistically, for reasons indicated in the below discussion of
-#' the \code{numeric} method.
-#'
-#' @param standardization.scale Standardizes the data based on the median absolute deviation (by default).
-#' @method match_on glm
+#' @param z A factor, logical, or binary vector indicating treatment (the higher level) and control (the lower level) for each unit in the study.
+#' @method match_on function
 #' @rdname match_on-methods
-match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
-  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
-
-  # If the data is given, using x$data intead of model.frame avoids issue #39
-  if (is.data.frame(x$data)) {
-    themf <- model.frame(x$data, na.action=na.pass)
-    z <- themf[,all.vars(as.formula(x$formula))[[1]]] # the explicit cast is for characters
-  } else {
-    themf <- model.frame(x$formula, na.action=na.pass)
-    z <- model.response(themf)
+  if (is.null(data) | is.null(z)) {
+    stop("Data and treatment indicator arguments are required.")
   }
-  lp <- scores(x, newdata=themf)
+  if (!exists("cl")) cl <- match.call()
 
-  # If z has any missingness, drop it from both z and lp
-  lp <- lp[!is.na(z)]
-  z <- z[!is.na(z)]
+  theFun <- match.fun(x)
 
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
-    match_on_szn_scale(lp, z, standardization.scale)
-  }
-  lp.adj <- lp/pooled.sd
+  tmp <- makedist(z, data, theFun, within)
 
-  match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
-}
-
-match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
-  if (is.function(standardizer)) {
-    sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
-          (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
-  } else if (is.numeric(standardizer)) {
-    sqrt(((sum(!Tx) - 1) * standardizer^2 +
-          (sum(!!Tx) - 1) * standardizer^2) / (length(x) - 2))
-  } else {
-    stop("Invalid standardizer")
-  }
-}
-
-#' @details The \code{bigglm}
-#' method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
-#' the \code{bigglm} function from package \sQuote{biglm}, which can
-#' handle bigger data sets than the ordinary glm function can.
-#'
-#' @method match_on bigglm
-#' @rdname match_on-methods
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
-  if (is.null(data)) {
-    stop("data argument is required for computing match_ons from bigglms")
+  if (is.null(caliper)) {
+    tmp@call <- cl
+    return(tmp)
   }
 
-  if (!is.data.frame(data)) {
-    stop("match_on doesn't understand data arguments that aren't data frames.")
-  }
-
-  theps <- scores(x, data, type = 'link', se.fit = FALSE)
-
-  if (length(theps) != dim(data)[1]) {
-    stop("predict.bigglm() returns a vector of the wrong length;
-are there missing values in data?")
-  }
-
-  # this makes heavy use of the bigglm terms object, the original formula
-  # if this implementation detail changes in later versions of bigglm,
-  # look here for the problem.
-
-  Data <-  model.frame(x$terms, data = data)
-  z <- Data[, 1]
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
-    match_on_szn_scale(theps, z, standardizer=standardization.scale,...)
-  }
-
-  theps <- as.vector(theps / pooled.sd)
-  names(theps) <- rownames(data)
-
-  match_on(theps, within = within, caliper = caliper, z = z, ... )
+  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
+  tmp@call <- cl
+  return(tmp)
 }
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
