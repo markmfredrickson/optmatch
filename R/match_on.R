@@ -281,27 +281,6 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # It calls a registered C routine mahalanobisHelper found in distances.c
 # after computing the inverse of a covariate matrix
 
-# compute_mahalanobis computes mahalanobis distances between treatment and
-# control pairs
-#
-# Arguments:
-#   index: a 2 col array of rownames from the 'data' argument.
-#     Col 1: treatment rownames
-#     Col 2: control rownames
-#   data: a matrix containing rows of treatment and control data. The
-#     rownames are used in index to indicate which treatment and control pairs
-#     get measured
-#   z: a logical vector of length nrows(data); TRUE indicates treatment
-#
-# If called from the makedist function, index is most likely a cross product of
-# treatment and control rownames.
-#
-# Value: a vector of distances a distance for each pair indicated in index
-#
-# This is the default method for calculating distances in the match_on methods.
-# It calls a registered C routine mahalanobisHelper found in distances.c
-# after computing the inverse of a covariate matrix
-
 compute_mahalanobis <- function(index, data, z) {
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
