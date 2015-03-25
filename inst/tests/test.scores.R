@@ -108,7 +108,7 @@ test_that("NA imputation", {
   # Addressing issue #73, the code has problems handling the missing data.
   # Should produce a more informative error message.
   expect_error(l5 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants),
-               "Missing data found in data but unable to refit")
+               "Unable to address missingness in pgscore on the fly.")
 
   l6 <- lm(pr ~ cap + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
   l7 <- lm(pr ~ cap + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
