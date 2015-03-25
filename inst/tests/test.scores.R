@@ -105,8 +105,11 @@ test_that("NA imputation", {
 
   pgscore <- lm(cost~cap + interaction(ct,bw), weights=t1, subset=(pr==0), data=nuclearplants)
 
-  # This doesn't work without the newdata argument.
-  expect_error(l5 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants))
+  # Addressing issue #73, the code has problems handling the missing data.
+  # Should produce a more informative error message.
+  expect_error(l5 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants),
+               "Missing data found in data but unable to refit")
+
   l6 <- lm(pr ~ cap + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
   l7 <- lm(pr ~ cap + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
 

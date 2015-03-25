@@ -53,7 +53,11 @@ scores <- function(object, newdata=NULL,...)
     newdata2 <- eval(fill.NAs(formula(object), data=newdata))
     # so data will be used first from newdat2, then from newdata
     alldata <- cbind(newdata2,newdata)
-    newobj <- eval(update(object, formula=formula(newdata2), data=alldata))
+    newobj <- try(eval(update(object, formula=formula(newdata2), data=alldata)),
+                  silent=TRUE)
+    if (is(newobj, "try-error")) {
+      stop("Missing data found in data but unable to refit model after imputation.\nTry imputing values manually using fill.NAs() or other routines, or reduce fit to complete cases")
+    }
     thescores <- predict(newobj, newdata=alldata, ...)
     if (any(is.na(thescores))) warning("Couldn't figure out how get rid of NAs")
     return(thescores)
