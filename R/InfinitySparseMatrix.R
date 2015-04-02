@@ -21,9 +21,12 @@ setOldClass(c("optmatch.dlist", "list"))
 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
 setClass("InfinitySparseMatrix",
-  representation(cols = "numeric", rows = "numeric", dimension = "numeric",
-    colnames = "OptionalCharacter", rownames = "OptionalCharacter",
-    call = "OptionalCall"),
+  representation(cols = "integer",
+                 rows = "integer",
+                 dimension = "integer",
+                 colnames = "OptionalCharacter",
+                 rownames = "OptionalCharacter",
+                 call = "OptionalCall"),
   contains = "vector")
 
 # using a maker function for now, probably should be an initialize function
@@ -41,11 +44,11 @@ setClass("InfinitySparseMatrix",
 #' finite entries in a vector format, use \code{makeInfinitySparseMatrix}.
 #'
 #' @param data  A vector of distances for the finite (allowed) treatment-control pairs.
-#' @param cols  A vector indicating the column number for each entry in \code{data}.
-#' @param rows  A vector indicating the row number for each entry in \code{data}.
+#' @param cols  An integer vector indicating the column number for each entry in \code{data}.
+#' @param rows  An integer vector indicating the row number for each entry in \code{data}.
 #' @param colnames  A optional character vector with the columns names of the matrix.
 #' @param rownames  A optional character vector with the row names of the matrix.
-#' @param dimension  An optional vector giving the dimensions of the matrix, which can be useful for indicating
+#' @param dimension  An optional integer vector giving the dimensions of the matrix, which can be useful for indicating
 #' matrices with entirely \code{Inf} rows or columns. If supplied with row and columns names, it must match.
 #' @param x A matrix to be converted to an \code{InfinitySparseMatrix}.
 #' @param call Optional \code{call} object to store with the distance
@@ -76,8 +79,13 @@ makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL,
   # }
 
 
-  return(new("InfinitySparseMatrix", data, cols = cols, rows = rows, colnames = colnames, rownames =
-    rownames, dimension = dimension, call = call))
+  return(new("InfinitySparseMatrix",
+             data,
+             cols = as.integer(cols),
+             rows = as.integer(rows),
+             colnames = colnames, rownames = rownames,
+             dimension = as.integer(dimension),
+             call = call))
 }
 
 ### Basic Matrix-like Operations and Conversions ###
@@ -327,7 +335,10 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")
   }
 
-  subset.data <- .Call(subsetInfSparseMatrix, subset, select, x)
+  subset.data <- .Call(subsetInfSparseMatrix,
+                       as.integer(subset),
+                       select,
+                       x)
   return(makeInfinitySparseMatrix(subset.data[, 3],
                                   subset.data[, 2],
                                   subset.data[, 1],
