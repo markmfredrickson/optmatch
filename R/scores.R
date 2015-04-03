@@ -1,27 +1,37 @@
-#' Wrapper for \code{predict} to cleanly look for new data to predict on.
+#' Extract scores (propensity, prognostic,...) from a fitted model
 #'
-#' When called without a \code{newdata} argument, it will attempt to determine the correct
-#' new data to predict on; e.g. in a \code{lm} or \code{glm} model, will use the data in that
-#' model.
+#' This is a wrapper for \code{predict}, adapted for use in matching.
+#' Given a fitted model but no explicit \code{newdata} to \sQuote{predict}
+#' from, it constructs its own \code{newdata}
+#' in a manner that's generally better suited for matching.
 #'
-#' If \code{newdata} (either the explicit argument, or the implicit data generated from
-#' \code{object}) has \code{NA} values, imputation will be performed on the missing data via
-#' the \code{\link{fill.NAs}} function and \code{object} will be refit using the imputed data
-#' frame, before calling \code{predict}
+#' In contrast to \code{predict}, if \code{scores} isn't given an
+#' explicit \code{newdata} argument then it attempts to reconstruct
+#' one from the context in which it is called, rather than from its
+#' first argument.  For example, if it's called within the
+#' \code{formula} argument of a call to \code{glm}, its \code{newdata}
+#' is the same data frame that \code{glm} evaluates that formula in,
+#' as opposed to the model frame associated with \code{object}.
+#' See Examples.
 #'
-#' If \code{newdata} is specified and contains no missing data, this is identical to calling
+#' The handling of missing independent variables also differs from
+#' that of \code{predict}. If \code{newdata} (either the explicit
+#' argument, or the implicit data generated from \code{object}) has
+#' \code{NA} values, they're mean-imputed using
+#' \code{\link{fill.NAs}}.  Also, missingness flags are added to the
+#' formula of \code{object}, which is then re-fit, using \code{\link{fill.NAs}},
+#' prior to calling \code{predict}.
+#'
+#' The mechanics of this re-fitting make it somewhat fragile, particularly for models
+#' involving weights, offsets, or sample exclusions conveyed via a \code{subset} argument
+#' to the model fitter. In such circumstances it's best to address missing observations before
+#' passing \code{object} to \code{scores}, ensuring that \code{na.action(object)} is \code{NULL}.
+#'
+#' If \code{newdata} is specified and contains no missing data, \code{scores} returns the same value as
 #' \code{predict}.
 #'
-#' If the call to create \code{object} is involved, particularly if it includes optional
-#' arguments such as \code{subset} or \code{weights} whose values reference the data, this
-#' function may fail or otherwise have undesirable results if the \code{newdata} argument is
-#' not given. It is therefore strongly recommended to include the \code{newdata} argument in
-#' these sort of situations.
-#'
-#' @param object a model object from which prediction is desired.
-#' @param newdata optionally, specifies a data frame in which to look for variables to predict
-#' with. When omitted, attempts to intelligently use the correct data frame as opposed to
-#' \code{predict} using the data originally used to create \code{object}.
+#' @param object fitted model object determining scores to be generated.
+#' @param newdata (optional) data frame containing variables with which scores are produced.
 #' @param ... additional arguments passed to \code{predict}.
 #' @return See individual \code{predict} functions.
 #' @author Josh Errickson
@@ -43,7 +53,13 @@ scores <- function(object, newdata=NULL,...)
     newdata2 <- eval(fill.NAs(formula(object), data=newdata))
     # so data will be used first from newdat2, then from newdata
     alldata <- cbind(newdata2,newdata)
-    newobj <- eval(update(object, formula=formula(newdata2), data=alldata))
+    newobj <- try(eval(update(object, formula=formula(newdata2), data=alldata)),
+                  silent=TRUE)
+    if (is(newobj, "try-error")) {
+      stop(paste("Unable to address missingness in", deparse(substitute(object)),
+                 "on the fly.\nTry dealing with NAs before the call to scores(),",
+                 "perhaps using fill.NAs()."))
+    }
     thescores <- predict(newobj, newdata=alldata, ...)
     if (any(is.na(thescores))) warning("Couldn't figure out how get rid of NAs")
     return(thescores)

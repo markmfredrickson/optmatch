@@ -1,3 +1,4 @@
+#include "r_smahal.h"
 #include "smahal.h"
 
 SEXP r_smahal(SEXP index, SEXP data, SEXP z) {

@@ -38,7 +38,7 @@
   missing values with minimally invasive substitutes. Fill-in is performed column-wise,
   with each column being treated individually. For each column that is missing, a new column
   is created of the form \dQuote{ColumnName.NA} with indicators for each observation that is missing
-  a value for \dQuote{ColumnName}.
+  a value for \dQuote{ColumnName}.  Rosenbaum and Rubin (1984, Sec. 2.4 and Appendix B) discuss propensity score models using this data structure.
 
   The replacement value used to fill in a missing value is simple mean replacement. For transformations
   of variables, e.g. \code{y ~ x1 * x2}, the transformation occurs first. The transformation column will be
@@ -66,7 +66,9 @@
 \author{ Mark M. Fredrickson and Jake Bowers }
 
 \references{
-  von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
+  Rosenbaum, Paul R. and Rubin, Donald B. (1984) \sQuote{Reducing Bias in Observational Studies using Subclassification on the Propensity Score,} \emph{Journal of the American Statistical Association}, \bold{79}, 516 -- 524.
+  
+  Von Hipple, Paul T. (2009) \sQuote{How to impute interactions, squares, and other transformed variables,}
     \emph{Sociological Methodlogy}, \bold{39}(1), 265 -- 291.}
 
 \seealso{\code{\link{match_on}}, \code{\link{lm}}}

@@ -106,7 +106,7 @@ release: check spell
 	@echo "Email to CRAN@R-project.org, subject: 'CRAN submission optmatch $(VERSION)'"
 
 # depend on this file to decide if we need to install the local version
-.local/optmatch/INSTALLED: $(PKG).tar.gz
+.local/optmatch/INSTALLED: $(PKGDEPS) $(PKG).tar.gz
 	mkdir -p .local
 	$(LR) CMD INSTALL --no-multiarch --library=.local $(PKG).tar.gz
 	echo `date` > .local/optmatch/INSTALLED
@@ -135,12 +135,16 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/digest/INSTALLED:
 	$(call installpkg,digest)
 
+.local/Rcpp/INSTALLED:
+	$(call installpkg,Rcpp)
+
 PKGDEPS = .local/testthat/INSTALLED \
 					.local/RItools/INSTALLED \
 					.local/biglm/INSTALLED \
 					.local/brglm/INSTALLED \
 					.local/arm/INSTALLED \
-					.local/digest/INSTALLED
+					.local/digest/INSTALLED \
+					.local/Rcpp/INSTALLED
 
 # This is a change from the upstream optmatch.
 # Upstream uses a fork of roxygen that properly handles S4 documentation
@@ -150,7 +154,7 @@ PKGDEPS = .local/testthat/INSTALLED \
 	$(call installpkg,roxygen2)
 
 # test is just the internal tests, not the full R CMD Check
-test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
+test: $(PKGDEPS) .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
 	$(LR) -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
 # this will delete everything, except the CRAN dependencies in .local
