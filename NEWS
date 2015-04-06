@@ -1,3 +1,8 @@
+CHANGES IN OPTMATCH VERSION 0.9-4
+* Fixed bug giving  spurious infeasibility warnings,
+sample size reductions when using `fullmatch` with feasible combinations
+of `min.controls`, `mean.controls`/`max.controls` and `max.controls` (#92)
+
 CHANGES IN OPTMATCH VERSION 0.9-3
 
 * Fixed memory issues, potential segfaults in solver code. (Thank
