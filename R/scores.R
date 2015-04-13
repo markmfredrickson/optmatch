@@ -45,24 +45,46 @@
 #' ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 scores <- function(object, newdata=NULL,...)
 {
-  # If user didn't give newdata, extract from model call
+
+  form <- formula(terms(formula(object), simplify=TRUE))
+  nm <- all.vars(form)
+
+  tmpform <- as.formula(paste("~", paste(nm, collapse="+")))
+
+  fulldata <- eval(object$call$data, envir=attr(object$terms,".Environment"))
+
+  mf <- model.frame(tmpform, data=fulldata,
+                    subset = eval(object$call$subset, envir=fulldata),
+                    na.action=na.pass)
+
+  if (!all(complete.cases(mf))) {
+    fill <- fill.NAs(mf)
+
+    extras <- names(fill)[(ncol(mf)+1):ncol(fill)]
+
+    newform <- formula(paste(row.names(attr(terms(form), "factors"))[1],
+                             paste(attr(terms(form), "term.labels"),
+                                   collapse="+"),
+                             sep="~"))
+    # Subset no longer needed before `model.frame` pulls out only the necessary
+    # subset already.
+    object <- update(object, newform, data=fill, subset = NULL)
+    warning("Missing data found and imputed.")
+  }
+
   if (is.null(newdata)) {
     newdata <- get_all_vars(object, data=parent.frame())
-  }
-  if (!all(complete.cases(newdata))) {
-    newdata2 <- eval(fill.NAs(formula(object), data=newdata))
-    # so data will be used first from newdat2, then from newdata
-    alldata <- cbind(newdata2,newdata)
-    newobj <- try(eval(update(object, formula=formula(newdata2), data=alldata)),
-                  silent=TRUE)
-    if (is(newobj, "try-error")) {
-      stop(paste("Unable to address missingness in", deparse(substitute(object)),
-                 "on the fly.\nTry dealing with NAs before the call to scores(),",
-                 "perhaps using fill.NAs()."))
+
+    fnd <- fill.NAs(newdata)
+
+    p <- try(predict(object, newdata=fnd,...),
+             silent=TRUE)
+    if (!is(p, "try-error")) {
+      return(p)
     }
-    thescores <- predict(newobj, newdata=alldata, ...)
-    if (any(is.na(thescores))) warning("Couldn't figure out how get rid of NAs")
-    return(thescores)
+
+    warning("Imputation into fulldata failed!")
   }
-  eval(predict(object, newdata=newdata,...))
+
+  predict(object, newdata=newdata, ...)
 }
