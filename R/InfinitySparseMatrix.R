@@ -156,11 +156,13 @@ setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   x
 })
 
+#' @importFrom Rcpp sourceCpp
+NULL
+
 ################################################################################
 # Infinity Sparse Matrix: Binary Ops
 ################################################################################
-setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
-function(e1, e2) {
+ismOpHandler <- function(binOp, e1, e2) {
   if (!identical(dim(e1), dim(e2))) {
     stop(paste("non-conformable matrices"))
   }
@@ -186,26 +188,82 @@ function(e1, e2) {
     }
   }
 
-  # even if in the same row, column order the two matrices might also be in different data order
-  pairs1 <- mapply(c, e1@rows, e1@cols, SIMPLIFY = F)
-  pairs2 <- mapply(c, e2@rows, e2@cols, SIMPLIFY = F)
+  return(
+    .Call('ismOps', binOp, e1, e2)
+  )
+}
 
-  # Note: This might be expensive. There may be a way to do this in one pass if the data
-  # were pre-sorted in into row/column order
-  idx1 <- which(pairs1 %in% pairs2)
-  idx2 <- match(pairs1, pairs2)
+#' Elementwise addition
+#'
+#' \code{e1 + e2} returns the elementwise sum of
+#'   two InfinitySparseMatrix objects.
+#'   If either element summand is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise sum of the two ISM summands
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases +,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
+setMethod("+", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('+', e1, e2))
 
-  data1 <- e1@.Data[idx1]
-  data2 <- e2@.Data[idx2[!is.na(idx2)]]
+#' Elementwise subtraction
+#'
+#' \code{e1 - e2} returns the elementwise subtraction of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise subtraction of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases -,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
+setMethod("-", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('-', e1, e2))
 
-  res <- callGeneric(data1, data2)
+#' Elementwise multiplication
+#'
+#' \code{e1 * e2} returns the elementwise multiplication of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise multiplication of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases *,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
+setMethod("*", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('*', e1, e2))
 
-  tmp <- e1
-  tmp@.Data <- res
-  tmp@cols <- e1@cols[idx1]
-  tmp@rows <- e1@rows[idx1]
-  return(tmp)
-})
+#' Elementwise division
+#'
+#' \code{e1 / e2} returns the elementwise division of
+#'   two InfinitySparseMatrix objects.
+#'   If either element is inf then
+#'   the resulting element will be inf.
+#'
+#' @param e1 an InfinitySparseMatrix object
+#' @param e2 an InfinitySparseMatrix object
+#' @return an InfinitySparseMatrix object representing
+#'   the elementwise division of the two ISM arguments
+#' @docType methods
+#' @rdname ismBinaryOps
+#' @aliases /,InfinitySparseMatrix,InfinitySparseMatrix-method
+#' @export
+setMethod("/", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
+  function(e1, e2) ismOpHandler('/', e1, e2))
 
 setMethod("Ops", signature(e1 = "InfinitySparseMatrix", e2 = "matrix"),
 function(e1, e2) {
