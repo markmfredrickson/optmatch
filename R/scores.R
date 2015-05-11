@@ -45,46 +45,36 @@
 #' ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 scores <- function(object, newdata=NULL,...)
 {
+  # First, update object to use missingness
+  olddata <- model.frame(object, na.action=na.pass, "weights")
+  wts <- olddata$"(weights)"
+  # If the formula is something like `y ~ . - x`, x is included in olddata.
+  # This simplifies the formula and drops it
+  olddata <- fill.NAs(model.frame(formula(terms(formula(object), simplify=TRUE)),
+                                  na.action=na.pass, data=olddata))
 
-  form <- formula(terms(formula(object), simplify=TRUE))
-  nm <- all.vars(form)
+  # rebuild the formula to handle expansion of factors and missing indicators
+  newform <- reformulate(names(olddata)[-1], names(olddata)[1])
+  # remove weights if it's hanging around.
+  newform <- update(newform, . ~ . - `(weights)`)
 
-  tmpform <- as.formula(paste("~", paste(nm, collapse="+")))
-
-  fulldata <- eval(object$call$data, envir=attr(object$terms,".Environment"))
-
-  mf <- model.frame(tmpform, data=fulldata,
-                    subset = eval(object$call$subset, envir=fulldata),
-                    na.action=na.pass)
-
-  if (!all(complete.cases(mf))) {
-    fill <- fill.NAs(mf)
-
-    extras <- names(fill)[(ncol(mf)+1):ncol(fill)]
-
-    newform <- formula(paste(row.names(attr(terms(form), "factors"))[1],
-                             paste(attr(terms(form), "term.labels"),
-                                   collapse="+"),
-                             sep="~"))
-    # Subset no longer needed before `model.frame` pulls out only the necessary
-    # subset already.
-    object <- update(object, newform, data=fill, subset = NULL)
-    warning("Missing data found and imputed.")
+  # Don't need subset anymore as the model.frame only pulled out that subset
+  if (!is.null(wts)) {
+    # For some reason, if wts is null, including weights=weights throws an error.
+    # So this code is a bit duplicative.
+    olddata$weights <- wts
+    newobject <- update(object, formula.= newform, data=olddata, weights=weights,
+                        subset=NULL)
+  } else {
+    newobject <- update(object, formula.= newform, data=olddata, subset=NULL)
   }
 
+  # Now, let's get newdata if its missing
   if (is.null(newdata)) {
-    newdata <- get_all_vars(object, data=parent.frame())
-
-    fnd <- fill.NAs(newdata)
-
-    p <- try(predict(object, newdata=fnd,...),
-             silent=TRUE)
-    if (!is(p, "try-error")) {
-      return(p)
-    }
-
-    warning("Imputation into fulldata failed!")
+    newdata <- fill.NAs(get_all_vars(object, parent.frame()))
+  } else {
+    newdata <- fill.NAs(newdata)
   }
 
-  predict(object, newdata=newdata, ...)
+  eval(predict(newobject, newdata=newdata, ...))
 }
