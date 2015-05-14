@@ -69,7 +69,7 @@ fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
   expanded.NAs <- colnames(modmat)[apply(modmat, 2, function(i) { any(is.na(i))})]
   # fill in the columns with missingness
   # NB: fill.column.numeric is hard coded as value of model.matrix is always numeric. no need for a generic fn.
-  modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], optmatch:::fill.column.numeric, simplify = F)
+  modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
 
   if(!all.covs){
   result <- cbind(data[response], modmat, NA.columns)
