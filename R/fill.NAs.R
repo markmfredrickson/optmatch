@@ -6,20 +6,21 @@
 fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
   # if x is present alone, it must be a data.frame
   # if x is present with data, x is a formula
-  # all.covs is logical indicating whether or not we want a response variable 
+  # all.covs is logical indicating whether or not we want a response variable
 
   if (is.null(data)) {
     if (!is.data.frame(x) && !is.matrix(x)) {
-      stop("Single argument must be a data frame")  
+      stop("Single argument must be a data frame")
     }
-    
+
     data <- as.data.frame(x) # in case it is a matrix
-    
+
     # swap the arguments around
     if(!all.covs){
-	    response <- colnames(data)[1] # the name of the response var    
-    
-	    x <- as.formula(paste("~. -", response)) # a quick hack to make a formula that is the data, should probably eval col names
+	    response <- colnames(data)[1] # the name of the response var
+
+	    x <- as.formula(paste0("~. - `", response, "`")) # a quick hack to make a formula that is the data, should probably eval col names
+      # Added ticks in case response has "+" or other formula characters in it
     }
     if(all.covs){
 	    x <- as.formula(~.)
@@ -36,8 +37,8 @@ fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
       response <- all.vars(ttt)[attr(ttt, "response")]
       data <- data[all.vars(ttt)]
     }
-    # TODO should be one more error condition here, if neither formula or d.f  
-  } 
+    # TODO should be one more error condition here, if neither formula or d.f
+  }
 
   # not.response <- colnames(data)[colnames(data) != response]
 
@@ -51,24 +52,24 @@ fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
   modmat <- as.data.frame(modmat)
   # remove the intercept, if any
   modmat["(Intercept)"] <- NULL
-  
+
   # shortcircuit if there are no additional NAs to add
   if(!any(original.NAs)) {
     result <- cbind(data[response], modmat)
-    return(result)  
+    return(result)
   }
 
   # indicator columns for missing data, only for original missing columns, not transforms
   NA.columns <- sapply(data[original.names], function(column) {
-    is.na(column)  
+    is.na(column)
   })
   colnames(NA.columns) <- paste(colnames(NA.columns), "NA", sep = ".")
-  
+
   # of the remaining columns, find those with missingness
   expanded.NAs <- colnames(modmat)[apply(modmat, 2, function(i) { any(is.na(i))})]
   # fill in the columns with missingness
   # NB: fill.column.numeric is hard coded as value of model.matrix is always numeric. no need for a generic fn.
-  modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
+  modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], optmatch:::fill.column.numeric, simplify = F)
 
   if(!all.covs){
   result <- cbind(data[response], modmat, NA.columns)
@@ -77,8 +78,8 @@ fill.NAs <- function(x, data = NULL, all.covs=FALSE, contrasts.arg=NULL) {
 	  result <- cbind(modmat,NA.columns)
   }
   return(result)
-  
-} 
+
+}
 
 
 ### Column imputation: takes a column and returns filled in values
@@ -110,7 +111,7 @@ fill.column.factor <- function(column) {
   # another option would be imputing based on the modal factor
   levels(column) <- c(levels(column),'.NA')
   column[is.na(column)] <- ".NA"
-  return(column)  
+  return(column)
 }
 
 fill.column.ordered <- function(column) {
