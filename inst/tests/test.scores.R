@@ -99,47 +99,61 @@ test_that("Handles weights with no missingness", {
 test_that("NA imputation", {
   data(nuclearplants)
   nuclearplants[c(3,5,12,19),1] <- NA
+  nuclearplants$cap[7] <- NA
 
   g1 <- glm(pr ~ cost + t1 + t2, data=nuclearplants, family=binomial)
-  l1 <- lm(pr ~ cap + scores(g1), data=nuclearplants)
-  #expect_warning(l1 <- lm(pr ~ cap + scores(g), data=nuclearplants),
-  #               "Missing data found and imputed.")
+  l1 <- lm(pr ~ ne + scores(g1), data=nuclearplants)
 
   # check that all cases are used
   expect_equal(length(fitted(l1)), 32)
 
   # Filling data first should be equivalent
-  np2 <- fill.NAs(pr ~ cap + cost + t1 + t2, data=nuclearplants)
-  g2 <- glm(pr ~ . - cap, data=np2, family=binomial)
-  l2 <- lm(pr ~ cap + scores(g2), data=np2)
-  l3 <- lm(pr ~ cap + predict(g2, newdata=np2), data=np2)
+  np2 <- fill.NAs(pr ~ cap + cost + t1 + t2 + ne, data=nuclearplants)
+  g2 <- glm(pr ~ . - ne, data=np2, family=binomial)
+  l2 <- lm(pr ~ ne + scores(g2), data=np2)
+  l3 <- lm(pr ~ ne + predict(g2, newdata=np2), data=np2)
   expect_equal(fitted(l2), fitted(l3))
-  expect_equal(fitted(l1), fitted(l3))
+  # But it should be different because the first stage had missingingness
+  expect_false(all(fitted(l1) ==  fitted(l3)))
+
+  # if we fill.NAs twice, should be the same.
+  g1.filled <- glm(pr ~ cost + t1 + t2 + cost.NA, data=np2, family=binomial)
+  l1.filled <- lm(pr ~ ne + scores(g1.filled), data=np2)
+  expect_equal(fitted(l1), fitted(l1.filled))
 
   # Subset shouldn't affect imputation
-  pgscore <- lm(cost~cap + interaction(ct,bw), subset=(pr==0), data=nuclearplants)
+  pgscore <- lm(cost + t1 ~ cap + interaction(ct,bw) + t2, subset=(pr==0),
+                data=nuclearplants)
 
-  l5 <- lm(pr ~ cap + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
-  l6 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants)
+  l5 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants)
+  l6 <- lm(pr ~ cap + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
   l7 <- lm(pr ~ cap + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
 
-  np3 <- fill.NAs(pr ~ cap + cost + bw + ct, data=nuclearplants)
-  l8 <- lm(pr ~ cap + scores(pgscore), data=np3)
-  l9 <- lm(pr ~ cap + scores(pgscore, newdata=np3), data=np3)
-  l10 <- lm(pr ~ cap + predict(pgscore, newdata=np3), data=np3)
+  np3 <- fill.NAs(cost ~ cap + pr + bw + ct + t1 + t2, data=nuclearplants)
+  pgscore.filled <- lm(cost + t1 ~ cap + interaction(ct,bw) + t2 + cap.NA,
+                       subset=(pr==0), data=np3)
+  l8 <- lm(pr ~ cap + scores(pgscore.filled), data=np3)
+  l9 <- lm(pr ~ cap + scores(pgscore.filled, newdata=np3), data=np3)
+  l10 <- lm(pr ~ cap + predict(pgscore.filled, newdata=np3), data=np3)
 
   expect_equal(fitted(l5), fitted(l6))
   expect_equal(fitted(l5), fitted(l7))
-  expect_equal(fitted(l5), fitted(l8))
-  expect_equal(fitted(l5), fitted(l9))
-  expect_equal(fitted(l5), fitted(l10))
+  expect_equal(fitted(l8), fitted(l9))
+  expect_equal(fitted(l8), fitted(l10))
+  # we don't expect l5 and l8 to be the same because np3 mean imputed over the
+  # entire data set, whereas scores(pgscore) only mean imputed over the subset
+  expect_equal(length(fitted(l5)), 31)
+  expect_equal(length(fitted(l8)), 32)
 
-  # Weights is causing problems still, these tests fail
-  ## pgscore <- lm(cost~cap + interaction(ct,bw), subset=(pr==0),
-  ##               weights=t1, data=nuclearplants)
+  pgscore <- lm(cost~cap + interaction(ct,bw), subset=(pr==0),
+                weights=t1, data=nuclearplants)
 
-  ## w1 <- lm(pr ~ cap + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
-  ## w2 <- lm(pr ~ cap + scores(pgscore), data=nuclearplants)
-  ## w3 <- lm(pr ~ cap + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
+  w1 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
+  w2 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  w3 <- lm(pr ~ t2 + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
+  expect_equal(length(fitted(w1)), 32)
+  expect_equal(fitted(w1), fitted(w2))
 
+  expect_equal(length(fitted(w3)), 31)
+  expect_false(fitted(w1)[1] == fitted(w3)[1])
 })

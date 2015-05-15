@@ -46,15 +46,24 @@
 scores <- function(object, newdata=NULL,...)
 {
   # First, update object to use missingness
-  olddata <- model.frame(object, na.action=na.pass, "weights")
-  wts <- olddata$"(weights)"
+  if (is(object, "bigglm")) {
+    olddata <- model.frame(object, na.action=na.pass)
+    wts <- weights(object)
+  } else {
+    olddata <- model.frame(object, na.action=na.pass, "weights")
+    wts <- olddata$"(weights)"
+  }
   # If the formula is something like `y ~ . - x`, x is included in olddata.
   # This simplifies the formula and drops it
-  olddata <- fill.NAs(model.frame(formula(terms(formula(object), simplify=TRUE)),
-                                  na.action=na.pass, data=olddata))
+  lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
+  rhs <- attr(terms(formula(object), simplify=TRUE), "term.labels")
+  olddata <- fill.NAs(olddata[, names(olddata) %in% c(rhs, lhs)])
+  names(olddata) <- gsub("`", "", names(olddata))
 
   # rebuild the formula to handle expansion of factors and missing indicators
-  newform <- reformulate(names(olddata)[-1], names(olddata)[1])
+  vars <- paste0("`",names(olddata)[-1], "`")
+  vars <- vars[!grepl(names(olddata)[1], vars, fixed=TRUE)]
+  newform <- reformulate(vars, names(olddata[1]))
   # remove weights if it's hanging around.
   newform <- update(newform, . ~ . - `(weights)`)
 
@@ -71,10 +80,31 @@ scores <- function(object, newdata=NULL,...)
 
   # Now, let's get newdata if its missing
   if (is.null(newdata)) {
-    newdata <- fill.NAs(get_all_vars(object, parent.frame()))
+    newdata2 <- model.frame(formula(object), data=parent.frame(), na.action=na.pass)
   } else {
-    newdata <- fill.NAs(newdata)
+    newdata2 <- model.frame(formula(object), data=newdata, na.action=na.pass)
+  }
+  newdata2 <- fill.NAs(newdata2)
+  names(newdata2) <- gsub("`", "", names(newdata2))
+
+  # If we were given `newdata`, it may contain things we didn't capture yet
+  # (Specifically, if fill.NAs was called on newdata, it'll contain some
+  # xxx.NA columns)
+  if (is.null(newdata)) {
+    rhs <- gsub("`", "", attr(terms(newobject), "term.labels"))
+    othervars <- rhs[!(rhs %in% names(newdata2))]
+    tosearch <- if (length(othervars) > 0) {
+      cbind(newdata2, model.frame(reformulate(othervars,), parent.frame()))
+    } else {
+      newdata2
+    }
+    newdata2 <- model.frame(formula(newobject),
+                            data=tosearch,
+                            na.action=na.pass)
+  } else {
+    newdata2 <- model.frame(formula(newobject), data=cbind(newdata2, newdata),
+                            na.action=na.pass)
   }
 
-  eval(predict(newobject, newdata=newdata, ...))
+  eval(predict(newobject, newdata=newdata2, ...))
 }
