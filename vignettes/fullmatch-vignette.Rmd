@@ -1,0 +1,94 @@
+---
+title: "Matching with Optmatch"
+author: "Josh Errickson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Matching with Optmatch}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+The `optmatch` package enables the user to perform several variations of
+matching, from simple pair matching to a complete fullmatch.
+
+The data set used in this vignette is `nuclearplants`, accesible by running
+
+```{r,results="hide"}
+library(optmatch)
+data(nuclearplants)
+```
+
+Variables of note include `cost`, the cost of construction (in millions of
+dollars) of the plant, and `pr`, an indicator for the prior existence of a plant
+at the site. A potential research question of interest could be to see whether
+the cost of a new plant is affected by the existence of a prior plant, which
+could either decrease costs (since existing infrastructure may exist, and the
+land is already ready for such construction) or increase costs (removing the
+existing infrastructure may be costly). A concern may be lack of balance amongst
+covariates between the two groups of interest.
+
+To formalize notation, it is useful to think of the two groups as "control" and
+"treatment". Therefore, consider the group which has a prior plant at the site
+(`pr==1`) as the treatment group and the group which has no prior plant
+(`pr==0`) as the control group.
+
+# Propensity Score model
+
+Matching is often done on propensity scores, especially in settings where there
+are multiple covariates to balance upon. A propensity score of an observation is
+the observations likelihood to have been in the treatment group given their
+covariates. This is fit using a logistic regression model with the variable
+indicating treatment assignment as the response (in the nuclear plants data,
+`pr`) and all covariates we wish to balance on as predictors.
+
+For the nuclear plants data, we could fit this model as
+
+```{r}
+psmod <- glm(pr ~ t1 + t2 + cap, family=binomial, data=nuclearplants)
+```
+
+The argument is that despite two observations perhaps having different
+covariates, if they have similar propensity scores, then we can consider the
+choice of which observation receives treatment is a mini-experiment.
+
+We can look at the propensity scores by
+
+```{r}
+fitted(psmod)
+```
+
+Propensity scores much have what is known as "common support." In other words,
+there must be overlap between treatment and control. Otherwise, matching would
+be impossible. The boxplot serves as a visual check; ensuring that the two
+ranges overlap substantially.
+
+```{r}
+boxplot(psmod)
+```
+
+# Pairmatching
+
+The simplest and most straightforward matching scheme is pairmatching. Each
+member of the treatment group is matched to a single member of the control
+group, without overlap, such that the overall distance between propensity scores
+in each matched pair is minimized.
+
+```{r}
+match1 <- pairmatch(psmod, data=nuclearplants)
+match1
+summary(match1)
+```
+
+The `data` argument in `pairmatch` is optional, but preferred, as dropping it
+can yield to situations where the observation labels are confused. The `summary`
+of the match shows first the size of each match, and here we see that there are
+10 matches of a single treatment to a single control (pair-matches) and 12 cases
+where there was an extra control and no available treatment members. This
+illustrates a problem with pairmatching; if the size of the two groups are
+dissimilar, a large number of observations could be discarded. Optimal matching,
+discussed below, addresses this.
+
+# Optimal Matching

@@ -17,3 +17,5 @@ performance-*.pdf
 vignettes/performance/*.rda
 *.swp
 .pkgexclude
+inst/doc
+vignettes/figure

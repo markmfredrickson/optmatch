@@ -10,7 +10,8 @@ Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest
 LinkingTo: Rcpp
 Imports: Rcpp
-Suggests: boot, RItools, biglm, testthat, survival, brglm, arm
+Suggests: boot, RItools, biglm, testthat, survival, brglm, arm, knitr
 Description: Functions for optimal matching, including full matching
 License: file LICENSE
+VignetteBuilder: knitr
 URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch
