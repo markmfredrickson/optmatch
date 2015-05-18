@@ -79,6 +79,10 @@ S3method(subdim, InfinitySparseMatrix)
 S3method(subdim, BlockedInfinitySparseMatrix)
 S3method(subdim, matrix)
 
+
+S3method(scores, default)
+S3method(scores, bigglm)
+
 S3method(num_eligible_matches, optmatch.dlist)
 S3method(num_eligible_matches, matrix)
 S3method(num_eligible_matches, InfinitySparseMatrix)

@@ -43,16 +43,22 @@
 #' # The following two lines produce identical results.
 #' ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants), data=nuclearplants)
 #' ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
-scores <- function(object, newdata=NULL,...)
-{
+scores <- function(object, newdata=NULL, ...) {
+
+  # if object does not exist then print helpful error msg
+  object_str <- deparse(substitute(object))
+  data_str <- deparse(substitute(newdata))
+  tryCatch(object, error = function(e) {
+    stop(missing_x_msg(object_str, data_str, ...))})
+
+  UseMethod("scores")
+}
+
+scores.default <- function(object, newdata=NULL, ...) {
   # First, update object to use missingness
-  if (is(object, "bigglm")) {
-    olddata <- model.frame(object, na.action=na.pass)
-    wts <- weights(object)
-  } else {
-    olddata <- model.frame(object, na.action=na.pass, "weights")
-    wts <- olddata$"(weights)"
-  }
+  olddata <- model.frame(object, na.action=na.pass, "weights")
+  wts <- olddata$"(weights)"
+
   # If the formula is something like `y ~ . - x`, x is included in olddata.
   # This simplifies the formula and drops it
   lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
@@ -66,6 +72,65 @@ scores <- function(object, newdata=NULL,...)
   newform <- reformulate(vars, names(olddata[1]))
   # remove weights if it's hanging around.
   newform <- update(newform, . ~ . - `(weights)`)
+
+  # Don't need subset anymore as the model.frame only pulled out that subset
+  if (!is.null(wts)) {
+    # For some reason, if wts is null, including weights=weights throws an error.
+    # So this code is a bit duplicative.
+    olddata$weights <- wts
+    newobject <- update(object, formula.= newform, data=olddata, weights=weights,
+                        subset=NULL)
+  } else {
+    newobject <- update(object, formula.= newform, data=olddata, subset=NULL)
+  }
+
+  # Now, let's get newdata if its missing
+  if (is.null(newdata)) {
+    newdata2 <- model.frame(formula(object), data=parent.frame(), na.action=na.pass)
+  } else {
+    newdata2 <- model.frame(formula(object), data=newdata, na.action=na.pass)
+  }
+  newdata2 <- fill.NAs(newdata2)
+  names(newdata2) <- gsub("`", "", names(newdata2))
+
+  # If we were given `newdata`, it may contain things we didn't capture yet
+  # (Specifically, if fill.NAs was called on newdata, it'll contain some
+  # xxx.NA columns)
+  if (is.null(newdata)) {
+    rhs <- gsub("`", "", attr(terms(newobject), "term.labels"))
+    othervars <- rhs[!(rhs %in% names(newdata2))]
+    tosearch <- if (length(othervars) > 0) {
+      cbind(newdata2, model.frame(reformulate(othervars,), parent.frame()))
+    } else {
+      newdata2
+    }
+    newdata2 <- model.frame(formula(newobject),
+                            data=tosearch,
+                            na.action=na.pass)
+  } else {
+    newdata2 <- model.frame(formula(newobject), data=cbind(newdata2, newdata),
+                            na.action=na.pass)
+  }
+
+  eval(predict(newobject, newdata=newdata2, ...))
+}
+
+scores.bigglm <- function(object, newdata=NULL, ...) {
+
+  olddata <- model.frame(object, na.action=na.pass)
+  wts <- weights(object)
+
+  # If the formula is something like `y ~ . - x`, x is included in olddata.
+  # This simplifies the formula and drops it
+  lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
+  rhs <- attr(terms(formula(object), simplify=TRUE), "term.labels")
+  olddata <- fill.NAs(olddata[, names(olddata) %in% c(rhs, lhs)])
+  names(olddata) <- gsub("`", "", names(olddata))
+
+  # rebuild the formula to handle expansion of factors and missing indicators
+  vars <- paste0("`",names(olddata)[-1], "`")
+  vars <- vars[!grepl(names(olddata)[1], vars, fixed=TRUE)]
+  newform <- reformulate(vars, names(olddata[1]))
 
   # Don't need subset anymore as the model.frame only pulled out that subset
   if (!is.null(wts)) {
