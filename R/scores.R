@@ -62,7 +62,7 @@ scores.default <- function(object, newdata=NULL, ...) {
   # If the formula is something like `y ~ . - x`, x is included in olddata.
   # This simplifies the formula and drops it
   lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
-  rhs <- attr(terms(formula(object), simplify=TRUE), "term.labels")
+  rhs <- gsub("`", "", attr(terms(formula(object), simplify=TRUE), "term.labels"))
   olddata <- fill.NAs(olddata[, names(olddata) %in% c(rhs, lhs)])
   names(olddata) <- gsub("`", "", names(olddata))
 
