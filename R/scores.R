@@ -1,37 +1,37 @@
 #' Extract scores (propensity, prognostic,...) from a fitted model
 #'
-#' This is a wrapper for \code{predict}, adapted for use in matching.
-#' Given a fitted model but no explicit \code{newdata} to \sQuote{predict}
-#' from, it constructs its own \code{newdata}
-#' in a manner that's generally better suited for matching.
+#' This is a wrapper for \code{predict}, adapted for use in matching.  Given a
+#' fitted model but no explicit \code{newdata} to \sQuote{predict} from, it
+#' constructs its own \code{newdata} in a manner that's generally better suited
+#' for matching.
 #'
-#' In contrast to \code{predict}, if \code{scores} isn't given an
-#' explicit \code{newdata} argument then it attempts to reconstruct
-#' one from the context in which it is called, rather than from its
-#' first argument.  For example, if it's called within the
-#' \code{formula} argument of a call to \code{glm}, its \code{newdata}
-#' is the same data frame that \code{glm} evaluates that formula in,
-#' as opposed to the model frame associated with \code{object}.
-#' See Examples.
+#' In contrast to \code{predict}, if \code{scores} isn't given an explicit
+#' \code{newdata} argument then it attempts to reconstruct one from the context
+#' in which it is called, rather than from its first argument.  For example, if
+#' it's called within the \code{formula} argument of a call to \code{glm}, its
+#' \code{newdata} is the same data frame that \code{glm} evaluates that formula
+#' in, as opposed to the model frame associated with \code{object}.  See
+#' Examples.
 #'
-#' The handling of missing independent variables also differs from
-#' that of \code{predict}. If \code{newdata} (either the explicit
-#' argument, or the implicit data generated from \code{object}) has
-#' \code{NA} values, they're mean-imputed using
-#' \code{\link{fill.NAs}}.  Also, missingness flags are added to the
-#' formula of \code{object}, which is then re-fit, using \code{\link{fill.NAs}},
-#' prior to calling \code{predict}.
+#' The handling of missing independent variables also differs from that of
+#' \code{predict}. If \code{newdata} (either the explicit argument, or the
+#' implicit data generated from \code{object}) has \code{NA} values, they're
+#' mean-imputed using \code{\link{fill.NAs}}.  Also, missingness flags are added
+#' to the formula of \code{object}, which is then re-fit, using
+#' \code{\link{fill.NAs}}, prior to calling \code{predict}.
 #'
-#' The mechanics of this re-fitting make it somewhat fragile, particularly for models
-#' involving weights, offsets, or sample exclusions conveyed via a \code{subset} argument
-#' to the model fitter. In such circumstances it's best to address missing observations before
-#' passing \code{object} to \code{scores}, ensuring that \code{na.action(object)} is \code{NULL}.
+#' The mechanics of this re-fitting make it somewhat fragile, particularly for
+#' models involving weights, offsets, or sample exclusions conveyed via a
+#' \code{subset} argument to the model fitter. In such circumstances it's best
+#' to address missing observations before passing \code{object} to
+#' \code{scores}, ensuring that \code{na.action(object)} is \code{NULL}.
 #'
-#' If \code{newdata} is specified and contains no missing data, \code{scores} returns the same value as
-#' \code{predict}.
+#' If \code{newdata} is specified and contains no missing data, \code{scores}
+#' returns the same value as \code{predict}.
 #'
 #' @param object fitted model object determining scores to be generated.
-#' @param newdata (optional) data frame containing variables with which scores are produced.
+#' @param newdata (optional) data frame containing variables with which scores
+#' are produced.
 #' @param ... additional arguments passed to \code{predict}.
 #' @return See individual \code{predict} functions.
 #' @author Josh Errickson
