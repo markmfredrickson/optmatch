@@ -157,3 +157,31 @@ test_that("NA imputation", {
   expect_equal(length(fitted(w3)), 31)
   expect_false(fitted(w1)[1] == fitted(w3)[1])
 })
+
+test_that("scores with bigglm", {
+  # Currently, scores() for bigglm is not supported
+  library(biglm)
+  n <- 16
+  Z <- c(rep(0, n/2), rep(1, n/2))
+  X1 <- rnorm(n, mean = 5)
+  X2 <- rnorm(n, mean = -2, sd = 2)
+  test.data <- data.frame(Z, X1, X2)
+
+  bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
+  expect_that(m1 <- lm(Z ~ scores(bgps, newdata=test.data), data=test.data),
+                 not(gives_warning("not supported for class bigglm")))
+  m2 <- lm(Z ~ predict(bgps, newdata=test.data), data=test.data)
+
+  expect_equal(fitted(m1), fitted(m2))
+
+  test.data$X1[1] <- NA
+
+  # predict's na.action=na.pass is ignored in bigglm, so we'll need to impute
+  # beforehand to get the same results
+  bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
+  expect_warning(m3 <- lm(Z ~ scores(bgps, newdata=test.data), data=test.data),
+                 "not supported for class bigglm")
+  m4 <- lm(Z ~ predict(bgps, newdata=fill.NAs(test.data)), data=test.data)
+
+  expect_equal(fitted(m3), fitted(m4))
+})
