@@ -92,3 +92,97 @@ dissimilar, a large number of observations could be discarded. Optimal matching,
 discussed below, addresses this.
 
 # Optimal Matching
+
+If we relax the restriction that each match must contain exactly one treatment
+and exactly one control member, we could utilize the entire sample. Define a
+matched set as j:k, where j is the number of treatment members and k is the
+number of control members, so that in pair matching, all sets would be
+1:1. Optimal matching allows sets of size j:1 or 1:k, where j and k can vary per
+set and are chosen optimally. (Sets where both j and k are greater than 1 won't
+exist, because its always more optimal to split any such set up into multiple
+j:1 or 1:k sets.) The `fullmatch` function performs this optimal matching.
+
+```{r}
+match2 <- fullmatch(psmod, data=nuclearplants)
+match2
+summary(match2)
+```
+
+As you can see, all observations are used here. There are only two pairmatches,
+a single match involving multiple treatments to a single control (the `5+:1`
+match) and several 1:k matches. We can see the exact size of each match via
+
+```{r}
+stratumStructure(match2)
+```
+
+## Restrictions on Optimal Matching
+
+While the match we saw before is optimal in the sense that it produces to
+minimum distance between matched elements in the propensity scores, it has two
+perhaps undesirable traits. First, it contains a match which uses a lot of
+treatment group members. In a lot of settings, the treatment group is small in
+comparison to the control group, so we would want each treatment group member to
+contribute fully (when in a j:1 match, each treatment member basically
+contributes 1/j to the results). Secondly, the `1:8` and `1:9` sets are
+dominating the results, such that our effective sample size of 8.58 is quite
+low. We can perform the optimal matching under some restrictions to still gain
+its benefits without falling into either trap.
+
+The arguments `min.control`, `max.control` and `omit.fraction` control these
+restrictions. The first two arguments restrict the size of matches, and
+`omit.fraction` enforces dropping a percentage of the treatment or control
+members. To illustrate their use, we give several examples.
+
+1. From the `match2` above, we wish to ensure that each match set is no larger
+than 5 (so that nothing larger than 4:1 or 1:4 exists).
+
+```{r}
+match3 <- fullmatch(psmod, data=nuclearplants, max.controls=4, min.controls=1/4)
+summary(match3)
+```
+
+2. Let's ensure that each treatment is in its own unique set, so that we only
+have 1:k sets, still with an upper bound of 1:4.
+
+```{r}
+match4 <- fullmatch(psmod, data=nuclearplants, max.controls=4, min.controls=1)
+summary(match4)
+```
+
+3. Now, we want to have even smaller sets, so that only sets of 1:1 or 1:2 are
+allowed.
+
+```{r}
+match5 <- fullmatch(psmod, data=nuclearplants, max.controls=2, min.controls=1)
+summary(match5)
+```
+
+Note the warning and dropped control group members, given that we have 10
+treatment and 22 control members, we couldn't use all the control members with
+these restrictions.
+
+4. The last match, `match5`, dropped 10 control group members. Is the match it
+came up with after dropping those 10 (8 1:1's and 2 1:2 sets) optimal without
+the `max.control` and `min.control` restrictions? Use `omit.fraction` to find
+out.
+
+```{r}
+match6 <- fullmatch(psmod, data=nuclearplants, omit.fraction=10/22)
+summary(match6)
+```
+
+We have a much different match structure. `match6` has an improved overall
+distance btween matches (6.24 vs 8.3) but loses effective sample size (10.7 down
+to 7.71).
+
+5. It's possible to create restrictions which cannot be matched. For example, if
+we wanted each treatment member to be matched to at least 3 control group
+members, we'd need 30 control group members (but we only have 20). And unlike in
+`match5` where some control group members were dropped to accommodate the
+restrictions, `fullmatch` will not drop treatment members.
+
+```{r}
+match7 <- fullmatch(psmod, data=nuclearplants, min.controls=3)
+summary(match7)
+```
