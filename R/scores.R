@@ -14,24 +14,20 @@
 #' Examples.
 #'
 #' The handling of missing independent variables also differs from that of
-#' \code{predict}. If \code{newdata} (either the explicit argument, or the
-#' implicit data generated from \code{object}) has \code{NA} values, they're
-#' mean-imputed using \code{\link{fill.NAs}}.  Also, missingness flags are added
-#' to the formula of \code{object}, which is then re-fit, using
-#' \code{\link{fill.NAs}}, prior to calling \code{predict}.
-#'
-#' The mechanics of this re-fitting make it somewhat fragile, particularly for
-#' models involving weights, offsets, or sample exclusions conveyed via a
-#' \code{subset} argument to the model fitter. In such circumstances it's best
-#' to address missing observations before passing \code{object} to
-#' \code{scores}, ensuring that \code{na.action(object)} is \code{NULL}.
+#' \code{predict} in two ways. First, if the data used to generate \code{object}
+#' has \code{NA} values, they're mean-imputed using
+#' \code{\link{fill.NAs}}. Secondly, if \code{newdata} (either the explicit
+#' argument, or the implicit data generated from \code{object}) has \code{NA}
+#' values, they're likewise mean-imputed using \code{\link{fill.NAs}}.  Also,
+#' missingness flags are added to the formula of \code{object}, which is then
+#' re-fit, using \code{\link{fill.NAs}}, prior to calling \code{predict}.
 #'
 #' If \code{newdata} is specified and contains no missing data, \code{scores}
 #' returns the same value as \code{predict}.
 #'
 #' @param object fitted model object determining scores to be generated.
 #' @param newdata (optional) data frame containing variables with which scores
-#' are produced.
+#'   are produced.
 #' @param ... additional arguments passed to \code{predict}.
 #' @return See individual \code{predict} functions.
 #' @author Josh Errickson
@@ -123,10 +119,14 @@ scores.default <- function(object, newdata=NULL, ...) {
   eval(predict(newobject, newdata=newdata2, ...))
 }
 
+#' Due to the nature of \code{bigglm} objects, the first stage imputation (if the data used
+#' to generate \code{object} has \code{NA} values) does not occur.
 scores.bigglm <- function(object, newdata=NULL, ...) {
 
   if (nrow(model.frame(object)) != object$n) {
-    warning("Model fit on data with missing values. Updating of model with imputed data not supported for class bigglm. Please perform imputation prior to calling scores.")
+    warning(paste("Model fit on data with missing values. Updating of model",
+                  "with imputed data not supported for class bigglm.",
+                  "Please perform imputation prior to calling scores."))
   }
 
   ## olddata <- model.frame(object, na.action=na.pass)
