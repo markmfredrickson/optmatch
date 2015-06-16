@@ -226,6 +226,21 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   rm(m)
 
+  if (any(grepl("strata", x))) {
+    if (!is.null(within)) {
+      stop(paste("Do not specify exact matching via both `within` arguments and",
+                 "via `strata()` terms in the formula."))
+    }
+    t <- terms(x, specials="strata")
+    strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
+    x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
+    mf[[2]] <- x
+
+    em <- unlist(sapply(strsplit(strata, "\\(|)|,"), "[", -1))
+    within <- exactMatch(as.formula(paste(x[[2]], "~", paste(em, collapse="+"))),
+                               data=data)
+  }
+
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
