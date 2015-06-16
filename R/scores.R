@@ -57,7 +57,14 @@ scores <- function(object, newdata=NULL, ...) {
 
 scores.default <- function(object, newdata=NULL, ...) {
   # First, update object to use missingness
-  olddata <- model.frame(object, na.action=na.pass, "weights")
+  olddata <- tryCatch(model.frame(object, na.action=na.pass, "weights"),
+                      error = function(e) {
+    warning(paste("Error gathering complete data.",
+                  "If the data has missing cases, imputation will not be performed.",
+                  "Either be explicit in including `data` arguments to objects, or perform",
+                  "imputation beforehand."))
+    model.frame(object, "weights")
+  })
   wts <- olddata$"(weights)"
 
   # If the formula is something like `y ~ . - x`, x is included in olddata.
