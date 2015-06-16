@@ -252,14 +252,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
       stop(paste("Do not specify exact matching via both `within` arguments and",
                  "via `strata()` terms in the formula."))
     }
-    t <- terms(x, specials="strata")
-    strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
-    x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
-    mf[[2]] <- x
 
-    em <- unlist(sapply(strsplit(strata, "\\(|)|,"), "[", -1))
-    within <- exactMatch(as.formula(paste(x[[2]], "~", paste(em, collapse="+"))),
-                               data=data)
+    newwithin <- makeWithinFromStrata(x, data)
+    x <- newwithin$x
+    mf[[2]] <- x
+    within <- newwithin$within
   }
 
   names(mf)[names(mf) == "x"] <- "formula"
@@ -301,6 +298,22 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   tmp@call <- cl
   return(tmp)
 }
+
+# Internal function. Given a formula (which includes strata elements)
+# and the data frame, return an updated formula without the strata elements
+# and an exactMatch using the strata.
+makeWithinFromStrata <- function(x, data)
+{
+  t <- terms(x, specials="strata")
+  strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
+  x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
+
+  em <- unlist(sapply(strsplit(strata, "\\(|)|,"), "[", -1))
+  within <- exactMatch(as.formula(paste(x[[2]], "~", paste(em, collapse="+"))),
+                             data=data)
+  return(list(x=x, within=within))
+}
+
 
 # compute_mahalanobis computes mahalanobis distances between treatment and
 # control pairs
