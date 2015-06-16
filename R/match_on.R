@@ -51,7 +51,9 @@
 #' @param within A valid distance specification, such as the result of
 #'   \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #'   which distances to create. Including this argument can significantly speed
-#'   up computation for sparse matching problems.
+#'   up computation for sparse matching problems. Specify this filter either via
+#'   \code{within} or via \code{strata} elements of a formula; mixing these
+#'   methods will fail.
 #' @param caliper The width of a caliper to use to exclude treated-control pairs
 #'   with values greater than the width. For some methods, there may be a speed
 #'   advantage to passing a width rather than using the \code{\link{caliper}}
@@ -117,8 +119,8 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #'   \code{NULL}; defaults to \code{mad}.  (See Details.)
 #' @seealso \code{\link{scores}}
 #' @method match_on glm
-#' @rdname match_on-methods match_on.glm <- function(x, within = NULL, caliper =
-NULL, data = NULL, standardization.scale = mad, ...) {
+#' @rdname match_on-methods
+match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
 
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
 
@@ -216,6 +218,12 @@ are there missing values in data?")
 #'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}. Or,
 #'   implement your own; for hints as to how, refer to\cr
 #'   \url{https://github.com/markmfredrickson/optmatch/wiki/How-to-write-your-own-compute-method}
+#'
+#'   As an alternative to specifying a \code{within} argument, when \code{x} is
+#'   a formula, the `strata` command can be used inside the formula to specify
+#'   exact matching. For example, rather than using \code{within=exactMatch(y ~
+#'   z, data=data)}, you may update your formula as \code{y ~ x + strata(z)}. Do
+#'   not use both methods (\code{within} and \code{strata} simultaneously.
 #'
 #' @param subset A subset of the data to use in creating the distance
 #'   specification.
