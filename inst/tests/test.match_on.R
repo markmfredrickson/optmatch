@@ -437,3 +437,30 @@ test_that("numeric standardization scale", {
 
   result.glm <- match_on(test.glm, standardization.scale=1)
 })
+
+test_that("Using strata instead of within arguments", {
+  data(nuclearplants)
+
+  m1 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                  data=nuclearplants)
+  m2 <- match_on(pr ~ cost + strata(pt), data=nuclearplants)
+  m2b <- match_on(pr ~ cost, data=nuclearplants)
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  expect_true(is(m2, "BlockedInfinitySparseMatrix"))
+  expect_true(all.equal(m1, m2, check.attributes=FALSE))
+  expect_true(!isTRUE(all.equal(m2, m2b, check.attributes=FALSE)))
+
+  # handling more complicated strata calls
+  m3 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt + ct + ne,
+                                               data=nuclearplants),
+                  data=nuclearplants)
+  m4 <- match_on(pr ~ cost + strata(pt) + strata(ct, ne), data=nuclearplants)
+
+  expect_true(all.equal(m3, m4, check.attributes=FALSE))
+
+  expect_error(match_on(pr ~ cost + strata(pt),
+                           within=exactMatch(pr ~ pt, data=nuclearplants),
+                           data=nuclearplants), "Do not specify")
+
+})

@@ -405,3 +405,30 @@ test_that("NAs in irrelevant data slots don't trip us up", {
   rm(B)
   expect_equal(length(fullmatch(Z~X1, data=test.data)), n)
 })
+
+test_that("Using strata instead of within arguments", {
+  data(nuclearplants)
+
+  f1 <- fullmatch(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                  data=nuclearplants)
+  f2 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants)
+  f2b <- fullmatch(pr ~ cost, data=nuclearplants)
+
+  expect_true(is(f1, "optmatch"))
+  expect_true(is(f2, "optmatch"))
+  expect_true(compare_optmatch(f1, f2))
+  expect_false(compare_optmatch(f2, f2b))
+
+  # handling more complicated strata calls
+  f3 <- fullmatch(pr ~ cost, within=exactMatch(pr ~ pt + ct + ne,
+                                               data=nuclearplants),
+                  data=nuclearplants)
+  f4 <- fullmatch(pr ~ cost + strata(pt) + strata(ct, ne), data=nuclearplants)
+
+  expect_true(compare_optmatch(f3, f4))
+
+  expect_error(fullmatch(pr ~ cost + strata(pt),
+                           within=exactMatch(pr ~ pt, data=nuclearplants),
+                           data=nuclearplants), "Do not specify")
+
+})
