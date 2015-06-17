@@ -437,6 +437,36 @@ test_that("numeric standardization scale", {
   result.glm <- match_on(test.glm, standardization.scale=1)
 })
 
+test_that("Building exactMatch from formula with strata", {
+
+  d <- data.frame(x = rnorm(8),
+                  t = rep(0:1, 4),
+                  z = rep(0:1, each=4))
+
+  em <- exactMatch(t ~ z, data=d)
+
+  nw <- makeWithinFromStrata(t ~ strata(z), d)
+
+  expect_true(is(nw, "list"))
+  expect_true(length(nw) == 2)
+  expect_true(all(names(nw) == c("x", "within")))
+
+  expect_true(is(nw$x, "formula"))
+  expect_true(is(nw$within, "BlockedInfinitySparseMatrix"))
+  expect_true(all(unlist(subdim(nw$within)) == 2))
+
+  expect_equivalent(em, nw$within)
+  expect_equivalent(t ~ 1, nw$x)
+
+  nw2 <- makeWithinFromStrata(t ~ x + strata(z), d)
+
+  expect_equivalent(em, nw2$within)
+  expect_equivalent(t ~ x, nw2$x)
+
+
+})
+
+
 test_that("Using strata instead of within arguments", {
   data(nuclearplants)
 
