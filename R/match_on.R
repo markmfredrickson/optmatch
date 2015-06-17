@@ -145,6 +145,11 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   }
   lp.adj <- lp/pooled.sd
 
+  if (any(grepl("strata", formula(x)))) {
+    newwithin <- makeWithinFromStrata(formula(x), data)
+    within <- newwithin$within
+  }
+
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
 }
 
@@ -302,6 +307,9 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # Internal function. Given a formula (which includes strata elements)
 # and the data frame, return an updated formula without the strata elements
 # and an exactMatch using the strata.
+#
+# Note: Only use the `x` returned in match_on.formula; in match_on.glm we do
+# not remove the strata variables from the model.
 makeWithinFromStrata <- function(x, data)
 {
   t <- terms(x, specials="strata")

@@ -493,3 +493,21 @@ test_that("Using strata instead of within arguments", {
                            data=nuclearplants), "Do not specify")
 
 })
+
+test_that("strata in GLMs", {
+
+  data(nuclearplants)
+
+  m1 <- match_on(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial), within=exactMatch(pr ~ ne, data=nuclearplants), data=nuclearplants)
+  m2 <- match_on(glm(pr ~ t1 + strata(ne), data=nuclearplants, family=binomial), data=nuclearplants)
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  expect_true(is(m2, "BlockedInfinitySparseMatrix"))
+  expect_true(all.equal(m1, m2, check.attributes=FALSE))
+
+  m3 <- match_on(glm(pr ~ t1 + ne + interaction(ct,pt), data=nuclearplants, family=binomial), within=exactMatch(pr ~ ne + ct*pt, data=nuclearplants), data=nuclearplants)
+  m4 <- match_on(glm(pr ~ t1 + strata(ne) + strata(ct, pt), data=nuclearplants, family=binomial), data=nuclearplants)
+
+  expect_true(all.equal(m3, m4, check.attributes=FALSE))
+
+})
