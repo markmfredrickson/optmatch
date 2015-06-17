@@ -4,7 +4,6 @@
 
 library(testthat)
 library(biglm)
-library(survival)
 
 context("match_on function")
 
