@@ -185,3 +185,24 @@ test_that("scores with bigglm", {
 
   expect_equal(fitted(m3), fitted(m4))
 })
+
+test_that("scores works with *, interaction and strata", {
+  data(nuclearplants)
+  g1 <- glm(pr ~ cost + interaction(ne,ct), data=nuclearplants, family=binomial)
+  g2 <- glm(pr ~ cost + strata(ne,ct), data=nuclearplants, family=binomial)
+  g3 <- glm(pr ~ cost + ne*ct, data=nuclearplants, family=binomial)
+
+  expect_equal(predict(g1), predict(g2))
+  expect_equal(predict(g1), scores(g1, newdata=nuclearplants))
+  expect_equal(predict(g2), scores(g2, newdata=nuclearplants))
+  expect_equal(scores(g1, newdata=nuclearplants),
+               scores(g2, newdata=nuclearplants))
+
+  expect_equal(predict(g1), predict(g3))
+  expect_equal(predict(g1), scores(g1, newdata=nuclearplants))
+  expect_equal(predict(g3), scores(g3, newdata=nuclearplants))
+  expect_equal(scores(g1, newdata=nuclearplants),
+               scores(g3, newdata=nuclearplants))
+
+
+})

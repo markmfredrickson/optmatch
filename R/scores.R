@@ -52,40 +52,34 @@ scores <- function(object, newdata=NULL, ...) {
 }
 
 scores.default <- function(object, newdata=NULL, ...) {
-  # First, update object to use missingness
-  olddata <- tryCatch(model.frame(object, na.action=na.pass, "weights"),
-                      error = function(e) {
+
+  mf <- tryCatch(model.frame(object, na.action=na.pass),
+                 error = function(e) {
     warning(paste("Error gathering complete data.",
                   "If the data has missing cases, imputation will not be performed.",
-                  "Either be explicit in including `data` arguments to objects, or perform",
-                  "imputation beforehand."))
-    model.frame(object, "weights")
+                  "Either be explicit in including `data` arguments to objects,",
+                  "or perform imputation beforehand."))
+    model.frame(object)
   })
-  wts <- olddata$"(weights)"
+  wts <- mf$"(weights)"
+  olddata <- fill.NAs(as.data.frame(model.matrix(formula(object),
+                                       data=mf)))[,-1,drop=FALSE]
+  colnames(olddata) <- gsub("`", "", colnames(olddata))
+  olddata <- cbind(model.frame(object, na.action=na.pass)[,1,drop=FALSE], olddata)
 
-  # If the formula is something like `y ~ . - x`, x is included in olddata.
-  # This simplifies the formula and drops it
-  lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
-  rhs <- gsub("`", "", attr(terms(formula(object), simplify=TRUE), "term.labels"))
-  olddata <- fill.NAs(olddata[, names(olddata) %in% c(rhs, lhs)])
-  names(olddata) <- gsub("`", "", names(olddata))
 
-  # rebuild the formula to handle expansion of factors and missing indicators
-  vars <- paste0("`",names(olddata)[-1], "`")
-  vars <- vars[!grepl(names(olddata)[1], vars, fixed=TRUE)]
-  newform <- reformulate(vars, names(olddata[1]))
-  # remove weights if it's hanging around.
-  newform <- update(newform, . ~ . - `(weights)`)
-
-  # Don't need subset anymore as the model.frame only pulled out that subset
-  if (!is.null(wts)) {
-    # For some reason, if wts is null, including weights=weights throws an error.
-    # So this code is a bit duplicative.
-    olddata$weights <- wts
-    newobject <- update(object, formula.= newform, data=olddata, weights=weights,
-                        subset=NULL)
+  if (is.null(wts)) {
+    newobject <- update(object, formula.=formula(olddata),
+                        data=olddata, subset=NULL)
   } else {
-    newobject <- update(object, formula.= newform, data=olddata, subset=NULL)
+    newobject <- update(object, formula.=formula(olddata),
+                        data=olddata, subset=NULL, weights=wts,
+                        evaluate=FALSE)
+    newobject$weights <- wts
+    newobject <- eval(newobject)
+    # This bit of silliness is because update evaluate its weight argument in
+    # the wrong frame, and it was frustrating to find the correct one. This
+    # workaround replaces the weights with an actual vector in the call.
   }
 
   # Now, let's get newdata if its missing
@@ -94,27 +88,9 @@ scores.default <- function(object, newdata=NULL, ...) {
   } else {
     newdata2 <- model.frame(formula(object), data=newdata, na.action=na.pass)
   }
-  newdata2 <- fill.NAs(newdata2)
+  newdata2 <- fill.NAs(as.data.frame(model.matrix(formula(object),
+                                                  data=newdata2)))[,-1,drop=FALSE]
   names(newdata2) <- gsub("`", "", names(newdata2))
-
-  # If we were given `newdata`, it may contain things we didn't capture yet
-  # (Specifically, if fill.NAs was called on newdata, it'll contain some
-  # xxx.NA columns)
-  if (is.null(newdata)) {
-    rhs <- gsub("`", "", attr(terms(newobject), "term.labels"))
-    othervars <- rhs[!(rhs %in% names(newdata2))]
-    tosearch <- if (length(othervars) > 0) {
-      cbind(newdata2, model.frame(reformulate(othervars,), parent.frame()))
-    } else {
-      newdata2
-    }
-    newdata2 <- model.frame(formula(newobject),
-                            data=tosearch,
-                            na.action=na.pass)
-  } else {
-    newdata2 <- model.frame(formula(newobject), data=cbind(newdata2, newdata),
-                            na.action=na.pass)
-  }
 
   eval(predict(newobject, newdata=newdata2, ...))
 }
