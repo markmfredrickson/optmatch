@@ -72,12 +72,12 @@ scores <- function(object, newdata=NULL, ...) {
   } else {
     mf <- tryCatch(model.frame(object, na.action=na.pass),
                    error = function(e) {
-      fallback <- model.frame(object)                 
+      fallback <- model.frame(object)
       warning(paste("Error gathering complete data.",
                     "If the data has missing cases, imputation will not be performed.",
                     "(Sometimes this can be fixed by supplying a `data` argument",
                     "when fitting the model that's to be passed to `scores`. Alternatively,
-                     just take care of (impute) NAs before you fit that model.)")
+                     just take care of (impute) NAs before you fit that model.)"))
       fallback
     })
     wts <- mf$"(weights)"
