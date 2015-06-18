@@ -42,44 +42,62 @@
 #' ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 scores <- function(object, newdata=NULL, ...) {
 
-  # if object does not exist then print helpful error msg
-  object_str <- deparse(substitute(object))
-  data_str <- deparse(substitute(newdata))
-  tryCatch(object, error = function(e) {
-    stop(missing_x_msg(object_str, data_str, ...))})
+  if (is(object, "bigglm")) {
+    # bigglm has two problems:
+    # 1) update.bigglm only allows adding new data, not replacing the old.
+    # Solution: modify object$call$data and re-eval.
+    # 2) model.frame(object, na.action=na.pass) fails without a data
+    #    argument.
+    # Don't have a good solution - we could require that `newdata` be given
+    # but that's weird, because newdata and object$data don't have to be
+    # the same.
+    #
+    # For now, bypass imputation into data if object is bigglm
 
-  UseMethod("scores")
-}
+    if (nrow(model.frame(object)) != object$n) {
+      warning(paste("Imputation and refitting of bigglm objects",
+                    "prior to prediction is not supported. Please",
+                    "impute before calling scores."))
+    }
+    # Still using `fill.NAs` just to get expansion of factors the same
+    olddata <- fill.NAs(model.matrix(formula(object),
+                                     data=model.frame(object)))[,-1,drop=FALSE]
+    colnames(olddata) <- gsub("`", "", colnames(olddata))
+    olddata <- cbind(model.frame(object)[,1,drop=FALSE], olddata)
 
-scores.default <- function(object, newdata=NULL, ...) {
-
-  mf <- tryCatch(model.frame(object, na.action=na.pass),
-                 error = function(e) {
-    warning(paste("Error gathering complete data.",
-                  "If the data has missing cases, imputation will not be performed.",
-                  "Either be explicit in including `data` arguments to objects,",
-                  "or perform imputation beforehand."))
-    model.frame(object)
-  })
-  wts <- mf$"(weights)"
-  olddata <- fill.NAs(as.data.frame(model.matrix(formula(object),
-                                       data=mf)))[,-1,drop=FALSE]
-  colnames(olddata) <- gsub("`", "", colnames(olddata))
-  olddata <- cbind(model.frame(object, na.action=na.pass)[,1,drop=FALSE], olddata)
-
-
-  if (is.null(wts)) {
-    newobject <- update(object, formula.=formula(olddata),
-                        data=olddata, subset=NULL)
+    call <- object$call
+    call$data <- olddata
+    call[[2]] <- formula(olddata)
+    newobject <- eval(call)
   } else {
-    newobject <- update(object, formula.=formula(olddata),
-                        data=olddata, subset=NULL, weights=wts,
-                        evaluate=FALSE)
-    newobject$weights <- wts
-    newobject <- eval(newobject)
-    # This bit of silliness is because update evaluate its weight argument in
-    # the wrong frame, and it was frustrating to find the correct one. This
-    # workaround replaces the weights with an actual vector in the call.
+    mf <- tryCatch(model.frame(object, na.action=na.pass),
+                   error = function(e) {
+      warning(paste("Error gathering complete data.",
+                    "If the data has missing cases, imputation will not be performed.",
+                    "Either be explicit in including `data` arguments to objects,",
+                    "or perform imputation beforehand."))
+      model.frame(object)
+    })
+    wts <- mf$"(weights)"
+
+    olddata <- fill.NAs(as.data.frame(model.matrix(formula(object),
+                                                   data=mf)))[,-1,drop=FALSE]
+    colnames(olddata) <- gsub("`", "", colnames(olddata))
+    olddata <- cbind(model.frame(object, na.action=na.pass)[,1,drop=FALSE], olddata)
+
+    if (is.null(wts)) {
+      newobject <- update(object, formula.=formula(olddata),
+                          data=olddata, subset=NULL)
+    } else {
+      newobject <- update(object, formula.=formula(olddata),
+                          data=olddata, subset=NULL, weights=wts,
+                          evaluate=FALSE)
+      newobject$weights <- wts
+      newobject <- eval(newobject)
+      # This bit of silliness is because update evaluates its weight argument in
+      # the wrong frame, and it was frustrating to find the correct one. This
+      #  workaround replaces the weights with an actual vector in the call.
+    }
   }
 
   # Now, let's get newdata if its missing
@@ -88,77 +106,11 @@ scores.default <- function(object, newdata=NULL, ...) {
   } else {
     newdata2 <- model.frame(formula(object), data=newdata, na.action=na.pass)
   }
+  resp <- newdata2[,1,drop=FALSE]
   newdata2 <- fill.NAs(as.data.frame(model.matrix(formula(object),
                                                   data=newdata2)))[,-1,drop=FALSE]
   names(newdata2) <- gsub("`", "", names(newdata2))
+  newdata2 <- cbind(resp, newdata2)
 
   eval(predict(newobject, newdata=newdata2, ...))
-}
-
-#' Due to the nature of \code{bigglm} objects, the first stage imputation (if the data used
-#' to generate \code{object} has \code{NA} values) does not occur.
-scores.bigglm <- function(object, newdata=NULL, ...) {
-
-  if (nrow(model.frame(object)) != object$n) {
-    warning(paste("Model fit on data with missing values. Updating of model",
-                  "with imputed data not supported for class bigglm.",
-                  "Please perform imputation prior to calling scores."))
-  }
-
-  ## olddata <- model.frame(object, na.action=na.pass)
-  ## wts <- weights(object)
-
-  ## # If the formula is something like `y ~ . - x`, x is included in olddata.
-  ## # This simplifies the formula and drops it
-  ## lhs <- deparse(terms(formula(object), simplify=TRUE)[[2]])
-  ## rhs <- attr(terms(formula(object), simplify=TRUE), "term.labels")
-  ## olddata <- fill.NAs(olddata[, names(olddata) %in% c(rhs, lhs)])
-  ## names(olddata) <- gsub("`", "", names(olddata))
-
-  ## # rebuild the formula to handle expansion of factors and missing indicators
-  ## vars <- paste0("`",names(olddata)[-1], "`")
-  ## vars <- vars[!grepl(names(olddata)[1], vars, fixed=TRUE)]
-  ## newform <- reformulate(vars, names(olddata[1]))
-
-  ## # Don't need subset anymore as the model.frame only pulled out that subset
-  ## if (!is.null(wts)) {
-  ##   # For some reason, if wts is null, including weights=weights throws an error.
-  ##   # So this code is a bit duplicative.
-  ##   olddata$weights <- wts
-  ##   newobject <- update(object, formula.= newform, data=olddata, weights=weights,
-  ##                       subset=NULL)
-  ## } else {
-  ##   newobject <- update(object, formula.= newform, data=olddata, subset=NULL)
-  ## }
-
-  # Now, let's get newdata if its missing
-  if (is.null(newdata)) {
-    newdata2 <- model.frame(formula(object), data=parent.frame(), na.action=na.pass)
-  } else {
-    newdata2 <- model.frame(formula(object), data=newdata, na.action=na.pass)
-  }
-  newdata2 <- fill.NAs(newdata2)
-  names(newdata2) <- gsub("`", "", names(newdata2))
-
-  # If we were given `newdata`, it may contain things we didn't capture yet
-  # (Specifically, if fill.NAs was called on newdata, it'll contain some
-  # xxx.NA columns)
-  if (is.null(newdata)) {
-    rhs <- gsub("`", "", attr(terms(object), "term.labels"))
-    othervars <- rhs[!(rhs %in% names(newdata2))]
-    tosearch <- if (length(othervars) > 0) {
-      cbind(newdata2, model.frame(reformulate(othervars,), parent.frame()))
-    } else {
-      newdata2
-    }
-    newdata2 <- model.frame(formula(object),
-                            data=tosearch,
-                            na.action=na.pass)
-  } else {
-    newdata2 <- model.frame(formula(object), data=cbind(newdata2, newdata),
-                            na.action=na.pass)
-  }
-
-  eval(predict(object, newdata=newdata2, ...))
-
 }
