@@ -83,7 +83,10 @@ scores <- function(object, newdata=NULL, ...) {
     olddata <- fill.NAs(as.data.frame(model.matrix(formula(object),
                                                    data=mf)))[,-1,drop=FALSE]
     colnames(olddata) <- gsub("`", "", colnames(olddata))
-    olddata <- cbind(model.frame(object, na.action=na.pass)[,1,drop=FALSE], olddata)
+    olddata <- tryCatch(cbind(model.frame(object, na.action=na.pass)[,1,drop=FALSE], olddata),
+                        error = function(e) {
+      cbind(model.frame(object)[,1,drop=FALSE], olddata)
+    })
 
     if (is.null(wts)) {
       newobject <- update(object, formula.=formula(olddata),
