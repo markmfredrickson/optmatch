@@ -8,14 +8,20 @@ context("scores function")
 
 test_that("Works like predict", {
   data(nuclearplants)
-  pg <- lm(cost ~ . - pr, data=nuclearplants, subset=(pr==0))
+  pg1 <- lm(cost ~ . - pr, data=nuclearplants, subset=(pr==0))
 ### function as predict correctly
-  pred <- predict(pg, newdata=nuclearplants)
-  scores1 <- scores(pg, newdata=nuclearplants)
-  expect_equal(pred, scores1)
+  pred1 <- predict(pg1, newdata=nuclearplants)
+  scores1 <- scores(pg1, newdata=nuclearplants)
+  expect_equal(pred1, scores1)
 
 ### error if missing newdata without being in a model (unlike predict)
-  expect_error(scores(pg))
+  expect_error(scores(pg1))
+
+  pg2 <- lm(pr ~ cap*cost, data=nuclearplants)
+  pred2 <- predict(pg2, newdata=nuclearplants)
+  scores2 <- scores(pg2, newdata=nuclearplants)
+
+  expect_equal(pred2, scores2)
 })
 
 test_that("Works like predict with 'with' and 'attach'", {
@@ -108,13 +114,29 @@ test_that("NA imputation", {
   expect_equal(length(fitted(l1)), 32)
 
   # Filling data first should be equivalent
-  np2 <- fill.NAs(pr ~ cap + cost + t1 + t2 + ne, data=nuclearplants)
-  g2 <- glm(pr ~ . - ne, data=np2, family=binomial)
+  # First, fill data using the formula, plus the extra column needed in the model
+  np2 <- fill.NAs(update(formula(g1), ~ . + ne), data=nuclearplants)
+  # Then refit, including the missingness indicator
+  g2 <- glm(pr ~ cost + t1 + t2+ cost.NA, data=np2, family=binomial)
   l2 <- lm(pr ~ ne + scores(g2), data=np2)
-  l3 <- lm(pr ~ ne + predict(g2, newdata=np2), data=np2)
+  l3 <- lm(pr ~ ne + predict(g2, newdata=np2), data=nuclearplants)
   expect_equal(fitted(l2), fitted(l3))
-  # But it should be different because the first stage had missingingness
-  expect_false(all(fitted(l1) ==  fitted(l3)))
+  expect_equal(fitted(l1), fitted(l3))
+
+  g3 <- glm(pr ~ cost*cap + t1, data=nuclearplants, family=binomial)
+  np3 <- fill.NAs(pr ~ cost*cap + t1 + ne, data=nuclearplants)
+  # R'll be upset if we try to include `cost:cap` as a variable
+  # in a formula, so lets just fix that up.
+  names(np3)[6] <- "costcap"
+  g4 <- glm(pr ~ cost + cap + costcap + t1 + cost.NA + cap.NA,
+            data=np3, family=binomial)
+
+  l4 <- lm(pr ~ ne + scores(g3), data=nuclearplants)
+  l4a <- lm(pr ~ ne + scores(g4), data=np3)
+  l4b <- lm(pr ~ ne + predict(g4, data=np3), data=nuclearplants)
+
+  expect_equal(fitted(l4), fitted(l4a))
+  expect_equal(fitted(l4), fitted(l4b))
 
   # if we fill.NAs twice, should be the same.
   g1.filled <- glm(pr ~ cost + t1 + t2 + cost.NA, data=np2, family=binomial)
@@ -145,6 +167,7 @@ test_that("NA imputation", {
   expect_equal(length(fitted(l5)), 31)
   expect_equal(length(fitted(l8)), 32)
 
+  nuclearplants$ct[1] <- NA
   pgscore <- lm(cost~cap + interaction(ct,bw), subset=(pr==0),
                 weights=t1, data=nuclearplants)
 
@@ -154,8 +177,22 @@ test_that("NA imputation", {
   expect_equal(length(fitted(w1)), 32)
   expect_equal(fitted(w1), fitted(w2))
 
-  expect_equal(length(fitted(w3)), 31)
+  expect_equal(length(fitted(w3)), 30)
   expect_false(fitted(w1)[1] == fitted(w3)[1])
+
+
+  pgscore <- lm(cost~cap + ct*bw, subset=(pr==0),
+                weights=t1, data=nuclearplants)
+
+  w4 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
+  w5 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  w6 <- lm(pr ~ t2 + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
+  expect_equal(length(fitted(w4)), 32)
+  expect_equal(fitted(w4), fitted(w5))
+
+  expect_equal(length(fitted(w6)), 30)
+  expect_false(fitted(w4)[1] == fitted(w6)[1])
+
 })
 
 test_that("scores with bigglm", {
