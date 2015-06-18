@@ -427,8 +427,71 @@ test_that("Using strata instead of within arguments", {
 
   expect_true(compare_optmatch(f3, f4))
 
-  expect_error(fullmatch(pr ~ cost + strata(pt),
-                           within=exactMatch(pr ~ pt, data=nuclearplants),
-                           data=nuclearplants), "Do not specify")
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  f5 <- fullmatch(pr ~ cost, within=e2, data=nuclearplants)
+  f6 <- fullmatch(pr ~ cost + strata(ct), within=e1, data=nuclearplants)
+  f7 <- fullmatch(pr ~ cost + strata(ct, ne), data=nuclearplants)
+
+  expect_true(compare_optmatch(f5, f6))
+  expect_true(compare_optmatch(f5, f7))
+
+})
+
+test_that("strata in GLMs", {
+
+  data(nuclearplants)
+
+  f1 <- fullmatch(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                  within=exactMatch(pr ~ ne, data=nuclearplants),
+                  data=nuclearplants)
+  f2 <- fullmatch(glm(pr ~ t1 + strata(ne),
+                      data=nuclearplants, family=binomial),
+                  data=nuclearplants)
+
+  expect_true(is(f1, "optmatch"))
+  expect_true(is(f2, "optmatch"))
+  expect_true(compare_optmatch(f1, f2))
+
+  f3 <- fullmatch(glm(pr ~ t1 + ne + interaction(ct,pt),
+                      data=nuclearplants, family=binomial),
+                  within=exactMatch(pr ~ ne + ct*pt, data=nuclearplants),
+                  data=nuclearplants)
+  f4 <- fullmatch(glm(pr ~ t1 + strata(ne) + strata(ct, pt),
+                      data=nuclearplants, family=binomial),
+                  data=nuclearplants)
+
+  expect_true(compare_optmatch(f3, f4))
+
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  f5 <- fullmatch(glm(pr ~ cost + ne + ct, data=nuclearplants),
+                  within=e2, data=nuclearplants)
+  f6 <- fullmatch(glm(pr ~ cost + ne + strata(ct), data=nuclearplants),
+                  within=e1, data=nuclearplants)
+  f7 <- fullmatch(glm(pr ~ cost + strata(ct) + strata(ne), data=nuclearplants),
+                  data=nuclearplants)
+
+  expect_true(compare_optmatch(f5, f6))
+  expect_true(compare_optmatch(f5, f7))
+
+  # strata(a,b) is equivalent to interaction(a,b)
+  f8 <- fullmatch(glm(pr ~ cost + strata(ct,ne), data=nuclearplants),
+                  data=nuclearplants)
+  f9 <- fullmatch(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
+                      data=nuclearplants),
+                  within=e1, data=nuclearplants)
+  f10 <- fullmatch(glm(pr ~ cost + interaction(ne,ct), data=nuclearplants),
+                   within=e2, data=nuclearplants)
+  f11 <- fullmatch(glm(pr ~ cost + ne*ct, data=nuclearplants),
+                   within=e2, data=nuclearplants)
+  # f9 is a bit weird because of the double inclusion of ct, and is an unlikely
+  # way for users to enter code, but the extra ct is of course ignored.
+
+  expect_true(compare_optmatch(f8, f9))
+  expect_true(compare_optmatch(f8, f10))
+  expect_true(compare_optmatch(f10, f11))
 
 })

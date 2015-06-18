@@ -488,9 +488,15 @@ test_that("Using strata instead of within arguments", {
 
   expect_true(all.equal(m3, m4, check.attributes=FALSE))
 
-  expect_error(match_on(pr ~ cost + strata(pt),
-                           within=exactMatch(pr ~ pt, data=nuclearplants),
-                           data=nuclearplants), "Do not specify")
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  m5 <- match_on(pr ~ cost, within=e2, data=nuclearplants)
+  m6 <- match_on(pr ~ cost + strata(ct), within=e1, data=nuclearplants)
+  m7 <- match_on(pr ~ cost + strata(ct, ne), data=nuclearplants)
+
+  expect_true(all.equal(m5, m6, check.attributes=FALSE))
+  expect_true(all.equal(m5, m7, check.attributes=FALSE))
 
 })
 
@@ -498,16 +504,64 @@ test_that("strata in GLMs", {
 
   data(nuclearplants)
 
-  m1 <- match_on(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial), within=exactMatch(pr ~ ne, data=nuclearplants), data=nuclearplants)
-  m2 <- match_on(glm(pr ~ t1 + strata(ne), data=nuclearplants, family=binomial), data=nuclearplants)
+  m1 <- match_on(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                 within=exactMatch(pr ~ ne, data=nuclearplants),
+                 data=nuclearplants)
+  m2 <- match_on(glm(pr ~ t1 + strata(ne), data=nuclearplants, family=binomial),
+                 data=nuclearplants)
 
   expect_true(is(m1, "BlockedInfinitySparseMatrix"))
   expect_true(is(m2, "BlockedInfinitySparseMatrix"))
   expect_true(all.equal(m1, m2, check.attributes=FALSE))
 
-  m3 <- match_on(glm(pr ~ t1 + ne + interaction(ct,pt), data=nuclearplants, family=binomial), within=exactMatch(pr ~ ne + ct*pt, data=nuclearplants), data=nuclearplants)
-  m4 <- match_on(glm(pr ~ t1 + strata(ne) + strata(ct, pt), data=nuclearplants, family=binomial), data=nuclearplants)
+  m3 <- match_on(glm(pr ~ t1 + ne + interaction(ct,pt), data=nuclearplants,
+                     family=binomial),
+                 within=exactMatch(pr ~ ne + ct*pt, data=nuclearplants),
+                 data=nuclearplants)
+  m4 <- match_on(glm(pr ~ t1 + strata(ne) + strata(ct, pt),
+                     data=nuclearplants, family=binomial), data=nuclearplants)
 
   expect_true(all.equal(m3, m4, check.attributes=FALSE))
+
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  m5 <- match_on(glm(pr ~ cost + ne + ct, data=nuclearplants, family=binomial),
+                 within=e2, data=nuclearplants)
+  m6 <- match_on(glm(pr ~ cost + ne + strata(ct), data=nuclearplants,
+                     family=binomial),
+                 within=e1, data=nuclearplants)
+  m7 <- match_on(glm(pr ~ cost + strata(ct) + strata(ne), data=nuclearplants,
+                     family=binomial),
+                 data=nuclearplants)
+
+  expect_true(all.equal(m5, m6, check.attributes=FALSE))
+  expect_true(all.equal(m5, m7, check.attributes=FALSE))
+
+
+  # strata(a,b) is equivalent to interaction(a,b)
+  m8 <- match_on(glm(pr ~ cost + strata(ct,ne), data=nuclearplants,
+                     family=binomial),
+                 data=nuclearplants)
+  m9 <- match_on(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
+                     data=nuclearplants, family=binomial),
+                 within=e1, data=nuclearplants)
+  m10 <- match_on(glm(pr ~ cost + interaction(ne,ct), data=nuclearplants,
+                      family=binomial),
+                  within=e2, data=nuclearplants)
+  m10b <- match_on(glm(pr ~ cost + ne*ct, data=nuclearplants, family=binomial),
+                  within=e2, data=nuclearplants)
+  # m9 is a bit weight because of the double inclusion of ct, and is an unlikely
+  # way for users to enter code, but the extra ct is of course ignored.
+
+  expect_true(all.equal(m8, m9, check.attributes=FALSE))
+  expect_true(all.equal(m8, m10, check.attributes=FALSE))
+
+  # Fixed effects should be added when exactMatching
+  m11 <- match_on(glm(pr ~ cost, data=nuclearplants, family=binomial),
+                  within=e2, data=nuclearplants)
+
+  expect_false(isTRUE(all.equal(m8, m11, check.attributes=FALSE)))
+
 
 })

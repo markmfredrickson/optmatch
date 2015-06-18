@@ -147,7 +147,11 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
 
   if (any(grepl("strata", formula(x)))) {
     newwithin <- makeWithinFromStrata(formula(x), data)
-    within <- newwithin$within
+    if (is.null(within)) {
+      within <- newwithin$within
+    } else {
+      within <- newwithin$within + within
+    }
   }
 
   match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
@@ -253,15 +257,14 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   rm(m)
 
   if (any(grepl("strata", x))) {
-    if (!is.null(within)) {
-      stop(paste("Do not specify exact matching via both `within` arguments and",
-                 "via `strata()` terms in the formula."))
-    }
-
     newwithin <- makeWithinFromStrata(x, data)
     x <- newwithin$x
     mf[[2]] <- x
-    within <- newwithin$within
+    if (is.null(within)) {
+      within <- newwithin$within
+    } else {
+      within <- newwithin$within + within
+    }
   }
 
   names(mf)[names(mf) == "x"] <- "formula"
