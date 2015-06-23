@@ -113,10 +113,22 @@ test_that("response variables with complex names", {
   nuclearplants$cost[1] <- NA
   nuclearplants$cap[2] <- NA
   m <- lm(cost + t1 ~ cap + pr, data=nuclearplants)
-  d <- model.frame(m)
+  d <- model.frame(m, na.action=na.pass)
   # Name of response in this model is now `cost + t1`
+  # Renaming the column to ensure special characters aren't
+  # causing problems.
   d1 <- d
   names(d1)[1] <- "costplust1"
 
-  expect_true(all(fill.NAs(d) == fill.NAs(d1)))
+  expect_true(all(fill.NAs(d, all.covs=TRUE) == fill.NAs(d1, all.covs=TRUE)))
+
+
+  # Addressing issue #100
+  m2 <- lm(cbind(cost, t1) ~ cap + pr, data=nuclearplants)
+  d2 <- model.frame(m2, na.action=na.pass)
+
+  d3 <- d2
+  names(d3)[1] <- "cbind"
+  expect_true(all(fill.NAs(d2, all.covs=TRUE), fill.NAS(d3, all.covs=TRUE)))
+
 })
