@@ -1,6 +1,6 @@
 ---
-title: "Matching with Optmatch"
-author: "Josh Errickson"
+title: "Matching in *R* using the `optmatch` and `RItools` packages"
+author: "Ben Hansen, Mark Fredrickson and Josh Errickson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -9,180 +9,590 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
+```
 
-The `optmatch` package enables the user to perform several variations of
-matching, from simple pair matching to a complete fullmatch.
+# The *R* Environment
 
-The data set used in this vignette is `nuclearplants`, accesible by running
+All the software used in this worksheet is freely available. The *R* statistical
+package is installed for you in the lab, but you may download and install *R*
+for Windows, Mac, and Linux systems from: <http://www.r-project.org>.
 
-```{r,results="hide"}
+The following document walks through a common propensity score matching workflow
+in *R*. Example *R* code will appear as italics with a `>` indicating the
+command prompt. You may type this code yourself --- each line is a command to
+*R*. Output will follow in a typewriter font. For example:
+
+```{r}
+2 + 2
+```
+
+*R* stores data in named variables using the arrow operator:
+
+```{r}
+my.variable <- 2 + 2
+my.variable * 3
+```
+
+# Setup
+
+## Outfitting your R with the proper add-ons
+
+*R* add-on packages are available to install directly from *R*:
+
+```{r,eval=FALSE}
+install.packages("optmatch")
+install.packages("RItools")
+```
+
+These commands will ask you to select a CRAN server. Any server will do.  You
+may also be asked whether you'd like to set up a "personal library to install
+packages into"; if so, answer yes.  (The default personal library location that
+*R* will suggest should be OK.) You'll only need to run these commands the first
+time you want to use `optmatch` or `RItools` on a particular computer, or when
+you install a new version of R.
+
+## Setting up the R environment for matching
+
+Attach extension packages that we'll be using for matching and associated
+diagnostics:
+
+```{r,echo=FALSE}
 library(optmatch)
+library(RItools)
+```
+
+```{r,eval=FALSE}
+library(optmatch)
+library(RItools)
+```
+
+You'll do this each time you want to run matching commands.
+
+To load the nuclear plants data, enter
+
+```{r, echo=FALSE}
 data(nuclearplants)
 ```
 
-Variables of note include `cost`, the cost of construction (in millions of
-dollars) of the plant, and `pr`, an indicator for the prior existence of a plant
-at the site. A potential research question of interest could be to see whether
-the cost of a new plant is affected by the existence of a prior plant, which
-could either decrease costs (since existing infrastructure may exist, and the
-land is already ready for such construction) or increase costs (removing the
-existing infrastructure may be costly). A concern may be lack of balance amongst
-covariates between the two groups of interest.
-
-To formalize notation, it is useful to think of the two groups as "control" and
-"treatment". Therefore, consider the group which has a prior plant at the site
-(`pr==1`) as the treatment group and the group which has no prior plant
-(`pr==0`) as the control group.
-
-# Propensity Score model
-
-Matching is often done on propensity scores, especially in settings where there
-are multiple covariates to balance upon. A propensity score of an observation is
-the observations likelihood to have been in the treatment group given their
-covariates. This is fit using a logistic regression model with the variable
-indicating treatment assignment as the response (in the nuclear plants data,
-`pr`) and all covariates we wish to balance on as predictors.
-
-For the nuclear plants data, we could fit this model as
-
-```{r}
-psmod <- glm(pr ~ t1 + t2 + cap, family=binomial, data=nuclearplants)
+```{r, eval=FALSE}
+data(nuclearplants)
 ```
 
-The argument is that despite two observations perhaps having different
-covariates, if they have similar propensity scores, then we can consider the
-choice of which observation receives treatment is a mini-experiment.
-
-We can look at the propensity scores by
+To see the first five rows:
 
 ```{r}
-fitted(psmod)
+head(nuclearplants)
 ```
 
-Propensity scores much have what is known as "common support." In other words,
-there must be overlap between treatment and control. Otherwise, matching would
-be impossible. The boxplot serves as a visual check; ensuring that the two
-ranges overlap substantially.
+For more on the variables here, enter
 
-```{r}
-boxplot(psmod)
+```{r, eval=FALSE}
+help("nuclearplants")
 ```
 
-# Pairmatching
+You can directly access a variable within this data frame as follows.  (Try
+typing in the commands to see what they do.)
 
-The simplest and most straightforward matching scheme is pairmatching. Each
-member of the treatment group is matched to a single member of the control
-group, without overlap, such that the overall distance between propensity scores
-in each matched pair is minimized.
-
-```{r}
-match1 <- pairmatch(psmod, data=nuclearplants)
-match1
-summary(match1)
+```{r,eval=FALSE}
+nuclearplants$pt
+table(nuclearplants$pt)
+with(nuclearplants, table(pt))
 ```
 
-The `data` argument in `pairmatch` is optional, but preferred, as dropping it
-can yield to situations where the observation labels are confused. The `summary`
-of the match shows first the size of each match, and here we see that there are
-10 matches of a single treatment to a single control (pair-matches) and 12 cases
-where there was an extra control and no available treatment members. This
-illustrates a problem with pairmatching; if the size of the two groups are
-dissimilar, a large number of observations could be discarded. Optimal matching,
-discussed below, addresses this.
-
-# Optimal Matching
-
-If we relax the restriction that each match must contain exactly one treatment
-and exactly one control member, we could utilize the entire sample. Define a
-matched set as j:k, where j is the number of treatment members and k is the
-number of control members, so that in pair matching, all sets would be
-1:1. Optimal matching allows sets of size j:1 or 1:k, where j and k can vary per
-set and are chosen optimally. (Sets where both j and k are greater than 1 won't
-exist, because its always more optimal to split any such set up into multiple
-j:1 or 1:k sets.) The `fullmatch` function performs this optimal matching.
+The variable you will have just viewed and tabulated, `pt`, is a dummy for
+whether the plant was built with "partial turnkey guarantees."  These plants
+were not comparable to the others in terms of construction costs.  Let's exclude
+them for the time being, for simplicitly.  To do this we'll create a data table
+(in *R* jargon, a "data frame") of just those observations for which `pt` is 0:
 
 ```{r}
-match2 <- fullmatch(psmod, data=nuclearplants)
-match2
-summary(match2)
+nuke.nopt <- subset(nuclearplants, pt == 0)
 ```
 
-As you can see, all observations are used here. There are only two pairmatches,
-a single match involving multiple treatments to a single control (the `5+:1`
-match) and several 1:k matches. We can see the exact size of each match via
+To inspect its first and last 5 entries, do
 
-```{r}
-stratumStructure(match2)
+```{r,eval=FALSE}
+head(nuke.nopt)
+tail(nuke.nopt)
 ```
 
-## Restrictions on Optimal Matching
+To view this as presenting a matching problem, we'll think of plants built on
+the site of a previously existing plant (`pr == 1`) as the treatment group and
+plants on new sites (`pr == 0`) as comparisons.
 
-While the match we saw before is optimal in the sense that it produces to
-minimum distance between matched elements in the propensity scores, it has two
-perhaps undesirable traits. First, it contains a match which uses a lot of
-treatment group members. In a lot of settings, the treatment group is small in
-comparison to the control group, so we would want each treatment group member to
-contribute fully (when in a j:1 match, each treatment member basically
-contributes 1/j to the results). Secondly, the `1:8` and `1:9` sets are
-dominating the results, such that our effective sample size of 8.58 is quite
-low. We can perform the optimal matching under some restrictions to still gain
-its benefits without falling into either trap.
+# Optimal pair matching and 1:k matching
 
-The arguments `min.control`, `max.control` and `omit.fraction` control these
-restrictions. The first two arguments restrict the size of matches, and
-`omit.fraction` enforces dropping a percentage of the treatment or control
-members. To illustrate their use, we give several examples.
+## Pair matching
 
-1. From the `match2` above, we wish to ensure that each match set is no larger
-than 5 (so that nothing larger than 4:1 or 1:4 exists).
+To check the number of treated and control plants:
 
 ```{r}
-match3 <- fullmatch(psmod, data=nuclearplants, max.controls=4, min.controls=1/4)
-summary(match3)
+table(nuke.nopt$pr)
 ```
 
-2. Let's ensure that each treatment is in its own unique set, so that we only
-have 1:k sets, still with an upper bound of 1:4.
+To get the pair match minimizing the mean paired distance on `cap`, among all
+collections of 7 nonoverlapping pairs, do
 
 ```{r}
-match4 <- fullmatch(psmod, data=nuclearplants, max.controls=4, min.controls=1)
-summary(match4)
+pairmatch(pr ~ cap, data = nuke.nopt)
 ```
 
-3. Now, we want to have even smaller sets, so that only sets of 1:1 or 1:2 are
-allowed.
+For a more readable report of who gets matched to whom, type
 
 ```{r}
-match5 <- fullmatch(psmod, data=nuclearplants, max.controls=2, min.controls=1)
-summary(match5)
+print(pairmatch(pr ~ cap, data = nuke.nopt), grouped = TRUE)
 ```
 
-Note the warning and dropped control group members, given that we have 10
-treatment and 22 control members, we couldn't use all the control members with
-these restrictions.
+For matching on both `date` and `cap`, you'd type `pairmatch(pr ~ cap + date,
+...)` instead of `pairmatch(pr ~ cap, ...)`. We'll talk later about how this
+combines discrepancies on the two variables.  For now, note the form of the
+output this command generates: a variable of the same length as the variables
+making up `nuke.nopt`, assigning a distinct name to each macthed set.  To fix
+your intuition, you might try connecting up below the units that `pairmatch()`
+has placed in the same matched sets.
 
-4. The last match, `match5`, dropped 10 control group members. Is the match it
-came up with after dropping those 10 (8 1:1's and 2 1:2 sets) optimal without
-the `max.control` and `min.control` restrictions? Use `omit.fraction` to find
-out.
+```{r, results="asis", echo=FALSE, warning=FALSE}
+library(pander)
+a <- with(nuke.nopt, data.frame(
+                         Plant=row.names(nuke.nopt),
+                         Date=round(date-65, 1),
+                         Capacity=round(x=(cap-400),digits=-1))[as.logical(pr),])
 
-```{r}
-match6 <- fullmatch(psmod, data=nuclearplants, omit.fraction=10/22)
-summary(match6)
+b <- with(nuke.nopt, data.frame(
+                         Plant=row.names(nuke.nopt),
+                         Date=round(date-65, 1),
+                         Capacity=round(x=(cap-400),digits=-1))[!as.logical(pr),])
+
+c <- cbind(data.frame(rbind(as.matrix(a), matrix(nrow=nrow(b)-nrow(a), ncol=3))), b)
+rownames(c) <- NULL
+pandoc.table(c, style="multiline", missing="",
+             caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
 ```
 
-We have a much different match structure. `match6` has an improved overall
-distance btween matches (6.24 vs 8.3) but loses effective sample size (10.7 down
-to 7.71).
+For basic summary information about this match, try
 
-5. It's possible to create restrictions which cannot be matched. For example, if
-we wanted each treatment member to be matched to at least 3 control group
-members, we'd need 30 control group members (but we only have 20). And unlike in
-`match5` where some control group members were dropped to accommodate the
-restrictions, `fullmatch` will not drop treatment members.
+```{r, eval=FALSE}
+summary(pairmatch(pr ~ cap, data = nuke.nopt))
+```
+
+If you've already typed in the `pairmatch(...)` part, you can use the up-arrow,
+Home and End keys to avoid having to re-type. Alternatively, to assign the name
+"`pm`" to the matching result, do
 
 ```{r}
-match7 <- fullmatch(psmod, data=nuclearplants, min.controls=3)
-summary(match7)
+pm <- pairmatch(pr ~ cap, data = nuke.nopt)
+```
+
+Now, you can just type `print(pm, grouped = TRUE)` or `summary(pm)`.
+
+The following would give a basic matched analysis of the effect of new or
+existing site on construction costs is given with the help of R's linear
+modeling function.  In effect, the existing site effect is estimated as one
+"way" in a two-way \textsc{anova}, the other "way" being the factor variable
+that represents the matching result, i.e. `pm`.
+
+```{r, eval=FALSE}
+summary(lm(cost ~ pr + pm, data = nuke.nopt))
+```
+
+## Matching with multiple controls
+
+There are other types of matches you might want to try.  Here's how to create
+matched triples:
+
+```{r}
+tm <- pairmatch(pr ~ cap, controls = 2, data = nuke.nopt)
+```
+
+There will be further variations suggested on the slides.
+
+## Distances
+
+You'll often want to do several variations on a match.  It may save computation
+and typing time to store the distance you're using to match, if you're going to
+re-use that distance.  To do so, you'll have to explicitly separate
+distance-making and matching, two steps that were merged together in the above
+command.  We'll use the ```match_on()``` command, introduced in optmatch
+version 0.8, to create distances.
+
+```{r}
+cap.dist <- match_on(pr ~ cap, data = nuke.nopt)
+pm1 <- pairmatch(pr ~ cap, data=nuke.nopt)
+pm2 <- pairmatch(cap.dist, data=nuke.nopt)
+all.equal(pm1, pm2, check.attributes = FALSE)
+summary(pm2)
+```
+
+What does a matching distance look like?  Here's the upper-left corner of one of
+them:
+
+```{r}
+round(cap.dist[1:3, 1:3], 1)
+```
+
+(Note the use of square brackets, `[` and `]`, for specifying rows and columns
+of the distance matrix.  If you find that this isn't working on a distance that
+you've produced, try `as.matrix(my.dist)[1:3,1:3]` or similar.)
+
+Matching with a caliper of 2 pooled standard deviations on the `cap`
+variable:
+
+```{r}
+round(cap.dist + caliper(cap.dist, 2), 1)
+```
+
+Entries of `Inf` or `NaN` in a distance matrix are interpreted as forbidden
+matches.  Thus
+
+```{r, eval=FALSE}
+pairmatch(cap.dist + caliper(cap.dist, 2), data = nuke.nopt)
+```
+
+matches on `cap`, insisting that paired units not differ by more than 2 pooled
+SDs in `cap`. If you would prefer to set a requirement on how much paired units
+can differ in `cap` in its original units, rather than standard units, then you
+would have to create `cap.dist` in a somewhat different way.  There's an example
+on the help page for `caliper()`. Enter `help(caliper)` at the R command line.
+
+## Did matching work?
+
+It's possible to give the software an impossible list of requirements for a
+match.  For instance, the following fails, generating an error:
+
+```{r, error=TRUE}
+pairmatch(cap.dist,3)
+```
+
+The problem here is that the data don't have 3 comparison units to go with each
+treatment unit, since we have 7 treatment units but only 19 comparison units.
+
+Matching can also fail because the distance matrix embodies matching
+contstraints that are impossible to meet.  In these cases the matching function
+will generally run without complaint, although it won't create any matches.
+Here is an example, where the caliper is so narrow as to forbid all possible
+matches:
+
+```{r, error=TRUE}
+cap.dist2 <- match_on(pr ~ cap + cost, data = nuke.nopt)
+pairmatch(cap.dist2 + caliper(cap.dist2, .001), data = nuke.nopt)
+```
+
+If before matching you want to remove just the subjects lacking a counterpart
+within caliper distance, you can do `pairmatch(..., remove.unmatchables =
+TRUE)`.  That won't help with the miniscule caliper above, but with less extreme
+calipers it helps you salvage a few matches.
+
+## How closely did I match?
+
+Getting back to a matching that succeeded, note that `summary()` reports
+information about how close the matches are.
+
+```{r}
+summary(pm)
+```
+
+In this default report, the measure of closeness is just whatever distance you
+matched on.  For closeness in terms of some other distance, use
+`matched.distances`.
+
+```{r}
+matched.distances(pm, match_on(pr ~ date, data = nuke.nopt))
+summary(matched.distances(pm, match_on(pr ~ date, data = nuke.nopt)))
+```
+
+## Did matching balance the covariate?
+
+Comparing overt biases before and after matching.  An assessment of the
+unmatched difference between the groups on `cap` can be had via:
+
+```{r, eval=FALSE}
+cap.noadj <- lm(cap ~ pr, data = nuke.nopt)
+summary(cap.noadj)
+```
+
+or, more directly,
+
+```{r, eval=FALSE}
+summary(lm(cap ~ pr, data = nuke.nopt))$coeff["pr",]
+```
+
+(Note again the use of square brackets, `[` and `]`, for specifying subsets of a
+matrix.  With *R* one has to carefully distinguish square brackets, curly
+brackets and parentheses.)
+
+Here is a parallel calculation that takes the match `pm` into account.
+
+```{r, eval=FALSE}
+summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
+```
+
+__Exercises.__
+
+1. Compare `pm`, `tm` and the unmatched samples in terms of balance on `t2`.
+1. Compare `pm`, `tm` and the unmatched samples in terms of balance on `date`.
+1. Compare `pm` to Mahalanobis pair matching on `t1` in terms of balance on
+`date`.
+1. Compare Mahalanobis pair matching on `cap` and `date` to Mahalanobis pair
+  matching on `cap`, `date` and each of `t1,t2`.  Add the last two variables in
+  one at a time, so that you're comparing a total of three matches.  Compare on
+  balance in `cap` and `t2`.
+
+Section "Checking balance in general", below, presents convenient ways to do
+balance assessment for many variables at once.  Before getting to that let's
+discuss try matching with propensity scores.
+
+# Propensity Score Matching
+
+## Propensity score fitting in R
+
+Logistic regression models are fit in *R* using the function `glm()`, with
+"`family`" argument set to "`binomial`."  Example:
+
+```{r}
+psm <- glm(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
+           family = binomial, data = nuclearplants)
+```
+
+The fitted logistic regression is then stored in the object "`psm`."  The
+propensity scores are then stored as `psm$fitted.values` (estimated
+probabilities) or `scores(psm)` (estimated logits of probabilities).
+
+It's often a good idea to compare the groups' distributions on the propensity score.
+
+```{r,fig.width=5, fig.height=5}
+boxplot(psm)
+```
+
+The groups do overlap, if not greatly.  It may be wise to restrict the sample to
+the region of overlap, at least roughly.  A propensity caliper would help with
+this.
+
+To extract a matrix of distances on the propensity score (and store it as
+"`psd`"), do
+
+```{r}
+psd <- match_on(psm)
+```
+
+From this point you could match directly on the propensity score,
+
+```{r}
+ps.pm <- pairmatch(psd, data = nuclearplants)
+summary(ps.pm)
+```
+
+or match on the propensity score within propensity score calipers,
+
+```{r}
+ps.pm2 <- pairmatch(psd + caliper(psd, 2), data = nuclearplants)
+summary(ps.pm2)
+```
+
+Here individual matches are required to be no more separated than 2 pooled
+SDs in the estimated propensity score.
+
+Or you could match within calipers of the propensity score on some other
+distance, perhaps Mahalanobis distances based on selected covariates as
+recommended by Rubin and Thomas (2000, JASA) and others. For Mahalanobis
+matching on `date`, `cap` and the propensity score, for instance, combined with
+a propensity caliper of 1 pooled sd.
+
+```{r}
+mhd1 <- match_on(pr~date+cap+scores(psm), data=nuclearplants)
+mhpc.pm <- pairmatch(mhd1 + caliper(psd, 1), data=nuclearplants)
+summary(mhpc.pm) # oops
+mhpc.pm <- pairmatch(mhd1 + caliper(psd, 2), data=nuclearplants)
+summary(mhpc.pm) # better!
+```
+
+## Checking balance in general
+
+The `RItools` package has a convenient function for checking balance on many
+variables simultaneously.  To get a sense of what it does, try this:
+
+```{r, eval=FALSE}
+library(RItools)
+xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, data = nuclearplants)
+xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
+         strata = ps.pm2,
+         data = nuclearplants)
+```
+
+It can in the same display compare matching to no matching, on any of a number
+of axes.  Here is a demonstration:
+
+```{r, fig.width=5, fig.height=5}
+myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n,
+                strata = list(unstrat = NULL, ps.pm2 = ~ ps.pm2),
+                data = nuclearplants,
+                report = c("adj.means", "std.diffs",
+                           "z.scores", "chisquare.test"))
+plot(myb)
+print(myb, digits=1)
+```
+
+For a very compact representation of the assessment, call `summary()` on the
+match, passing along the fitted propensity model as a second argument.  If
+you've got `RItools` loaded, then this will call `xBalance` in the background,
+reporting the summary chi-square test results.
+
+```{r}
+summary(ps.pm2, psm)
+```
+
+__Exercise.__
+
+Try out {at least 3} different combinations of propensity score
+and Mahalanobis matching.  Identify the matches that gives:
+
+1. the "best balance overall," as measured by chisquare statistics;
+1. the "best balance overall," as indicated by the largest standardized
+  difference among the covariates;
+1. the best balance on `date` and `cap`, as measured by the larger of the
+  standardized differences for these two variables; and
+1. the best balance on `date` and `cap`, as measured by the larger of the
+  standardized differences for these two variables, among those matches for
+  which the overall imbalance *p*-value is no more than .1.
+
+# Other topics in matching
+
+## Full matching and matching with a varying number of controls
+
+Try out for yourself and compare:
+
+```{r, eval=FALSE}
+summary(fullmatch(pr ~ date + cap, data = nuke.nopt, min = 1))
+summary(fullmatch(pr ~ date + cap, data = nuke.nopt, min = 2, max = 3))
+summary(fullmatch(pr ~ date + cap, data = nuke.nopt))
+```
+
+## Subclassification before matching
+
+Recall that the data set `nuclearplants` had 32 observations, 6 of which we
+excluded.  These were plants built under "partial turnkey" guarantees (`pt ==
+1`), for which costs are difficult to compare with other plants.  We might
+include the excluded plants by matching them only among themselves.  Then we
+need to subclassify prior to matching.
+
+This is a common and useful operation, and `optmatch` is designed to help you do
+it.
+
+```{r}
+ptxm <- exactMatch(pr ~ pt, data = nuclearplants)
+mhd2 <- match_on(pr ~ date + cap + scores(psm), within = ptxm, data = nuclearplants)
+psd2 <- match_on(psm) + ptxm
+mhd2 + caliper(psd2, 1)
+```
+
+
+## Using *R* for matching and another program for matched analysis
+
+If you prefer to do your main work in another statistical package, you can use
+*R* for matching and balance assessment, and then re-import the matched data
+back into your preferred package for the main analysis. A typical work flow
+might look something like this:
+
+
+1. Load data into your primary statistical package.
+1. Preprocess data (handle missing values, combine variables into single
+  measures, etc).
+1. Export data in a format *R* can read.
+1. Load data into *R*.
+1. Perform matching and balance testing.
+1. Append matches to your data and export in a format your statistical package
+  can read.
+1. Load appended data into your primary package and perform analyses.
+
+You already know how to perform the matching and balance testing, so what
+remains are the import and export steps, along with appending your matches to
+your original data.
+
+
+When importing and exporting data, you must select a data format. In a broad
+sense, you have two options: proprietary data formats (for example `.dta` for
+Stata) or open standards (for example `.csv`, Comma Separated Values). The
+advantage of proprietary formats is that they may include additional information
+for *R* to use, such as the labels on a categorical variable. The potential
+pitfall is that *R* might not know how to read your particular file type. Open
+formats like CSV are easy to read and write, but you may lose variable names,
+labels, or other special forms of data. For reading and writing proprietary
+formats, consider the use of the `foreign` library in *R*. See for example
+`read.dta` and `write.dta`:
+
+```{r, eval=FALSE}
+library(foreign)
+?read.dta
+?write.dta
+```
+
+For much more detail on this topic, see the ["R Data Import/Export"
+manual](http://cran.r-project.org/doc/manuals/r-release/R-data.html).
+
+If you use CSV files, consult your statistical package's manuals for details on
+how to export your data as a CSV. Once you have exported your data into a file,
+open the file (using a text editor, not Microsoft Word) to see if there is a
+header row of variable names. Then, to import your data use the following:
+
+```{r, eval=FALSE}
+my.plants <- read.csv("nuclearplants.csv", header = TRUE)
+```
+
+If you do not have a header on your data change to `header = FALSE`.
+
+At this point, you may proceed to conduct your matching as usual (for example
+using an example from earlier in this document). When you are done, you will
+need to append your match to your original data. The safest way to do this is
+using the following code snippet:
+
+```{r, eval=FALSE}
+plant.match <- pairmatch(pr ~ cap, data = my.plants)
+my.plants.extended <- data.frame(my.plants, matches = plant.match, check.rows=TRUE)
+```
+
+Finally, export your data as a .csv file (or a proprietary format if that is
+what you are using):
+
+```{r, eval=FALSE}
+write.csv(my.plants.extended, file = "nuclearplants-with-matches.csv")
+```
+
+As one final note, many of the balance tests included in `RItools` are available
+to Stata users directly from Stata. Information is available at the `RItools`
+webpage at {http://www.jakebowers.org/RItools.html}.
+
+## Trying it out on your own
+
+For another interesting (toy) data set, do
+
+```{r}
+data(tli, package="xtable")
+head(tli)
+```
+
+You might compare test scores for kids with ```disadvg=="YES"` to those of kids
+with ```disadvg=="NO"``` using propensity matching, in some combination with
+mahalanobis matching and caliper matching.  A check of propensity overlap may
+inform your decision as to whether to include a propensity caliper.  Be sure to
+check for balance, and do check the structure of the matched sets.
+
+Two sources of \textit{real} data can be gotten as follows.  The "Lalonde" data
+set, discussed by Lalonde in 1986 and more recently by Dehejia and Wahba (1999,
+*JASA*) and by Smith and Todd (2005, *J. Econom.*), is bundled with several R
+packages, including "`{arm}`" and "`Matching`."  To get it:
+
+```{r, eval=FALSE}
+library(arm)
+data(lalonde)
+help("lalonde")
+```
+
+Connors et al's (1996, *J. Am. Med. Assoc.*) brought propensity score methods to
+the attention of the medical field broadly.  It's bundled with the "`Hmisc'"
+package.
+
+```{r, eval=FALSE}
+library(Hmisc)
+getHdata(rhc, what = "all")
 ```
