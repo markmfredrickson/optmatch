@@ -166,6 +166,9 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
   v <- as.matrix(match_on(x1, z = zz))
   expect_equivalent(g(v), expectedM)
 
+  ## glm should have the opposite behavior: automatically imputing 
+  v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial)))
+  expect_equivalent(g(v), rep("FINITE", 6))
 })
 
 # while the formula method often handles mahalanobis distances, separating the tests for clarity
