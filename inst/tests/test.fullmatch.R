@@ -202,7 +202,7 @@ test_that("Results are in 'data order'", {
   df[3, "y"] <- NA
 
   # mahal based ISM object
-  m <- match_on(z ~ x + y + w, data = df)
+  m <- as.matrix(match_on(z ~ x + y + w, data = df))
 
   # make the first control unit unmatchable
   m[, 1] <- Inf

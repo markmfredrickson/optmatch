@@ -269,12 +269,21 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
+  mf$na.action <- na.pass
   mf[[1L]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
 
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
   }
+
+  tmpz <- toZ(mf[,1])
+  tmpn <- rownames(mf)
+  
+  mf <- na.omit(mf)
+
+  dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
+  dropped.c <- setdiff(tmpn[!tmpz], rownames(mf))
 
   data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
 
@@ -297,6 +306,13 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 		)
   rm(mf)
 
+  if (length(dropped.t) > 0 || length(dropped.c)) {
+    tmp <- as.InfinitySparseMatrix(tmp)
+    tmp@rownames <- c(tmp@rownames, dropped.t)
+    tmp@colnames <- c(tmp@colnames, dropped.c)
+    tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+  }
+
   if (is.null(caliper)) {
     tmp@call <- cl
     return(tmp)
@@ -304,6 +320,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   tmp <- tmp + optmatch::caliper(tmp, width = caliper)
   tmp@call <- cl
+
   return(tmp)
 }
 
