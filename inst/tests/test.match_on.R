@@ -139,19 +139,33 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
                   x2 = c(1, 0, 0, 0, 1))
 
   rownames(d) <- c("A", "B", "C", "y", "z")
+  g <- function(x) {
+    tmp <- rep("OTHER", length(g))
+    tmp[is.finite(x)]  <- "FINITE"
+    tmp[!is.finite(x)] <- "INF"
+    tmp[is.na(x)] <- "NA"
+    return(tmp)
+  }
 
   f <- function(method) {
     v <- as.matrix(match_on(z ~ x1 + x2, data = d, method = method))
-    is.finite(v) & !is.na(v)
+    g(v)
   }
 
-  expectedM <- matrix(c(T, T, F, T, T, F), nrow = 3, dimnames = list(c("A", "B", "C"), c("y", "z")))
+  expectedM <- c("FINITE", "FINITE", "INF", "FINITE", "FINITE", "INF")
   
   expect_equivalent(f("mahalanobis"), expectedM)
   expect_equivalent(f("euclid"), expectedM)
   expect_equivalent(f("rank_mahal"), expectedM)
 
-  
+  ## now with numeric method:
+  zz <- d$z
+  x1 <- d$x1
+  names(zz) <- names(x1) <- rownames(d)
+
+  v <- as.matrix(match_on(x1, z = zz))
+  expect_equivalent(g(v), expectedM)
+
 })
 
 # while the formula method often handles mahalanobis distances, separating the tests for clarity

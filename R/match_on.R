@@ -476,6 +476,14 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
 
   z <- toZ(z)
 
+  missingX <- is.na(x)
+  rnms <- names(z)
+  dropped.t <- rnms[missingX & z]
+  dropped.c <- rnms[missingX & !z]
+
+  z <- z[!missingX]
+  x <- x[!missingX]
+
   if(!is.null(caliper)) {
     if (length(caliper) > 1) {
       stop("Argument `caliper` must be a scalar value, not a vector.")
@@ -493,6 +501,15 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
   tmp <- makedist(z, x, f, within)
+  # we dropped units with missing x values, now we reappply them
+
+  if (length(dropped.t) > 0 || length(dropped.c)) {
+    tmp <- as.InfinitySparseMatrix(tmp)
+    tmp@rownames <- c(tmp@rownames, dropped.t)
+    tmp@colnames <- c(tmp@colnames, dropped.c)
+    tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+  }
+
   tmp@call <- cl
   return(tmp)
 }
