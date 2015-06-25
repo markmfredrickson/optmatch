@@ -22,9 +22,10 @@ test_that("Basic Tests", {
   expect_equal(length(result), 2)
 
   # Adds additional columns for missing data indicators
-  result <- fill.NAs(sample.df)
-  expect_equal(length(colnames(result)), 4)
+  expect_equal(dim(fill.NAs(sample.df))[2], 4)
+  expect_equal(dim(fill.NAs(sample.df, all.covs = T))[2], 4)
 
+  result <- fill.NAs(sample.df)
   # the last column should be TRUE every 3 unit
   expect_identical(result[[4]], rep(c(F, F, T, F, F), 20))
 
@@ -131,4 +132,19 @@ test_that("response variables with complex names", {
   names(d3)[1] <- "cbind"
   expect_true(all(fill.NAs(d2, all.covs=TRUE), fill.NAS(d3, all.covs=TRUE)))
 
+})
+
+test_that("strata() function handling", {
+
+  set.seed(20150624)
+  
+  data.full <- data.frame(z = c(rep(1, 10), rep(0, 10)),
+                          x = rnorm(20),
+                          s = sample(c("A", "B", "C"), size = 20, replace = TRUE))
+
+  res1 <- fill.NAs(z ~ x + strata(s), data = data.full) 
+  expect_equal(dim(res1), c(20, 3)) # do not expand strata variable
+  
+  data.s.NA <- data.full
+  data.s.NA$s[c(1,10)] <- NA
 })

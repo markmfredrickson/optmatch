@@ -332,14 +332,27 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # not remove the strata variables from the model.
 makeWithinFromStrata <- function(x, data)
 {
-  t <- terms(x, specials="strata")
-  strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
-  x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
-
-  em <- unlist(sapply(strsplit(strata, "\\(|)|,"), "[", -1))
-  within <- exactMatch(as.formula(paste(x[[2]], "~", paste(em, collapse="+"))),
+  xs <- findStrata(x, data)
+  
+  em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
+  within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
                              data=data)
   return(list(x=x, within=within))
+}
+
+findStrata <- function(x, data) {
+
+  t <- terms(x, specials = "strata", data = data)
+
+  strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
+
+  if (length(strata) > 0) {
+    x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
+    return(list(newx = x, strata = strata))
+  }
+
+  return(list(newx = x, strata = NULL))
+
 }
 
 
