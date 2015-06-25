@@ -22,9 +22,10 @@ test_that("Basic Tests", {
   expect_equal(length(result), 2)
 
   # Adds additional columns for missing data indicators
-  result <- fill.NAs(sample.df)
-  expect_equal(length(colnames(result)), 4)
+  expect_equal(dim(fill.NAs(sample.df))[2], 4)
+  expect_equal(dim(fill.NAs(sample.df, all.covs = T))[2], 4)
 
+  result <- fill.NAs(sample.df)
   # the last column should be TRUE every 3 unit
   expect_identical(result[[4]], rep(c(F, F, T, F, F), 20))
 
@@ -113,10 +114,67 @@ test_that("response variables with complex names", {
   nuclearplants$cost[1] <- NA
   nuclearplants$cap[2] <- NA
   m <- lm(cost + t1 ~ cap + pr, data=nuclearplants)
-  d <- model.frame(m)
+  d <- model.frame(m, na.action=na.pass)
   # Name of response in this model is now `cost + t1`
+  # Renaming the column to ensure special characters aren't
+  # causing problems.
   d1 <- d
   names(d1)[1] <- "costplust1"
 
-  expect_true(all(fill.NAs(d) == fill.NAs(d1)))
+  expect_true(all(fill.NAs(d, all.covs=TRUE) == fill.NAs(d1, all.covs=TRUE)))
+
+
+  # Addressing issue #100
+  m2 <- lm(cbind(cost, t1) ~ cap + pr, data=nuclearplants)
+  d2 <- model.frame(m2, na.action=na.pass)
+
+  d3 <- d2
+  names(d3)[1] <- "cbind"
+  expect_true(all(fill.NAs(d2, all.covs=TRUE), fill.NAS(d3, all.covs=TRUE)))
+
+})
+
+test_that("strata() function handling", {
+
+  set.seed(20150624)
+  
+  data.full <- data.frame(z = c(rep(1, 10), rep(0, 10)),
+                          x = rnorm(20),
+                          s = sample(c("A", "B", "C"), size = 20, replace = TRUE),
+                          t = sample(c("UP", "DOWN"), size = 20, replace = TRUE))
+  data.full$x[c(1, 2, 11)] <- NA
+
+  # basic strata handling without NAs
+  res1 <- fill.NAs(z ~ x + strata(s), data = data.full) 
+  expect_equal(dim(res1), c(20, 4)) # do not expand strata variable
+  expect_false(any(is.na(res1)))
+
+  res2 <- fill.NAs(z ~ x + strata(s) + strata(t), data = data.full)
+  expect_equal(dim(res2), c(20, 5))
+  expect_false(any(is.na(res2)))
+  
+  # now, let's knock out some strata levels
+  data.NAs <- data.full
+  data.NAs$s[sample(1:20, size = 3)] <- NA
+
+  res3 <- fill.NAs(z ~ x + strata(s), data = data.NAs)
+  expect_equal(sum(is.na(res3$s)), 3)
+
+  res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
+  expect_false(any(is.na(res4$s)))
+
+  ## checking for terms attribute on the returned data.frame
+  tt <- terms(res1)
+  expect_equal(attr(tt, "specials")$strata, 3) # variable in 3rd position in formula
+
+  # if we spell things out, we should get a model on the imputed values
+  xx <- glm(z ~ x + x.NA + strata(s), data = res1, family = binomial)
+  expect_true(all(names(coef(xx)) %in% c("(Intercept)", "x", "x.NATRUE", "strata(s)B", "strata(s)C")))
+
+  # does not work yet:
+  # yy <- glm(res1)
+  # expect_equivalent(xx, yy)
+
+  ## imputation should be per stratum
+  expect_false(all(res1$x == (fill.NAs(z ~ x, data = data.full))$x))
 })
