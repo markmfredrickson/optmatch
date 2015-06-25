@@ -140,11 +140,26 @@ test_that("strata() function handling", {
   
   data.full <- data.frame(z = c(rep(1, 10), rep(0, 10)),
                           x = rnorm(20),
-                          s = sample(c("A", "B", "C"), size = 20, replace = TRUE))
+                          s = sample(c("A", "B", "C"), size = 20, replace = TRUE),
+                          t = sample(c("UP", "DOWN"), size = 20, replace = TRUE))
+  data.full$x[c(1, 2, 11)] <- NA
 
+  # basic strata handling without NAs
   res1 <- fill.NAs(z ~ x + strata(s), data = data.full) 
-  expect_equal(dim(res1), c(20, 3)) # do not expand strata variable
+  expect_equal(dim(res1), c(20, 4)) # do not expand strata variable
+  expect_false(any(is.na(res1)))
+
+  res2 <- fill.NAs(z ~ x + strata(s) + strata(t), data = data.full)
+  expect_equal(dim(res2), c(20, 5))
+  expect_false(any(is.na(res2)))
   
-  data.s.NA <- data.full
-  data.s.NA$s[c(1,10)] <- NA
+  # now, let's knock out some strata levels
+  data.NAs <- data.full
+  data.NAs$s[sample(1:20, size = 3)] <- NA
+
+  res3 <- fill.NAs(z ~ x + strata(s), data = data.NAs)
+  expect_equal(sum(is.na(res3$s)), 3)
+
+  res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
+  expect_false(any(is.na(res4$s)))
 })

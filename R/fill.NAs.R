@@ -79,8 +79,10 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   }
 
   if (length(withStrata$strata) > 0) {
-    strataVars <- all.vars(as.formula(paste("~", paste(withStrata$strata, collapse = "+"))))
-    result <- cbind(result, data[, strataVars])
+    sformula      <- as.formula(paste("~", paste(withStrata$strata, collapse = "+")))
+    tmp           <- model.frame(sformula, data = data, na.action = na.pass) 
+    colnames(tmp) <- all.vars(sformula)
+    result        <- cbind(result, tmp)
   }
 
   return(result)
