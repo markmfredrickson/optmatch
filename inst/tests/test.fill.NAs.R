@@ -162,4 +162,16 @@ test_that("strata() function handling", {
 
   res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
   expect_false(any(is.na(res4$s)))
-})
+
+  ## checking for terms attribute on the returned data.frame
+  tt <- terms(res1)
+  expect_equal(attr(tt, "specials")$strata, 3) # variable in 3rd position in formula
+
+  # if we spell things out, we should get a model on the imputed values
+  xx <- glm(z ~ x + x.NA + strata(s), data = res1, family = binomial)
+  expect_true(all(names(coef(xx)) %in% c("(Intercept)", "x", "x.NATRUE", "strata(s)B", "strata(s)C")))
+
+  # does not work yet:
+  # yy <- glm(res1)
+  # expect_equivalent(xx, yy)
+ })

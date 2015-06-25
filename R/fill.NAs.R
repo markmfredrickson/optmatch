@@ -19,9 +19,9 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
 
     if(!all.covs && dim(data)[2] > 1){
       # Added ticks in case response has "+" or other formula characters in it
-	    x <- as.formula(paste0("`", response, "` ~  ."))
+	    x <- terms(as.formula(paste0("`", response, "` ~  .")), data = data)
     } else {
-	    x <- as.formula(~ .) # everything, including the response should be imputed
+	    x <- terms(as.formula(~ .), data = data) # everything, including the response should be imputed
     }
   } else {
     if (inherits(x, "formula")) {
@@ -57,6 +57,7 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   #   return(result)
   # }
   result <- modmat
+  newfmla <- x
   
   if(any(original.NAs)) {
 
@@ -72,6 +73,8 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
     # NB: fill.column.numeric is hard coded as value of model.matrix is always numeric. no need for a generic fn.
     modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
     result <- cbind(modmat, NA.columns)
+
+    newfmla <- update(newfmla, as.formula(paste0("~ . + ", paste0(colnames(NA.columns), collapse = "+"))))
   }
 
   if(!all.covs){
@@ -84,6 +87,9 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
     colnames(tmp) <- all.vars(sformula)
     result        <- cbind(result, tmp)
   }
+  
+
+  attr(result, "terms") <- terms(newfmla, data = data, specials = "strata")
 
   return(result)
 }
