@@ -71,7 +71,16 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
     expanded.NAs <- colnames(modmat)[apply(modmat, 2, function(i) { any(is.na(i))})]
     # fill in the columns with missingness
     # NB: fill.column.numeric is hard coded as value of model.matrix is always numeric. no need for a generic fn.
-    modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
+    if (length(withStrata$strata) > 0 ) {
+      sformula <- as.formula(paste("~", paste(withStrata$strata, collapse = "+")))
+      tmp <- interaction(model.frame(sformula, data = data, na.action = na.pass))
+      for (l in levels(tmp)) {
+        idx <- tmp == l & !is.na(tmp)
+        modmat[idx, expanded.NAs] <- sapply(modmat[expanded.NAs][idx, , drop = FALSE], fill.column.numeric, simplify = F)
+      }
+    } else {
+      modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
+    }
     result <- cbind(modmat, NA.columns)
 
     newfmla <- update(newfmla, as.formula(paste0("~ . + ", paste0(colnames(NA.columns), collapse = "+"))))

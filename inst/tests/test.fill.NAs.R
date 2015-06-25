@@ -174,4 +174,7 @@ test_that("strata() function handling", {
   # does not work yet:
   # yy <- glm(res1)
   # expect_equivalent(xx, yy)
- })
+
+  ## imputation should be per stratum
+  expect_false(all(res1$x == (fill.NAs(z ~ x, data = data.full))$x))
+})
