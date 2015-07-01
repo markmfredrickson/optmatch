@@ -6,31 +6,18 @@ library(testthat)
 context("fill.NAs")
 
 test_that("Basic Tests", {
-  # Takes and returns a data frame
-  expect_is(fill.NAs(data.frame(1)), "data.frame")
-
-  # A formula alone is not allowed
-  expect_error(fill.NAs(y ~ x))
 
   sample.df <- data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA, 3, 4), 20))
 
-  # takes a formula and a data.frame, returns a data frame
-  result <- fill.NAs(a ~ b, sample.df)
-  expect_is(result, "data.frame") # no missingness
+  xx <- fill.NAs(a ~ b + c)
+  xx.mf <- model.frame(xx, data = sample.df)
+  expect_true(any(is.na(xx.mf))) # we don't impute until model.matrix time
 
-  # simple calls should be equivalent to model.frame
-  expect_equal(length(result), 2)
+  xx.mm <- model.matrix(xx, xx.mf)
+  expect_false(any(is.na(xx.mm)))
 
-  # Adds additional columns for missing data indicators
-  expect_equal(dim(fill.NAs(sample.df))[2], 4)
-  expect_equal(dim(fill.NAs(sample.df, all.covs = T))[2], 4)
+  expect_equal(dim(xx.mm), c(100, 4)) # intercept, b, c, c.NA
 
-  result <- fill.NAs(sample.df)
-  # the last column should be TRUE every 3 unit
-  expect_identical(result[[4]], rep(c(F, F, T, F, F), 20))
-
-  # column name should be c.NA
-  expect_identical(colnames(result)[4], "c.NA")
 })
 
 test_that("Function expansion", {
