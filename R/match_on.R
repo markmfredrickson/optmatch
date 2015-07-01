@@ -576,6 +576,10 @@ scoreCaliper <- function(x, z, caliper) {
 #' @method match_on InfinitySparseMatrix
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
@@ -584,6 +588,11 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 #' @rdname match_on-methods
 #' @method match_on matrix
 match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))

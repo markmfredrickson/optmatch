@@ -602,3 +602,21 @@ test_that("strata in GLMs", {
 
 
 })
+
+test_that("Subsetting an ISM by passing a new data object to match_on", {
+
+  data <- data.frame(z = rep(c(0,1), 13), x = rnorm(26))
+  rownames(data) <- letters
+
+  x <- match_on(z ~ x, data = data)
+  expect_equal(dim(x), c(13, 13))
+
+  d2 <- data.frame(w = 10:15)
+  rownames(d2) <- letters[10:15]
+
+  y <- match_on(x, data = d2)
+  expect_equal(dim(y), c(3, 3))
+  
+  y2 <- match_on(optmatch:::as.InfinitySparseMatrix(x), data = d2)
+  expect_equal(dim(y2), c(3, 3))
+})
