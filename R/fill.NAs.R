@@ -83,7 +83,7 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
     }
     result <- cbind(modmat, NA.columns)
 
-    newfmla <- update(newfmla, as.formula(paste0("~ . + ", paste0(colnames(NA.columns), collapse = "+"))))
+    newfmla <- update(newfmla, as.formula(paste0("~ . + ", paste0("`", colnames(NA.columns), "`", collapse = "+"))))
   }
 
   if(!all.covs){
