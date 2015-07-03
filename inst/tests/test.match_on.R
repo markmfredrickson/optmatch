@@ -4,7 +4,6 @@
 
 library(testthat)
 library(biglm)
-library(survival)
 
 context("match_on function")
 
@@ -36,9 +35,7 @@ test_that("Distances from glms", {
   df <- data.frame(Z. = Z, X1. = X1, X2. = X2, B. = B)
   expect_error(glm(Z. ~ X1. + X2. + B., family = binomial()))
 
-  attach(df)
-
-  model.attach <- glm(Z. ~ X1. + X2. + B., family = binomial())
+  model.attach <- with(df, glm(Z. ~ X1. + X2. + B., family = binomial()))
   res.attach <- match_on(model.attach)
 
   expect_equal(result.foo, res.attach)
@@ -157,6 +154,44 @@ test_that("Distances from formulas", {
 
 })
 
+test_that("Issue 87: NA's in data => unmatchable, but retained, units in distances", {
+  d <- data.frame(z  = c(1,1,1,0,0),
+                  x1 = c(7, 9, NA, -1, 4),
+                  x2 = c(1, 0, 0, 0, 1))
+
+  rownames(d) <- c("A", "B", "C", "y", "z")
+  g <- function(x) {
+    tmp <- rep("OTHER", length(g))
+    tmp[is.finite(x)]  <- "FINITE"
+    tmp[!is.finite(x)] <- "INF"
+    tmp[is.na(x)] <- "NA"
+    return(tmp)
+  }
+
+  f <- function(method) {
+    v <- as.matrix(match_on(z ~ x1 + x2, data = d, method = method))
+    g(v)
+  }
+
+  expectedM <- c("FINITE", "FINITE", "INF", "FINITE", "FINITE", "INF")
+  
+  expect_equivalent(f("mahalanobis"), expectedM)
+  expect_equivalent(f("euclid"), expectedM)
+  expect_equivalent(f("rank_mahal"), expectedM)
+
+  ## now with numeric method:
+  zz <- d$z
+  x1 <- d$x1
+  names(zz) <- names(x1) <- rownames(d)
+
+  v <- as.matrix(match_on(x1, z = zz))
+  expect_equivalent(g(v), expectedM)
+
+  ## glm should have the opposite behavior: automatically imputing 
+  v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial)))
+  expect_equivalent(g(v), rep("FINITE", 6))
+})
+
 # while the formula method often handles mahalanobis distances, separating the tests for clarity
 test_that("Mahalanobis distance calcualtions", {
   badData <- data.frame(Z = as.factor(rep(c(0,1), 10)),
@@ -168,7 +203,6 @@ test_that("Mahalanobis distance calcualtions", {
 
   # even though the supplied data is a bad idea, it should work using the svd() decomposition
   res <- match_on(Z ~ badf1 + badf2, data = badData)
-
 })
 
 test_that("Distances from functions", {
@@ -459,4 +493,151 @@ test_that("numeric standardization scale", {
   test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
 
   result.glm <- match_on(test.glm, standardization.scale=1)
+})
+
+test_that("Building exactMatch from formula with strata", {
+
+  d <- data.frame(x = rnorm(8),
+                  t = rep(0:1, 4),
+                  z = rep(0:1, each=4))
+
+  em <- exactMatch(t ~ z, data=d)
+
+  nw <- makeWithinFromStrata(t ~ strata(z), d)
+
+  expect_true(is(nw, "list"))
+  expect_true(length(nw) == 2)
+  expect_true(all(names(nw) == c("x", "within")))
+
+  expect_true(is(nw$x, "formula"))
+  expect_true(is(nw$within, "BlockedInfinitySparseMatrix"))
+  expect_true(all(unlist(subdim(nw$within)) == 2))
+
+  expect_equivalent(em, nw$within)
+  expect_equivalent(t ~ 1, nw$x)
+
+  nw2 <- makeWithinFromStrata(t ~ x + strata(z), d)
+
+  expect_equivalent(em, nw2$within)
+  expect_equivalent(t ~ x, nw2$x)
+
+
+})
+
+
+test_that("Using strata instead of within arguments", {
+  data(nuclearplants)
+
+  m1 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                  data=nuclearplants)
+  m2 <- match_on(pr ~ cost + strata(pt), data=nuclearplants)
+  m2b <- match_on(pr ~ cost, data=nuclearplants)
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  expect_true(is(m2, "BlockedInfinitySparseMatrix"))
+  expect_true(all.equal(m1, m2, check.attributes=FALSE))
+  expect_true(!isTRUE(all.equal(m2, m2b, check.attributes=FALSE)))
+
+  # handling more complicated strata calls
+  m3 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt + ct + ne,
+                                               data=nuclearplants),
+                  data=nuclearplants)
+  m4 <- match_on(pr ~ cost + strata(pt) + strata(ct, ne), data=nuclearplants)
+
+  expect_true(all.equal(m3, m4, check.attributes=FALSE))
+
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  m5 <- match_on(pr ~ cost, within=e2, data=nuclearplants)
+  m6 <- match_on(pr ~ cost + strata(ct), within=e1, data=nuclearplants)
+  m7 <- match_on(pr ~ cost + strata(ct, ne), data=nuclearplants)
+
+  expect_true(all.equal(m5, m6, check.attributes=FALSE))
+  expect_true(all.equal(m5, m7, check.attributes=FALSE))
+
+})
+
+test_that("strata in GLMs", {
+
+  data(nuclearplants)
+
+  m1 <- match_on(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                 within=exactMatch(pr ~ ne, data=nuclearplants),
+                 data=nuclearplants)
+  m2 <- match_on(glm(pr ~ t1 + strata(ne), data=nuclearplants, family=binomial),
+                 data=nuclearplants)
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  expect_true(is(m2, "BlockedInfinitySparseMatrix"))
+  expect_true(all.equal(m1, m2, check.attributes=FALSE))
+
+  m3 <- match_on(glm(pr ~ t1 + ne + interaction(ct,pt), data=nuclearplants,
+                     family=binomial),
+                 within=exactMatch(pr ~ ne + ct*pt, data=nuclearplants),
+                 data=nuclearplants)
+  m4 <- match_on(glm(pr ~ t1 + strata(ne) + strata(ct, pt),
+                     data=nuclearplants, family=binomial), data=nuclearplants)
+
+  expect_true(all.equal(m3, m4, check.attributes=FALSE))
+
+  e1 <- exactMatch(pr ~ ne, data=nuclearplants)
+  e2 <- exactMatch(pr ~ ne + ct, data=nuclearplants)
+
+  m5 <- match_on(glm(pr ~ cost + ne + ct, data=nuclearplants, family=binomial),
+                 within=e2, data=nuclearplants)
+  m6 <- match_on(glm(pr ~ cost + ne + strata(ct), data=nuclearplants,
+                     family=binomial),
+                 within=e1, data=nuclearplants)
+  m7 <- match_on(glm(pr ~ cost + strata(ct) + strata(ne), data=nuclearplants,
+                     family=binomial),
+                 data=nuclearplants)
+
+  expect_true(all.equal(m5, m6, check.attributes=FALSE))
+  expect_true(all.equal(m5, m7, check.attributes=FALSE))
+
+
+  # strata(a,b) is equivalent to interaction(a,b)
+  m8 <- match_on(glm(pr ~ cost + strata(ct,ne), data=nuclearplants,
+                     family=binomial),
+                 data=nuclearplants)
+  m9 <- match_on(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
+                     data=nuclearplants, family=binomial),
+                 within=e1, data=nuclearplants)
+  m10 <- match_on(glm(pr ~ cost + interaction(ne,ct), data=nuclearplants,
+                      family=binomial),
+                  within=e2, data=nuclearplants)
+  m10b <- match_on(glm(pr ~ cost + ne*ct, data=nuclearplants, family=binomial),
+                  within=e2, data=nuclearplants)
+  # m9 is a bit weight because of the double inclusion of ct, and is an unlikely
+  # way for users to enter code, but the extra ct is of course ignored.
+
+  expect_true(all.equal(m8, m9, check.attributes=FALSE))
+  expect_true(all.equal(m8, m10, check.attributes=FALSE))
+
+  # Fixed effects should be added when exactMatching
+  m11 <- match_on(glm(pr ~ cost, data=nuclearplants, family=binomial),
+                  within=e2, data=nuclearplants)
+
+  expect_false(isTRUE(all.equal(m8, m11, check.attributes=FALSE)))
+
+
+})
+
+test_that("Subsetting an ISM by passing a new data object to match_on", {
+
+  data <- data.frame(z = rep(c(0,1), 13), x = rnorm(26))
+  rownames(data) <- letters
+
+  x <- match_on(z ~ x, data = data)
+  expect_equal(dim(x), c(13, 13))
+
+  d2 <- data.frame(w = 10:15)
+  rownames(d2) <- letters[10:15]
+
+  y <- match_on(x, data = d2)
+  expect_equal(dim(y), c(3, 3))
+  
+  y2 <- match_on(optmatch:::as.InfinitySparseMatrix(x), data = d2)
+  expect_equal(dim(y2), c(3, 3))
 })
