@@ -35,9 +35,7 @@ test_that("Distances from glms", {
   df <- data.frame(Z. = Z, X1. = X1, X2. = X2, B. = B)
   expect_error(glm(Z. ~ X1. + X2. + B., family = binomial()))
 
-  attach(df)
-
-  model.attach <- glm(Z. ~ X1. + X2. + B., family = binomial())
+  model.attach <- with(df, glm(Z. ~ X1. + X2. + B., family = binomial()))
   res.attach <- match_on(model.attach)
 
   expect_equal(result.foo, res.attach)
