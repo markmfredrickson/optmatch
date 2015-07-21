@@ -35,9 +35,7 @@ test_that("Distances from glms", {
   df <- data.frame(Z. = Z, X1. = X1, X2. = X2, B. = B)
   expect_error(glm(Z. ~ X1. + X2. + B., family = binomial()))
 
-  attach(df)
-
-  model.attach <- glm(Z. ~ X1. + X2. + B., family = binomial())
+  model.attach <- with(df, glm(Z. ~ X1. + X2. + B., family = binomial()))
   res.attach <- match_on(model.attach)
 
   expect_equal(result.foo, res.attach)
@@ -133,6 +131,44 @@ test_that("Distances from formulas", {
 
 })
 
+test_that("Issue 87: NA's in data => unmatchable, but retained, units in distances", {
+  d <- data.frame(z  = c(1,1,1,0,0),
+                  x1 = c(7, 9, NA, -1, 4),
+                  x2 = c(1, 0, 0, 0, 1))
+
+  rownames(d) <- c("A", "B", "C", "y", "z")
+  g <- function(x) {
+    tmp <- rep("OTHER", length(g))
+    tmp[is.finite(x)]  <- "FINITE"
+    tmp[!is.finite(x)] <- "INF"
+    tmp[is.na(x)] <- "NA"
+    return(tmp)
+  }
+
+  f <- function(method) {
+    v <- as.matrix(match_on(z ~ x1 + x2, data = d, method = method))
+    g(v)
+  }
+
+  expectedM <- c("FINITE", "FINITE", "INF", "FINITE", "FINITE", "INF")
+  
+  expect_equivalent(f("mahalanobis"), expectedM)
+  expect_equivalent(f("euclid"), expectedM)
+  expect_equivalent(f("rank_mahal"), expectedM)
+
+  ## now with numeric method:
+  zz <- d$z
+  x1 <- d$x1
+  names(zz) <- names(x1) <- rownames(d)
+
+  v <- as.matrix(match_on(x1, z = zz))
+  expect_equivalent(g(v), expectedM)
+
+  ## glm should have the opposite behavior: automatically imputing 
+  v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial)))
+  expect_equivalent(g(v), rep("FINITE", 6))
+})
+
 # while the formula method often handles mahalanobis distances, separating the tests for clarity
 test_that("Mahalanobis distance calcualtions", {
   badData <- data.frame(Z = as.factor(rep(c(0,1), 10)),
@@ -144,7 +180,6 @@ test_that("Mahalanobis distance calcualtions", {
 
   # even though the supplied data is a bad idea, it should work using the svd() decomposition
   res <- match_on(Z ~ badf1 + badf2, data = badData)
-
 })
 
 test_that("Distances from functions", {
@@ -564,4 +599,22 @@ test_that("strata in GLMs", {
   expect_false(isTRUE(all.equal(m8, m11, check.attributes=FALSE)))
 
 
+})
+
+test_that("Subsetting an ISM by passing a new data object to match_on", {
+
+  data <- data.frame(z = rep(c(0,1), 13), x = rnorm(26))
+  rownames(data) <- letters
+
+  x <- match_on(z ~ x, data = data)
+  expect_equal(dim(x), c(13, 13))
+
+  d2 <- data.frame(w = 10:15)
+  rownames(d2) <- letters[10:15]
+
+  y <- match_on(x, data = d2)
+  expect_equal(dim(y), c(3, 3))
+  
+  y2 <- match_on(optmatch:::as.InfinitySparseMatrix(x), data = d2)
+  expect_equal(dim(y2), c(3, 3))
 })

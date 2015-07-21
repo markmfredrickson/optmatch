@@ -105,4 +105,5 @@ test_that("Fallback version of optmatch solver", {
   expect_identical(f1,f3)
   expect_identical(f1,f4)
 
+  options("use_fallback_optmatch_solver" = NULL)
 })

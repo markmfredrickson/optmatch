@@ -269,12 +269,21 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
+  mf$na.action <- na.pass
   mf[[1L]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
 
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
   }
+
+  tmpz <- toZ(mf[,1])
+  tmpn <- rownames(mf)
+  
+  mf <- na.omit(mf)
+
+  dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
+  dropped.c <- setdiff(tmpn[!tmpz], rownames(mf))
 
   data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
 
@@ -297,6 +306,13 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 		)
   rm(mf)
 
+  if (length(dropped.t) > 0 || length(dropped.c)) {
+    tmp <- as.InfinitySparseMatrix(tmp)
+    tmp@rownames <- c(tmp@rownames, dropped.t)
+    tmp@colnames <- c(tmp@colnames, dropped.c)
+    tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+  }
+
   if (is.null(caliper)) {
     tmp@call <- cl
     return(tmp)
@@ -304,6 +320,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   tmp <- tmp + optmatch::caliper(tmp, width = caliper)
   tmp@call <- cl
+
   return(tmp)
 }
 
@@ -315,14 +332,27 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 # not remove the strata variables from the model.
 makeWithinFromStrata <- function(x, data)
 {
-  t <- terms(x, specials="strata")
-  strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
-  x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
-
-  em <- unlist(sapply(strsplit(strata, "\\(|)|,"), "[", -1))
-  within <- exactMatch(as.formula(paste(x[[2]], "~", paste(em, collapse="+"))),
+  xs <- findStrata(x, data)
+  
+  em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
+  within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
                              data=data)
-  return(list(x=x, within=within))
+  return(list(x= xs$newx, within=within))
+}
+
+findStrata <- function(x, data) {
+
+  t <- terms(x, specials = "strata", data = data)
+
+  strata <- rownames(attr(t, "factors"))[attr(t, "specials")$strata]
+
+  if (length(strata) > 0) {
+    x <- update(x, as.formula(paste("~ . - ", paste(strata, collapse="-"))))
+    return(list(newx = x, strata = strata))
+  }
+
+  return(list(newx = x, strata = NULL))
+
 }
 
 
@@ -459,6 +489,14 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
 
   z <- toZ(z)
 
+  missingX <- is.na(x)
+  rnms <- names(z)
+  dropped.t <- rnms[missingX & z]
+  dropped.c <- rnms[missingX & !z]
+
+  z <- z[!missingX]
+  x <- x[!missingX]
+
   if(!is.null(caliper)) {
     if (length(caliper) > 1) {
       stop("Argument `caliper` must be a scalar value, not a vector.")
@@ -476,6 +514,15 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
 
   tmp <- makedist(z, x, f, within)
+  # we dropped units with missing x values, now we reappply them
+
+  if (length(dropped.t) > 0 || length(dropped.c)) {
+    tmp <- as.InfinitySparseMatrix(tmp)
+    tmp@rownames <- c(tmp@rownames, dropped.t)
+    tmp@colnames <- c(tmp@colnames, dropped.c)
+    tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+  }
+
   tmp@call <- cl
   return(tmp)
 }
@@ -529,6 +576,10 @@ scoreCaliper <- function(x, z, caliper) {
 #' @method match_on InfinitySparseMatrix
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
@@ -537,6 +588,11 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 #' @rdname match_on-methods
 #' @method match_on matrix
 match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
