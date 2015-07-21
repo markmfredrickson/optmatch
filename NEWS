@@ -1,7 +1,15 @@
 CHANGES IN OPTMATCH VERSION 0.9-4
-* Fixed bug giving  spurious infeasibility warnings,
-sample size reductions when using `fullmatch` with feasible combinations
-of `min.controls`, `mean.controls`/`max.controls` and `max.controls` (#92)
+* Significant speed up of math operations for sparse distance objects
+  (by Josh Buckner).
+* match_on now takes strata as element of formula. Now users can write:
+    match_on(z ~ x1 + x2 + strata(exactMatchVar))
+  Instead of
+    match_on(z ~ x1 + x2, within = exactMatch(z ~ exactMatchVar))
+* Fixed bug giving spurious infeasibility warnings, sample size
+  reductions when using `fullmatch` with feasible combinations of
+  `min.controls`, `mean.controls`/`max.controls` and `max.controls`
+  (#92)
+* Various small bug fixes and documentation improvements.
 
 CHANGES IN OPTMATCH VERSION 0.9-3
 
