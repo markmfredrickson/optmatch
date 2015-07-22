@@ -19,3 +19,4 @@ vignettes/performance/*.rda
 .pkgexclude
 inst/doc
 vignettes/figure
+vignettes/*.md
