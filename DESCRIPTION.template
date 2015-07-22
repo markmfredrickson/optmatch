@@ -1,7 +1,8 @@
 Package: optmatch
 Version: VERSION
 Date: DATE
-Title: Functions for optimal matching
+Title: Functions for Optimal Matching
+Description: Provides routines for distance based bipartite matching to reduce covariate imbalance between treatment and control groups in observational studies. Routines are provided to generate distances from GLM models (propensity score matching) and formulas (Euclidean and Mahalanobis matching), stratified matching (exact matching), and calipers. Results of the fullmatch routine are guaranteed to provide minimum average within matched set distance.
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredrickson@gmail.com>,
   Josh Buckner, Josh Errickson, and Peter Solenberger,
   with embedded Fortran code due to Dimitri P. Bertsekas
@@ -9,9 +10,8 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredricks
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest, survival
 LinkingTo: Rcpp
-Imports: Rcpp
-Suggests: boot, RItools, biglm, testthat, survival, brglm, arm, knitr
-Description: Functions for optimal matching, including full matching
+Imports: Rcpp, RItools
+Suggests: boot, biglm, testthat, brglm, arm, knitr
 License: file LICENSE
 VignetteBuilder: knitr
 URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch

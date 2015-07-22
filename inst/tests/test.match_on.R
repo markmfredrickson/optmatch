@@ -116,13 +116,35 @@ test_that("Distances from formulas", {
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "euclidean") - euclid) <
-    .00001)) # there is some rounding error, but it is small
+                      .00001)) # there is some rounding error, but it is small
 
+  # factor-related
+  f0 <- as.factor(rep(1:4, each=n/4))
+  f1 <- as.factor(rep(rep(1:2, each=2),n/4))
+  f2 <- as.factor(rep(3:4, each=n/2))
+
+  tol <- 100 * sqrt(.Machine$double.eps)
+  # Euclidean distances on a single factor should be 1 or 0
+  tmp <- match_on(Z~f1, method="euclidean")
+  expect_true(all(abs(tmp) < tol | abs(tmp - 1) < tol))
+
+  euclid2 <- match_on(Z~f0, method="euclidean")
+  expect_true(all(abs(euclid2) < tol | abs(euclid2 - 1) < tol))
+
+  # with 2 orthogonal factors, distances should be 0, 1 or 2
+  tmp <- match_on(Z ~ f1 + f2, method="euclidean")
+  expect_true(all(abs(tmp) < tol | abs(tmp - 1) < tol | abs(tmp - sqrt(2)) < tol))
+
+  # with a single 2 level factor, numeric version to give same distances
+  expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="euclidean")), as.matrix(match_on(Z~f1, method="euclidean")))
+  
   # passing a function name for method
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = compute_euclidean) - euclid) <
-    .00001)) # there is some rounding error, but it is small
+  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = optmatch:::compute_euclidean) - euclid) < tol)) # there is some rounding error, but it is small
 
+  # Mahalanobis distances involving factors 
 
+  expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="mahalanobis")), as.matrix(match_on(Z~f1, method="mahalanobis")))
+  
   # excluding matches combined with a formula
   stratify <- exactMatch(Z ~ B)
   res.strat <- match_on(Z ~ X1 + X2, within = stratify)

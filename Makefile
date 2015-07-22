@@ -42,7 +42,7 @@ interactive-emacs: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RI
 
 ### Package release scripts ###
 
-VERSION=0.9-3
+VERSION=0.9-4
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
@@ -98,6 +98,13 @@ lexicon.txt: package
 # the full (and slow) check process
 check: $(PKG).tar.gz
 	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran --use-valgrind $(PKG).tar.gz
+
+# a faster version of check
+quick-check: $(PKG).tar.gz
+	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran $(PKG).tar.gz
+
+simple-check: $(PKG).tar.gz
+	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local $(PKG).tar.gz
 
 # getting ready to release
 release: check spell

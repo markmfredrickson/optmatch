@@ -276,6 +276,17 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
   }
+  
+  # we want to use our own contrasts creating function
+  isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
+  c.arg <- lapply(isF, function(fname) {
+    if (nlevels(mf[[fname]]) < 2) {
+      return(NULL)
+    } 
+    contr.match_on(nlevels(mf[[fname]]))
+  })
+                
+  names(c.arg) <- isF
 
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
@@ -285,11 +296,10 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
   dropped.c <- setdiff(tmpn[!tmpz], rownames(mf))
 
-  data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
+  data <- subset(model.matrix(x, mf, contrasts.arg = c.arg), TRUE, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
-
 
   if(is.character(method)){
     methodname <- method
@@ -597,3 +607,17 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
+
+## Non-exported functioun
+## @title A contrasts function suitable for use within match_on
+## @details Scales the result of `contr.poly` by `2^-1`. Necessary for
+## Euclidean distance to be the same when you apply it with a 2-level
+## factor or with same factor after coercion to numeric.
+## @param n levels of the factor
+## @param contrasts (passed to contr.poly)
+## @param sparse (passed to contr.poly)
+## @return A matrix with `nn=length(n)` rows and `k` columns, with `k=nn-1` if `contrasts` is `TRUE` and `k=nn` if `contrasts` is `FALSE`.
+## @author Ben B Hansen
+contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
+  contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
+}
