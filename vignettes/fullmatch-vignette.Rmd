@@ -1,6 +1,6 @@
 ---
 title: "Matching in *R* using the `optmatch` and `RItools` packages"
-author: "Ben Hansen, Mark Fredrickson and Josh Errickson"
+author: "Ben B. Hansen, Mark Fredrickson, Josh Buckner, Josh Errickson, and Peter Solenberger, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
 vignette: >
