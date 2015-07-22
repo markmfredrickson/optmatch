@@ -72,7 +72,6 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
-#' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
@@ -537,14 +536,14 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   return(tmp)
 }
 
-#' (Internal) Helper function to create an InfinitySparseMatrix from a set of
-#' scores, a treatment indicator, and a caliper width.
-#'
-#' @param x The scores, a vector indicating the 1-D location of each unit.
-#' @param z The treatment assignment vector (same length as \code{x})
-#' @param caliper The width of the caliper with respect to the scores \code{x}.
-#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to
-#'   \code{\link{match_on}} as an \code{within} argument.
+# (Internal) Helper function to create an InfinitySparseMatrix from a set of
+# scores, a treatment indicator, and a caliper width.
+#
+# @param x The scores, a vector indicating the 1-D location of each unit.
+# @param z The treatment assignment vector (same length as \code{x})
+# @param caliper The width of the caliper with respect to the scores \code{x}.
+# @return An \code{InfinitySparseMatrix} object, suitable to be passed to
+#   \code{\link{match_on}} as an \code{within} argument.
 scoreCaliper <- function(x, z, caliper) {
   z <- toZ(z)
 

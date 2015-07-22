@@ -21,7 +21,6 @@ Type 'q()' to quit R.
 > source(file.path(R.home("share"), "R", "examples-header.R"))
 > options(warn = 1)
 > library('optmatch')
-Loading required package: digest
 Loading required package: survival
 The optmatch package has an academic license. Enter relaxinfo() for more information.
 > 
@@ -557,54 +556,13 @@ detaching ‘package:RItools’
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: getMaxProblemSize
-> ### Title: (Internal) What is the maximum allowed problem size?
+> ### Title: What is the maximum allowed problem size?
 > ### Aliases: getMaxProblemSize
 > 
 > ### ** Examples
 > 
 > optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
 [1] TRUE
-> 
-> 
-> 
-> cleanEx()
-> nameEx("makeInfinitySparseMatrix")
-> ### * makeInfinitySparseMatrix
-> 
-> flush(stderr()); flush(stdout())
-> 
-> ### Name: makeInfinitySparseMatrix
-> ### Title: (Internal) Creating sparse matching problems
-> ### Aliases: as.InfinitySparseMatrix dimnames<-,InfinitySparseMatrix-method
-> ###   dimnames,InfinitySparseMatrix-method makeInfinitySparseMatrix
-> 
-> ### ** Examples
-> 
-> example.matrix <- matrix(c(1,2,Inf, 3,Inf,4, Inf,Inf,Inf), byrow = TRUE, nrow = 3,
-+                           dimnames = list(letters[1:3], LETTERS[24:26]))
-> 
-> optmatch:::as.InfinitySparseMatrix(example.matrix)
-       control
-treated   X   Y   Z
-      a   1   2 Inf
-      b   3 Inf   4
-      c Inf Inf Inf
-> 
-> # create the same sparse matrix directly, function will create the appropriate dims
-> # the data are in a different order, but the indices are correct
-> (example.ism <- 
-+   optmatch:::makeInfinitySparseMatrix(c(1,2,3,4), 
-+                                       c(1,2,1,3), 
-+                                       c(1,1,2,2), 
-+                                       LETTERS[24:26],
-+                                       letters[1:3]))
-       control
-treated   X   Y   Z
-      a   1   2 Inf
-      b   3 Inf   4
-      c Inf Inf Inf
->   
-> 
 > 
 > 
 > 
@@ -616,9 +574,9 @@ treated   X   Y   Z
 > 
 > ### Name: match_on
 > ### Title: Create treated to control distances for matching problems
-> ### Aliases: InfinitySparseMatrix-class match_on match_on.bigglm
-> ###   match_on.formula match_on.function match_on.glm
-> ###   match_on.InfinitySparseMatrix match_on.matrix match_on.numeric
+> ### Aliases: match_on match_on.bigglm match_on.formula match_on.function
+> ###   match_on.glm match_on.InfinitySparseMatrix match_on.matrix
+> ###   match_on.numeric
 > 
 > ### ** Examples
 > 
@@ -1322,7 +1280,7 @@ attr(,"comparable.num.matched.pairs")
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.47 0.226 1.699 0 0 
+Time elapsed:  1.7 0.103 1.804 0 0 
 > grDevices::dev.off()
 null device 
           1 

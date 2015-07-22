@@ -41,22 +41,22 @@ setOldClass(c("optmatch", "factor"))
 
 ####### Object Creation #########
 
-#' (Internal) Create \code{optmatch} objects, the result of matching.
-#'
-#' This internal function is used to create the final output of the matching
-#' functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
-#' \code{optmatch} object descends from a \code{factor}, but contains additional
-#' information relating to the quality of the match.
-#'
-#' @param distance A \code{DistanceSpecificaton} object used to create the
-#'  match.
-#' @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
-#' @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
-#' @param data An object from which \code{names} or \code{row.names} will
-#'  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
-#' @return \code{optmatch} object
-#'
-#' @seealso \code{\link{summary.optmatch}}
+# (Internal) Create \code{optmatch} objects, the result of matching.
+#
+# This internal function is used to create the final output of the matching
+# functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
+# \code{optmatch} object descends from a \code{factor}, but contains additional
+# information relating to the quality of the match.
+#
+# @param distance A \code{DistanceSpecificaton} object used to create the
+#  match.
+# @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
+# @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
+# @param data An object from which \code{names} or \code{row.names} will
+#  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
+# @return \code{optmatch} object
+#
+# @seealso \code{\link{summary.optmatch}}
 makeOptmatch <- function(distance,
                          solutions,
                          call,
