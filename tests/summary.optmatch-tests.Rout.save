@@ -1,6 +1,6 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -18,15 +18,8 @@ Type 'q()' to quit R.
 > require('optmatch')
 Loading required package: optmatch
 Loading required package: digest
-You're loading optmatch, by B. Hansen and M. Fredrickson.
- The optmatch package makes essential use of D. P. Bertsekas
- and P. Tseng's RELAX-IV algorithm and code, as well as
- Bertsekas' AUCTION algorithm and code.  Using the software
- to 'satisfy in any part commercial delivery requirements to
- government or industry' requires a special agreement with
- Dr. Bertsekas. For more information, enter
- relaxinfo() at the command line.
-
+Loading required package: survival
+The optmatch package has an academic license. Enter relaxinfo() for more information.
 > data(plantdist)
 > summary(fullmatch(1 * (plantdist < 10))) # a zero-1 matrix
 Structure of matched sets:
@@ -150,4 +143,4 @@ Balance test overall result:
 > 
 > proc.time()
    user  system elapsed 
-  1.389   0.043   1.415 
+  1.173   0.039   1.211 
