@@ -97,14 +97,11 @@ lexicon.txt: package
 
 # the full (and slow) check process
 check: $(PKG).tar.gz
-	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran --use-valgrind $(PKG).tar.gz
-
-# a faster version of check
-quick-check: $(PKG).tar.gz
 	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran $(PKG).tar.gz
 
-simple-check: $(PKG).tar.gz
-	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local $(PKG).tar.gz
+# a more complete, if slow version of r cmd check
+valgrind-check: $(PKG).tar.gz
+	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran --use-valgrind $(PKG).tar.gz
 
 # getting ready to release
 release: check spell
