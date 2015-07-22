@@ -10,7 +10,7 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson <mark.m.fredricks
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 Depends: R (>= 2.15.1), stats, methods, graphics, digest, survival
 LinkingTo: Rcpp
-Imports: Rcpp
-Suggests: boot, RItools, biglm, testthat, brglm, arm
+Imports: Rcpp, RItools
+Suggests: boot, biglm, testthat, brglm, arm
 License: file LICENSE
 URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch

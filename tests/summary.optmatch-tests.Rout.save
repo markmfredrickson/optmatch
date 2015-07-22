@@ -77,9 +77,9 @@ sum(matched.distances)=1.02
 Percentiles of matched distances:
     0%    50%    95%   100% 
 0.0110 0.0577 0.1600 0.1660 
-
-For covariate balance information, load the RItools package and
-pass a (glm) propensity model to summary() as a second argument.
+Balance test overall result:
+  chisquare df p.value
+       2.29  9   0.986
 > require('RItools')
 Loading required package: RItools
 > summary(psfm, propensity.model='foo')
@@ -143,4 +143,4 @@ Balance test overall result:
 > 
 > proc.time()
    user  system elapsed 
-  1.173   0.039   1.211 
+  0.919   0.049   0.955 
