@@ -159,11 +159,9 @@ ROXYGENV= ce302fdd7620f4a9bcc4174374c4296318671b53
 test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
 	$(LR) -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
-# Build vignettes. Requires pandoc and pandoc-citeproc to be installed in OS.
+# Build vignettes. Requires pandoc and pandoc-citeproc to be installed in OS,
+# and devtools, pander and rmarkdown installed in R.
 vignette: .local/optmatch/INSTALLED .local/RItools/INSTALLED
-	$(call installpkg,devtools)
-	$(call installpkg,pander)
-	$(call installpkg,rmarkdown)
 	cp DESCRIPTION{.template,}
 	$(LR) -q -e "library(devtools); devtools:::build_vignettes()"
 	rm DESCRIPTION
