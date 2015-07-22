@@ -2,7 +2,7 @@
 title: "Matching in *R* using the `optmatch` and `RItools` packages"
 author: "Ben Hansen, Mark Fredrickson and Josh Errickson"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{Matching with Optmatch}
   %\VignetteEngine{knitr::rmarkdown}
@@ -21,14 +21,21 @@ download and install *R* for Windows, Mac, and Linux systems from:
 <http://www.r-project.org>.
 
 The following document walks through a common propensity score
-matching work-flow in *R*. Example *R* code will appear as italics
-with a `>` indicating the command prompt. You may type this code
-yourself --- each line is a command to *R*. Output will follow in a
-typewriter font. For example:
+matching work-flow in *R*. Example *R* code will appear with a `>`
+indicating the command prompt. You may type this code yourself ---
+each line is a command to *R*. Output will follow prefaced by
+`##`. (In *R*, `#` represents a comment; any command preceded by any
+number of `#`'s will not be executed.) For example:
 
 ```{r}
 2 + 2
 ```
+
+(Note that when entering the code yourself, do not include the `>` in
+your command. Also, for longer lines of code in this document, the
+text may wrap onto a second line, with the second line preceded by a
+`+` sign. When entering the code yourself, you do not have to wrap the
+lines, and do not include the `+`.)
 
 *R* stores data in named variables using the arrow operator:
 
@@ -39,7 +46,7 @@ my.variable * 3
 
 # Setup
 
-## Outfitting your R with the proper add-ons
+## Outfitting your *R* with the proper add-ons
 
 *R* add-on packages are available to install directly from *R*:
 
@@ -54,14 +61,14 @@ library to install packages into"; if so, answer yes.  (The default
 personal library location that *R* will suggest should be OK.) You'll
 only need to run these commands the first time you want to use
 `optmatch` or `RItools` on a particular computer, or when you install
-a new version of R.
+a new version of *R*.
 
-## Setting up the R environment for matching
+## Setting up the *R* environment for matching
 
 Attach extension packages that we'll be using for matching and
 associated diagnostics:
 
-```{r,echo=FALSE}
+```{r,echo=FALSE,message=FALSE}
 library(optmatch)
 library(RItools)
 ```
@@ -71,7 +78,8 @@ library(optmatch)
 library(RItools)
 ```
 
-You'll do this each time you want to run matching commands.
+You'll do this each time you start a new *R* session and want to run
+matching commands.
 
 To load the nuclear plants data, enter
 
@@ -83,7 +91,7 @@ data(nuclearplants)
 data(nuclearplants)
 ```
 
-To see the first five rows:
+To see the first six rows:
 
 ```{r}
 head(nuclearplants)
@@ -115,7 +123,7 @@ simplicity.  To do this we'll create a data table (in *R* jargon, a
 nuke.nopt <- subset(nuclearplants, pt == 0)
 ```
 
-To inspect its first and last 5 entries, do
+To inspect its first six or last six entries, do
 
 ```{r,eval=FALSE}
 head(nuke.nopt)
@@ -193,7 +201,7 @@ pm <- pairmatch(pr ~ cap, data = nuke.nopt)
 Now, you can just type `print(pm, grouped = TRUE)` or `summary(pm)`.
 
 The following would give a basic matched analysis of the effect of new
-or existing site on construction costs is given with the help of R's
+or existing site on construction costs is given with the help of *R*'s
 linear modeling function.  In effect, the existing site effect is
 estimated as one "way" in a two-way \textsc{anova}, the other "way"
 being the factor variable that represents the matching result,
@@ -206,7 +214,8 @@ summary(lm(cost ~ pr + pm, data = nuke.nopt))
 ## Matching with multiple controls
 
 There are other types of matches you might want to try.  Here's how to
-create matched triples:
+create matched triples (each treatment group unit is matched to two
+control group units):
 
 ```{r}
 tm <- pairmatch(pr ~ cap, controls = 2, data = nuke.nopt)
@@ -214,64 +223,13 @@ tm <- pairmatch(pr ~ cap, controls = 2, data = nuke.nopt)
 
 There will be further variations suggested on the slides.
 
-## Distances
-
-You'll often want to do several variations on a match.  It may save
-computation and typing time to store the distance you're using to
-match, if you're going to re-use that distance.  To do so, you'll have
-to explicitly separate distance-making and matching, two steps that
-were merged together in the above command.  We'll use the
-```match_on()``` command, introduced in optmatch version 0.8, to
-create distances.
-
-```{r}
-cap.dist <- match_on(pr ~ cap, data = nuke.nopt)
-pm1 <- pairmatch(pr ~ cap, data=nuke.nopt)
-pm2 <- pairmatch(cap.dist, data=nuke.nopt)
-all.equal(pm1, pm2, check.attributes = FALSE)
-summary(pm2)
-```
-
-What does a matching distance look like?  Here's the upper-left corner
-of one of them:
-
-```{r}
-round(cap.dist[1:3, 1:3], 1)
-```
-
-(Note the use of square brackets, `[` and `]`, for specifying rows and
-columns of the distance matrix.  If you find that this isn't working
-on a distance that you've produced, try `as.matrix(my.dist)[1:3,1:3]`
-or similar.)
-
-Matching with a caliper of 2 pooled standard deviations on the `cap`
-variable:
-
-```{r}
-round(cap.dist + caliper(cap.dist, 2), 1)
-```
-
-Entries of `Inf` or `NaN` in a distance matrix are interpreted as
-forbidden matches.  Thus
-
-```{r, eval=FALSE}
-pairmatch(cap.dist + caliper(cap.dist, 2), data = nuke.nopt)
-```
-
-matches on `cap`, insisting that paired units not differ by more than
-2 pooled SDs in `cap`. If you would prefer to set a requirement on how
-much paired units can differ in `cap` in its original units, rather
-than standard units, then you would have to create `cap.dist` in a
-somewhat different way.  There's an example on the help page for
-`caliper()`. Enter `help(caliper)` at the R command line.
-
 ## Did matching work?
 
 It's possible to give the software an impossible list of requirements
-for a match.  For instance, the following fails, generating an error:
+for a match.  For instance, try running the following:
 
-```{r, error=TRUE}
-pairmatch(cap.dist,3)
+```{r, eval=FALSE}
+pairmatch(pr ~ cap, controls = 3, data=nuke.nopt)
 ```
 
 The problem here is that the data don't have 3 comparison units to go
@@ -285,15 +243,21 @@ create any matches.  Here is an example, where the caliper is so
 narrow as to forbid all possible matches:
 
 ```{r, error=TRUE}
-cap.dist2 <- match_on(pr ~ cap + cost, data = nuke.nopt)
-pairmatch(cap.dist2 + caliper(cap.dist2, .001), data = nuke.nopt)
+pairmatch(pr ~ cap + cost, caliper=.001, data = nuke.nopt)
 ```
+
+Behind the scenes, the `caliper` argument restricts how the maximum
+distance between matched objects. For example, consider Table 1
+above. Plants A and H are 1.3 units apart in `date`. If we assigned
+`caliper=1`, they could never be matched because they exceed the
+caliper limit.
 
 If before matching you want to remove just the subjects lacking a
 counterpart within caliper distance, you can do `pairmatch(...,
 remove.unmatchables = TRUE)`.  That won't help with the minuscule
 caliper above, but with less extreme calipers it helps you salvage a
 few matches.
+
 
 ## How closely did I match?
 
@@ -302,15 +266,6 @@ reports information about how close the matches are.
 
 ```{r}
 summary(pm)
-```
-
-In this default report, the measure of closeness is just whatever
-distance you matched on.  For closeness in terms of some other
-distance, use `matched.distances`.
-
-```{r}
-matched.distances(pm, match_on(pr ~ date, data = nuke.nopt))
-summary(matched.distances(pm, match_on(pr ~ date, data = nuke.nopt)))
 ```
 
 ## Did matching balance the covariate?
@@ -325,7 +280,7 @@ summary(cap.noadj)
 
 or, more directly,
 
-```{r, eval=FALSE}
+```{r}
 summary(lm(cap ~ pr, data = nuke.nopt))$coeff["pr",]
 ```
 
@@ -335,7 +290,7 @@ brackets, curly brackets and parentheses.)
 
 Here is a parallel calculation that takes the match `pm` into account.
 
-```{r, eval=FALSE}
+```{r}
 summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
 ```
 
@@ -358,7 +313,7 @@ to that let's discuss try matching with propensity scores.
 
 # Propensity Score Matching
 
-## Propensity score fitting in R
+## Propensity score fitting in *R*
 
 Logistic regression models are fit in *R* using the function `glm()`,
 with "`family`" argument set to "`binomial`."  Example:
@@ -369,7 +324,7 @@ psm <- glm(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
 ```
 
 The fitted logistic regression is then stored in the object "`psm`."
-The propensity scores are then stored as `psm$fitted.values`
+The propensity scores can be accessed with `psm$fitted.values`
 (estimated probabilities) or `scores(psm)` (estimated logits of
 probabilities).
 
@@ -384,24 +339,18 @@ The groups do overlap, if not greatly.  It may be wise to restrict the
 sample to the region of overlap, at least roughly.  A propensity
 caliper would help with this.
 
-To extract a matrix of distances on the propensity score (and store it
-as "`psd`"), do
+First, lets match directly on the propensity score without restricing
+the sample to the region of overlap.
 
 ```{r}
-psd <- match_on(psm)
-```
-
-From this point you could match directly on the propensity score,
-
-```{r}
-ps.pm <- pairmatch(psd, data = nuclearplants)
+ps.pm <- pairmatch(psm, data = nuclearplants)
 summary(ps.pm)
 ```
 
-or match on the propensity score within propensity score calipers,
+To restrict to the overlapping region,
 
 ```{r}
-ps.pm2 <- pairmatch(psd + caliper(psd, 2), data = nuclearplants)
+ps.pm2 <- pairmatch(psm, caliper = 2, data = nuclearplants)
 summary(ps.pm2)
 ```
 
@@ -417,9 +366,9 @@ sd.
 
 ```{r}
 mhd1 <- match_on(pr~date+cap+scores(psm), data=nuclearplants)
-mhpc.pm <- pairmatch(mhd1 + caliper(psd, 1), data=nuclearplants)
+mhpc.pm <- pairmatch(pr~date+cap+scores(psm), caliper=1, data=nuclearplants)
 summary(mhpc.pm) # oops
-mhpc.pm <- pairmatch(mhd1 + caliper(psd, 2), data=nuclearplants)
+mhpc.pm <- pairmatch(pr~date+cap+scores(psm), caliper=2, data=nuclearplants)
 summary(mhpc.pm) # better!
 ```
 
@@ -482,9 +431,9 @@ Mahalanobis matching.  Identify the matches that gives:
 Try out for yourself and compare:
 
 ```{r, eval=FALSE}
+summary(fullmatch(pr ~ date + cap, data = nuke.nopt))
 summary(fullmatch(pr ~ date + cap, data = nuke.nopt, min = 1))
 summary(fullmatch(pr ~ date + cap, data = nuke.nopt, min = 2, max = 3))
-summary(fullmatch(pr ~ date + cap, data = nuke.nopt))
 ```
 
 ## Subclassification before matching
@@ -500,11 +449,58 @@ help you do it.
 
 ```{r}
 ptxm <- exactMatch(pr ~ pt, data = nuclearplants)
-mhd2 <- match_on(pr ~ date + cap + scores(psm), within = ptxm, data = nuclearplants)
-psd2 <- match_on(psm) + ptxm
-mhd2 + caliper(psd2, 1)
+pairmatch(pr ~ date + cap + scores(psm), within=ptxm, data=nuclearplants)
 ```
 
+## Distances
+
+You'll often want to do several variations on a match.  It may save
+computation and typing time to store the distance you're using to
+match, if you're going to re-use that distance.  To do so, you'll have
+to explicitly separate distance-making and matching, two steps that
+we've merged together thus far. We'll use the ```match_on()``` to
+create distances.
+
+```{r}
+cap.dist <- match_on(pr ~ cap, data = nuke.nopt)
+pm1 <- pairmatch(pr ~ cap, data=nuke.nopt)
+pm2 <- pairmatch(cap.dist, data=nuke.nopt)
+all.equal(pm1, pm2, check.attributes = FALSE)
+summary(pm2)
+```
+
+What does a matching distance look like?  Here's the upper-left corner
+of one of them:
+
+```{r}
+round(cap.dist[1:3, 1:3], 1)
+```
+
+(Note the use of square brackets, `[` and `]`, for specifying rows and
+columns of the distance matrix.  If you find that this isn't working
+on a distance that you've produced, try `as.matrix(my.dist)[1:3,1:3]`
+or similar.)
+
+Matching with a caliper of 2 pooled standard deviations on the `cap`
+variable:
+
+```{r}
+round(cap.dist + caliper(cap.dist, 2), 1)
+```
+
+Entries of `Inf` or `NaN` in a distance matrix are interpreted as
+forbidden matches.  Thus
+
+```{r, eval=FALSE}
+pairmatch(cap.dist + caliper(cap.dist, 2), data = nuke.nopt)
+```
+
+matches on `cap`, insisting that paired units not differ by more than
+2 pooled SDs in `cap`. If you would prefer to set a requirement on how
+much paired units can differ in `cap` in its original units, rather
+than standard units, then you would have to create `cap.dist` in a
+somewhat different way.  There's an example on the help page for
+`caliper()`. Enter `help(caliper)` at the *R* command line.
 
 ## Using *R* for matching and another program for matched analysis
 
@@ -547,7 +543,7 @@ library(foreign)
 ?write.dta
 ```
 
-For much more detail on this topic, see the ["R Data Import/Export"
+For much more detail on this topic, see the ["*R* Data Import/Export"
 manual](http://cran.r-project.org/doc/manuals/r-release/R-data.html).
 
 If you use CSV files, consult your statistical package's manuals for
@@ -572,8 +568,8 @@ plant.match <- pairmatch(pr ~ cap, data = my.plants)
 my.plants.extended <- data.frame(my.plants, matches = plant.match, check.rows=TRUE)
 ```
 
-Finally, export your data as a .csv file (or a proprietary format if
-that is what you are using):
+Finally, export your data as a .csv file (or a proprietary format such
+as with `write.dta` if that is what you are using):
 
 ```{r, eval=FALSE}
 write.csv(my.plants.extended, file = "nuclearplants-with-matches.csv")
@@ -602,8 +598,8 @@ check the structure of the matched sets.
 Two sources of \textit{real} data can be gotten as follows.  The
 "Lalonde" data set, discussed by Lalonde in 1986 and more recently by
 Dehejia and Wahba (1999, *JASA*) and by Smith and Todd (2005,
-*J. Econom.*), is bundled with several R packages, including "`{arm}`"
-and "`Matching`."  To get it:
+*J. Econom.*), is bundled with several *R* packages, including
+"`{arm}`" and "`Matching`."  To get it:
 
 ```{r, eval=FALSE}
 library(arm)
