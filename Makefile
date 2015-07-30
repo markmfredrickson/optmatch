@@ -145,6 +145,20 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/Rcpp/INSTALLED:
 	$(call installpkg,Rcpp)
 
+## the following are for vignette-building only
+.local/devtools/INSTALLED:
+	$(call installpkg,devtools)
+
+.local/pander/INSTALLED:
+	$(call installpkg,pander)
+
+.local/rmarkdown/INSTALLED:
+	$(call installpkg,rmarkdown)
+
+.local/stringr/INSTALLED:
+	$(call installpkg,stringr)
+
+
 PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED .local/Rcpp/INSTALLED
 # There is a bug in the released version of roxygen that prevents S4
 # documentation from being properly built. This should be checked from time to
@@ -163,12 +177,12 @@ ROXYGENV= ce302fdd7620f4a9bcc4174374c4296318671b53
 	echo `date` > .local/roxygen2/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
-test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED
+test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED 
 	$(LR) -q -e "library(optmatch, lib.loc = '.local'); library(testthat); test_package('optmatch')"
 
 # Build vignettes. Requires pandoc and pandoc-citeproc to be installed in OS,
 # and devtools, pander and rmarkdown installed in R.
-vignette: .local/optmatch/INSTALLED .local/RItools/INSTALLED
+vignette: .local/optmatch/INSTALLED .local/RItools/INSTALLED .local/devtools/INSTALLED .local/pander/INSTALLED .local/rmarkdown/INSTALLED .local/stringr/INSTALLED
 	cp DESCRIPTION{.template,}
 	$(LR) -q -e "library(devtools); devtools:::build_vignettes()"
 	rm DESCRIPTION
