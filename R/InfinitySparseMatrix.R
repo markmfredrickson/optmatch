@@ -124,7 +124,7 @@ as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 #' the columns of the matrix. The names of the units can be retrieved
 #' and set using these methods.
 #'
-#' @param x An InfinitySparseMatix object.
+#' @param x An InfinitySparseMatrix object.
 #' @param value A list with two entries: the treated names and control names, respectively.
 #' @return A list with treated and control names.
 #' @rdname dimnames-InfinitySparseMatrix

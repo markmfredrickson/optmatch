@@ -43,3 +43,5 @@ subproblems
 Subproblems
 unmatchable
 precomputed
+dimnames
+InfinitySparseMatrix
