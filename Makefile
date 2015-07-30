@@ -73,15 +73,14 @@ $(PKG)/DESCRIPTION: $(PKG) DESCRIPTION.template
 
 # a macro for using the local directory only
 LR = R_LIBS=.local R --vanilla
-
+ 
 # Likewise, use roxygen to export functions
 $(PKG)/NAMESPACE: $(PKG) $(PKG)/DESCRIPTION NAMESPACE.static .local/roxygen2/INSTALLED
 	mkdir -p $(PKG)/man
 	$(LR) -e "library(roxygen2); roxygenize('$(PKG)')"
 	cat NAMESPACE.static >> $(PKG)/NAMESPACE
 
-$(PKG).tar.gz: $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/* \
-	$(PKGDEPS)
+$(PKG).tar.gz: $(PKGDEPS) $(PKG) $(PKG)/DESCRIPTION $(PKG)/NAMESPACE NEWS R/* data/* demo/* inst/* man/* src/relax4s.f tests/* 
 	$(LR) CMD build $(PKG)
 
 # a convenience target to get the current .tar.gz with having to know the
@@ -96,7 +95,7 @@ lexicon.txt: package
 	$(LR) -q --no-save -e "source('checkspelling.R') ; make_dictionary('$(PKG)')"
 
 # the full (and slow) check process
-check: $(PKG).tar.gz
+check: $(PKG).tar.gz .local/arm/INSTALLED .local/biglm/INSTALLED .local/testthat/INSTALLED
 	R_PROFILE=check.R R_LIBS=.local R CMD check --library=.local --as-cran $(PKG).tar.gz
 
 # a more complete, if slow version of r cmd check
@@ -110,7 +109,7 @@ release: check spell
 	@echo "Email to CRAN@R-project.org, subject: 'CRAN submission optmatch $(VERSION)'"
 
 # depend on this file to decide if we need to install the local version
-.local/optmatch/INSTALLED: $(PKG).tar.gz
+.local/optmatch/INSTALLED: $(PKG).tar.gz 
 	mkdir -p .local
 	$(LR) CMD INSTALL --no-multiarch --library=.local $(PKG).tar.gz
 	echo `date` > .local/optmatch/INSTALLED
@@ -142,22 +141,10 @@ installpkg = mkdir -p .local ; $(LR) -e "install.packages('$(1)', repos = 'http:
 .local/Rcpp/INSTALLED:
 	$(call installpkg,Rcpp)
 
-PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED .local/Rcpp/INSTALLED
-# There is a bug in the released version of roxygen that prevents S4
-# documentation from being properly built. This should be checked from time to
-# time to see if the released version gets the bug fix.
-# this is is the sha hash of the commit we want to use:
-ROXYGENV= ce302fdd7620f4a9bcc4174374c4296318671b53
 .local/roxygen2/INSTALLED:
-	mkdir -p .local
-	$(call installpkg,stringr)
-	$(call installpkg,brew)
-	$(call installpkg,digest)
-	rm -rf .local/roxygen*
-	curl https://codeload.github.com/klutometis/roxygen/zip/$(ROXYGENV) > .local/roxygen-s4-branch.zip
-	cd .local && unzip roxygen-s4-branch.zip
-	$(LR) CMD INSTALL .local/roxygen-$(ROXYGENV)
-	echo `date` > .local/roxygen2/INSTALLED
+	$(call installpkg,roxygen2)
+
+PKGDEPS = .local/testthat/INSTALLED .local/RItools/INSTALLED .local/biglm/INSTALLED .local/brglm/INSTALLED .local/arm/INSTALLED .local/digest/INSTALLED .local/Rcpp/INSTALLED
 
 # test is just the internal tests, not the full R CMD Check
 test: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RItools/INSTALLED

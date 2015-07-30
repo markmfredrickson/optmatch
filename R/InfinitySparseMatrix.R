@@ -114,13 +114,20 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
   return(x)
 })
 
-#' @rdname InfinitySparseMatrix
 as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 
 # dimnames implementation
-
-#' @rdname InfinitySparseMatrix
-#' @aliases dimnames,InfinitySparseMatrix-method
+#' Get and set dimnames for InfinitySparseMatrix objects
+#'
+#' InfinitySparseMatrix objects represent sparse matching problems
+#' with treated units as rows of a matrix and controls units as
+#' the columns of the matrix. The names of the units can be retrieved
+#' and set using these methods.
+#'
+#' @param x An InfinitySparseMatix object.
+#' @param value A list with two entries: the treated names and control names, respectively.
+#' @return A list with treated and control names.
+#' @rdname dimnames-InfinitySparseMatrix
 setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   if (is.null(x@rownames) & is.null(x@colnames)) {
     return(NULL)
@@ -128,8 +135,7 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   list(treated = x@rownames, control = x@colnames)
 })
 
-#' @rdname InfinitySparseMatrix
-#' @aliases dimnames<-,InfinitySparseMatrix-method
+#' @rdname dimnames-InfinitySparseMatrix
 setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   if (length(value) != 2) {
     # message copied from matrix method
@@ -190,7 +196,6 @@ ismOpHandler <- function(binOp, e1, e2) {
 #'   the element-wise sum of the two ISM objects
 #' @docType methods
 #' @rdname ismBinaryOps
-#' @aliases +,InfinitySparseMatrix,InfinitySparseMatrix-method
 #' @export
 setMethod("+", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('+', e1, e2))
@@ -202,13 +207,8 @@ setMethod("+", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix
 #'   If either element is inf then
 #'   the resulting element will be inf.
 #'
-#' @param e1 an InfinitySparseMatrix object
-#' @param e2 an InfinitySparseMatrix object
-#' @return an InfinitySparseMatrix object representing
-#'   the element-wise subtraction of the two ISM arguments
 #' @docType methods
 #' @rdname ismBinaryOps
-#' @aliases -,InfinitySparseMatrix,InfinitySparseMatrix-method
 #' @export
 setMethod("-", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('-', e1, e2))
@@ -220,13 +220,8 @@ setMethod("-", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix
 #'   If either element is inf then
 #'   the resulting element will be inf.
 #'
-#' @param e1 an InfinitySparseMatrix object
-#' @param e2 an InfinitySparseMatrix object
-#' @return an InfinitySparseMatrix object representing
-#'   the element-wise multiplication of the two ISM arguments
 #' @docType methods
 #' @rdname ismBinaryOps
-#' @aliases *,InfinitySparseMatrix,InfinitySparseMatrix-method
 #' @export
 setMethod("*", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('*', e1, e2))
@@ -238,13 +233,8 @@ setMethod("*", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix
 #'   If either element is inf then
 #'   the resulting element will be inf.
 #'
-#' @param e1 an InfinitySparseMatrix object
-#' @param e2 an InfinitySparseMatrix object
-#' @return an InfinitySparseMatrix object representing
-#'   the element-wise division of the two ISM arguments
 #' @docType methods
 #' @rdname ismBinaryOps
-#' @aliases /,InfinitySparseMatrix,InfinitySparseMatrix-method
 #' @export
 setMethod("/", signature(e1 = "InfinitySparseMatrix", e2 = "InfinitySparseMatrix"),
   function(e1, e2) ismOpHandler('/', e1, e2))

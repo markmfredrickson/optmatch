@@ -223,9 +223,7 @@ are there missing values in data?")
 #'   correlations with other included variables.)
 #'
 #'   Euclidean distance is also available, via \code{method="euclidean"}, and
-#'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}. Or,
-#'   implement your own; for hints as to how, refer to\cr
-#'   \url{https://github.com/markmfredrickson/optmatch/wiki/How-to-write-your-own-compute-method}
+#'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
 #'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
 #'   a formula, the `strata` command can be used inside the formula to specify

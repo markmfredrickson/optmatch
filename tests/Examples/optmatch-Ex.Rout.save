@@ -70,7 +70,7 @@ The optmatch package has an academic license. Enter relaxinfo() for more informa
 > ### Title: Prepare matching distances suitable for matching within
 > ###   calipers.
 > ### Aliases: caliper caliper,InfinitySparseMatrix-method
-> ###   caliper,matrix-method caliper-methods caliper,optmatch.dlist-method
+> ###   caliper,matrix-method caliper,optmatch.dlist-method
 > ### Keywords: nonparametric
 > 
 > ### ** Examples
@@ -574,8 +574,8 @@ detaching ‘package:RItools’
 > 
 > ### Name: match_on
 > ### Title: Create treated to control distances for matching problems
-> ### Aliases: match_on match_on.bigglm match_on.formula match_on.function
-> ###   match_on.glm match_on.InfinitySparseMatrix match_on.matrix
+> ### Aliases: match_on match_on.InfinitySparseMatrix match_on.bigglm
+> ###   match_on.formula match_on.function match_on.glm match_on.matrix
 > ###   match_on.numeric
 > 
 > ### ** Examples
@@ -1261,18 +1261,12 @@ Warning in fullmatch(plantdist, min.controls = 2, max.controls = 3) :
 > stratumStructure(plantsfm)
 1:1 1:2 1:3 1:4 1:6 
   2   2   1   1   1 
-attr(,"comparable.num.matched.pairs")
-[1] 9.480952
 > stratumStructure(plantsfm1)
 1:2 1:3 
   2   5 
-attr(,"comparable.num.matched.pairs")
-[1] 10.16667
 > stratumStructure(plantsfm, max.controls=4)
  1:1  1:2  1:3 1:4+ 
    2    2    1    2 
-attr(,"comparable.num.matched.pairs")
-[1] 9.480952
 > 
 > 
 > 
@@ -1280,7 +1274,7 @@ attr(,"comparable.num.matched.pairs")
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.7 0.103 1.804 0 0 
+Time elapsed:  1.833 0.01 1.845 0 0 
 > grDevices::dev.off()
 null device 
           1 

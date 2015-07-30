@@ -18,7 +18,6 @@ Type 'q()' to quit R.
 > ### maxControlsCap
 > require('optmatch')
 Loading required package: optmatch
-Loading required package: digest
 Loading required package: survival
 The optmatch package has an academic license. Enter relaxinfo() for more information.
 > data(nuclearplants)
@@ -30,8 +29,6 @@ The optmatch package has an academic license. Enter relaxinfo() for more informa
 > stratumStructure(fullmatch(mhd2a.caliper)) # Works OK: 
 5:1 4:1 2:1 1:1 1:2 
   1   2   3   2   1 
-attr(,"comparable.num.matched.pairs")
-[1] 12.2
 Warning message:
 In fullmatch(mhd2a.caliper) :
   Without 'data' argument the order of the match is not guaranteed
@@ -48,8 +45,6 @@ $strictest.feasible.max.controls
 > stratumStructure(fullmatch(mhd2a.caliper, max=1))
 5:1 4:1 2:1 1:1 
   1   2   2   5 
-attr(,"comparable.num.matched.pairs")
-[1] 12.53333
 Warning message:
 In fullmatch(mhd2a.caliper, max = 1) :
   Without 'data' argument the order of the match is not guaranteed
@@ -57,8 +52,6 @@ In fullmatch(mhd2a.caliper, max = 1) :
 > stratumStructure(fullmatch(mhd2a.caliper, max=1/2))
 1:0 0:1 
  22  10 
-attr(,"comparable.num.matched.pairs")
-[1] 0
 Warning message:
 In fullmatch(mhd2a.caliper, max = 1/2) :
   Without 'data' argument the order of the match is not guaranteed
@@ -66,8 +59,6 @@ In fullmatch(mhd2a.caliper, max = 1/2) :
 > stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2))) # Problem in version <= .5-9:
 5:1 4:1 2:1 1:1 1:2 
   1   2   3   2   1 
-attr(,"comparable.num.matched.pairs")
-[1] 12.2
 Warning message:
 In fullmatch(mhd2a + caliper(mhd2a, 2)) :
   Without 'data' argument the order of the match is not guaranteed
@@ -84,8 +75,6 @@ $strictest.feasible.max.controls
 > stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), max=mx2$strictest))
 1:0 1:1 0:1 
  19   3   7 
-attr(,"comparable.num.matched.pairs")
-[1] 3
 Warning message:
 In fullmatch(mhd2a + caliper(mhd2a, 2), max = mx2$strictest) :
   Without 'data' argument the order of the match is not guaranteed
@@ -93,8 +82,6 @@ In fullmatch(mhd2a + caliper(mhd2a, 2), max = mx2$strictest) :
 > stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), max=1/2))
 1:0 0:1 
  22  10 
-attr(,"comparable.num.matched.pairs")
-[1] 0
 Warning message:
 In fullmatch(mhd2a + caliper(mhd2a, 2), max = 1/2) :
   Without 'data' argument the order of the match is not guaranteed
@@ -102,4 +89,4 @@ In fullmatch(mhd2a + caliper(mhd2a, 2), max = 1/2) :
 > 
 > proc.time()
    user  system elapsed 
-  0.849   0.056   0.904 
+  0.973   0.013   0.982 

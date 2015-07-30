@@ -62,8 +62,15 @@ tnn[i.ctl][onez] <- 1
 ans <- ans[order(-tnn[i.tx],tnn[i.ctl])]
 
 attr(ans, "comparable.num.matched.pairs") <- comp.num.matched.pairs
+class(ans) <- append(class(ans), "stratumStructure")
 ans
 }  
+
+#' @S3method print stratumStructure
+print.stratumStructure <- function(x, ...) {
+  attr(x, "comparable.num.matched.pairs") <- NULL
+  print.table(x, ...)
+}
 
 getZfromMatch <- function(m) { 
   if (!is.null(attr(m, "contrast.group"))) {

@@ -15,7 +15,7 @@
 #' @method summary optmatch
 #' @S3method summary optmatch
 #' @rdname optmatch
-#' @importsFrom RItools xBalance
+#' @importFrom RItools xBalance
 summary.optmatch <- function(object,
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
