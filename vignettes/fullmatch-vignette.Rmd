@@ -278,7 +278,8 @@ cap.noadj <- lm(cap ~ pr, data = nuke.nopt)
 summary(cap.noadj)
 ```
 
-or, more directly,
+The output is suppressed, as most it is not relevant to balance.
+This variation hones in on the part that is:
 
 ```{r}
 summary(lm(cap ~ pr, data = nuke.nopt))$coeff["pr",]
@@ -292,6 +293,17 @@ Here is a parallel calculation that takes the match `pm` into account.
 
 ```{r}
 summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
+```
+
+The RItools package's `xBalance` function zeroes in on balance, and
+facilitiates checking balance on multiple variables at the same time. Here are some examples:
+
+```{r}
+
+xBalance(pr ~ cap + t2, report="all", data=nuke.nopt)
+xBalance(pr ~ cap + t2 + strata(pm),##, strata=data.frame("none"="-", "pm"=pm),
+         data=nuke.nopt,
+         report=c("adj.mean.diffs", "std", "z"))
 ```
 
 __Exercises.__
