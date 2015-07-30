@@ -2,10 +2,7 @@
 \alias{mdist}
 \title{(Deprecated, in favor of \code{\link{match_on}}) Create matching distances}
 \description{
-  A generic function, with several supplied methods, for creating
-  matrices of distances between observations to be used in the match process.
-  Using these matrices, 
-  \code{pairmatch()} or \code{fullmatch()} can determine optimal matches.
+  Deprecated in favor of \code{\link{match_on}}.
 }
 \usage{
   mdist(x, structure.fmla = NULL, ...)
@@ -86,58 +83,5 @@
 
 \seealso{ \code{\link{fullmatch}}, \code{\link{pairmatch}},
 \code{\link{match_on}}}
-\examples{
-data(nuclearplants)
-mdist.examples <- list()
-### Propensity score distances.
-### Recommended approach:
-(aGlm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants))
-mdist.examples$ps1 <- mdist(aGlm)
-### A second approach: first extract propensity scores, then separately
-### create a distance from them.  (Useful when importing propensity
-### scores from an external program.)
-plantsPS <- predict(aGlm)
-mdist.examples$ps2 <- mdist(pr~plantsPS, data=nuclearplants)^(1/2)
-### Full matching on the propensity score.
-fullmatch(mdist.examples$ps1)
-fullmatch(mdist.examples$ps2)
-### Because mdist.glm uses robust estimates of spread, 
-### the results differ in detail -- but they are close enough
-### to yield similar optimal matches.
-all(fullmatch(mdist.examples$ps1)==fullmatch(mdist.examples$ps2)) # The same
-
-### Mahalanobis distance:
-mdist.examples$mh1 <- mdist(pr ~ t1 + t2, data = nuclearplants)
-
-### Absolute differences on a scalar:
-
-sdiffs <- function(treatments, controls) {
-  abs(outer(treatments$t1, controls$t1, `-`))
-}
-
-(absdist <- mdist(sdiffs, structure.fmla = pr ~ 1, data = nuclearplants))
-
-### Pair matching on the variable `t1`:
-pairmatch(absdist)
-
-
-### Propensity score matching within subgroups:
-mdist.examples$ps3 <- mdist(aGlm, structure.fmla=~pt)
-fullmatch(mdist.examples$ps3)
-
-### Propensity score matching with a propensity score caliper:
-mdist.examples$pscal <- mdist.examples$ps1 + caliper(mdist.examples$ps1, 1)
-fullmatch(mdist.examples$pscal) # Note that the caliper excludes some units
-
-### A Mahalanobis distance for matching within subgroups:
-mdist.examples$mh2 <- mdist(pr ~ t1 + t2 | pt, data = nuclearplants)
-all.equal(mdist.examples$mh2,
-          mdist(pr ~ t1 + t2, structure.fmla = ~ pt, data = nuclearplants))
-
-### Mahalanobis matching within subgroups, with a propensity score
-### caliper:
-fullmatch(mdist.examples$mh2 + caliper(mdist.examples$ps3, 1))
-
-}
 
 \keyword{nonparametric }% at least one, from doc/KEYWORDS

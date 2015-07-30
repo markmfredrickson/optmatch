@@ -42,7 +42,7 @@ interactive-emacs: .local/optmatch/INSTALLED .local/testthat/INSTALLED .local/RI
 
 ### Package release scripts ###
 
-VERSION=0.9-4
+VERSION=0.9-5
 RELEASE_DATE=`date +%Y-%m-%d`
 PKG=optmatch_$(VERSION)
 
