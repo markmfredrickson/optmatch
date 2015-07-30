@@ -72,7 +72,6 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
-#' @aliases InfinitySparseMatrix-class
 match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
@@ -276,6 +275,17 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
   }
+  
+  # we want to use our own contrasts creating function
+  isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
+  c.arg <- lapply(isF, function(fname) {
+    if (nlevels(mf[[fname]]) < 2) {
+      return(NULL)
+    } 
+    contr.match_on(nlevels(mf[[fname]]))
+  })
+                
+  names(c.arg) <- isF
 
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
@@ -285,11 +295,10 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
   dropped.c <- setdiff(tmpn[!tmpz], rownames(mf))
 
-  data <- subset(model.matrix(x, mf), T, -1) # drop the intercept
+  data <- subset(model.matrix(x, mf, contrasts.arg = c.arg), TRUE, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
-
 
   if(is.character(method)){
     methodname <- method
@@ -337,7 +346,7 @@ makeWithinFromStrata <- function(x, data)
   em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
   within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
                              data=data)
-  return(list(x=x, within=within))
+  return(list(x= xs$newx, within=within))
 }
 
 findStrata <- function(x, data) {
@@ -527,14 +536,14 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   return(tmp)
 }
 
-#' (Internal) Helper function to create an InfinitySparseMatrix from a set of
-#' scores, a treatment indicator, and a caliper width.
-#'
-#' @param x The scores, a vector indicating the 1-D location of each unit.
-#' @param z The treatment assignment vector (same length as \code{x})
-#' @param caliper The width of the caliper with respect to the scores \code{x}.
-#' @return An \code{InfinitySparseMatrix} object, suitable to be passed to
-#'   \code{\link{match_on}} as an \code{within} argument.
+# (Internal) Helper function to create an InfinitySparseMatrix from a set of
+# scores, a treatment indicator, and a caliper width.
+#
+# @param x The scores, a vector indicating the 1-D location of each unit.
+# @param z The treatment assignment vector (same length as \code{x})
+# @param caliper The width of the caliper with respect to the scores \code{x}.
+# @return An \code{InfinitySparseMatrix} object, suitable to be passed to
+#   \code{\link{match_on}} as an \code{within} argument.
 scoreCaliper <- function(x, z, caliper) {
   z <- toZ(z)
 
@@ -576,6 +585,10 @@ scoreCaliper <- function(x, z, caliper) {
 #' @method match_on InfinitySparseMatrix
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
@@ -584,7 +597,26 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 #' @rdname match_on-methods
 #' @method match_on matrix
 match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+
+  if (!is.null(data)) {
+    x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
+  }
+
   if(is.null(caliper)) { return(x) }
 
   return(x + optmatch::caliper(x, width = caliper))
 } # just return the argument
+
+## Non-exported functioun
+## @title A contrasts function suitable for use within match_on
+## @details Scales the result of `contr.poly` by `2^-1`. Necessary for
+## Euclidean distance to be the same when you apply it with a 2-level
+## factor or with same factor after coercion to numeric.
+## @param n levels of the factor
+## @param contrasts (passed to contr.poly)
+## @param sparse (passed to contr.poly)
+## @return A matrix with `nn=length(n)` rows and `k` columns, with `k=nn-1` if `contrasts` is `TRUE` and `k=nn` if `contrasts` is `FALSE`.
+## @author Ben B Hansen
+contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
+  contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
+}

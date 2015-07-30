@@ -1,8 +1,7 @@
 
-R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
-Platform: x86_64-apple-darwin12.0.0 (64-bit)
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -18,15 +17,9 @@ Type 'q()' to quit R.
 
 > require('optmatch')
 Loading required package: optmatch
-You're loading optmatch, by B. Hansen and M. Fredrickson.
- The optmatch package makes essential use of D. P. Bertsekas
- and P. Tseng's RELAX-IV algorithm and code, as well as
- Bertsekas' AUCTION algorithm and code.  Using the software
- to 'satisfy in any part commercial delivery requirements to
- government or industry' requires a special agreement with
- Dr. Bertsekas. For more information, enter
- relaxinfo() at the command line.
-
+Loading required package: digest
+Loading required package: survival
+The optmatch package has an academic license. Enter relaxinfo() for more information.
 > data(plantdist)
 > # this will give a warning about not having data order
 > fullmatch(1 * (plantdist < 10)) # make plantdist < 10 numeric, not logical
@@ -56,4 +49,4 @@ In fullmatch(1 * (plantdist < 10)) :
 > 
 > proc.time()
    user  system elapsed 
-  0.621   0.033   0.635 
+  0.732   0.033   0.754 

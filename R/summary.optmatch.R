@@ -5,7 +5,7 @@
 #' match reduces average differences.
 #'
 #' @param object The \code{optmatch} object to summarize.
-#' @param propensity.model An optional propensity model (the result of a call to \code{glm}) to use when summarizing the match. If this object is passed and the \code{RItools} package is loaded, an additional chi-squared test will be performed on the average differences between treated and control units on each variable used in the model. See the \code{xBalance} function in the \code{RItools} package for more details.
+#' @param propensity.model An optional propensity model (the result of a call to \code{glm}) to use when summarizing the match. Using the \code{RItools} package, an additional chi-squared test will be performed on the average differences between treated and control units on each variable used in the model. See the \code{xBalance} function in the \code{RItools} package for more details.
 #' @param ... Additional arguments to pass to \code{xBalance} when also passing a propensity model.
 #' @param min.controls To minimize the the display of a groups with many treated and few controls, all groups with more than 5 treated units will be summarized as \dQuote{5+}. This is the reciprocal of the default value (1/5 = 0.2). Lower this value to see more groups.
 #' @param max.controls Like \code{min.controls} sets maximum group sized displayed with respect to the number of controls. Raise this value to see more groups.
@@ -15,6 +15,7 @@
 #' @method summary optmatch
 #' @S3method summary optmatch
 #' @rdname optmatch
+#' @importsFrom RItools xBalance
 summary.optmatch <- function(object,
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
@@ -55,9 +56,7 @@ summary.optmatch <- function(object,
   so$total.tolerances <- sum(unlist(attr(object, "exceedances")))
   so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
 
-  ## optional call to xbalance if it is loaded
-  if(exists("xBalance") &&
-     !is.null(propensity.model) &&
+  if(!is.null(propensity.model) &&
      inherits(propensity.model, "glm")) {
 
     # users must save the model for reliable behavior.

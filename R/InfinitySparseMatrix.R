@@ -20,6 +20,19 @@ NA
 setOldClass(c("optmatch.dlist", "list"))
 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
+
+#' Objects for sparse matching problems.
+#'
+#' \code{InfinitySparseMatrix} are a special class ofdistance specifications. Finite entries
+#' indicate possible matches, while infinite entries indicated non-allowed
+#' matches. This data type can be more space efficient for sparse matching
+#' problems.
+#'
+#' Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
+#' \code{\link{exactMatch}}.
+#'
+#' @author Mark M. Fredrickson
+#' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 setClass("InfinitySparseMatrix",
   representation(cols = "integer",
                  rows = "integer",
@@ -30,35 +43,6 @@ setClass("InfinitySparseMatrix",
   contains = "vector")
 
 # using a maker function for now, probably should be an initialize function
-#' (Internal) Creating sparse matching problems
-#'
-#' Create \code{InfinitySparseMatrix} distance specifications. Finite entries
-#' indicate possible matches, while infinite entries indicated non-allowed
-#' matches. This data type can be more space efficient for sparse matching
-#' problems.
-#'
-#' Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
-#' \code{\link{exactMatch}}, but if you need to generate sparse matching
-#' problems directly, use this function.
-#' If the data are already in a matrix form, use \code{as.InfinitySparseMatrix}. If you have the
-#' finite entries in a vector format, use \code{makeInfinitySparseMatrix}.
-#'
-#' @param data  A vector of distances for the finite (allowed) treatment-control pairs.
-#' @param cols  An integer vector indicating the column number for each entry in \code{data}.
-#' @param rows  An integer vector indicating the row number for each entry in \code{data}.
-#' @param colnames  A optional character vector with the columns names of the matrix.
-#' @param rownames  A optional character vector with the row names of the matrix.
-#' @param dimension  An optional integer vector giving the dimensions of the matrix, which can be useful for indicating
-#' matrices with entirely \code{Inf} rows or columns. If supplied with row and columns names, it must match.
-#' @param x A matrix to be converted to an \code{InfinitySparseMatrix}.
-#' @param call Optional \code{call} object to store with the distance
-#' specification. Allows calling \code{\link{update}} on the distance object at
-#' later points.
-#' @return An object of class \code{InfinitySparseMatrix}, which will work as a distance argument
-#' to \code{\link{fullmatch}} or \code{\link{pairmatch}}
-#' @author Mark M. Fredrickson
-#' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
-#' @example inst/examples/makeInfinitySparseMatrix.R
 makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL,
                                      rownames = NULL, dimension = NULL,
                                      call = NULL) {
@@ -130,12 +114,12 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
   return(x)
 })
 
-#' @rdname makeInfinitySparseMatrix
+#' @rdname InfinitySparseMatrix
 as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 
 # dimnames implementation
 
-#' @rdname makeInfinitySparseMatrix
+#' @rdname InfinitySparseMatrix
 #' @aliases dimnames,InfinitySparseMatrix-method
 setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   if (is.null(x@rownames) & is.null(x@colnames)) {
@@ -144,7 +128,7 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   list(treated = x@rownames, control = x@colnames)
 })
 
-#' @rdname makeInfinitySparseMatrix
+#' @rdname InfinitySparseMatrix
 #' @aliases dimnames<-,InfinitySparseMatrix-method
 setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   if (length(value) != 2) {

@@ -1,6 +1,6 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,16 +21,8 @@ Type 'q()' to quit R.
 > source(file.path(R.home("share"), "R", "examples-header.R"))
 > options(warn = 1)
 > library('optmatch')
-Loading required package: digest
-You're loading optmatch, by B. Hansen and M. Fredrickson.
- The optmatch package makes essential use of D. P. Bertsekas
- and P. Tseng's RELAX-IV algorithm and code, as well as
- Bertsekas' AUCTION algorithm and code.  Using the software
- to 'satisfy in any part commercial delivery requirements to
- government or industry' requires a special agreement with
- Dr. Bertsekas. For more information, enter
- relaxinfo() at the command line.
-
+Loading required package: survival
+The optmatch package has an academic license. Enter relaxinfo() for more information.
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > cleanEx()
@@ -199,9 +191,7 @@ treated   H   I   J   K   L M N   O   P Q   R S   T   U V   W X   Y   Z d   e f
       c Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0 Inf 0   0 0 Inf Inf 0 Inf 0
 > 
 > ### Returning values directly (equal up to the the attributes)
-> all.equal(caliper(ppty.dist) + ppty.dist,
-+           caliper(ppty.dist, values = TRUE),
-+           check.attributes = FALSE)
+> all(abs((caliper(ppty.dist) + ppty.dist) - caliper(ppty.dist, values = TRUE)) < .Machine$Double.eps)
 [1] TRUE
 > 
 > 
@@ -332,12 +322,12 @@ Warning in fullmatch(ppty.distances + pt.em) :
 Call:  glm(formula = fill.NAs(pr ~ t1 * t2, data = np.missing), family = binomial)
 
 Coefficients:
-(Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  
-  -51.65113      2.39779      0.66981     -0.02909     -3.30070    -11.55494  
+(Intercept)           t1           t2    t1.NATRUE    t2.NATRUE        t1:t2  
+   -49.4826       2.2029       0.6321      -0.2053     -15.1006      -0.0257  
 
 Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
 Null Deviance:	    39.75 
-Residual Deviance: 20.07 	AIC: 32.07
+Residual Deviance: 21.04 	AIC: 33.04
 > 
 > # the previous call is equivalent to:
 > # glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, fill.NAs(np.missing), family =
@@ -350,9 +340,9 @@ Warning in fullmatch(x = x, min.controls = controls, max.controls = controls,  :
   Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.
    A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
- 1.1  1.2  1.3  1.4  1.5  1.6  1.7  1.8  1.9 1.10 <NA>  1.7 <NA> <NA> <NA> <NA> 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7  1.8  1.9 1.10 <NA>  1.8 <NA> <NA> <NA> <NA> 
    N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
-<NA> <NA> <NA>  1.1  1.5  1.8  1.4  1.2 1.10 <NA>  1.9  1.6 <NA> <NA> <NA>  1.3 
+<NA> <NA> <NA>  1.9  1.1  1.2  1.6  1.4 1.10 <NA>  1.7  1.5 <NA> <NA> <NA>  1.3 
 > 
 > ## fill NAs without using treatment contrasts by making a list of contrasts for
 > ## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
@@ -566,54 +556,13 @@ detaching ‘package:RItools’
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: getMaxProblemSize
-> ### Title: (Internal) What is the maximum allowed problem size?
+> ### Title: What is the maximum allowed problem size?
 > ### Aliases: getMaxProblemSize
 > 
 > ### ** Examples
 > 
 > optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
 [1] TRUE
-> 
-> 
-> 
-> cleanEx()
-> nameEx("makeInfinitySparseMatrix")
-> ### * makeInfinitySparseMatrix
-> 
-> flush(stderr()); flush(stdout())
-> 
-> ### Name: makeInfinitySparseMatrix
-> ### Title: (Internal) Creating sparse matching problems
-> ### Aliases: as.InfinitySparseMatrix dimnames<-,InfinitySparseMatrix-method
-> ###   dimnames,InfinitySparseMatrix-method makeInfinitySparseMatrix
-> 
-> ### ** Examples
-> 
-> example.matrix <- matrix(c(1,2,Inf, 3,Inf,4, Inf,Inf,Inf), byrow = TRUE, nrow = 3,
-+                           dimnames = list(letters[1:3], LETTERS[24:26]))
-> 
-> optmatch:::as.InfinitySparseMatrix(example.matrix)
-       control
-treated   X   Y   Z
-      a   1   2 Inf
-      b   3 Inf   4
-      c Inf Inf Inf
-> 
-> # create the same sparse matrix directly, function will create the appropriate dims
-> # the data are in a different order, but the indices are correct
-> (example.ism <- 
-+   optmatch:::makeInfinitySparseMatrix(c(1,2,3,4), 
-+                                       c(1,2,1,3), 
-+                                       c(1,1,2,2), 
-+                                       LETTERS[24:26],
-+                                       letters[1:3]))
-       control
-treated   X   Y   Z
-      a   1   2 Inf
-      b   3 Inf   4
-      c Inf Inf Inf
->   
-> 
 > 
 > 
 > 
@@ -625,9 +574,9 @@ treated   X   Y   Z
 > 
 > ### Name: match_on
 > ### Title: Create treated to control distances for matching problems
-> ### Aliases: InfinitySparseMatrix-class match_on match_on.bigglm
-> ###   match_on.formula match_on.function match_on.glm
-> ###   match_on.InfinitySparseMatrix match_on.matrix match_on.numeric
+> ### Aliases: match_on match_on.bigglm match_on.formula match_on.function
+> ###   match_on.glm match_on.InfinitySparseMatrix match_on.matrix
+> ###   match_on.numeric
 > 
 > ### ** Examples
 > 
@@ -1266,8 +1215,7 @@ detaching ‘package:RItools’
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: scores
-> ### Title: Wrapper for 'predict' to cleanly look for new data to predict
-> ###   on.
+> ### Title: Extract scores (propensity, prognostic,...) from a fitted model
 > ### Aliases: scores
 > 
 > ### ** Examples
@@ -1275,11 +1223,12 @@ detaching ‘package:RItools’
 > data(nuclearplants)
 > pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
 > # The following two lines produce identical results.
-> ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants), data=nuclearplants)
+> ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants),
++            data=nuclearplants)
 Warning in predict.lm(pg, newdata = nuclearplants) :
   prediction from a rank-deficient fit may be misleading
 > ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
-Warning in predict.lm(object, newdata = newdata, ...) :
+Warning in predict.lm(newobject, newdata = newdata2, ...) :
   prediction from a rank-deficient fit may be misleading
 > 
 > 
@@ -1331,7 +1280,7 @@ attr(,"comparable.num.matched.pairs")
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.22 0.03 2.253 0 0 
+Time elapsed:  1.7 0.103 1.804 0 0 
 > grDevices::dev.off()
 null device 
           1 

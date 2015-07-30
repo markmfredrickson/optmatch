@@ -45,15 +45,15 @@ setMethod("toZ", "factor", function(x) {
   toZ(as.numeric(x) - 1)
 })
 
-#' (Internal) Remove the call before digesting a distance so things like
-#' omitting caliper and calling caliper=NULL give the same digest
-#'
-#' @param dist Distance object to hash. Must be one of
-#' \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
-#' \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
-#' @return Hash on the distance object with a null \code{call}
-#' @author Josh Errickson
-#' @import digest
+# (Internal) Remove the call before digesting a distance so things like
+# omitting caliper and calling caliper=NULL give the same digest
+#
+# @param dist Distance object to hash. Must be one of
+# \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
+# \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
+# @return Hash on the distance object with a null \code{call}
+# @author Josh Errickson
+# @import digest
 dist_digest <- function(dist) {
   if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {
     csave <- attr(dist, "call")
@@ -65,15 +65,15 @@ dist_digest <- function(dist) {
   stop("Must pass distance object")
 }
 
-#' (Internal) If the x argument does not exist for
-#' match_on, fullmatch, or pairmatch, use this function
-#' to print a helpful message.
-#'
-#' @param x_str x as a string of code, usually deparse(substitute(x))
-#' @param data_str data arg as string of code
-#' @param ... will look for 'z = <stuff>' in the extra args of caller
-#' @return string a helpful error message
-#' @author Josh Buckner
+# (Internal) If the x argument does not exist for
+# match_on, fullmatch, or pairmatch, use this function
+# to print a helpful message.
+#
+# @param x_str x as a string of code, usually deparse(substitute(x))
+# @param data_str data arg as string of code
+# @param ... will look for 'z = <stuff>' in the extra args of caller
+# @return string a helpful error message
+# @author Josh Buckner
 missing_x_msg <- function(x_str, data_str, ...) {
   if(data_str == "NULL")
     data_str <- "<data argument>"
