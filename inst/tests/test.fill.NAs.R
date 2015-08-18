@@ -170,7 +170,12 @@ test_that("strata() function handling", {
 
   # if we spell things out, we should get a model on the imputed values
   xx <- glm(z ~ x + x.NA + strata(s), data = res1, family = binomial)
-  expect_true(all(names(coef(xx)) %in% c("(Intercept)", "x", "x.NATRUE", "strata(s)B", "strata(s)C")))
+  expect_true(all(names(coef(xx))[1:3] %in% c("(Intercept)", "x", "x.NATRUE")))
+  ## 4th coeff sometimes turns up as "strata(s)B", other times as "strata(s)s=s=B"
+  ## the latter is less desirable, but no time to explore circumventing it.
+  ## (Seen with: survival_2.37-7 ; R 3.1.2; x86_64-apple-darwin12.6.0, 64-bit.)
+  expect_true(grep(glob2rx("strata*B"), names(coef(xx)))==4)
+  expect_true(grep(glob2rx("strata*C"), names(coef(xx)))==5)
 
   # does not work yet:
   # yy <- glm(res1)
