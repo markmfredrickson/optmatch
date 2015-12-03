@@ -7,17 +7,13 @@ library(optmatch)
 
 context("fullmatch function")
 
-# test whether two matches are the same. Uses all.equal on matched.distances
-# and exceedances to ignore errors below some tolerance. After checking those,
-# strips attributes that may differ but not break `identical` status.
+# test whether two matches are the same. Uses all.equal exceedances to
+# ignore errors below some tolerance. After checking those, strips
+# attributes that may differ but not break `identical` status.
 match_compare <- function(match1, match2) {
-  expect_true(all.equal(attr(match1, "matched.distances"),
-                        attr(match2, "matched.distances")))
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
 
-  attr(match1, "matched.distances") <- NULL
-  attr(match2, "matched.distances") <- NULL
   attr(match1, "hashed.distance") <- NULL
   attr(match2, "hashed.distance") <- NULL
   attr(match1, "exceedances") <- NULL
@@ -318,8 +314,6 @@ test_that("fullmatch UI cleanup", {
 
   fm.glm <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2)
   expect_warning(fm.glm2 <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), caliper=2))
-  # should be the same, but different group names
-  expect_true(all.equal(attr(fm.glm, "matched.distances"), attr(fm.glm2, "matched.distances")))
 
   match_compare(fm.ps, fm.glm)
 
@@ -352,8 +346,6 @@ test_that("fullmatch UI cleanup", {
   names(Z) <- row.names(test.data)
   fm.vector <- fullmatch(X1,z=Z, data=test.data, caliper=1)
   expect_warning(fm.vector2 <- fullmatch(X1,z=Z, caliper=1))
-  # should be the same, but different group names
-  expect_true(all.equal(attr(fm.vector, "matched.distances"), attr(fm.vector2, "matched.distances")))
 
   m <- match_on(X1, z=Z, caliper=1)
   fm.mi <- fullmatch(m, data=test.data)
@@ -494,4 +486,14 @@ test_that("strata in GLMs", {
   expect_true(compare_optmatch(f8, f10))
   expect_true(compare_optmatch(f10, f11))
 
+})
+
+test_that("matched.distances attr removed per #57", {
+  data(nuclearplants)
+
+  f1 <- fullmatch(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                  within=exactMatch(pr ~ ne, data=nuclearplants),
+                  data=nuclearplants)
+
+  expect_true(is.null(attr(f1, "matched.distances")))
 })

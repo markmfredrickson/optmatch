@@ -119,6 +119,52 @@ test_that("Matched distances", {
 
 })
 
+test_that("Subsetting drops any matched.distances attributes", {
+  data(nuclearplants)
+
+  f1 <- fullmatch(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                  within=exactMatch(pr ~ ne, data=nuclearplants),
+                  data=nuclearplants)
+
+  expect_true(is.null(attr(f1, "matched.distances")))
+
+  # Add the attribute (because it is no longer created by default)
+  attr(f1, "matched.distances") <- runif(length(levels(f1)))
+
+  expect_true(!is.null(attr(f1, "matched.distances")))
+
+  f2 <- f1[1:10]
+  f3 <- f1[1:10, drop=TRUE]
+
+  expect_true(is.null(attr(f2, "matched.distances")))
+  expect_true(is.null(attr(f3, "matched.distances")))
+})
+
+test_that("Summary properly handles matched.distances #106", {
+  data(nuclearplants)
+  dist <- mdist(glm(pr~.-(pr+cost), family=binomial(),
+                    data=nuclearplants))
+
+  pm <- pairmatch(dist, data=nuclearplants)
+
+  s1 <- summary(pm)
+
+  expect_true(is.null(s1$total.distance))
+
+  # if we add matched.distances in manually, should re-appear in
+  # summary.
+  attr(pm, "matched.distances") <- matched.distances(pm, dist)
+
+  s2 <- summary(pm)
+
+  expect_true(!is.null(s2$total.distance))
+  expect_true(!is.null(s2$total.tolerance))
+  expect_true(!is.null(s2$matched.dist.quantiles))
+
+  # Double check that the match isn't getting affected.
+  expect_identical(s1$thematch[sort(names(s1$thematch))], s2$thematch[sort(names(s2$thematch))])
+})
+
 test_that("Match carries info about subproblems", {
   Z <- rep(c(0,1), 8)
   B <- as.factor(rep(c(1,2), each = 8))

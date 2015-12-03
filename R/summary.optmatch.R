@@ -50,11 +50,14 @@ summary.optmatch <- function(object,
   so$matched.set.structures <- stratumStructure(object,min.controls=min.controls,max.controls=max.controls)
   so$effective.sample.size <- attr(so$matched.set.structures, "comparable.num.matched.pairs")
 
-  matchdists <- attr(object, "matched.distances")[levels(object[!mfd, drop=TRUE])]
-  matchdists <- unlist(matchdists)
-  so$total.distance <- sum(matchdists)
-  so$total.tolerances <- sum(unlist(attr(object, "exceedances")))
-  so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
+  # Per issue #106, allow the object to not carry a `matched.distances` attribute.
+  if (!is.null(attr(object, "matched.distances"))) {
+    matchdists <- attr(object, "matched.distances")[levels(object[!mfd, drop=TRUE])]
+    matchdists <- unlist(matchdists)
+    so$total.distance <- sum(matchdists)
+    so$total.tolerances <- sum(unlist(attr(object, "exceedances")))
+    so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
+  }
 
   if(!is.null(propensity.model) &&
      inherits(propensity.model, "glm")) {
@@ -135,13 +138,15 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
   print(x$matched.set.structures)
   cat("Effective Sample Size: ", signif(x$effective.sample.size, digits), "\n")
   cat("(equivalent number of matched pairs).\n\n")
-  cat("sum(matched.distances)=",
-      signif(x$total.distance, digits),"\n",sep="")
-  cat("(within",
-      signif(x$total.tolerances,digits),
-      "of optimum).\n")
-  cat("Percentiles of matched distances:\n")
-  print(signif(x$matched.dist.quantiles, digits))
+  if (!is.null(x$total.distance)) {
+    cat("sum(matched.distances)=",
+        signif(x$total.distance, digits),"\n",sep="")
+    cat("(within",
+        signif(x$total.tolerances,digits),
+        "of optimum).\n")
+    cat("Percentiles of matched distances:\n")
+    print(signif(x$matched.dist.quantiles, digits))
+  }
 
   if ('balance' %in% names(x))
     {
