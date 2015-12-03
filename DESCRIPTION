@@ -13,18 +13,18 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
     <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 LazyData: true
-Depends: 
+Depends:
     R (>= 2.15.1),
     stats,
     methods,
     graphics,
     survival
 LinkingTo: Rcpp
-Imports: 
+Imports:
     Rcpp,
     RItools,
     digest
-Suggests: 
+Suggests:
     boot,
     biglm,
     testthat,
@@ -34,7 +34,7 @@ Suggests:
     rmarkdown
 License: file LICENSE
 URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch
-Collate: 
+Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
     'Ops.optmatch.dlist.R'
@@ -71,3 +71,4 @@ Collate:
     'zzz.R'
     'zzzDistanceSpecification.R'
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
