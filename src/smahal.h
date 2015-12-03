@@ -1,5 +1,4 @@
 #include <R.h>
-#include <Rinternals.h>
 #include <R_ext/Lapack.h>
 
 #ifndef _SMAHAL_H_
@@ -12,8 +11,6 @@ typedef struct dmat {
   double * data;
 } DMAT;
 
-extern "C" {
-  DMAT * smahal(int nr, int nc, double * data, int * z);
-}
+DMAT * smahal(int nr, int nc, double * data, int * z);
 
 #endif

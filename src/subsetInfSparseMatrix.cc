@@ -1,27 +1,25 @@
 #include "subsetInfSparseMatrix.h"
 
-#include<Rdefines.h>
-
 #include <Rcpp.h>
 using namespace Rcpp;
 
 // [[Rcpp::export]]
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
-    SEXP
-        rows = GET_SLOT(x, Rf_install("rows")),
-        cols = GET_SLOT(x, Rf_install("cols"));
+  Rcpp::S4 ismX(x);
+  Rcpp::IntegerVector
+    rows( ismX.slot("rows") ),
+    cols( ismX.slot("cols") );
+
     int
-        nRows = length(whichRows),
-        nCols = length(whichCols),
-        nData = length(x),
+        nRows = Rf_length(whichRows),
+        nCols = Rf_length(whichCols),
+        nData = Rf_length(x),
         nNewRows = 0,
         nNewCols = 0;
 
     int
         * iWhichRows = INTEGER(whichRows),
-        * iWhichCols = INTEGER(whichCols),
-        * iRows = INTEGER(rows),
-        * iCols = INTEGER(cols);
+        * iWhichCols = INTEGER(whichCols);
 
     int * newRowNumbers = Calloc(nRows, int);
     for(int i = 0; i < nRows; i++) {
@@ -41,20 +39,20 @@ SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
 
     int nPoints = 0;
     for(int i = 0; i < nData; i++) {
-        if(iWhichRows[iRows[i] - 1] && iWhichCols[iCols[i] - 1])
+        if(iWhichRows[rows[i] - 1] && iWhichCols[cols[i] - 1])
             nPoints++;
     }
 
     SEXP ans;
-    PROTECT(ans = allocMatrix(REALSXP, nPoints, 3));
+    PROTECT(ans = Rf_allocMatrix(REALSXP, nPoints, 3));
     double
         * dData = REAL(x),
         * rans = REAL(ans);
 
     for(int i = 0, j = 0; i < nData; i++) {
-        if(iWhichRows[iRows[i] - 1] && iWhichCols[iCols[i] - 1]) {
-            rans[j] = newRowNumbers[iRows[i] - 1];
-            rans[j + nPoints] = newColNumbers[iCols[i] - 1];
+        if(iWhichRows[rows[i] - 1] && iWhichCols[cols[i] - 1]) {
+            rans[j] = newRowNumbers[rows[i] - 1];
+            rans[j + nPoints] = newColNumbers[cols[i] - 1];
             rans[j + 2 * nPoints] = dData[i];
             j++;
         }
