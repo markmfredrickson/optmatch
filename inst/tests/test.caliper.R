@@ -19,6 +19,9 @@ test_that("Caliper return values", {
 
   # make sure that matrix input does same thing
   expect_equivalent(caliper(A, 2), caliper(m, 2))
+
+  # values option returns the value from the object directly
+  expect_equivalent(caliper(A,2) + A, caliper(A, 2, values = T))
 })
 
 test_that("Caliper exclusion", {
@@ -105,10 +108,3 @@ test_that("update() caliper objects", {
 
 })
 
-test_that("caliper width must be length 1", {
-  Z <- rep(c(0,1), each = 10)
-  S <- rep(1:10 * 2, 2)
-  names(Z) <- names(S) <- letters[1:20]
-
-  expect_error(caliper(match_on(S, z = Z), c(1, 2)), "scalar")
-})

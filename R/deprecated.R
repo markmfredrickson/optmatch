@@ -6,7 +6,7 @@
 #' favor of new interfaces and functions.
 #' @name optmatch-defunct
 #' @param ... All arguments ignored.
-NA
+NULL
 
 #' All functionality of the \code{pscore.dist} function has been moved into to
 #' the \code{\link{mdist}} function. Additionally, this function will also act on
@@ -15,7 +15,6 @@ NA
 #' also provides similar functionality, though with a different syntax.
 #' @seealso \code{\link{mdist}}, \code{\link{match_on}}
 #' @rdname optmatch-defunct
-#' @alias optmatch-deprecated
 #' @export
 pscore.dist <- function(...) {
   .Defunct(c("mdist", "match_on"), "optmatch")

@@ -1,8 +1,7 @@
 
-R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
-Platform: x86_64-apple-darwin12.0.0 (64-bit)
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -17,15 +16,9 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(optmatch)
-You're loading optmatch, by B. Hansen and M. Fredrickson.
- The optmatch package makes essential use of D. P. Bertsekas
- and P. Tseng's RELAX-IV algorithm and code, as well as
- Bertsekas' AUCTION algorithm and code.  Using the software
- to 'satisfy in any part commercial delivery requirements to
- government or industry' requires a special agreement with
- Dr. Bertsekas. For more information, enter
- relaxinfo() at the command line.
-
+Loading required package: digest
+Loading required package: survival
+The optmatch package has an academic license. Enter relaxinfo() for more information.
 > data(plantdist)
 > plantsfm <- fullmatch(plantdist)
 Warning message:
@@ -47,6 +40,11 @@ $class
 
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
+
+$subproblem
+A B C D E F G H I J 
+1 1 1 1 1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -90,6 +88,11 @@ $class
 
 $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
+
+$subproblem
+E F G H I J 
+1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -137,6 +140,11 @@ $class
 $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
 
+$subproblem
+A B C D E 
+1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -179,6 +187,11 @@ $class
 
 $contrast.group
 [1] TRUE TRUE TRUE TRUE TRUE
+
+$subproblem
+A B C D E 
+1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -226,6 +239,11 @@ $class
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
 
+$subproblem
+A B C D E F G H I J 
+1 1 1 1 1 1 1 1 1 1 
+Levels: 1
+
 $matched.distances
 $matched.distances$`1.1`
 I 
@@ -268,6 +286,11 @@ $class
 
 $contrast.group
 [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE
+
+$subproblem
+E F G H I J 
+1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -318,7 +341,7 @@ $exceedances
 0.01283333 
 
 $call
-fullmatch(distance = plantdist)
+fullmatch(x = plantdist)
 
 $contrast.group
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
@@ -360,6 +383,18 @@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 Levels: 1
 
+$min.controls
+[1] 0
+
+$max.controls
+[1] Inf
+
+$omit.fraction
+[1] NA
+
+$hashed.distance
+[1] "98b211900409daae2d6516e5d89c7947"
+
 $class
 [1] "optmatch" "factor"  
 
@@ -389,6 +424,11 @@ $contrast.group
  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
 [25]  TRUE  TRUE
+
+$subproblem
+Z Y X W V U T S R Q P O N M L K J I H G F E D C B A 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+Levels: 1
 
 $matched.distances
 $matched.distances$`1.1`
@@ -446,4 +486,4 @@ X Y
 > 
 > proc.time()
    user  system elapsed 
-  0.758   0.030   0.771 
+  0.663   0.029   0.682 

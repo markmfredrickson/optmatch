@@ -1,0 +1,1144 @@
+
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "optmatch"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('optmatch')
+Loading required package: survival
+The optmatch package has an academic license. Enter relaxinfo() for more information.
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("antiExactMatch")
+> ### * antiExactMatch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: antiExactMatch
+> ### Title: Specify a matching problem where units in a common factor cannot
+> ###   be matched.
+> ### Aliases: antiExactMatch
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> 
+> # force entries to be within the same factor:
+> em <- fullmatch(exactMatch(pr ~ pt, data = nuclearplants), data = nuclearplants)
+> table(nuclearplants$pt, em)
+   em
+    0.1 0.2 0.3 0.4 0.5 0.6 0.7 1.1 1.2 1.3
+  0   2   2   2   2   2   2  14   0   0   0
+  1   0   0   0   0   0   0   0   2   2   2
+> 
+> # force treated and control units to have different values of `pt`:
+> z <- nuclearplants$pr
+> names(z) <- rownames(nuclearplants)
+> aem <- fullmatch(antiExactMatch(nuclearplants$pt, z), data = nuclearplants)
+> table(nuclearplants$pt, aem)
+   aem
+    1.1 1.10 1.2 1.3 1.8 1.9
+  0   4   16   1   2   2   1
+  1   1    1   1   1   1   1
+> 
+> 
+> 
+> cleanEx()
+> nameEx("caliper-methods")
+> ### * caliper-methods
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: caliper
+> ### Title: Prepare matching distances suitable for matching within
+> ###   calipers.
+> ### Aliases: caliper caliper,InfinitySparseMatrix-method
+> ###   caliper,matrix-method caliper,optmatch.dlist-method
+> ### Keywords: nonparametric
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> 
+> 
+> ### Caliper of 100 MWe on plant capacity
+> caliper(match_on(pr~cap, data=nuclearplants, method="euclidean"), width=100)
+       control
+treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y
+      A Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      B Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      C Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      D Inf Inf Inf   0 Inf   0 Inf   0 Inf   0 Inf Inf Inf Inf Inf Inf Inf   0
+      E Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      F Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      G Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      a Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0 Inf   0 Inf   0   0 Inf
+      b   0 Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf Inf   0   0 Inf Inf   0 Inf
+      c Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0 Inf   0 Inf   0   0 Inf
+       control
+treated   Z   d   e   f
+      A   0 Inf Inf Inf
+      B   0 Inf Inf Inf
+      C Inf   0   0   0
+      D Inf Inf Inf Inf
+      E   0 Inf Inf Inf
+      F Inf   0   0   0
+      G Inf   0   0   0
+      a Inf Inf   0   0
+      b Inf   0   0 Inf
+      c Inf Inf   0   0
+> 
+> ### Caliper of 1/2 a pooled SD of plant capacity
+> caliper(match_on(pr~cap, data=nuclearplants), width=.5)
+       control
+treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y
+      A Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      B Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      C Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      D Inf Inf Inf   0 Inf   0 Inf   0 Inf   0 Inf Inf Inf Inf Inf Inf Inf   0
+      E Inf   0   0 Inf Inf Inf Inf Inf Inf Inf   0 Inf Inf Inf   0 Inf Inf Inf
+      F Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      G Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf   0   0   0 Inf   0   0 Inf
+      a Inf Inf Inf Inf   0 Inf   0 Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf
+      b   0 Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf Inf   0 Inf Inf Inf   0 Inf
+      c Inf Inf Inf Inf   0 Inf   0 Inf Inf Inf Inf   0 Inf   0 Inf   0 Inf Inf
+       control
+treated   Z   d   e   f
+      A   0 Inf Inf Inf
+      B   0 Inf Inf Inf
+      C Inf   0   0   0
+      D Inf Inf Inf Inf
+      E   0 Inf Inf Inf
+      F Inf   0   0   0
+      G Inf   0   0   0
+      a Inf Inf   0   0
+      b Inf   0   0 Inf
+      c Inf Inf   0   0
+> 
+> ### Caliper  of .2 pooled SDs in the propensity score
+> ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
+> ppty.dist <- match_on(ppty)
+> 
+> pptycaliper <- caliper(ppty.dist, width = .2)
+> 
+> ### caliper on the Mahalanobis distance
+> caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3)
+       control
+treated   H   I   J   K   L M N   O   P Q   R S   T   U V   W X   Y   Z d   e
+      A Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0   0 0   0 0 Inf Inf 0 Inf
+      B Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf
+      C   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0
+      D Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf
+      E   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf
+      F Inf Inf Inf Inf Inf 0 0 Inf Inf 0   0 0 Inf   0 0 Inf 0   0   0 0 Inf
+      G   0   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf
+      a   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf
+      b Inf   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf
+      c Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0 Inf 0   0 0 Inf Inf 0 Inf
+       control
+treated   f
+      A   0
+      B   0
+      C   0
+      D   0
+      E   0
+      F Inf
+      G   0
+      a   0
+      b   0
+      c   0
+> 
+> ### Combining a Mahalanobis distance matching with a caliper
+> ### of 1 pooled SD in the propensity score:
+> mhd.pptyc <- caliper(ppty.dist, width = 1) +
++           match_on(pr ~ t1 + t2, data = nuclearplants)
+> pairmatch(mhd.pptyc, data = nuclearplants)
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+<NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> <NA> 
+> 
+> ### Excluding observations from caliper requirements:
+> caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f"))
+       control
+treated   H   I   J   K   L M N   O   P Q   R S   T   U V   W X   Y   Z d   e f
+      A   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0 0
+      B Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf 0
+      C   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0   0 0
+      D Inf   0   0 Inf Inf 0 0   0 Inf 0   0 0   0   0 0   0 0 Inf   0 0 Inf 0
+      E   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      F Inf Inf Inf Inf Inf 0 0 Inf Inf 0   0 0 Inf   0 0 Inf 0   0   0 0 Inf 0
+      G   0   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      a   0   0   0   0   0 0 0   0   0 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      b Inf   0   0   0 Inf 0 0   0 Inf 0   0 0   0   0 0   0 0   0   0 0 Inf 0
+      c Inf   0   0 Inf Inf 0 0   0 Inf 0 Inf 0   0 Inf 0   0 0 Inf Inf 0 Inf 0
+> 
+> ### Returning values directly (equal up to the the attributes)
+> all(abs((caliper(ppty.dist) + ppty.dist) - caliper(ppty.dist, values = TRUE)) < .Machine$Double.eps)
+[1] TRUE
+> 
+> 
+> 
+> cleanEx()
+> nameEx("exactMatch")
+> ### * exactMatch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: exactMatch-methods
+> ### Title: Generate an exact matching set of subproblems
+> ### Aliases: exactMatch exactMatch-methods exactMatch,formula-method
+> ###   exactMatch,vector-method BlockedInfinitySparseMatrix-class
+> ### Keywords: nonparametric
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> 
+> ### First generate a standard propensity score
+> ppty <- glm(pr~.-(pr+cost), family = binomial(), data = nuclearplants)
+> ppty.distances <- match_on(ppty)
+> 
+> ### Only allow matches within the partial turn key plants
+> pt.em <- exactMatch(pr ~ pt, data = nuclearplants)
+> as.matrix(pt.em)
+       control
+treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y
+      A   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      B   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      C   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      D   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      E   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      F   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      G   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+      a Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf
+      b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf
+      c Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf
+       control
+treated   Z   d   e   f
+      A   0 Inf Inf Inf
+      B   0 Inf Inf Inf
+      C   0 Inf Inf Inf
+      D   0 Inf Inf Inf
+      E   0 Inf Inf Inf
+      F   0 Inf Inf Inf
+      G   0 Inf Inf Inf
+      a Inf   0   0   0
+      b Inf   0   0   0
+      c Inf   0   0   0
+> 
+> ### Blunt matches:
+> match.pt.em <- fullmatch(pt.em)
+Warning in fullmatch(pt.em) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> print(match.pt.em, grouped = TRUE)
+ Group                                  Members
+   0.1                                     A, Z
+   0.2                                     B, Y
+   0.3                                     C, X
+   0.4                                     D, W
+   0.5                                     E, V
+   0.6                                     F, U
+   0.7 G, H, I, J, K, L, M, N, O, P, Q, R, S, T
+   1.1                                     a, f
+   1.2                                     b, e
+   1.3                                     c, d
+> 
+> ### Combine the propensity scores with the subclasses:
+> match.ppty.em <- fullmatch(ppty.distances + pt.em)
+Warning in fullmatch(ppty.distances + pt.em) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> print(match.ppty.em, grouped = TRUE)
+ Group                                        Members
+   0.1                                     A, D, F, V
+   0.2                                        B, G, U
+   0.3 C, H, J, K, L, M, N, O, P, Q, R, T, W, X, Y, Z
+   0.5                                        E, I, S
+   1.1                                           a, f
+   1.2                                           b, d
+   1.3                                           c, e
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fill.NAs")
+> ### * fill.NAs
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: fill.NAs
+> ### Title: Create missingness indicator variables and non-informatively
+> ###   fill in missing values
+> ### Aliases: fill.NAs
+> ### Keywords: manip
+> 
+> ### ** Examples
+> 
+> 
+> data(nuclearplants)
+> ### Extract some representative covariates:
+> np.missing <- nuclearplants[c('t1', 't2', 'ne', 'ct', 'cum.n')]
+> 
+> ### create some missingness in the covariates
+> n <- dim(np.missing)[1]
+> k <- dim(np.missing)[2]
+> 
+> for (i in 1:n) {
++   missing <- rbinom(1, prob = .1, size = k)
++   if (missing > 0) {
++     np.missing[i, sample(k, missing)] <- NA      
++   }
++ }
+> 
+> ### Restore outcome and treatment variables:
+> np.missing <- data.frame(nuclearplants[c('cost', 'pr')], np.missing)
+> 
+> ### Fit a propensity score but with missing covariate data flagged 
+> ### and filled in, as in Rosenbaum and Rubin (1984, Appendix):
+> (np.glm <- glm(fill.NAs(pr ~ t1 * t2, data=np.missing),
++ family=binomial))
+
+Call:  glm(formula = fill.NAs(pr ~ t1 * t2, data = np.missing), family = binomial)
+
+Coefficients:
+(Intercept)           t1           t2    t1.NATRUE    t2.NATRUE        t1:t2  
+   -49.4826       2.2029       0.6321      -0.2053     -15.1006      -0.0257  
+
+Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
+Null Deviance:	    39.75 
+Residual Deviance: 21.04 	AIC: 33.04
+> 
+> # the previous call is equivalent to:
+> # glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, fill.NAs(np.missing), family =
+> #  binomial())
+> 
+> ### produce a matrix of propensity distances based on the propensity model 
+> ### with fill-in and flagging. Then perform pair matching on it:
+> pairmatch(match_on(np.glm))
+Warning in fullmatch(x = x, min.controls = controls, max.controls = controls,  :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+   A    B    C    D    E    F    G    a    b    c    H    I    J    K    L    M 
+ 1.1  1.2  1.3  1.4  1.5  1.6  1.7  1.8  1.9 1.10 <NA>  1.8 <NA> <NA> <NA> <NA> 
+   N    O    P    Q    R    S    T    U    V    W    X    Y    Z    d    e    f 
+<NA> <NA> <NA>  1.9  1.1  1.2  1.6  1.4 1.10 <NA>  1.7  1.5 <NA> <NA> <NA>  1.3 
+> 
+> ## fill NAs without using treatment contrasts by making a list of contrasts for
+> ## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
+> 
+> np.missing$t1F<-factor(np.missing$t1)
+> cov.factors <- sapply(np.missing[,c("t1F","t2")],is.factor) 
+> cov.contrasts <- lapply(
++   np.missing[,names(cov.factors)[cov.factors],drop=FALSE],
++   contrasts, contrasts = FALSE)
+> 
+> ## make a data frame filling the missing covariate values, but without
+> ## excluding any levels of any factors
+> np.noNA2<-fill.NAs(pr~t1F+t2,data=np.missing,contrasts.arg=cov.contrasts)
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fullmatch")
+> ### * fullmatch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: fullmatch
+> ### Title: Optimal full matching
+> ### Aliases: full fullmatch
+> ### Keywords: nonparametric optimize
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> ### Full matching on a Mahalanobis distance.
+> ( fm1 <- fullmatch(pr ~ t1 + t2, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.3  1.3  1.8  1.8  1.3  1.5  1.3  1.9 1.10 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.3  1.6  1.3  1.3  1.3  1.8  1.9 1.10 
+> summary(fm1)
+Structure of matched sets:
+ 1:1  1:2  1:3 1:5+ 
+   7    1    1    1 
+Effective Sample Size:  11.7 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=21.4
+(within 0.0201 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.933 1.520 2.700 
+> 
+> ### Full matching with restrictions.
+> ( fm2 <- fullmatch(pr ~ t1 + t2, min.controls = .5, max.controls = 4, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.5  1.3  1.8  1.8  1.3  1.5  1.5  1.9  1.8 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.7  1.6  1.9 1.10  1.9  1.8  1.9 1.10 
+> summary(fm2)
+Structure of matched sets:
+1:1 1:2 1:3 1:4 
+  5   1   1   3 
+Effective Sample Size:  12.6 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=23.3
+(within 0.0213 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.952 1.760 3.720 
+> 
+> ### Full matching to half of available controls.
+> ( fm3 <- fullmatch(pr ~ t1 + t2, omit.fraction = .5, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.1  1.1 1.10  1.2 <NA> <NA>  1.3  1.3  1.8 <NA> <NA>  1.5 <NA>  1.9 <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 <NA>  1.6 <NA> <NA> <NA>  1.8  1.9 1.10 
+> summary(fm3)
+Structure of matched sets:
+1:1 1:2 0:1 
+  9   1  11 
+Effective Sample Size:  10.3 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.8
+(within 0.0262 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.703 1.490 1.520 
+> 
+> ### Full matching attempts recovery when the initial restrictions are infeasible.
+> ### Limiting max.controls = 1 allows use of only 10 of 22 controls.
+> ( fm4 <- fullmatch(pr ~ t1 + t2, max.controls = 1, data=nuclearplants) )
+Warning in fullmatch.matrix(m, min.controls = min.controls, max.controls = max.controls,  :
+  The problem is infeasible with the given constraints; some units were omitted to allow a match.
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.1  1.1 1.10  1.2 <NA> <NA>  1.3  1.3  1.8 <NA> <NA> <NA> <NA>  1.9 <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 <NA>  1.6 <NA> <NA> <NA>  1.8  1.9 1.10 
+> summary(fm4)
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.45
+(within 0.0265 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.796 1.490 1.520 
+> ### To recover restrictions
+> optmatch_restrictions(fm4)
+$min.controls
+[1] 0
+
+$max.controls
+[1] 1
+
+$omit.fraction
+[1] 0.5454545
+
+> 
+> ### Full matching within a propensity score caliper.
+> ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
+> ### Note that units without counterparts within the caliper are automatically dropped.
+> ### For more complicated models, create a distance matrix and pass it to fullmatch.
+> mhd <- match_on(pr ~ t1 + t2, data = nuclearplants) + caliper(match_on(ppty))
+> ( fm5 <- fullmatch(mhd, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.9 <NA>  1.2  1.1 <NA> <NA>  1.2  1.2  1.2  1.2 <NA>  1.2  1.2  1.4  1.1 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.5  1.3  1.3  1.4  1.2  1.5  1.2  1.5 <NA>  1.4  1.7 <NA>  1.2  1.7  1.3  1.9 
+> summary(fm5)
+Structure of matched sets:
+ 1:0  2:1  1:1  1:2 1:5+  0:1 
+   1    2    3    1    1    6 
+Effective Sample Size:  8.8 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=18.1
+(within 0.0209 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.298 0.952 1.630 1.690 
+> 
+> ### Propensity balance assessment. Requires RItools package.
+> if (require(RItools)) summary(fm5,ppty)
+Loading required package: RItools
+Structure of matched sets:
+ 1:0  2:1  1:1  1:2 1:5+  0:1 
+   1    2    3    1    1    6 
+Effective Sample Size:  8.8 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=18.1
+(within 0.0209 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.298 0.952 1.630 1.690 
+Balance test overall result:
+  chisquare df p.value
+       7.93  9   0.542
+> 
+> ### The order of the names in the match factor is the same
+> ### as the nuclearplants data.frame since we used the data argument
+> ### when calling fullmatch. The order would be unspecified otherwise.
+> cbind(nuclearplants, matches = fm5)
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0    <NA>
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.9
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0    <NA>
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0     1.2
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.1
+K 345.39 67.92 13 51  514  0  1  1  0     3  0    <NA>
+L 272.37 68.17 12 50  822  0  0  0  0     5  0    <NA>
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.2
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.2
+N 690.19 68.33 12 71  792  0  1  1  1     2  0     1.2
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.2
+P 402.59 68.75 13 47  790  0  1  0  0     6  0    <NA>
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0     1.2
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.2
+S 394.36 68.92 13 65  850  0  0  0  1    16  0     1.4
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.1
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.5
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.3
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0     1.3
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.4
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.2
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.5
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.2
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.5
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0    <NA>
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.4
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.7
+e 288.48 67.17  9 48  821  0  0  1  0     7  1    <NA>
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.2
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.7
+b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.3
+c 270.71 67.83  7 80  886  1  0  0  1    11  1     1.9
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:RItools’
+
+> nameEx("getMaxProblemSize")
+> ### * getMaxProblemSize
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: getMaxProblemSize
+> ### Title: What is the maximum allowed problem size?
+> ### Aliases: getMaxProblemSize
+> 
+> ### ** Examples
+> 
+> optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
+[1] TRUE
+> 
+> 
+> 
+> cleanEx()
+> nameEx("match_on-methods")
+> ### * match_on-methods
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: match_on
+> ### Title: Create treated to control distances for matching problems
+> ### Aliases: match_on match_on.InfinitySparseMatrix match_on.bigglm
+> ###   match_on.formula match_on.function match_on.glm match_on.matrix
+> ###   match_on.numeric
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> match_on.examples <- list()
+> ### Propensity score distances.
+> ### Recommended approach:
+> (aGlm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants))
+
+Call:  glm(formula = pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
+
+Coefficients:
+(Intercept)         date           t1           t2          cap           ne  
+  43.909419    -1.220088     0.938645     0.396002     0.001197    -0.995651  
+         ct           bw        cum.n           pt  
+  -2.615671    -0.088696     0.033575    -0.352112  
+
+Degrees of Freedom: 31 Total (i.e. Null);  22 Residual
+Null Deviance:	    39.75 
+Residual Deviance: 20.92 	AIC: 40.92
+> match_on.examples$ps1 <- match_on(aGlm)
+> ### A second approach: first extract propensity scores, then separately
+> ### create a distance from them.  (Useful when importing propensity
+> ### scores from an external program.)
+> plantsPS <- predict(aGlm)
+> match_on.examples$ps2 <- match_on(pr~plantsPS, data=nuclearplants)
+> ### Full matching on the propensity score.
+> fm1 <- fullmatch(match_on.examples$ps1, data = nuclearplants)
+> fm2 <- fullmatch(match_on.examples$ps2, data = nuclearplants)
+> ### Because match_on.glm uses robust estimates of spread,
+> ### the results differ in detail -- but they are close enough
+> ### to yield similar optimal matches.
+> all(fm1 == fm2) # The same
+[1] TRUE
+> 
+> ### Mahalanobis distance:
+> match_on.examples$mh1 <- match_on(pr ~ t1 + t2, data = nuclearplants)
+> 
+> ### Absolute differences on a scalar:
+> tmp <- nuclearplants$t1
+> names(tmp) <- rownames(nuclearplants)
+> 
+> (absdist <- match_on(tmp, z = nuclearplants$pr,
++                   within = exactMatch(pr ~ pt, nuclearplants)))
+$`0`
+       control
+treated H  I  J K  L M  N  O P Q R S  T U V  W X Y  Z
+      A 4  0  1 3  2 4  2  2 3 5 7 3  1 8 5  1 6 9 10
+      B 3  1  0 2  1 3  1  1 2 4 6 2  0 7 4  0 5 8  9
+      C 1  5  4 2  3 1  3  3 2 0 2 2  4 3 0  4 1 4  5
+      D 1  5  4 2  3 1  3  3 2 0 2 2  4 3 0  4 1 4  5
+      E 2  6  5 3  4 2  4  4 3 1 1 3  5 2 1  5 0 3  4
+      F 8 12 11 9 10 8 10 10 9 7 5 9 11 4 7 11 6 3  2
+      G 5  9  8 6  7 5  7  7 6 4 2 6  8 1 4  8 3 0  1
+
+$`1`
+       control
+treated d e f
+      a 1 3 0
+      b 0 4 1
+      c 6 2 5
+
+> 
+> ### Pair matching on the variable `t1`:
+> pairmatch(absdist, data = nuclearplants)
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  0.1  0.1 <NA>  0.2 <NA> <NA> <NA>  0.3 <NA> <NA> <NA>  0.4 <NA> <NA> <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+<NA>  0.4  0.3  0.5  0.2  0.6  0.5  0.7  0.7  0.6  1.2  1.3  1.1  1.1  1.2  1.3 
+> 
+> 
+> ### Propensity score matching within subgroups:
+> match_on.examples$ps3 <- match_on(aGlm, exactMatch(pr ~ pt, nuclearplants))
+> fullmatch(match_on.examples$ps3, data = nuclearplants)
+  H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E 
+0.3 0.5 0.1 0.3 0.2 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.5 0.3 0.2 0.1 0.1 0.5 
+  W   F   X   G   Y   Z   d   e   f   a   b   c 
+0.3 0.1 0.3 0.2 0.3 0.3 1.2 1.3 1.1 1.1 1.2 1.3 
+> 
+> ### Propensity score matching with a propensity score caliper:
+> match_on.examples$pscal <- match_on.examples$ps1 + caliper(match_on.examples$ps1, 1)
+> fullmatch(match_on.examples$pscal, data = nuclearplants) # Note that the caliper excludes some units
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.4 <NA>  1.2  1.1 <NA> <NA>  1.2  1.2  1.2  1.2 <NA>  1.2  1.2  1.4  1.2 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.1  1.3  1.3  1.4  1.2  1.3  1.2  1.1 <NA>  1.2  1.4 <NA>  1.2  1.3  1.3  1.1 
+> 
+> ### A Mahalanobis distance for matching within subgroups:
+> match_on.examples$mh2 <- match_on(pr ~ t1 + t2 , data = nuclearplants,
++                             within = exactMatch(pr ~ pt, nuclearplants))
+> 
+> ### Mahalanobis matching within subgroups, with a propensity score
+> ### caliper:
+> fullmatch(match_on.examples$mh2 + caliper(match_on.examples$ps3, 1), data = nuclearplants)
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  0.1 <NA>  0.2  0.1 <NA> <NA>  0.2  0.2  0.2  0.2 <NA>  0.2  0.2  0.4  0.2 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 0.5  0.3  0.3  0.4  0.2  0.5  0.2  0.5 <NA>  0.4  1.1 <NA> <NA>  1.1 <NA>  1.1 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("matched")
+> ### * matched
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: matched
+> ### Title: Identification of units placed into matched sets
+> ### Aliases: matched unmatched matchfailed
+> ### Keywords: manip
+> 
+> ### ** Examples
+> 
+> plantdist <- matrix(nrow=7, ncol=19,byrow=TRUE,data=c(
++ 28, 0, 3,22,14,30,17,28,26,28,20,22,23,26,21,18,34,40,28,
++ 24, 3, 0,22,10,27,14,26,24,24,16,19,20,23,18,16,31,37,25,
++ 10,18,14,18, 4,12, 6,11, 9,10,14,12, 6,14,22,10,16,22,28,
++  7,28,24, 8,14, 2,10, 6,12, 0,24,22, 4,24,32,20,18,16,38,
++ 17,20,16,32,18,26,20,18,12,24, 0, 2,20, 6, 8, 4,14,20,14,
++ 20,31,28,35,20,29,22,20,14,26,12, 9,22, 5,15,12, 9,11,12,
++ 14,32,29,30,18,24,17,16,10,22,12,10,17, 6,16,14, 4, 8,17),
++ dimnames=list(c("A","B","C","D","E","F","G"),
++ c("H","I","J","K","L","M","N","O","P","Q","R",
++ "S","T","U","V","W","X","Y","Z")))
+> 
+> mxpl.fm0 <- fullmatch(plantdist) # A feasible matching problem
+Warning in fullmatch(plantdist) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> c(sum(matched(mxpl.fm0)), sum(unmatched(mxpl.fm0)))
+[1] 26  0
+> sum(matchfailed(mxpl.fm0)) 
+[1] 0
+> mxpl.fm1 <- fullmatch(plantdist, # An infeasible problem
++                    max.controls=3, min.controls=3)
+Warning in fullmatch(plantdist, max.controls = 3, min.controls = 3) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> c(sum(matched(mxpl.fm1)), sum(unmatched(mxpl.fm1)))
+[1]  0 26
+> sum(matchfailed(mxpl.fm1))
+[1] 26
+> 
+> mxpl.si <- factor(c('a', 'a', 'c', rep('d',4), 'b', 'c', 'c', rep('d', 16)))
+> names(mxpl.si) <- LETTERS[1:26]
+> mxpl.exactmatch <- exactMatch(mxpl.si, c(rep(1, 7), rep(0, 26 - 7)))
+> # Subclass a contains two treated units but no controls;
+> # subclass b contains only a control unit;
+> # subclass c contains one treated and two control units;
+> # subclass d contains the remaining twenty units.
+> # only valid subproblems will be used
+> 
+> mcl <- c(1, Inf)
+> 
+> mxpl.fm2 <- fullmatch(plantdist + mxpl.exactmatch,
++                       max.controls=mcl)
+Warning in fullmatch(plantdist + mxpl.exactmatch, max.controls = mcl) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+Warning in fullmatch.BlockedInfinitySparseMatrix(plantdist + mxpl.exactmatch,  :
+  The problem is infeasible with the given constraints; some units were omitted to allow a match.
+> sum(matched(mxpl.fm2))
+[1] 22
+> 
+> table(unmatched(mxpl.fm2), matchfailed(mxpl.fm2))
+       
+        FALSE
+  FALSE    22
+  TRUE      1
+> 
+> mxpl.fm2[matchfailed(mxpl.fm2)]
+factor(0)
+> 
+> mxpl.fm2[unmatched(mxpl.fm2) &   # isolated units return as
++          !matchfailed(mxpl.fm2)] # unmatched but not matchfailed
+   I 
+<NA> 
+> 
+>   
+> 
+> 
+> cleanEx()
+> nameEx("matched.distances")
+> ### * matched.distances
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: matched.distances
+> ### Title: Determine distances between matched units
+> ### Aliases: matched.distances
+> ### Keywords: nonparametric
+> 
+> ### ** Examples
+> 
+> data(plantdist)
+> plantsfm <- fullmatch(plantdist) 
+Warning in fullmatch(plantdist) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> (plantsfm.d <- matched.distances(plantsfm,plantdist,pres=TRUE))
+$`1.1`
+I 
+0 
+
+$`1.2`
+J 
+0 
+
+$`1.3`
+L N P 
+4 6 9 
+
+$`1.4`
+H K M O Q T 
+7 8 2 6 0 4 
+
+$`1.5`
+R S V W 
+0 2 8 4 
+
+$`1.6`
+ U  Z 
+ 5 12 
+
+$`1.7`
+X Y 
+4 8 
+
+> unlist(lapply(plantsfm.d, max))
+1.1 1.2 1.3 1.4 1.5 1.6 1.7 
+  0   0   9   8   8  12   8 
+> mean(unlist(plantsfm.d))
+[1] 4.684211
+> 
+> 
+> 
+> cleanEx()
+> nameEx("min.controls.cap")
+> ### * min.controls.cap
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: minControlsCap
+> ### Title: Set thinning and thickening caps for full matching
+> ### Aliases: minControlsCap maxControlsCap
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ### TEMPORARY COMMENT OUT BY MMF
+> ### ##---- Should be DIRECTLY executable !! ----
+> ### ##-- ==>  Define data, use random,
+> ### ##--	or do  help(data=index)  for the standard data sets.
+> ### plantdist <- matrix(nrow=7, ncol=19,byrow=TRUE,data=c(
+> ### 28, 0, 3,22,14,30,17,28,26,28,20,22,23,26,21,18,34,40,28,
+> ### 24, 3, 0,22,10,27,14,26,24,24,16,19,20,23,18,16,31,37,25,
+> ### 10,18,14,18, 4,12, 6,11, 9,10,14,12, 6,14,22,10,16,22,28,
+> ###  7,28,24, 8,14, 2,10, 6,12, 0,24,22, 4,24,32,20,18,16,38,
+> ### 17,20,16,32,18,26,20,18,12,24, 0, 2,20, 6, 8, 4,14,20,14,
+> ### 20,31,28,35,20,29,22,20,14,26,12, 9,22, 5,15,12, 9,11,12,
+> ### 14,32,29,30,18,24,17,16,10,22,12,10,17, 6,16,14, 4, 8,17),
+> ### dimnames=list(c("A","B","C","D","E","F","G"),
+> ### c("H","I","J","K","L","M","N","O","P","Q","R",
+> ### "S","T","U","V","W","X","Y","Z")))
+> ### 
+> ### (tmn <- minControlsCap(plantdist)$strictest)
+> ### maxControlsCap(plantdist, min=tmn)
+> ### ### START HERE! Need to recreate split dist from the plantdist matrix above.
+> ### splitdist <- matrix(Inf, nrow = 7, ncol = 19)
+> ### splitdist[1:3, 1:9] <- 0
+> ### splitdist[4:7, 10:19] <- 0
+> ### (tmn <- minControlsCap(splitdist + plantdist)$strictest)
+> ### maxControlsCap(splitdist + plantdist, min=tmn)
+> ### 
+> 
+> 
+> cleanEx()
+> nameEx("pairmatch")
+> ### * pairmatch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: pairmatch
+> ### Title: Optimal 1:1 and 1:k matching
+> ### Aliases: pair pairmatch
+> ### Keywords: nonparametric optimize
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> 
+> ### Pair matching on a Mahalanobis distance
+> ( pm1 <- pairmatch(pr ~ t1 + t2, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA>  1.1  1.1 1.10  1.2 <NA> <NA>  1.3  1.3  1.8 <NA> <NA> <NA> <NA>  1.9 <NA> 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 <NA>  1.6 <NA> <NA> <NA>  1.8  1.9 1.10 
+> summary(pm1)
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=7.45
+(within 0.0265 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.796 1.490 1.520 
+> 
+> ### Pair matching within a propensity score caliper.
+> ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
+> ### For more complicated models, create a distance matrix and pass it to fullmatch.
+> mhd <- match_on(pr ~ t1 + t2, data = nuclearplants) + caliper(match_on(ppty), 2)
+> ( pm2 <- pairmatch(mhd, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+<NA> 1.10  1.1 <NA>  1.2 <NA> <NA>  1.3  1.3  1.2 <NA> <NA> <NA> <NA>  1.4  1.8 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.9  1.5 <NA>  1.6  1.5  1.7 <NA>  1.6  1.1 <NA> <NA>  1.8  1.9 1.10 
+> summary(pm2)
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=8.76
+(within 0.0233 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.728 2.150 2.370 
+> 
+> ### Propensity balance assessment. Requires RItools package.
+> if(require(RItools)) summary(pm2, ppty)
+Loading required package: RItools
+Structure of matched sets:
+1:1 0:1 
+ 10  12 
+Effective Sample Size:  10 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=8.76
+(within 0.0233 of optimum).
+Percentiles of matched distances:
+   0%   50%   95%  100% 
+0.000 0.728 2.150 2.370 
+Balance test overall result:
+  chisquare df p.value
+       8.54  9   0.481
+> 
+> ### 1:2 matched triples
+> ( tm <- pairmatch(pr ~ t1 + t2, controls = 2, data = nuclearplants) )
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1 1.10  1.2  1.3 1.10  1.5  1.3  1.8  1.8 <NA>  1.4  1.7  1.9  1.1 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.6  1.6  1.9 <NA>  1.2  1.8  1.9 1.10 
+> summary(tm)
+Structure of matched sets:
+1:2 0:1 
+ 10   2 
+Effective Sample Size:  13.3 
+(equivalent number of matched pairs).
+
+sum(matched.distances)=24.7
+(within 0.0225 of optimum).
+Percentiles of matched distances:
+  0%  50%  95% 100% 
+0.00 1.14 2.44 3.19 
+> 
+> ### Creating a data frame with the matched sets attached.
+> ### match_on(), caliper() and the like cooperate with pairmatch()
+> ### to make sure observations are in the proper order:
+> all.equal(names(tm), row.names(nuclearplants))
+[1] TRUE
+> ### So our data frame including the matched sets is just
+> cbind(nuclearplants, matches=tm)
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0     1.3
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.1
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0     1.1
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0    1.10
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.2
+K 345.39 67.92 13 51  514  0  1  1  0     3  0     1.3
+L 272.37 68.17 12 50  822  0  0  0  0     5  0    1.10
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.5
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.3
+N 690.19 68.33 12 71  792  0  1  1  1     2  0     1.8
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.8
+P 402.59 68.75 13 47  790  0  1  0  0     6  0    <NA>
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0     1.4
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.7
+S 394.36 68.92 13 65  850  0  0  0  1    16  0     1.9
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.1
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.7
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.4
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0     1.4
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.5
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.2
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.6
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.5
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.7
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0     1.6
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.6
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.9
+e 288.48 67.17  9 48  821  0  0  1  0     7  1    <NA>
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.2
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.8
+b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.9
+c 270.71 67.83  7 80  886  1  0  0  1    11  1    1.10
+> 
+> ### In contrast, if your matching distance is an ordinary matrix
+> ### (as earlier versions of optmatch required), you'll
+> ### have to align it by observation name with your data set.
+> cbind(nuclearplants, matches = tm[row.names(nuclearplants)])
+    cost  date t1 t2  cap pr ne ct bw cum.n pt matches
+H 460.05 68.58 14 46  687  0  1  0  0    14  0     1.3
+I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.1
+A 443.22 67.33 10 85 1065  1  0  1  0     1  0     1.1
+J 652.32 68.00 11 67 1065  0  1  1  0    12  0    1.10
+B 642.23 68.00 11 78 1065  1  1  1  0    12  0     1.2
+K 345.39 67.92 13 51  514  0  1  1  0     3  0     1.3
+L 272.37 68.17 12 50  822  0  0  0  0     5  0    1.10
+M 317.21 68.42 14 59  457  0  0  0  0     1  0     1.5
+C 457.12 68.42 15 55  822  1  0  0  0     5  0     1.3
+N 690.19 68.33 12 71  792  0  1  1  1     2  0     1.8
+O 350.63 68.58 12 64  560  0  0  0  0     3  0     1.8
+P 402.59 68.75 13 47  790  0  1  0  0     6  0    <NA>
+Q 412.18 68.42 15 62  530  0  0  1  0     2  0     1.4
+R 495.58 68.92 17 52 1050  0  0  0  0     7  0     1.7
+S 394.36 68.92 13 65  850  0  0  0  1    16  0     1.9
+T 423.32 68.42 11 67  778  0  0  0  0     3  0     1.1
+U 712.27 69.50 18 60  845  0  1  0  0    17  0     1.7
+D 289.66 68.42 15 76  530  1  0  1  0     2  0     1.4
+V 881.24 69.17 15 67 1090  0  0  0  0     1  0     1.4
+E 490.88 68.92 16 59 1050  1  0  0  0     8  0     1.5
+W 567.79 68.75 11 70  913  0  0  1  1    15  0     1.2
+F 665.99 70.92 22 57  828  1  1  0  0    20  0     1.6
+X 621.45 69.67 16 59  786  0  0  1  0    18  0     1.5
+G 608.80 70.08 19 58  821  1  0  0  0     3  0     1.7
+Y 473.64 70.42 19 44  538  0  0  1  0    19  0     1.6
+Z 697.14 71.08 20 57 1130  0  0  1  0    21  0     1.6
+d 207.51 67.25 13 63  745  0  0  0  0     8  1     1.9
+e 288.48 67.17  9 48  821  0  0  1  0     7  1    <NA>
+f 284.88 67.83 12 63  886  0  0  0  1    11  1     1.2
+a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.8
+b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.9
+c 270.71 67.83  7 80  886  1  0  0  1    11  1    1.10
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:RItools’
+
+> nameEx("print.optmatch")
+> ### * print.optmatch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: print.optmatch
+> ### Title: Printing 'optmatch' objects.
+> ### Aliases: print.optmatch
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> fm <- fullmatch(pr ~ t1 + t2, data = nuclearplants)
+> 
+> print(fm)
+   H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
+ 1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.3  1.3  1.8  1.8  1.3  1.5  1.3  1.9 1.10 
+   U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
+ 1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.3  1.6  1.3  1.3  1.3  1.8  1.9 1.10 
+> print(fm, grouped = TRUE)
+ Group                         Members
+   1.1                            I, A
+  1.10                            T, c
+   1.2                            B, W
+   1.3 H, K, L, M, C, P, R, Y, d, e, f
+   1.4                            D, V
+   1.5                         Q, E, X
+   1.6                            F, Z
+   1.7                            U, G
+   1.8                      J, N, O, a
+   1.9                            S, b
+> 
+> 
+> 
+> cleanEx()
+> nameEx("scores")
+> ### * scores
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: scores
+> ### Title: Extract scores (propensity, prognostic,...) from a fitted model
+> ### Aliases: scores
+> 
+> ### ** Examples
+> 
+> data(nuclearplants)
+> pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
+> # The following two lines produce identical results.
+> ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants),
++            data=nuclearplants)
+Warning in predict.lm(pg, newdata = nuclearplants) :
+  prediction from a rank-deficient fit may be misleading
+> ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
+Warning in predict.lm(newobject, newdata = newdata2, ...) :
+  prediction from a rank-deficient fit may be misleading
+> 
+> 
+> 
+> cleanEx()
+> nameEx("stratumStructure")
+> ### * stratumStructure
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: stratumStructure
+> ### Title: Return structure of matched sets
+> ### Aliases: stratumStructure
+> ### Keywords: misc
+> 
+> ### ** Examples
+> 
+> data(plantdist)
+> 
+> plantsfm <- fullmatch(plantdist) # A full match with unrestricted
+Warning in fullmatch(plantdist) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+>                                  # treatment-control balance
+> plantsfm1 <- fullmatch(plantdist,min.controls=2, max.controls=3)
+Warning in fullmatch(plantdist, min.controls = 2, max.controls = 3) :
+  Without 'data' argument the order of the match is not guaranteed
+    to be the same as your original data.
+> 
+> stratumStructure(plantsfm)
+1:1 1:2 1:3 1:4 1:6 
+  2   2   1   1   1 
+> stratumStructure(plantsfm1)
+1:2 1:3 
+  2   5 
+> stratumStructure(plantsfm, max.controls=4)
+ 1:1  1:2  1:3 1:4+ 
+   2    2    1    2 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  1.897 0.03 1.927 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

@@ -1,14 +1,15 @@
 # Constant to control the maximum feasible (sub)problem
-MAX_FEASIBLE <- 1e07 - 2
+MAX_FEASIBLE <- 1e07
 
-#' (Internal) Sets up the default values for maximum feasible problems
+# (Internal) Sets up the default values for maximum feasible problems
 #
 # @return NULL
 setFeasibilityConstants <- function() {
+  options("optmatch_warn_on_big_problem" = TRUE)
   options("optmatch_max_problem_size" = MAX_FEASIBLE)    
 }
 
-#' (Internal) What is the maximum allowed problem size?
+#' What is the maximum allowed problem size?
 #'
 #' To prevent users from starting excessively large matching problems, the
 #' maximum problem size is limited by \code{options("optmatch_max_problem_size")}.
@@ -19,6 +20,7 @@ setFeasibilityConstants <- function() {
 #' @seealso \code{\link{options}}
 #' @return logical
 #' @examples optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
+#' @export
 getMaxProblemSize <- function() {
   tmp <- options("optmatch_max_problem_size")[[1]]
   if (is.null(tmp[[1]])) {
@@ -27,7 +29,8 @@ getMaxProblemSize <- function() {
   return(tmp[[1]])
 }
 
-#' Find the minimal exact match factors that will be feasible.
+#' Find the minimal exact match factors that will be feasible for a
+#' given maximum problem size.
 #'
 #' The \code{\link{exactMatch}} function creates a smaller matching problem by
 #' stratifying observations into smaller groups. For a problem that is larger
@@ -46,10 +49,11 @@ getMaxProblemSize <- function() {
 #' @param x The object for dispatching.
 #' @param scores Optional vector of scores that will be checked against a caliper width.
 #' @param width Optional width of a caliper to place on the scores.
+#' @param maxarcs The maximum problem size to attempt to fit.
 #' @param ... Additional arguments for methods.
 #' @return A factor grouping units, suitable for \code{\link{exactMatch}}.
 #' @export
-minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
+minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
 
   if (length(x) < 3) {
     stop("Formula must be of the form Z ~ X1 + X2 + ...")  
@@ -66,6 +70,17 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
   k <- length(rhs)
 
   bigzb <- fmla2treatedblocking(x, ...)
+
+  unblockedarcs <- sum(bigzb$Z) * sum(1 - bigzb$Z)
+  if (unblockedarcs < maxarcs) {
+    return(as.factor(rep(1, dim(bigzb)[1])))
+  }
+
+  msg <- getOption("optmatch_verbose_messaging")
+  if (msg) {
+    warning("minExactMatch: problem is large enough to require blocking. Entering loop.", date())
+  }
+
   previous <- rep(NA, dim(bigzb)[1]) # we store good subgroups here
 
   for(i in 1:k) {
@@ -86,9 +101,13 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
       arcs <- tapply(z.b$Z, list(B), function(grp) { sum(grp) * sum(1 - grp) })
     }
 
-    good <- arcs < getMaxProblemSize()
+    good <- arcs <= maxarcs
 
     if (all(good[!is.na(good)])) { # some levels may be NAs
+        if (msg) {
+            warning("minExactMatch: exiting loop. Arcs:", arcs, "Selected levels:" , levels(B), date())
+        }
+
       names(B) <- rownames(z.b)
       return(B)  
     }
@@ -99,16 +118,16 @@ minExactMatch <- function(x, scores = NULL, width = NULL, ...) {
   stop("Unable to create sufficiently small problem. Please provide more stratifying variables.")
 }
 
-#' (Internal) A helper function to turn formulas into treatment and blocking variables
-#'
-#' Given a function and any of the arguments normally passed to model.frame,
-#' this function will return a data.frame with two columns: a treatment indicator
-#' and a blocking factor.
-#'
-#' @param x A formula
-#' @param ... Arguments to be passed to model.frame (e.g. \code{data})
-#' @return data.frame containing two columns: \code{Z} is a treatment indicator, 
-#' \code{B} is a blocking factor
+# (Internal) A helper function to turn formulas into treatment and blocking variables
+#
+# Given a function and any of the arguments normally passed to model.frame,
+# this function will return a data.frame with two columns: a treatment indicator
+# and a blocking factor.
+#
+# @param x A formula
+# @param ... Arguments to be passed to model.frame (e.g. \code{data})
+# @return data.frame containing two columns: \code{Z} is a treatment indicator, 
+# \code{B} is a blocking factor
 fmla2treatedblocking <- function(x, ...) {
   
   mf <- model.frame(x, ...)
@@ -120,23 +139,23 @@ fmla2treatedblocking <- function(x, ...) {
   return(df)
 }
 
-#' (Internal) Determines how many other units fall within a caliper distance
-#'
-#' The matching functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
-#' have a maximum problem size, based on the number of comparisons between treated
-#' and control units. For a completely dense problem, in which every treated units
-#' is compared to every control unit there are \code{length(treated) *
-#' length(control)} comparisons. A caliper restricts which comparisons are valid,
-#' disallowing matches of treated and control pairs that are too far apart. A
-#' caliper can significantly decrease the size of a matching problem. The
-#' \code{caliperSize} function reports exactly who many valid treated-control
-#' comparisons remain after applying a caliper of the given width.
-#' 
-#' @param scores A numeric vector of scores providing 1-D position of units
-#' @param z Treatment indicator vector
-#' @param width Width of caliper, must be positive
-#' @param structure Grouping factor to use in computation
-#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+# (Internal) Determines how many other units fall within a caliper distance
+#
+# The matching functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
+# have a maximum problem size, based on the number of comparisons between treated
+# and control units. For a completely dense problem, in which every treated units
+# is compared to every control unit there are \code{length(treated) *
+# length(control)} comparisons. A caliper restricts which comparisons are valid,
+# disallowing matches of treated and control pairs that are too far apart. A
+# caliper can significantly decrease the size of a matching problem. The
+# \code{caliperSize} function reports exactly who many valid treated-control
+# comparisons remain after applying a caliper of the given width.
+# 
+# @param scores A numeric vector of scores providing 1-D position of units
+# @param z Treatment indicator vector
+# @param width Width of caliper, must be positive
+# @param structure Grouping factor to use in computation
+# @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperSize <- function(scores, z, width, structure = NULL) {
   if (width <= 0) {
     stop("Invalid caliper width. Width must be positive.")
@@ -198,15 +217,15 @@ caliperSize <- function(scores, z, width, structure = NULL) {
 #
 # Not exactly linear, but not bad!
 
-#' (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
-#' 
-#' @param scores A numeric vector of scores providing 1-D position of units
-#' @param z Treatment indicator vector
-#' @param width Width of caliper, must be positive.
-#' @param structure Optional factor variable that groups the scores, as would
-#' be used by \code{\link{exactMatch}}. Including structure allows for wider
-#' calipers.
-#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+# (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
+# 
+# @param scores A numeric vector of scores providing 1-D position of units
+# @param z Treatment indicator vector
+# @param width Width of caliper, must be positive.
+# @param structure Optional factor variable that groups the scores, as would
+# be used by \code{\link{exactMatch}}. Including structure allows for wider
+# calipers.
+# @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperUpperBound <- function(scores, z, width, structure = NULL) {
 
   if (width <= 0) {

@@ -1,22 +1,26 @@
-stratumStructure <- function(stratum,trtgrp=NULL,min.controls=0,
-                             max.controls=Inf)
+stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf) UseMethod("stratumStructure")
+stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.controls=Inf)
+  {
+    trtgrp.arg.provided <- !missing(trtgrp) && !is.null(trtgrp)
+    ZZ <- try(getZfromMatch(stratum), silent=TRUE)
+    if (inherits(ZZ, "try-error") & !trtgrp.arg.provided)
+      stop("stratum is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
+
+    if (inherits(ZZ, "try-error") & trtgrp.arg.provided)
+      return(stratumStructure.default(stratum,trtgrp=trtgrp,min.controls=min.controls,max.controls=max.controls))
+
+    if (trtgrp.arg.provided) # by implication, ZZ is not an error
+      {
+        warning("ignoring trtgrp argument to stratumStructure")
+      }
+        stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls)
+  }
+stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf)
 {
-if (!inherits(stratum,"optmatch") & is.null(trtgrp))
-  stop("stratum not of class \'optmatch\'; trtgrp must be specified")
-if (!inherits(stratum,"optmatch"))
-  warning("stratum not of class optmatch; was this intended?")
-if (inherits(stratum, "optmatch") & is.null(attr(stratum, "contrast.group")) & is.null(trtgrp))
-  stop("Argument 1 is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
-if (inherits(stratum, "optmatch") & !is.null(attr(stratum, "contrast.group")) & !is.null(trtgrp))
-  warning("ignoring second argument to stratumStructure")
+if (is.null(trtgrp))
+  stop("Unless stratum is of class \'optmatch\', stratumStructure() requires a trtgrp= argument.")
 
-if (is.null(trtgrp)) {
-  tgp <- getZfromMatch(stratum)
-} else {
-  tgp <- trtgrp
-}
-
-if (!any(tgp<=0) | !any(tgp>0))
+if (!any(trtgrp<=0) | !any(trtgrp>0))
    warning("No variation in (trtgrp>0); was this intended?")
 
 stopifnot(is.numeric(min.controls), is.numeric(max.controls))
@@ -24,13 +28,14 @@ stopifnot(is.numeric(min.controls), is.numeric(max.controls))
 if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
 if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-comp.num.matched.pairs <- effectiveSampleSize(stratum, tgp)
 
 stratum <- as.integer(as.factor(stratum))
 if (any(is.na(stratum)))
   stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
-ttab <- table(stratum,as.logical(tgp))
+ttab <- table(stratum,as.logical(trtgrp))
+comp.num.matched.pairs <- effectiveSampleSize(ttab)
+
 max.tx <- round(1/min.controls[1])
 max.controls <- round(max.controls[1])
 txsz <- pmin(ttab[,2], max.tx)
@@ -57,8 +62,15 @@ tnn[i.ctl][onez] <- 1
 ans <- ans[order(-tnn[i.tx],tnn[i.ctl])]
 
 attr(ans, "comparable.num.matched.pairs") <- comp.num.matched.pairs
+class(ans) <- append(class(ans), "stratumStructure")
 ans
 }  
+
+#' @S3method print stratumStructure
+print.stratumStructure <- function(x, ...) {
+  attr(x, "comparable.num.matched.pairs") <- NULL
+  print.table(x, ...)
+}
 
 getZfromMatch <- function(m) { 
   if (!is.null(attr(m, "contrast.group"))) {
@@ -73,7 +85,7 @@ getZfromMatch <- function(m) {
   stop("Unable to find 'contrast.group' attribute (treatment indicator)")
 }
 
-#' (Internal) Compute the effective sample size of a match.
+#' Compute the effective sample size of a match.
 #'
 #' The effective sample size is the sum of the harmonic means of the number
 #' units in treatment and control for each matched group. For k matched pairs,
@@ -85,17 +97,37 @@ getZfromMatch <- function(m) {
 #' @param z A treatment indicator, a vector the same length as \code{match}.
 #' This is only required if the \code{match} object does not contain the
 #' contrast.group' attribute.
+#' @seealso \code{\link{summary.optmatch}}, \code{\link{stratumStructure}}
 #' @return The equivalent number of pairs in this match.
-effectiveSampleSize <- function(x, z = NULL) {
+effectiveSampleSize <- function(x, z = NULL) UseMethod("effectiveSampleSize")
+
+effectiveSampleSize.factor <- function(x, z = NULL) {
   if (is.null(z)) {
     z <- getZfromMatch(x)
   }
+
+  effectiveSampleSize.default(x,z)
+}
+
+effectiveSampleSize.default <- function(x, z = NULL) {
+
+  if (missing(z) || is.null(z)) stop("default effectiveSampleSize method requires a treatment indicator, z") 
 
   wasMatched <- !is.na(x)
 
   if (!any(wasMatched)) { return(0) }
   
-  totals <- table(x[wasMatched], z[wasMatched])
+  totals <- table(x[wasMatched], as.logical(z)[wasMatched])
+  effectiveSampleSize.table(totals, z)
+}
 
-  sum(2/(1/totals[,1] + 1/totals[,2]))
+effectiveSampleSize.table <- function(x, z = NULL) {
+
+  stopifnot(length(dim(x))==2, ncol(x)==1 || ncol(x)==2,
+            all(colnames(x) %in% c("FALSE","TRUE")))
+
+  if (ncol(x)==1 | nrow(x)==0) return(0)
+
+  sum(2/(1/x[,"FALSE"] + 1/x[,"TRUE"]))
+
 }

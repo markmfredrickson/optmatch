@@ -9,7 +9,7 @@ test_that("ISM Basics", {
   A <- makeInfinitySparseMatrix(c(1,2,3), cols = c(1,2, 2), rows = c(1,1,2))
   expect_is(A, "InfinitySparseMatrix")
   expect_equal(dim(A), c(2,2))
-  
+
   # converting to the equivalent matrix
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   expect_equivalent(as.matrix(A), m)
@@ -33,10 +33,6 @@ test_that("ISM Basics", {
   expect_equivalent(as(D, "matrix"), y)
   expect_equivalent(A, as(m, "InfinitySparseMatrix"))
 
-  # should not be able to convert non-numeric matrices
-  charmat <- matrix(letters[1:4], nrow = 2, dimnames = list(c(1,2), c(3,4)))
-  expect_error(as.InfinitySparseMatrix(charmat))
-
 })
 
 test_that("ISM Handles Names", {
@@ -45,7 +41,7 @@ test_that("ISM Handles Names", {
                               control = c("C", "D")))
 
   expect_equal(as.matrix(as(m, "InfinitySparseMatrix")), m)
-  
+
   A <- makeInfinitySparseMatrix(c(1,2,3), rows = c(1,1,2), cols = c(1,2,2))
   expect_true(is.null(dimnames(A)))
 
@@ -66,7 +62,7 @@ test_that("Math Ops", {
   expect_equivalent(as.matrix(A - 1), m - 1)
   expect_equivalent(as.matrix(A * 2), m * 2)
   expect_equivalent(as.matrix(A / 2), m / 2)
-  
+
   # matrix element wise math
   expect_equivalent(as.matrix(A + A), m + m)
 
@@ -120,14 +116,97 @@ test_that("Math Ops", {
   expect_equal(A + C, A  + B)
 })
 
+test_that("Math ops with vectors", {
 
+  # Small matrix with manual calculation
+  m <- matrix(c(1, 4, 2, 3), nrow = 2, ncol = 2)
+  A <- optmatch:::as.InfinitySparseMatrix(m)
+  v <- 1:2
+
+  expect_true(all.equal(attributes(A), attributes(A/v)))
+  expect_true(all.equal(attributes(A), attributes(A*v)))
+  expect_true(all.equal(attributes(A), attributes(A-v)))
+  expect_true(all.equal(attributes(A), attributes(A+v)))
+  expect_true(all.equal(attributes(A), attributes(A^v)))
+  expect_true(all.equal(attributes(A), attributes(A%%v)))
+  expect_true(all.equal(attributes(A), attributes(A%/%v)))
+
+  expect_true(all.equal(attributes(A), attributes(v/A)))
+  expect_true(all.equal(attributes(A), attributes(v*A)))
+  expect_true(all.equal(attributes(A), attributes(v-A)))
+  expect_true(all.equal(attributes(A), attributes(v+A)))
+  expect_true(all.equal(attributes(A), attributes(v^A)))
+  expect_true(all.equal(attributes(A), attributes(v%%A)))
+  expect_true(all.equal(attributes(A), attributes(v%/%A)))
+
+  expect_true(all(as.vector(A/v) == c(1,2,2,3/2)))
+  expect_true(all(as.vector(A*v) == c(1,8,2,6)))
+  expect_true(all(as.vector(A+v) == c(2,6,3,5)))
+  expect_true(all(as.vector(A-v) == c(0,2,1,1)))
+  expect_true(all(as.vector(A^v) == c(1,16,2,9)))
+  expect_true(all(as.vector(A%%v) == c(0,0,0,1)))
+  expect_true(all(as.vector(A%/%v) == c(1,2,2,1)))
+
+  expect_true(all(as.vector(v/A) == c(1,1/2, 1/2, 2/3)))
+  expect_true(all(as.vector(v*A) == c(1,8,2,6)))
+  expect_true(all(as.vector(v+A) == c(2,6,3,5)))
+  expect_true(all(as.vector(v-A) == c(0,-2,-1,-1)))
+  expect_true(all(as.vector(v^A) == c(1,16,1,8)))
+  expect_true(all(as.vector(v%%A) == c(0,2,1,2)))
+  expect_true(all(as.vector(v%/%A) == c(1,0,0,0)))
+
+  # Logical operations
+  m2 <- m
+  m2[1,2] <- Inf
+  A2 <- optmatch:::as.InfinitySparseMatrix(m2)
+  expect_is(A2 <= c(1,3), "InfinitySparseMatrix")
+  expect_equal(as.vector(A2 <= c(1,3)), c(T, F, T))
+  expect_equal(as.vector(c(1,3) >= A2), c(T, F, T))
+
+  # BlockedInfinitySparseMatrix
+  x <- c(rep(1,4), rep(2,2), rep(3,5))
+  set.seed(1)
+  y <- runif(11)
+  z <- c(0,0,1,0,1,0,1,1,0,0,0)
+
+  A <- match_on(z~y, within=exactMatch(z~x))
+  m <- as.matrix(A)
+  v <- 1:5
+
+  options(warn=-1)
+  expect_true(all(as.matrix(A/v) == m/v))
+  expect_true(all(as.matrix(A*v) == m*v))
+  expect_true(all(as.matrix(A+v) == m+v))
+  expect_true(all(as.matrix(A-v) == m-v))
+  expect_true(all(as.matrix(A^v) == m^v))
+  expect_true(all(as.matrix(A%%v) == m%%v, na.rm=TRUE))
+  expect_true(all(as.matrix(A%/%v) == m%/%v, na.rm=TRUE))
+  vm <- v/m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v/A) == vm))
+  expect_true(all(as.matrix(v*A) == v*m))
+  expect_true(all(as.matrix(v+A) == v+m))
+  vm <- v-m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v-A) == vm))
+  vm <- v^m
+  vm[!is.finite(as.matrix(A))] <- Inf
+  expect_true(all(as.matrix(v^A) == vm))
+  expect_true(all(as.matrix(v%%A) == v%%m, na.rm=TRUE))
+  expect_true(all(as.matrix(v%/%A) == v%/%m, na.rm=TRUE))
+  options(warn=0)
+
+  # Error on non-numeric input
+  expect_error("a"*A, "non-numeric")
+
+})
 
 test_that("Subsetting", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   rownames(m) <- c("A", "B")
   colnames(m) <- c("C", "D")
   A <- as.InfinitySparseMatrix(m)
-  
+
   res.sub <- subset(A, c(TRUE, FALSE))
   expect_equal(res.sub@.Data, c(1, 2))
   expect_equal(res.sub@cols, c(1,2))
@@ -148,16 +227,16 @@ test_that("cbinding ISMs and matrices", {
 
   # and the names should be uniquified (that's a word, really!)
   expect_equal(length(unique(colnames(res.AA))), 4)
-  
+
   # same for matrices
   expect_warning(res.Am <- cbind(A, m))
   expect_equal(res.Am, res.AA)
-  
+
   # flipped name order shouldn't matter
   m2 <- m
   rownames(m2) <- c("B", "A")
   expect_warning(res.Am2 <- cbind(A, m2))
-  
+
   m4 <- matrix(1, nrow = 2, ncol = 3)
   rownames(m4) <- c("A", "C")
   colnames(m4) <- c("X", "Y", "Z")
@@ -167,7 +246,7 @@ test_that("cbinding ISMs and matrices", {
   rownames(m5) <- c("A", "B", "C")
   colnames(m5) <- c("X", "Y")
   expect_error(cbind(A, m5))
- 
+
 })
 
 test_that("rbinding ISMs and matrices", {
@@ -186,12 +265,12 @@ test_that("rbinding ISMs and matrices", {
 
   res.Am <- rbind(A, m)
   expect_equal(res.Am, res.AA)
-  
+
   # flipped column names should not matter
   m2 <- m
   colnames(m2) <- c("D", "C")
   expect_warning(res.Am2 <- rbind(A, m2))
-  
+
   m4 <- matrix(1, nrow = 2, ncol = 2)
   rownames(m4) <- c("A", "B")
   colnames(m4) <- c("X", "Y")
@@ -215,7 +294,7 @@ test_that("t(ransform) function", {
   A <- as.InfinitySparseMatrix(m)
 
   expect_equal(as.matrix(t(A)), t(m))
-  
+
 })
 
 ################################################################################
@@ -226,17 +305,17 @@ test_that("BlockedISM addition", {
   Z <- rep(c(0,1), 8)
   B1 <- rep(1:4, each = 4)
   B2 <- rep(c(0,1), each = 8)
-  
+
   res.b1 <- exactMatch(Z ~ B1)
   res.b2 <- exactMatch(Z ~ B2)
 
   res.b1b1 <- res.b1 + res.b1
   expect_equal(res.b1b1@groups, res.b1@groups)
-  
+
   # should use the smaller of the two's groups
   res.b2b1 <- res.b2 + res.b1
   expect_equal(res.b2b1@groups, res.b1@groups)
-  
+
   expect_is(res.b2 + 1, "BlockedInfinitySparseMatrix")
   expect_is(res.b2 + matrix(1, nrow = 8, ncol = 8),
     "BlockedInfinitySparseMatrix")
@@ -244,5 +323,41 @@ test_that("BlockedISM addition", {
     "BlockedInfinitySparseMatrix")
 })
 
+test_that("Get subproblem size of each block", {
+  Z <- rep(c(0,1), 8)
+  B1 <- c(rep('a',3),rep('b', 3), rep('c', 6), rep('d', 4))
+  B2 <- c(rep(0, 7), rep(1, 9))
+  B3 <- c('a', rep('b', 15)) # group a has no treatment.
 
+  res.b1 <- exactMatch(Z ~ B1)
+  res.b2 <- exactMatch(Z ~ B2)
+  res.b3 <- exactMatch(Z ~ B3)
 
+  expect_equal(subdim(res.b1), list('a' = c(1, 2),'b' = c(2, 1),'c' = c(3, 3),'d' = c(2, 2)))
+  expect_equal(subdim(res.b2), list('0' = c(3, 4),'1' = c(5, 4)))
+  expect_equal(subdim(res.b3), list('b' = c(8, 7)))
+
+  m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
+              dimnames = list(control = c("A", "B"),
+                  treated = c("C", "D")))
+  a <- as.InfinitySparseMatrix(m)
+
+  # subdim on a matrix or non-blocked ISM is equivalent to calling dim
+  expect_equal(subdim(m), list(dim(m)))
+  expect_equal(subdim(a), list(dim(a)))
+
+  # test on optmatch.dlist
+  od <- list(matrix(c(0,0,0,0, Inf,Inf,Inf,Inf, rep(0, 12)), nrow = 2, ncol = 10, dimnames = list(letters[1:2], letters[3:12])),
+             matrix(c(0,0,0,0, rep(Inf, 16)), byrow = T, nrow = 5, ncol = 4, dimnames = list(letters[10:14], letters[15:18])))
+
+  class(od) <- c("optmatch.dlist", "list")
+
+  expect_equal(subdim(od), list(c(2, 10), c(5, 4)))
+
+  # test on DenseMatrix
+  W <- rnorm(16)
+
+  m <- match_on(Z ~ W)
+
+  expect_equal(subdim(m), list(dim(m)))
+})
