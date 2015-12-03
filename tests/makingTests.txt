@@ -1,6 +1,0 @@
-Two options:
-1. Run R CMD check and copy myTest.Rout to to <pkg>/tests.myTest.Rout.save
-2. If using sh or bash,
-   R --vanilla < myTest.R > myTest.Rout.save 2>&1 
-If using csh,
-   R --vanilla < myTest.R >&! myTest.Rout.save 
