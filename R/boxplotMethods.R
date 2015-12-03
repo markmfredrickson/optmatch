@@ -1,3 +1,4 @@
+#' @importFrom graphics boxplot
 #' @export
 boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
   {
