@@ -1,13 +1,15 @@
 setOldClass(c("optmatch.dlist", "list"))
 
+#' @export
 mdist <- function(x, structure.fmla = NULL, ...) {
   cl <- match.call()
   UseMethod("mdist", x)
 }
-getCall.optmatch.dlist <- function(x, ...) attr(x, "call") 
+getCall.optmatch.dlist <- function(x, ...) attr(x, "call")
 
 
 # mdist method: optmatch.dlist
+#' @export
 mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
   return(x)
 } # just return the argument
@@ -19,6 +21,7 @@ mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
 # and the controls in the stratum. It could then return the matrix of
 # mdists, which the rest of the function would markup with rownames
 # etc.
+#' @export
 mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
 
   if (is.null(data) || is.null(structure.fmla)) {
@@ -83,6 +86,7 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
 }
 
 # mdist method: formula
+#' @export
 mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
   mf <- match.call(expand.dots=FALSE)
   if (!exists("cl")) cl <- match.call()
@@ -139,6 +143,7 @@ update.formula(fmla, structure.fmla)
 }
 
 # mdist method: glm
+#' @export
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
   if (!exists("cl")) cl <- match.call()
@@ -180,7 +185,7 @@ makedistOptmatchDlist(structure.fmla,
 }
 
 szn.scale <- function(x,Tx,standardizer=mad,...) {
-sqrt( ((sum(!Tx)-1)*standardizer(x[!Tx])^2 + 
+sqrt( ((sum(!Tx)-1)*standardizer(x[!Tx])^2 +
        (sum(!!Tx)-1)*standardizer(x[!!Tx])^2)/
      (length(x)-2)
      )
@@ -206,6 +211,7 @@ parseFmla <- function(fmla) {
 
 
 # mdist method: bigglm
+#' @export
 mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.scale=mad, ...)
 {
   if (is.null(data))
@@ -249,6 +255,7 @@ ans <- mdist(psdiffs, structure.fmla=structure.fmla,
 ### (mdist can't work with numeric vectors at present,
 ### but it can return an informative error message).
 
+#' @export
 mdist.numeric <- function(x, structure.fmla = NULL, trtgrp=NULL, ...) {
   stop("No method exists for 'numeric' objects. See 'mdist.formula' for an alternative.")
 }
@@ -260,7 +267,7 @@ makedistOptmatchDlist <- function(structure.fmla, data,
                                 names(trtvar)[!trtvar]))},
                      ...)
   {
-  if (!attr(terms(structure.fmla), "response")>0) 
+  if (!attr(terms(structure.fmla), "response")>0)
     stop("structure.fmla must specify a treatment group variable")
   fn <- match.fun(fn)
 
@@ -270,9 +277,9 @@ makedistOptmatchDlist <- function(structure.fmla, data,
   if (!is.null(attr(structure.fmla, "generation.increment")))
     pframe.generation <- pframe.generation +
       attr(structure.fmla, "generation.increment")
-  
+
   zpos <- attr(terms(structure.fmla), "response")
-  vars <- eval(attr(terms(structure.fmla), "variables"), data, 
+  vars <- eval(attr(terms(structure.fmla), "variables"), data,
              parent.frame(n=pframe.generation))
   zzz <- vars[[zpos]]
   if (!is.numeric(zzz) & !is.logical(zzz))
@@ -310,7 +317,7 @@ if (length(vars)>0)
         { stop("fn should always return matrices")}
       if (length(ans[[ii]])!=max(length(dn1), length(dn2)))
         { stop(paste("unuseable fn value for stratum", names(ans)[ii]))}
-      
+
       if (is.null(names(ans[[ii]])))
           {
            ans[[ii]] <-  matrix(ans[[ii]], length(dn1), length(dn2),
@@ -340,14 +347,14 @@ if (length(vars)>0)
                     "dimnames of fn value don't match unit names in stratum",
                          names(ans)[ii])) }
         }
-      
+
       }
   }
 
   if (NMFLG){
 warning("fn value not given dimnames; assuming they are list(names(trtvar)[trtvar], names(trtvar)[!trtvar])")}
 
-  
+
   attr(ans, 'row.names') <- names(zzz)
   class(ans) <- c('optmatch.dlist', 'list')
   ans
@@ -355,10 +362,10 @@ warning("fn value not given dimnames; assuming they are list(names(trtvar)[trtva
 
 old.mahal.dist <- function(distance.fmla, data, structure.fmla=NULL, inverse.cov=NULL)
   {
-    
+
 if (is.null(structure.fmla))
   {
-  if (!attr(terms(distance.fmla,data=data), "response")>0) 
+  if (!attr(terms(distance.fmla,data=data), "response")>0)
     stop("either distance.fmla or structure.fmla must specify a treatment group variable")
   structure.fmla <- update.formula(distance.fmla, .~1,data=data)
   structure.fmla <- terms.formula(structure.fmla, data=data)
@@ -393,13 +400,13 @@ sf.vars <- sf.vars[sf.vars %in% names(data)]
 if (is.null(inverse.cov))
   {
     zpos <- attr(terms(structure.fmla,data=data), "response")
-    vars <- eval(attr(terms(structure.fmla,data=data), "variables"), data, 
+    vars <- eval(attr(terms(structure.fmla,data=data), "variables"), data,
                  parent.frame())
     zz <- vars[[zpos]]
     if (!(is.numeric(zz) || is.logical(zz)))
       stop("Treatment variable should be logical or numeric")
     zz <- zz > 0
-    
+
   cv <- cov(dfr[as.logical(zz), ,drop=FALSE])*(sum(zz)-1)/(length(zz)-2)
   cv <- cv + cov(dfr[!zz,,drop=FALSE])*(sum(!zz)-1)/(length(zz)-2)
   icv <- try( solve(cv), silent=TRUE)
@@ -430,10 +437,10 @@ if (is.null(inverse.cov))
     {
       icvnm <- gsub("TRUE$", "", dimnames(inverse.cov)[[1]])
       dfrnm <- gsub("TRUE$", "", dimnames(dfr)[[2]])
-      if (!isTRUE(all.equal(icvnm, dfrnm)))    stop("dimnames of inverse.cov don't match names of data terms") 
+      if (!isTRUE(all.equal(icvnm, dfrnm)))    stop("dimnames of inverse.cov don't match names of data terms")
     }
   if (is.null(dimnames(inverse.cov)) & dim(inverse.cov)[1] > 1) warning("inverse.cov lacks dimnames so I can't confirm it's aligned with data terms.")
-  
+
 icv <- inverse.cov
 }
 attr(structure.fmla, 'generation.increment') <- 1
@@ -449,9 +456,9 @@ makedistOptmatchDlist(structure.fmla, dfr,
 
 
 optmatch.mahalanobis <- function(trtvar, dat, inverse.cov)
-  {  
+  {
   myMH <- function(Tnms, Cnms, inv.cov, data) {
-   stopifnot(!is.null(dimnames(inv.cov)[[1]]), 
+   stopifnot(!is.null(dimnames(inv.cov)[[1]]),
              all.equal(dimnames(inv.cov)[[1]], dimnames(inv.cov)[[2]]),
              all(dimnames(inv.cov)[[1]] %in% names(data)))
    covars <- dimnames(inv.cov)[[1]]
@@ -494,11 +501,10 @@ te <- try(lapply(trtvar.ctlnms,
 }
 if (inherits(te, 'try-error') )
       {stop(unclass(te)) } else ans <- unlist(te)
-          
+
   }
 dim(ans) <- c(sum(trtvar), sum(!trtvar))
 
   dimnames(ans) <- list(names(trtvar)[trtvar], names(trtvar)[!trtvar])
   ans
   }
-

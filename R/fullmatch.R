@@ -183,6 +183,7 @@ fullmatch <- function(x,
   UseMethod("fullmatch")
 }
 
+#' @export
 fullmatch.default <- function(x,
     min.controls = 0,
     max.controls = Inf,
@@ -222,6 +223,7 @@ fullmatch.default <- function(x,
   out
 }
 
+#' @export
 fullmatch.numeric <- function(x,
     min.controls = 0,
     max.controls = Inf,
@@ -246,6 +248,8 @@ fullmatch.numeric <- function(x,
   attr(out, "call") <- cl
   out
 }
+
+#' @export
 
 fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
     min.controls = 0,
