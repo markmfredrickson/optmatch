@@ -83,6 +83,7 @@ pairmatch <- function(x,
   UseMethod("pairmatch")
 }
 
+#' @export
 pairmatch.default <- function(x,
                       controls = 1,
                       data = NULL,
@@ -119,6 +120,7 @@ pairmatch.default <- function(x,
   out
 }
 
+#' @export
 pairmatch.numeric <- function(x,
                       controls = 1,
                       data = NULL,
@@ -139,6 +141,7 @@ pairmatch.numeric <- function(x,
 }
 
 
+#' @export
 pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <- pairmatch.BlockedInfinitySparseMatrix <- function(x,
                       controls = 1,
                       data = NULL,

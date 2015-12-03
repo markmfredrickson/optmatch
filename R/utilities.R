@@ -58,7 +58,7 @@ dist_digest <- function(dist) {
   if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {
     csave <- attr(dist, "call")
     attr(dist, "call") <- NULL
-    out <- digest(dist)
+    out <- digest::digest(dist)
     attr(dist, "call") <- csave
     return(out)
   }

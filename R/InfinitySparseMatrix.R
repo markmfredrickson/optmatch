@@ -73,6 +73,7 @@ makeInfinitySparseMatrix <- function(data, cols, rows, colnames = NULL,
 }
 
 ### Basic Matrix-like Operations and Conversions ###
+#' @export
 dim.InfinitySparseMatrix <- function(x) {
   return(x@dimension)
 }
@@ -128,6 +129,7 @@ as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 #' @param value A list with two entries: the treated names and control names, respectively.
 #' @return A list with treated and control names.
 #' @rdname dimnames-InfinitySparseMatrix
+#' @export
 setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   if (is.null(x@rownames) & is.null(x@colnames)) {
     return(NULL)
@@ -136,6 +138,7 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
 })
 
 #' @rdname dimnames-InfinitySparseMatrix
+#' @export
 setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
   if (length(value) != 2) {
     # message copied from matrix method

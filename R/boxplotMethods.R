@@ -1,3 +1,4 @@
+#' @export
 boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
   {
     if (is.null(data))
@@ -12,6 +13,7 @@ boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, sym
 boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main,...)
   }
 
+#' @export
 boxplot.bigglm <- function(x, data,xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
   {
   if (is.null(data)) {

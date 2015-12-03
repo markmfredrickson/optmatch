@@ -119,6 +119,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @seealso \code{\link{scores}}
 #' @method match_on glm
 #' @rdname match_on-methods
+#' @export
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
 
   stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
@@ -175,6 +176,7 @@ match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
 #'
 #' @method match_on bigglm
 #' @rdname match_on-methods
+#' @export
 match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
@@ -239,6 +241,7 @@ are there missing values in data?")
 #'   created distance function.
 #' @method match_on formula
 #' @rdname match_on-methods
+#' @export
 match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
@@ -449,6 +452,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #'   level) and control (the lower level) for each unit in the study.
 #' @method match_on function
 #' @rdname match_on-methods
+#' @export
 match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
@@ -483,6 +487,7 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 #' For the numeric method, \code{x} must have names.
 #' @method match_on numeric
 #' @rdname match_on-methods
+#' @export
 match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
 
   if(missing(z) || is.null(z)) {
@@ -581,6 +586,7 @@ scoreCaliper <- function(x, z, caliper) {
 #'
 #' @rdname match_on-methods
 #' @method match_on InfinitySparseMatrix
+#' @export
 match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
   if (!is.null(data)) {
@@ -594,6 +600,7 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 
 #' @rdname match_on-methods
 #' @method match_on matrix
+#' @export
 match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
 
   if (!is.null(data)) {
