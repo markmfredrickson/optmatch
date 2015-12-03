@@ -1,12 +1,12 @@
 # Constant to control the maximum feasible (sub)problem
 MAX_FEASIBLE <- 1e07
 
-# (Internal) Sets up the default values for maximum feasible problems
-#
-# @return NULL
+#' (Internal) Sets up the default values for maximum feasible problems
+#'
+#' @return NULL
 setFeasibilityConstants <- function() {
   options("optmatch_warn_on_big_problem" = TRUE)
-  options("optmatch_max_problem_size" = MAX_FEASIBLE)    
+  options("optmatch_max_problem_size" = MAX_FEASIBLE)
 }
 
 #' What is the maximum allowed problem size?
@@ -24,7 +24,7 @@ setFeasibilityConstants <- function() {
 getMaxProblemSize <- function() {
   tmp <- options("optmatch_max_problem_size")[[1]]
   if (is.null(tmp[[1]])) {
-    return(MAX_FEASIBLE)  
+    return(MAX_FEASIBLE)
   }
   return(tmp[[1]])
 }
@@ -39,9 +39,9 @@ getMaxProblemSize <- function() {
 #'
 #' \code{x} is a formula of the form \code{Z ~ X1 + X2}, where
 #' \code{Z} is indicates treatment or control status, and \code{X1} and \code{X2} are variables
-#' can be converted to factors. Any additional arguments are passed to \code{\link{model.frame}} 
+#' can be converted to factors. Any additional arguments are passed to \code{\link{model.frame}}
 #' (e.g., a \code{data} argument containing \code{Z}, \code{X1}, and \code{X2}).
-#' 
+#'
 #' The the arguments \code{scores} and \code{width} must be passed together.
 #' The function will apply the caliper implied by the scores and the width while
 #' also adding in blocking factors.
@@ -56,12 +56,12 @@ getMaxProblemSize <- function() {
 minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
 
   if (length(x) < 3) {
-    stop("Formula must be of the form Z ~ X1 + X2 + ...")  
+    stop("Formula must be of the form Z ~ X1 + X2 + ...")
   }
 
   if ((is.null(scores) && !is.null(width) || (!is.null(scores) && is.null(width)))) {
     stop("You must pass both 'scores' and 'width' arguments")
-  } 
+  }
 
   parts <- rownames(attr(terms(x), "factors"))
 
@@ -85,18 +85,18 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
 
   for(i in 1:k) {
     fmla <- as.formula(paste(lhs, "~", paste(rhs[1:i], collapse = "+")),
-                       env = attr(x, ".Environment")) 
-  
+                       env = attr(x, ".Environment"))
+
     # generate a data.frame of treatment status and the blocking factor:
     z.b <- fmla2treatedblocking(fmla, ...)
-  
+
     # we create a new factor that includes all previous levels.
     B <- factor(z.b$B, levels = c(levels(previous), levels(z.b$B)))
     B[!is.na(previous)] <- previous[!is.na(previous)]
     B <- factor(B) # toss unused levels
-   
+
     if (!is.null(scores)) {
-      arcs <- caliperSize(scores, z.b$Z, width, structure = B) 
+      arcs <- caliperSize(scores, z.b$Z, width, structure = B)
     } else {
       arcs <- tapply(z.b$Z, list(B), function(grp) { sum(grp) * sum(1 - grp) })
     }
@@ -109,7 +109,7 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
         }
 
       names(B) <- rownames(z.b)
-      return(B)  
+      return(B)
     }
 
     previous <- factor(B, levels = names(arcs)[good])
@@ -118,54 +118,54 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
   stop("Unable to create sufficiently small problem. Please provide more stratifying variables.")
 }
 
-# (Internal) A helper function to turn formulas into treatment and blocking variables
-#
-# Given a function and any of the arguments normally passed to model.frame,
-# this function will return a data.frame with two columns: a treatment indicator
-# and a blocking factor.
-#
-# @param x A formula
-# @param ... Arguments to be passed to model.frame (e.g. \code{data})
-# @return data.frame containing two columns: \code{Z} is a treatment indicator, 
-# \code{B} is a blocking factor
+#' (Internal) A helper function to turn formulas into treatment and blocking variables
+#'
+#' Given a function and any of the arguments normally passed to model.frame,
+#' this function will return a data.frame with two columns: a treatment indicator
+#' and a blocking factor.
+#'
+#' @param x A formula
+#' @param ... Arguments to be passed to model.frame (e.g. \code{data})
+#' @return data.frame containing two columns: \code{Z} is a treatment indicator,
+#' \code{B} is a blocking factor
 fmla2treatedblocking <- function(x, ...) {
-  
+
   mf <- model.frame(x, ...)
 
   blocking <- interaction(mf[,-1])
   treatment <- toZ(mf[,1])
-  
+
   df <- data.frame(Z = treatment, B = blocking)
   return(df)
 }
 
-# (Internal) Determines how many other units fall within a caliper distance
-#
-# The matching functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
-# have a maximum problem size, based on the number of comparisons between treated
-# and control units. For a completely dense problem, in which every treated units
-# is compared to every control unit there are \code{length(treated) *
-# length(control)} comparisons. A caliper restricts which comparisons are valid,
-# disallowing matches of treated and control pairs that are too far apart. A
-# caliper can significantly decrease the size of a matching problem. The
-# \code{caliperSize} function reports exactly who many valid treated-control
-# comparisons remain after applying a caliper of the given width.
-# 
-# @param scores A numeric vector of scores providing 1-D position of units
-# @param z Treatment indicator vector
-# @param width Width of caliper, must be positive
-# @param structure Grouping factor to use in computation
-# @return numeric Total number of pairwise distances remaining after the caliper is placed.
+#' (Internal) Determines how many other units fall within a caliper distance
+#'
+#' The matching functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
+#' have a maximum problem size, based on the number of comparisons between treated
+#' and control units. For a completely dense problem, in which every treated units
+#' is compared to every control unit there are \code{length(treated) *
+#' length(control)} comparisons. A caliper restricts which comparisons are valid,
+#' disallowing matches of treated and control pairs that are too far apart. A
+#' caliper can significantly decrease the size of a matching problem. The
+#' \code{caliperSize} function reports exactly who many valid treated-control
+#' comparisons remain after applying a caliper of the given width.
+#'
+#' @param scores A numeric vector of scores providing 1-D position of units
+#' @param z Treatment indicator vector
+#' @param width Width of caliper, must be positive
+#' @param structure Grouping factor to use in computation
+#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperSize <- function(scores, z, width, structure = NULL) {
   if (width <= 0) {
     stop("Invalid caliper width. Width must be positive.")
   }
-  
+
   if (is.null(structure)) {
     z <- toZ(z)
     treated <- scores[z]
     control <- scores[!z]
-  
+
     # the following uses findInterval, which requires a sorted vector
     # there may be a speed increase in pulling out the guts of that function and calling them directly
     control <- sort(control)
@@ -179,53 +179,54 @@ caliperSize <- function(scores, z, width, structure = NULL) {
   # structure is supplied. split up the problem in to blocks and solve those
   results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperSize(x$scores, x$z, width) })
   return(results)
-    
+
 }
 # small <- data.frame(y = sample.int(100, 1000, replace = T), z = rep(c(1,0), 500))
 # medium <- data.frame(y = sample.int(1000,10000, replace = T), z = rep(c(1,0), 5000))
 # big <- data.frame(y = sample.int(10000,100000, replace = T), z = rep(c(1,0), 50000))
-# 
+#
 # system.time(optmatch:::caliperSize(small$y, small$z, 10))
 # system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
 # system.time(optmatch:::caliperSize(big$y, big$z, 1000))
 #
 # navie algorithm timings
 # 1.6 GHZ Intel Core Duo, 2 GB RAM (used one process, memory did not seem to be an issue)
-# 
+#
 # > system.time(optmatch:::caliperSize(small$y, small$z, 10))
-#    user  system elapsed 
-#   0.030   0.003   0.034 
+#    user  system elapsed
+#   0.030   0.003   0.034
 # > system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
-#    user  system elapsed 
-#   2.259   0.011   2.286 
+#    user  system elapsed
+#   2.259   0.011   2.286
 # > system.time(optmatch:::caliperSize(big$y, big$z, 1000))
 # ^C ... this was taking a long time.
-# Timing stopped at: 171.166 29.095 209.98 
+# Timing stopped at: 171.166 29.095 209.98
 #
 # scaling is much worse than linear. Probably n^2.
 #
 # New version, 2 core 2GHZ i7, 8GB RAM
 # > system.time(optmatch:::caliperSize(small$y, small$z, 10))
-#    user  system elapsed 
-#   0.013   0.002   0.016 
+#    user  system elapsed
+#   0.013   0.002   0.016
 # > system.time(optmatch:::caliperSize(medium$y, medium$z, 100))
-#    user  system elapsed 
-#   0.332   0.001   0.333 
+#    user  system elapsed
+#   0.332   0.001   0.333
 # > system.time(optmatch:::caliperSize(big$y, big$z, 1000))
-#    user  system elapsed 
+#    user  system elapsed
 #  29.820   1.584  31.406
 #
 # Not exactly linear, but not bad!
 
-# (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
-# 
-# @param scores A numeric vector of scores providing 1-D position of units
-# @param z Treatment indicator vector
-# @param width Width of caliper, must be positive.
-# @param structure Optional factor variable that groups the scores, as would
-# be used by \code{\link{exactMatch}}. Including structure allows for wider
-# calipers.
-# @return numeric Total number of pairwise distances remaining after the caliper is placed.
+#' (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
+#'
+#' @param scores A numeric vector of scores providing 1-D position of units
+#' @param z Treatment indicator vector
+#' @param width Width of caliper, must be positive.
+#' @param structure Optional factor variable that groups the scores, as would
+#' be used by \code{\link{exactMatch}}. Including structure allows for wider
+#' calipers.
+#' @importFrom graphics hist
+#' @return numeric Total number of pairwise distances remaining after the caliper is placed.
 caliperUpperBound <- function(scores, z, width, structure = NULL) {
 
   if (width <= 0) {
@@ -240,15 +241,15 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 
     # the `cut` docs indicate this funciton is faster to get the counts
     control.counts <- hist(control, breaks = bins, plot = FALSE)$counts
- 
+
     where.treated <- findInterval(treated, bins)
     upper.bound <- 0
     for (i in where.treated) {
-      a <- control.counts[i - 1] 
-      b <- control.counts[i + 1] 
+      a <- control.counts[i - 1]
+      b <- control.counts[i + 1]
       upper.bound <- upper.bound + control.counts[i] + ifelse(is.na(a), 0, a) + ifelse(is.na(b), 0, b)
     }
-    
+
     return(upper.bound)
   }
 
@@ -287,12 +288,12 @@ maxCaliper <- function(scores, z, widths, structure = NULL, exact = TRUE) {
 
   f <- caliperUpperBound
   if (exact) { f <- caliperSize}
-  
+
   for (w in widths) {
     if(all(f(scores, z, w, structure = structure) <= getMaxProblemSize())) {
       return(w)
-    } 
+    }
   }
-  
+
  stop("Insufficiently small caliper size. Please consider smaller values.")
 }
