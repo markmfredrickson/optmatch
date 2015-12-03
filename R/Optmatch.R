@@ -39,6 +39,11 @@ NA
 # S4 class compatability
 setOldClass(c("optmatch", "factor"))
 
+#' @useDynLib optmatch
+#' @importFrom Rcpp sourceCpp
+NULL
+#> NULL
+
 ####### Object Creation #########
 
 # (Internal) Create \code{optmatch} objects, the result of matching.

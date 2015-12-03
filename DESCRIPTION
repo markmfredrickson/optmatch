@@ -37,6 +37,7 @@ Collate:
     'InfinitySparseMatrix.R'
     'Ops.optmatch.dlist.R'
     'Optmatch.R'
+    'RcppExports.R'
     'abs.optmatch.dlist.R'
     'boxplotMethods.R'
     'caliper.R'

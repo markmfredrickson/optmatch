@@ -1,5 +1,7 @@
 #include "ism.h"
 #include <numeric>
+#include <Rcpp.h>
+using namespace Rcpp;
 
 // compare row col positions
 int cmp(int rowA, int colA, int rowB, int colB) {
@@ -23,7 +25,7 @@ void ismSortIndex (const Rcpp::IntegerVector & rows,
   i = index[n / 2];
   p[0] = rows[i];
   p[1] = cols[i];
-    
+
   for (i = 0, j = n - 1;; ++i, --j) {
     ii = index[i];
     ij = index[j];
@@ -59,14 +61,15 @@ int ismLubIndex(int findRow, int findCol,
     unsigned m = (left  +  right) / 2;
     if(m >= n) return m;
     int ma = index[m];
-    if (cmp(rows[ma], cols[ma], findRow, findCol) < 0) 
+    if (cmp(rows[ma], cols[ma], findRow, findCol) < 0)
       left = m + 1;
-    else 
+    else
       right = m;
   }
   return right;
 }
 
+// [[Rcpp::export]]
 SEXP ismOps(SEXP o, SEXP a, SEXP b) {
   Rcpp::S4
     ismA(a), ismB(b);
@@ -93,7 +96,7 @@ SEXP ismOps(SEXP o, SEXP a, SEXP b) {
     found = 0, lastFound = 0,
     nPairs = 0;
   Rcpp::IntegerMatrix pairs(indexA.size(), 2);
-  
+
   for (i = 0; i < indexA.size() && lastFound < indexB.size(); ++i) {
     ia = indexA[i];
     found = ismLubIndex(rowsA[ia], colsA[ia],

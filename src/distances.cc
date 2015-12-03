@@ -11,7 +11,7 @@
          rows from data. The mahal distance between the two rows will be
          calculated
        SEXP invScaleMat: matrix inverse of the covariates of the data;
-         used to calc the mahal distance 
+         used to calc the mahal distance
      returns: SEXP results, a real vector (double precision) of distances
        between particular pairs of rows from data as indicated by index
 
@@ -24,6 +24,7 @@
        hash map (GNU libc extension) is used to hash the rownames of data
        to row indexes.
  */
+// [[Rcpp::export]]
 SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   int
     j, k,
@@ -39,7 +40,7 @@ SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   // which are not used
   SEXP row_names, cl;
   const char * rn, * cn;
-  GetMatrixDimnames(data, &row_names, &cl, &rn, &cn); 
+  GetMatrixDimnames(data, &row_names, &cl, &rn, &cn);
   MAP * strpos = create_map(row_names);
 
   // alloc space for the result
@@ -71,7 +72,7 @@ SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
     }
     real_result[i] = sqrt(sum);
   }
-  
+
   // free the storage for the rowname hash
   delete_map(strpos);
 

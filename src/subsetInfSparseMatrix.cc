@@ -2,6 +2,10 @@
 
 #include<Rdefines.h>
 
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
     SEXP
         rows = GET_SLOT(x, Rf_install("rows")),
