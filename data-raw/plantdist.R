@@ -8,4 +8,6 @@ plantdist <- matrix(nrow=7, ncol=19,byrow=TRUE,data=c(
 14,32,29,30,18,24,17,16,10,22,12,10,17, 6,16,14, 4, 8,17),
 dimnames=list(c("A","B","C","D","E","F","G"),
 c("H","I","J","K","L","M","N","O","P","Q","R",
-"S","T","U","V","W","X","Y","Z")))
+  "S","T","U","V","W","X","Y","Z")))
+
+devtools::use_data(plantdist, overwrite=TRUE)
