@@ -1,0 +1,6 @@
+Makefile
+load.R
+check.R
+checkspelling.R
+lexicon.txt
+^data-raw$
