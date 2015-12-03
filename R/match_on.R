@@ -273,21 +273,21 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   if (dim(mf)[2] < 2) {
     stop("Formula must have a right hand side with at least one variable.")
   }
-  
+
   # we want to use our own contrasts creating function
   isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
   c.arg <- lapply(isF, function(fname) {
     if (nlevels(mf[[fname]]) < 2) {
       return(NULL)
-    } 
+    }
     contr.match_on(nlevels(mf[[fname]]))
   })
-                
+
   names(c.arg) <- isF
 
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
-  
+
   mf <- na.omit(mf)
 
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
@@ -340,7 +340,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 makeWithinFromStrata <- function(x, data)
 {
   xs <- findStrata(x, data)
-  
+
   em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
   within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
                              data=data)
@@ -407,7 +407,7 @@ compute_mahalanobis <- function(index, data, z) {
 
     rm(cv)
 
-    return(.Call(mahalanobisHelper, data, index, inv.scale.matrix))
+    return(mahalanobisHelper(data, index, inv.scale.matrix))
 }
 
 
@@ -415,7 +415,7 @@ compute_euclidean <- function(index, data, z) {
 
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
 
-  return(.Call(mahalanobisHelper, data, index, diag(ncol(data))))
+  return(mahalanobisHelper(data, index, diag(ncol(data))))
 }
 
 
@@ -425,7 +425,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
     }
 
     return(
-        .Call('r_smahal', index, data, z, PACKAGE='optmatch')
+        r_smahal(index, data, z, PACKAGE='optmatch')
     )
 }
 
