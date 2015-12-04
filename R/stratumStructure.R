@@ -13,6 +13,8 @@
 ##'   \code{min.controls}.
 ##' @param max.controls For display, the number of control group
 ##'   members will be truncated at \code{max.controls}.
+##' @param x stratumStructure object to be printed.
+##' @param ... Additional arguments to \code{print}.
 ##' @return A table showing frequency of occurrence of those
 ##'   treatment:control ratios that occur.
 ##'
