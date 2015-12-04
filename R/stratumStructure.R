@@ -102,9 +102,11 @@ getZfromMatch <- function(m) {
 #' @seealso \code{\link{summary.optmatch}}, \code{\link{stratumStructure}}
 #' @return The equivalent number of pairs in this match.
 #' @export
+#' @rdname effectiveSampleSize
 effectiveSampleSize <- function(x, z = NULL) UseMethod("effectiveSampleSize")
 
 #' @export
+#' @rdname effectiveSampleSize
 effectiveSampleSize.factor <- function(x, z = NULL) {
   if (is.null(z)) {
     z <- getZfromMatch(x)
@@ -114,6 +116,7 @@ effectiveSampleSize.factor <- function(x, z = NULL) {
 }
 
 #' @export
+#' @rdname effectiveSampleSize
 effectiveSampleSize.default <- function(x, z = NULL) {
 
   if (missing(z) || is.null(z)) stop("default effectiveSampleSize method requires a treatment indicator, z")
@@ -127,6 +130,7 @@ effectiveSampleSize.default <- function(x, z = NULL) {
 }
 
 #' @export
+#' @rdname effectiveSampleSize
 effectiveSampleSize.table <- function(x, z = NULL) {
 
   stopifnot(length(dim(x))==2, ncol(x)==1 || ncol(x)==2,
