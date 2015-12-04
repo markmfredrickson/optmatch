@@ -292,8 +292,17 @@ function(e1, e2) {
 # Manipulating matrices: subset, cbind, rbind, etc
 ################################################################################
 
-# we match the subset.matrix semantics: subset = rows, select = columns, both logical
-#' @export
+##' This matches the syntax and semantics of
+##' \link{\code{subset.matrix}}.
+##'
+##' @title Subsetting for InfinitySparseMatricies
+##' @param x InfinitySparseMatrix to be subset or bound.
+##' @param subset Logical expression indicating rows to keep.
+##' @param select Logical expression indicating columns to keep.
+##' @param ... Other arguments are ignored.
+##' @return An InfinitySparseMatrix with only the selected elements.
+##' @author Mark Fredrickson
+##' @export
 subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
 
   xdim <- dim(x)
@@ -337,7 +346,20 @@ discardOthers <- function(x, index) {
 }
 
 
-#' @export
+##' This matches the syntax and semantics of
+##' \link{\code{cbind}} and \link{\code{rbind}}.
+##'
+##' @title Combine InfinitySparseMatrices or
+##'   BlockedInfinitySparseMatrices by row or column
+##' @param x An InfinitySparseMatrix or BlockedInfinitySparseMatrix,
+##'   agreeing with \code{y} in the appropriate dimension.
+##' @param y An InfinitySparseMatrix or BlockedInfinitySparseMatrix,
+##'   agreeing with \code{x} in the appropriate dimension.
+##' @param ... Other arguments ignored.
+##' @return A combined InfinitySparseMatrix or BlockedInfinitySparseMatrix
+##' @author Mark Fredrickson
+##' @export
+##' @rdname cbindrbind
 cbind.InfinitySparseMatrix <- function(x, y, ...) {
   y <- as.InfinitySparseMatrix(y) # this is a noop if y is an ISM
 
@@ -376,7 +398,8 @@ cbind.InfinitySparseMatrix <- function(x, y, ...) {
 # I don't know that calling t(cbind(t(x), t(y))) is the correct solution
 # (at least the error messages will be wrong)
 
-#' @export
+##' @export
+##' @rdname cbindrbind
 rbind.InfinitySparseMatrix <- function(x, y, ...) {
   y <- as.InfinitySparseMatrix(y) # this is a noop if y is an ISM
 
@@ -465,14 +488,15 @@ t.BlockedInfinitySparseMatrix <- function(x) {
   return(tmp)
 }
 
-### Cbind/rbind
-#' @export
+##' @export
+##' @rdname cbindrbind
 cbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   # demote the blocked representation to a regular ISM and call the usual cbind method
   cbind(as.InfinitySparseMatrix(x), y, ...)
 }
 
-#' @export
+##' @export
+##' @rdname cbindrbind
 rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   # demote the blocked representation to a regular ISM and call the usual cbind method
   rbind(as.InfinitySparseMatrix(x), y, ...)
