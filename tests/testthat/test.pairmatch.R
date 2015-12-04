@@ -7,17 +7,13 @@ library(optmatch)
 
 context("pairmatch function")
 
-# test whether two matches are the same. Uses all.equal on matched.distances
-# and exceedances to ignore errors below some tolerance. After checking those,
-# strips attributes that may differ but not break `identical` status.
+# test whether two matches are the same. Uses all.equal on exceedances
+# to ignore errors below some tolerance. After checking those, strips
+# attributes that may differ but not break `identical` status.
 match_compare <- function(match1, match2) {
-  expect_true(all.equal(attr(match1, "matched.distances"),
-                        attr(match2, "matched.distances")))
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
 
-  attr(match1, "matched.distances") <- NULL
-  attr(match2, "matched.distances") <- NULL
   attr(match1, "hashed.distance") <- NULL
   attr(match2, "hashed.distance") <- NULL
   attr(match1, "exceedances") <- NULL
@@ -187,8 +183,6 @@ test_that("pairmatch UI cleanup", {
   names(Z) <- row.names(test.data)
   pm.vector <- pairmatch(X1,z=Z, data=test.data, caliper=2)
   expect_warning(pm.vector2 <- pairmatch(X1,z=Z, caliper=2))
-  # should be the same, but different group names
-  expect_true(all.equal(attr(pm.vector, "matched.distances"), attr(pm.vector2, "matched.distances")))
 
   m <- match_on(X1, z=Z, caliper=2)
   pm.mi <- pairmatch(m, data=test.data)
@@ -231,8 +225,8 @@ test_that("pairmatch warns when given a 'within' arg that it's going to ignore",
     B <- rep(1:3, each = 2)
     names(B) <- letters[1:6]
     em <- exactMatch(B, rep(c(0,1), 3))
-    expect_warning(pairmatch(m, within=em), "gnor")    
-    expect_warning(pairmatch(as.InfinitySparseMatrix(m), within=em), "gnor")    
+    expect_warning(pairmatch(m, within=em), "gnor")
+    expect_warning(pairmatch(as.InfinitySparseMatrix(m), within=em), "gnor")
 })
 
 test_that("NAs in irrelevant data slots don't trip us up", {
@@ -246,4 +240,14 @@ test_that("NAs in irrelevant data slots don't trip us up", {
   rm(X1)
   rm(B)
   expect_equal(length(pairmatch(Z~X1, data=test.data)), n)
+})
+
+test_that("matched.distances attr removed per #57", {
+  data(nuclearplants)
+
+  p1 <- pairmatch(glm(pr ~ t1 + ne, data=nuclearplants, family=binomial),
+                  within=exactMatch(pr ~ ne, data=nuclearplants),
+                  data=nuclearplants)
+
+  expect_true(is.null(attr(p1, "matched.distances")))
 })
