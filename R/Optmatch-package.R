@@ -5,4 +5,5 @@ NULL
 
 
 #' @importFrom survival strata
+#' @import methods
 NULL
