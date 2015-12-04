@@ -1,6 +1,84 @@
 setOldClass(c("optmatch.dlist", "list"))
 
-#' @export
+##' Deprecated in favor of \code{\link{match_on}}
+##'
+##' The \code{mdist} method provides three ways to construct a
+##' matching distance (i.e., a distance matrix or suitably organized
+##' list of such matrices): guided by a function, by a fitted model,
+##' or by a formula.  The class of the first argument given to
+##' \code{mdist} determines which of these methods is invoked.
+##'
+##' The \code{mdist.function} method takes a function of two
+##' arguments. When called, this function will receive the treatment
+##' observations as the first argument and the control observations as
+##' the second argument. As an example, the following computes the raw
+##' differences between values of \code{t1} for treatment units (here,
+##' nuclear plants with \code{pr==1}) and controls (here, plants with
+##' \code{pr==0}), returning the result as a distance matrix:
+##'
+##' \code{sdiffs <- function(treatments, controls) {
+##'      abs(outer(treatments$t1, controls$t1, `-`))
+##'    }
+##'  }
+##'
+##'  The \code{mdist.function} method does similar things as the
+##'  earlier optmatch function \code{makedist}, although the interface
+##'  is a bit different.
+##'
+##'  The \code{mdist.formula} method computes the squared Mahalanobis
+##'  distance between observations, with the right-hand side of the
+##'  formula determining which variables contribute to the Mahalanobis
+##'  distance. If matching is to be done within strata, the
+##'  stratification can be communicated using either the
+##'  \code{structure.fmla} argument (e.g. \code{~ grp}) or as part of
+##'  the main formula (e.g. \code{z ~ x1 + x2 | grp}).
+##'
+##'  An \code{mdist.glm} method takes an argument of class \code{glm}
+##'  as first argument.  It assumes that this object is a fitted
+##'  propensity model, extracting distances on the linear propensity
+##'  score (logits of the estimated conditional probabilities) and, by
+##'  default, rescaling the distances by the reciprocal of the pooled
+##'  s.d. of treatment- and control-group propensity scores.  (The
+##'  scaling uses \code{mad}, for resistance to outliers, by default;
+##'  this can be changed to the actual s.d., or rescaling can be
+##'  skipped entirely, by setting argument
+##'  \code{standardization.scale} to \code{sd} or \code{NULL},
+##'  respectively.)  A \code{mdist.bigglm} method works analogously
+##'  with \code{bigglm} objects, created by the \code{bigglm} function
+##'  from package \sQuote{biglm}, which can handle bigger data sets
+##'  than the ordinary glm function can.  In contrast with
+##'  \code{mdist.glm} it requires additional \code{data} and
+##'  \code{structure.fmla} arguments.  (If you have enough data to
+##'  have to use \code{bigglm}, then you'll probably have to subgroup
+##'  before matching to avoid memory problems. So you'll have to use
+##'  the \code{structure.fmla} argument anyway.)
+##'
+##' @title (Deprecated, in favor of \code{\link{match_on}}) Create
+##'   matching distances
+##' @param x The object to use as the basis for forming the mdist.
+##'   Methods exist for formulas, functions, and generalized linear
+##'   models.
+##' @param structure.fmla A formula denoting the treatment variable on
+##'   the left hand side and an optional grouping expression on the
+##'   right hand side. For example, \code{z ~ 1} indicates no
+##'   grouping. \code{z ~ s} subsets the data only computing distances
+##'   within the subsets formed by \code{s}. See method notes, below,
+##'   for additional formula options.
+##' @param ... Additional method arguments. Most methods require a
+##'   'data' argument.
+##' @return Object of class \code{optmatch.dlist}, which is suitable
+##'   to be given as \code{distance} argument to
+##'   \code{\link{fullmatch}} or \code{\link{pairmatch}}.
+##' @author Mark M. Fredrickson
+##' @references P.~R. Rosenbaum and D.~B. Rubin (1985),
+##'   \sQuote{Constructing a control group using multivariate matched
+##'   sampling methods that incorporate the propensity score},
+##'   \emph{The American Statistician}, \bold{39} 33--38.
+##' @seealso \code{\link{fullmatch}}, \code{\link{pairmatch}},
+##'   \code{\link{match_on}}
+##' @keywords nonparametric
+##' @export
+##' @rdname mdist
 mdist <- function(x, structure.fmla = NULL, ...) {
   cl <- match.call()
   UseMethod("mdist", x)
@@ -8,8 +86,8 @@ mdist <- function(x, structure.fmla = NULL, ...) {
 getCall.optmatch.dlist <- function(x, ...) attr(x, "call")
 
 
-# mdist method: optmatch.dlist
-#' @export
+##' @export
+##' @rdname mdist
 mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
   return(x)
 } # just return the argument
@@ -21,7 +99,8 @@ mdist.optmatch.dlist <- function(x, structure.fmla = NULL, ...) {
 # and the controls in the stratum. It could then return the matrix of
 # mdists, which the rest of the function would markup with rownames
 # etc.
-#' @export
+##' @export
+##' @rdname mdist
 mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
 
   if (is.null(data) || is.null(structure.fmla)) {
@@ -85,8 +164,8 @@ mdist.function <- function(x, structure.fmla = NULL, data = NULL, ...) {
   return(ans)
 }
 
-# mdist method: formula
-#' @export
+##' @export
+##' @rdname mdist
 mdist.formula <- function(x, structure.fmla = NULL, data = NULL, subset=NULL,...) {
   mf <- match.call(expand.dots=FALSE)
   if (!exists("cl")) cl <- match.call()
@@ -142,8 +221,8 @@ structure.fmla[[l]] <- as.call(c(as.name("+"), as.name("."), structure.fmla[[l]]
 update.formula(fmla, structure.fmla)
 }
 
-# mdist method: glm
-#' @export
+##' @export
+##' @rdname mdist
 mdist.glm <- function(x, structure.fmla = NULL, standardization.scale=mad, ...)
 {
   if (!exists("cl")) cl <- match.call()
@@ -209,9 +288,8 @@ parseFmla <- function(fmla) {
 
 }
 
-
-# mdist method: bigglm
-#' @export
+##' @export
+##' @rdname mdist
 mdist.bigglm <- function(x, structure.fmla = NULL, data = NULL, standardization.scale=mad, ...)
 {
   if (is.null(data))
@@ -254,8 +332,8 @@ ans <- mdist(psdiffs, structure.fmla=structure.fmla,
 ### mdist method: numeric.
 ### (mdist can't work with numeric vectors at present,
 ### but it can return an informative error message).
-
-#' @export
+##' @export
+##' @rdname mdist
 mdist.numeric <- function(x, structure.fmla = NULL, trtgrp=NULL, ...) {
   stop("No method exists for 'numeric' objects. See 'mdist.formula' for an alternative.")
 }
