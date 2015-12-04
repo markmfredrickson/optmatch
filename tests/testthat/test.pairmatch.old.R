@@ -19,13 +19,15 @@ test_that("pairmatch", {
   expect_warning(f2 <- fullmatch(plantdist, max.controls = 2, min.controls = 2, omit.fraction = 1 - 14/19))
   expect_equal(stripCall(f2), stripCall(p2))
 
-  expect_error(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
+  # plantdist has several 0's, so it won't fail everywhere.
+#  expect_error(pairmatch(plantdist + caliper(plantdist, 1))) # Matching fails everywhere
 
   expect_warning(p3 <- pairmatch(plantdist + caliper(plantdist, 5, compare = `<`),
                                  remove.unmatchables=TRUE)) # Matching works after removing plant 'F'
   expect_warning(f3 <- fullmatch(plantdist + caliper(plantdist, 5, compare = `<`),
                                  max.controls = 1, min.controls = 0, omit.fraction = 1 - 6/19))
-  expect_equal(stripCall(f3), stripCall(p3))
+
+  expect_true(all.equal(f3,p3, check.attributes=FALSE))
 
   data(nuclearplants)
   # in both of match_on calls below use sd to maintain backwards compatibility with
@@ -42,8 +44,9 @@ test_that("pairmatch", {
 
   expect_true(all.equal(summary(pm)$total.distance, 25.83338, tolerance=1e-5))
 
+  ## We no longer throw an error when a subclass fails
   # again an error would be thrown (which R CMD CHECK does not like)
-  expect_error(pairmatch(caliper(match_on(psm, standardization.scale = sd,
-     within = exactMatch(pr ~ pt, data =
-     nuclearplants)), width=2))) # Fails in subclass '1'
+  #expect_error(pairmatch(caliper(match_on(psm, standardization.scale = sd,
+  #   within = exactMatch(pr ~ pt, data =
+  #   nuclearplants)), width=2))) # Fails in subclass '1'
 })
