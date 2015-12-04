@@ -40,7 +40,7 @@
 ##' @seealso \code{\link{fullmatch}}
 ##'
 ##' @examples
-##' plantdist <- matrix(nrow=7, ncol=19,byrow=TRUE,data=c( 28, 0,
+##' plantdist <- matrix(nrow=7, ncol=19,byrow=TRUE,data=c(28, 0,
 ##'   3,22,14,30,17,28,26,28,20,22,23,26,21,18,34,40,28, 24, 3,
 ##'   0,22,10,27,14,26,24,24,16,19,20,23,18,16,31,37,25, 10,18,14,18,
 ##'   4,12, 6,11, 9,10,14,12, 6,14,22,10,16,22,28, 7,28,24, 8,14,
@@ -50,7 +50,7 @@
 ##'   14,32,29,30,18,24,17,16,10,22,12,10,17, 6,16,14, 4, 8,17),
 ##'   dimnames=list(c("A","B","C","D","E","F","G"),
 ##'   c("H","I","J","K","L","M","N","O","P","Q","R",
-##'   "S","T","U","V","W","X","Y","Z")))
+##'   "S","T","U","V","W","X","Y","Z"))))
 ##'
 ##' mxpl.fm0 <- fullmatch(plantdist) # A feasible matching problem
 ##' c(sum(matched(mxpl.fm0)), sum(unmatched(mxpl.fm0)))
@@ -81,8 +81,6 @@
 ##'
 ##' mxpl.fm2[unmatched(mxpl.fm2) &   # isolated units return as
 ##'          !matchfailed(mxpl.fm2)] # unmatched but not matchfailed
-##'
-##' }
 ##'
 ##' @keywords manip
 ##' @author Ben Hansen
