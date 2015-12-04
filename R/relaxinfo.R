@@ -1,4 +1,10 @@
-#' @export
+##' Function to display license information regarding code embedded in
+##' \code{optmatch}.
+##'
+##' @title Display license information about embedded code
+##' @return Some information about licenses of code and algorithms on
+##'   which \code{fullmatch} depends.
+##' @author Ben B. Hansen
 relaxinfo <- function() {
   if (!interactive()) {
     cat(
