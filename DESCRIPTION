@@ -38,6 +38,7 @@ Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
     'Ops.optmatch.dlist.R'
+    'Optmatch-package.R'
     'Optmatch.R'
     'RcppExports.R'
     'abs.optmatch.dlist.R'
