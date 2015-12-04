@@ -293,7 +293,7 @@ function(e1, e2) {
 ################################################################################
 
 ##' This matches the syntax and semantics of
-##' \link{\code{subset.matrix}}.
+##' subset for matrices.
 ##'
 ##' @title Subsetting for InfinitySparseMatricies
 ##' @param x InfinitySparseMatrix to be subset or bound.
@@ -347,7 +347,7 @@ discardOthers <- function(x, index) {
 
 
 ##' This matches the syntax and semantics of
-##' \link{\code{cbind}} and \link{\code{rbind}}.
+##' cbind and rbind for matrices.
 ##'
 ##' @title Combine InfinitySparseMatrices or
 ##'   BlockedInfinitySparseMatrices by row or column
@@ -582,4 +582,5 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
 }
 
 # Splits out the blocked matrix into its consitutent parts
+#' @export
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
