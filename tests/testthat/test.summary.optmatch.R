@@ -35,12 +35,13 @@ test_that("summary.optmatch", {
   # total.distances remain the same
   #expect_equal(summary(pairmatch(psd, controls=2, data = nuclearplants))$total.distance, 225.83338)
 
-  # check for warning if RItools not loaded
-  if ("RItools" %in% loadedNamespaces()) {
-    detach("package:RItools", unload=TRUE)
-  }
-  s2 <- summary(psfm, propensity.model=psm)
-  expect_true(!is.null(s2$warnings))
+  # RItools is loaded directly, so this occasion can not happen
+  # without PEBKAC.
+  ## if ("RItools" %in% loadedNamespaces()) {
+  ##   detach(package:RItools, unload=TRUE)
+  ## }
+  ## s2 <- summary(psfm, propensity.model=psm)
+  ## expect_true(!is.null(s2$warnings))
 
   require('RItools')
   s3 <- summary(psfm, propensity.model='foo')
