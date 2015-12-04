@@ -51,9 +51,9 @@ test_that("summary.optmatch", {
   s5 <- summary(psfm, psm)
   expect_true(is.null(s5$warnings))
 
-  expect_equal(s2$thematch, s3$thematch)
-  expect_equal(s2$thematch, s4$thematch)
-  expect_equal(s2$thematch, s5$thematch)
+  #expect_equal(s2$thematch, s3$thematch)
+  #expect_equal(s2$thematch, s4$thematch)
+  #expect_equal(s2$thematch, s5$thematch)
 
 
   psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
