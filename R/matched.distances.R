@@ -1,3 +1,4 @@
+#' @export
 matched.distances <- function(matchobj, distance, preserve.unit.names = FALSE)
 {
   stopifnot(inherits(matchobj,"optmatch"))
@@ -9,7 +10,7 @@ matched.distances <- function(matchobj, distance, preserve.unit.names = FALSE)
       tmp <- as.vector(subset(distance, subset = rs, select = cs, drop = !preserve.unit.names))
 
       if (sum(rs) > sum(cs)) {
-        names(tmp) <- rownames(distance)[rs]  
+        names(tmp) <- rownames(distance)[rs]
       }
 
       if (sum(cs) > sum(rs)) {

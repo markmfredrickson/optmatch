@@ -1,6 +1,7 @@
+#' @export
 maxControlsCap <- function(distance, min.controls = NULL)
 {
-  # check if it is valid distance specification, 
+  # check if it is valid distance specification,
   # if not through an error message explaining the issue
   validDistanceSpecification(distance, stopOnProblem = TRUE)
 
@@ -14,9 +15,9 @@ maxControlsCap <- function(distance, min.controls = NULL)
 
   # notes: idc is a vector where each entry is which subclass the unit is in
   # the names of idc map back to the units
-  # 
+  #
 
-  # deleted a lot of the stuff surrounding subclass.indices, saving this 
+  # deleted a lot of the stuff surrounding subclass.indices, saving this
   # for reference
   # idc <- factor(c(rep(dnm, unlist(lapply(distance,function(x){dim(x)[1]}))),
   #              rep(dnm, unlist(lapply(distance,function(x){dim(x)[2]})))))
@@ -28,22 +29,22 @@ maxControlsCap <- function(distance, min.controls = NULL)
   #       }
   # rns <- names(idc)
   rns <- c(nmtrt, nmctl)
-  
+
   # min.controls is valid if it is a scalar or a vector with the same names as sps
-  if(length(min.controls) > 1 & 
+  if(length(min.controls) > 1 &
      (!all(names(min.controls) %in% names(sps)) |
      !all(names(sps) %in% names(min.controls)))) {
-    stop("Names of 'min.controls' must match the subproblems. See 'findSubproblems' and 'exactMatch'.") 
+    stop("Names of 'min.controls' must match the subproblems. See 'findSubproblems' and 'exactMatch'.")
   }
 
   # if min.controls is null we set it to 0 by default
   if(is.null(min.controls)) {
-    min.controls <- 0  
-  } 
+    min.controls <- 0
+  }
 
   # make it into a well named vector of min.control values
   if(length(min.controls) == 1) {
-    min.controls <- rep(min.controls, length(sps))  
+    min.controls <- rep(min.controls, length(sps))
     names(min.controls) <- names(sps)
   }
 
@@ -66,7 +67,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
 
     temp <- SubDivStrat(rownames = trnl, colnames = tcnl, distspec = tdm,
       max.cpt = min(tlmxc, ncol),
-      min.cpt = max(tgmnc, 1/nrow), tolerance=.5, 
+      min.cpt = max(tgmnc, 1/nrow), tolerance=.5,
       omit.fraction = NULL)
 
     # IF THE PROBLEM IS FEASIBLE, SET TLMXC TO GREATEST OBTAINED
@@ -104,7 +105,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
 # (BUT FIRST, CHECK THAT TLMXC ISN'T ALREADY AS LARGE AS IT CAN GET)
         if (min(1/tgmnc,length(trnl))!=max(1, 1/tlmxc))
         {
-          tlmxc <- 
+          tlmxc <-
             optimize( function(invlmxc) {
                 ifelse(!all(is.na(SubDivStrat(rownames = tcnl,
                                         colnames = trnl,
@@ -115,15 +116,15 @@ maxControlsCap <- function(distance, min.controls = NULL)
                                         omit.fraction = NULL)$cells)),
                        invlmxc, -invlmxc)
                 },
-                upper = min(1/tgmnc,length(trnl)), 
+                upper = min(1/tgmnc,length(trnl)),
                 lower = max(1, 1/tlmxc),
-                tol = 1, 
-                maximum = TRUE 
+                tol = 1,
+                maximum = TRUE
                 )$objective
             tlmxc <- 1/floor(tlmxc)
-        } 
+        }
       } else
-      {  
+      {
 # TREAT USUAL CASE, LMXC WILL BE SOMEWHERE ABOVE MAX(GMNC, 1)
 # (BUT FIRST, CHECK THAT TLMXC ISN'T ALREADY AS LARGE AS IT CAN GET)
         if (max(tgmnc,1)!=min(length(tcnl), tlmxc))
@@ -141,7 +142,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
                 dist1=tdm, gmnc1=tgmnc, omf1=omf
                 )$objective )
         } }
-        
+
     }
   return(tlmxc)
   }
@@ -150,4 +151,3 @@ maxControlsCap <- function(distance, min.controls = NULL)
 
   return(list(given.min.controls = min.controls, strictest.feasible.max.controls = max.controls))
 }
- 

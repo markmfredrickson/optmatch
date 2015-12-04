@@ -2,9 +2,9 @@
 # details.
 
 setClassUnion("OptionalCall", c("call", "NULL"))
-setClass("DenseMatrix", 
+setClass("DenseMatrix",
   representation(call = "OptionalCall"),
   contains = "matrix")
 
-#' @S3method as.matrix DenseMatrix
+#' @export
 as.matrix.DenseMatrix <- function(x, ...) { x@.Data }

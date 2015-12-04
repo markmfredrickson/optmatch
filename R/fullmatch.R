@@ -161,13 +161,13 @@ setTryRecovery <- function() {
 #' @keywords nonparametric optimize
 #' @export
 fullmatch <- function(x,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    mean.controls = NULL,
-    tol = .001,
-    data = NULL,
-    ...) {
+                      min.controls = 0,
+                      max.controls = Inf,
+                      omit.fraction = NULL,
+                      mean.controls = NULL,
+                      tol = .001,
+                      data = NULL,
+                      ...) {
 
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
@@ -185,14 +185,14 @@ fullmatch <- function(x,
 
 #' @export
 fullmatch.default <- function(x,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    mean.controls = NULL,
-    tol = .001,
-    data = NULL,
-    within = NULL,
-    ...) {
+                              min.controls = 0,
+                              max.controls = Inf,
+                              omit.fraction = NULL,
+                              mean.controls = NULL,
+                              tol = .001,
+                              data = NULL,
+                              within = NULL,
+                              ...) {
 
   if (!inherits(x, gsub("match_on.","",methods("match_on")))) {
     stop("Invalid input, must be a potential argument to match_on")
@@ -225,15 +225,15 @@ fullmatch.default <- function(x,
 
 #' @export
 fullmatch.numeric <- function(x,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    mean.controls = NULL,
-    tol = .001,
-    data = NULL,
-    z,
-    within = NULL,
-    ...) {
+                              min.controls = 0,
+                              max.controls = Inf,
+                              omit.fraction = NULL,
+                              mean.controls = NULL,
+                              tol = .001,
+                              data = NULL,
+                              z,
+                              within = NULL,
+                              ...) {
 
   m <- match_on(x, within=within, z=z, ...)
   out <- fullmatch(m,
@@ -250,16 +250,15 @@ fullmatch.numeric <- function(x,
 }
 
 #' @export
-
-fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <- fullmatch.BlockedInfinitySparseMatrix <- function(x,
-    min.controls = 0,
-    max.controls = Inf,
-    omit.fraction = NULL,
-    mean.controls = NULL,
-    tol = .001,
-    data = NULL,
-    within = NULL,
-    ...) {
+fullmatch.matrix <- function(x,
+                             min.controls = 0,
+                             max.controls = Inf,
+                             omit.fraction = NULL,
+                             mean.controls = NULL,
+                             tol = .001,
+                             data = NULL,
+                             within = NULL,
+                             ...) {
 
   ### Checking Input ###
 
@@ -540,6 +539,13 @@ fullmatch.matrix <- fullmatch.optmatch.dlist <- fullmatch.InfinitySparseMatrix <
   return(mout)
 }
 
+
+#' @export
+fullmatch.optmatch.dlist <- fullmatch.matrix
+#' @export
+fullmatch.InfinitySparseMatrix <- fullmatch.matrix
+#' @export
+fullmatch.BlockedInfinitySparseMatrix <- fullmatch.matrix
 
 #' @aliases fullmatch
 #' @rdname fullmatch

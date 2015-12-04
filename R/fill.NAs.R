@@ -3,6 +3,7 @@
 ### method. Missingness indicators are added for each column that is
 ### imputed.
 
+#' @export
 fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   # if x is present alone, it must be a data.frame
   # if x is present with data, x is a formula
@@ -32,7 +33,7 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   }
 
   withStrata <- findStrata(x, data)
- 
+
   data <- as.data.frame(data) # in case it is a matrix
   ttt <- terms(withStrata$newx, data = data)
 
@@ -58,7 +59,7 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   # }
   result <- modmat
   newfmla <- x
-  
+
   if(any(original.NAs)) {
 
     # indicator columns for missing data.trimmed, only for original missing columns, not transforms
@@ -92,11 +93,11 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
 
   if (length(withStrata$strata) > 0) {
     sformula      <- as.formula(paste("~", paste(withStrata$strata, collapse = "+")))
-    tmp           <- model.frame(sformula, data = data, na.action = na.pass) 
+    tmp           <- model.frame(sformula, data = data, na.action = na.pass)
     colnames(tmp) <- all.vars(sformula)
     result        <- cbind(result, tmp)
   }
-  
+
 
   attr(result, "terms") <- terms(newfmla, data = data, specials = "strata")
 

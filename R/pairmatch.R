@@ -140,14 +140,13 @@ pairmatch.numeric <- function(x,
   out
 }
 
-
 #' @export
-pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <- pairmatch.BlockedInfinitySparseMatrix <- function(x,
-                      controls = 1,
-                      data = NULL,
-                      remove.unmatchables = FALSE,
-                      within = NULL,
-                      ...) {
+pairmatch.matrix <- function(x,
+                             controls = 1,
+                             data = NULL,
+                             remove.unmatchables = FALSE,
+                             within = NULL,
+                             ...) {
 
   validDistanceSpecification(x) # will stop() on error
 
@@ -210,6 +209,12 @@ pairmatch.matrix <- pairmatch.optmatch.dlist <- pairmatch.InfinitySparseMatrix <
   return(out)
 }
 
+#' @export
+pairmatch.optmatch.dlist <- pairmatch.matrix
+#' @export
+pairmatch.InfinitySparseMatrix <- pairmatch.matrix
+#' @export
+pairmatch.BlockedInfinitySparseMatrix <- pairmatch.matrix
 
 #' @aliases pairmatch
 #' @rdname pairmatch

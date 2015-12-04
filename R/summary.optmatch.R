@@ -13,9 +13,9 @@
 #' @return \code{optmatch.summary}
 #' @seealso \code{\link{print.optmatch}}
 #' @method summary optmatch
-#' @S3method summary optmatch
 #' @rdname optmatch
 #' @importFrom RItools xBalance
+#' @export
 summary.optmatch <- function(object,
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
@@ -110,8 +110,8 @@ summary.optmatch <- function(object,
   so
 }
 
-print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...)
-  {
+#' @export
+print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...) {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
 
   numsubprob <- length(levels(attr(x$thematch, "subproblem")))
@@ -157,4 +157,4 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
       do.call(cat, warns)
     }
   invisible(x)
-  }
+}

@@ -1,3 +1,4 @@
+#' @export
 Ops.optmatch.dlist <- function (e1, e2=NULL)
 {
     ok <- switch(.Generic, "%%" = , "%/%" = FALSE, TRUE)
@@ -129,17 +130,20 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
   }
 
 ###### Other optmatch.dlist common methods #####
+#' @export
 dim.optmatch.dlist <- function(x) {
   dims <- lapply(x, dim)
   return(Reduce(function(x,y) { c(x[1] + y[1], x[2] + y[2])}, dims, c(0,0)))
 }
 
+#' @export
 dimnames.optmatch.dlist <- function(x) {
   dnms <- lapply(x, dimnames)
   return(Reduce(function(x,y) {list(treated = c(x$treated, y[[1]]), control =
   c(x$control, y[[2]]))}, dnms, list(treated = c(), control = c())))
 }
 
+#' @export
 as.matrix.optmatch.dlist <- function(x, ...) {
   xdim <- dim(x)
   tmp <- matrix(Inf, nrow = xdim[1], ncol = xdim[2], dimnames = dimnames(x))
@@ -153,13 +157,14 @@ as.matrix.optmatch.dlist <- function(x, ...) {
   return(tmp)
 }
 
+#' @export
 subset.optmatch.dlist <- function(x, subset, select, ...) {
   subset(as.matrix(x), subset, select, ...)
 }
 
 
-##' @method subdim optmatch.dlist
-##' @rdname subdim-methods
+#' @rdname subdim-methods
+#' @export
 subdim.optmatch.dlist <- function(x) {
   lapply(x, dim)
 }

@@ -46,22 +46,22 @@ NULL
 
 ####### Object Creation #########
 
-# (Internal) Create \code{optmatch} objects, the result of matching.
-#
-# This internal function is used to create the final output of the matching
-# functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
-# \code{optmatch} object descends from a \code{factor}, but contains additional
-# information relating to the quality of the match.
-#
-# @param distance A \code{DistanceSpecificaton} object used to create the
-#  match.
-# @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
-# @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
-# @param data An object from which \code{names} or \code{row.names} will
-#  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
-# @return \code{optmatch} object
-#
-# @seealso \code{\link{summary.optmatch}}
+#' (Internal) Create \code{optmatch} objects, the result of matching.
+#'
+#' This internal function is used to create the final output of the matching
+#' functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
+#' \code{optmatch} object descends from a \code{factor}, but contains additional
+#' information relating to the quality of the match.
+#'
+#' @param distance A \code{DistanceSpecificaton} object used to create the
+#'  match.
+#' @param solutions A list of the results of the matching, one \code{list(cells,maxErr)} object per subproblem.
+#' @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
+#' @param data An object from which \code{names} or \code{row.names} will
+#'  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
+#' @return \code{optmatch} object
+#'
+#' @seealso \code{\link{summary.optmatch}}
 makeOptmatch <- function(distance,
                          solutions,
                          call,
@@ -135,6 +135,7 @@ makeOptmatch <- function(distance,
 
 ####### Subsetting and other manipulations #########
 
+#' @export
 "[.optmatch" <-
   function(x, ..., drop=FALSE)
 {
@@ -228,18 +229,19 @@ optmatch_same_distance <- function(obj, newdist) {
 
   return(attr(obj, "hashed.distance") == dist_digest(newdist))
 }
-##' Performs an update on an \code{optmatch} object.
-##'
-##' NB: THIS CODE IS CURRENTLY VERY MUCH ALPHA AND SOMEWHAT UNTESTED, ESPECIALLY CALLING \code{update} ON AN
-##' OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
-##'
-##' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
-##' \code{optmatch} object differs from the hash of the new \code{data}.
-##' @param optmatch \code{Optmatch} object to update.
-##' @param ... Additional arguments to the call, or arguments with changed values.
-##' @param evaluate If true evaluate the new call else return the call.
-##' @return An updated \code{optmatch} object.
-##' @author Josh Errickson
+
+#' Performs an update on an \code{optmatch} object.
+#'
+#' NB: THIS CODE IS CURRENTLY VERY MUCH ALPHA AND SOMEWHAT UNTESTED, ESPECIALLY CALLING \code{update} ON AN
+#' OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
+#'
+#' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
+#' \code{optmatch} object differs from the hash of the new \code{data}.
+#' @param optmatch \code{Optmatch} object to update.
+#' @param ... Additional arguments to the call, or arguments with changed values.
+#' @param evaluate If true evaluate the new call else return the call.
+#' @return An updated \code{optmatch} object.
+#' @author Josh Errickson
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
@@ -266,19 +268,19 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
 
 }
 
-##' Compares the equality of optmatch objects, ignoring attributes and group names.
-##'
-##' This checks the equality of two optmatch objects. The only bits that matter are unit names
-##' and the grouping. Other bits such as attributes, group names, order, etc are ignored.
-##'
-##' The names of the units can differ on any unmatched units, e.g., units whose value in the optmatch
-##' object is \code{NA}. If matched objects have differing names, this is automatically \code{FALSE}.
-##'
-##' Note this ignores the names of the subgroups. So four members in subgroups either
-##' \code{c("a", "a", "b", "b")} or \code{c("b", "b", "a", "a")} would be identical to this call.
-##' @param o1 First optmatch object.
-##' @param o2 Second optmatch object.
-##' @return TRUE if the two matches have the same memberships.
+#' Compares the equality of optmatch objects, ignoring attributes and group names.
+#'
+#' This checks the equality of two optmatch objects. The only bits that matter are unit names
+#' and the grouping. Other bits such as attributes, group names, order, etc are ignored.
+#'
+#' The names of the units can differ on any unmatched units, e.g., units whose value in the optmatch
+#' object is \code{NA}. If matched objects have differing names, this is automatically \code{FALSE}.
+#'
+#' Note this ignores the names of the subgroups. So four members in subgroups either
+#' \code{c("a", "a", "b", "b")} or \code{c("b", "b", "a", "a")} would be identical to this call.
+#' @param o1 First optmatch object.
+#' @param o2 Second optmatch object.
+#' @return TRUE if the two matches have the same memberships.
 compare_optmatch <- function(o1, o2) {
   if (length(setdiff(names(o1[!is.na(o1)]), names(o2[!is.na(o2)]))) > 0) {
     return(FALSE)

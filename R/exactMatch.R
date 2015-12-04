@@ -80,6 +80,7 @@ setGeneric("exactMatch",
     return(tmp)
 })
 
+#' @export
 setMethod(exactMatch, "vector", function(x, treatment) {
   if (length(x) != length(treatment)) {
     stop("Splitting vector and treatment vector must be same length")
@@ -124,6 +125,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   return(tmp)
 })
 
+#' @export
 setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.action = NULL, ...) {
   # lifted pretty much verbatim from lm()
   mf <- match.call(expand.dots = FALSE)
