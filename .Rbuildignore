@@ -4,3 +4,4 @@ check.R
 checkspelling.R
 lexicon.txt
 ^data-raw$
+.pkgexclude
