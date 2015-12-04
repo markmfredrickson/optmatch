@@ -1,7 +1,6 @@
 ##' Tabulate treatment:control ratios occurring in matched sets, and
 ##' the frequency of their occurrence.
 ##'
-##' .. content for \details{} ..
 ##' @title Return structure of matched sets
 ##'
 ##' @param stratum Matched strata, as returned by
