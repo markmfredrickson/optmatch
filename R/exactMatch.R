@@ -2,8 +2,6 @@
 # exactMatch: create InfinitySparseMatrices from factors
 ################################################################################
 
-#' Generate an exact matching set of subproblems.
-#'
 #' An exact match is one based on a factor. Within a level, all
 #' observations are allowed to be matched. An exact match can be
 #' combined with another distance matrix to create a set of matching
@@ -25,6 +23,7 @@
 #' function was called. This behavior, and the arguments \code{subset}
 #' and \code{na.action}, mimics the behavior of \code{\link{lm}}.
 #'
+#' @title Generate an exact matching set of subproblems.
 #' @author Mark M. Fredrickson
 #'
 #' @keywords nonparametric
@@ -73,6 +72,8 @@
 #' ### Combine the propensity scores with the subclasses:
 #' match.ppty.em <- fullmatch(ppty.distances + pt.em)
 #' print(match.ppty.em, grouped = TRUE)
+#'
+#' @rdname exactMatch
 setGeneric("exactMatch",
   def = function(x, ...) {
     tmp <- standardGeneric("exactMatch")
@@ -81,6 +82,7 @@ setGeneric("exactMatch",
 })
 
 #' @export
+#' @rdname exactMatch
 setMethod(exactMatch, "vector", function(x, treatment) {
   if (length(x) != length(treatment)) {
     stop("Splitting vector and treatment vector must be same length")
@@ -126,6 +128,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
 })
 
 #' @export
+#' @rdname exactMatch
 setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.action = NULL, ...) {
   # lifted pretty much verbatim from lm()
   mf <- match.call(expand.dots = FALSE)

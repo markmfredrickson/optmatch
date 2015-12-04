@@ -3,7 +3,15 @@
 ### method. Missingness indicators are added for each column that is
 ### imputed.
 
-#' Create missingness indicator variables and non-informatively fill in missing values
+#' Given a \code{data.frame} or \code{formula} and data,
+#' \code{fill.NAs()} returns an expanded data frame, including a new
+#' missingness flag for each variable with missing values and
+#' replacing each missing entry with a value representing a reasonable
+#' default for missing values in its column.  Functions in the formula
+#' are supported, with transformations happening before \code{NA}
+#' replacement.  The expanded data frame is useful for propensity
+#' modeling and balance checking when there are covariates with
+#' missing values.
 #'
 #' \code{fill.NAs} prepares data for use in a model or matching
 #' procedure by filling in missing values with minimally invasive
@@ -37,15 +45,7 @@
 #' problem. This behavior can be overridden by setting \code{all.covs
 #' = TRUE}.
 #'
-#' Given a \code{data.frame} or \code{formula} and data,
-#' \code{fill.NAs()} returns an expanded data frame, including a new
-#' missingness flag for each variable with missing values and
-#' replacing each missing entry with a value representing a reasonable
-#' default for missing values in its column.  Functions in the formula
-#' are supported, with transformations happening before \code{NA}
-#' replacement.  The expanded data frame is useful for propensity
-#' modeling and balance checking when there are covariates with
-#' missing values.
+#' @title Create missingness indicator variables and non-informatively fill in missing values
 #'
 #' @param x Can be either a data frame (in which case the data
 #'   argument should be \code{NULL}) or a formula (in which case data
