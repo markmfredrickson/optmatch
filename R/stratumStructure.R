@@ -107,7 +107,7 @@ stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.control
   stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls)
 }
 
-#' @export
+##' @export
 ##' @rdname stratumStructure
 stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf) {
   if (is.null(trtgrp))

@@ -58,7 +58,7 @@
 #'   and Hall), and are due to W.E. Mooz.
 #'
 #' @title Dissimilarities of Some U.S. Nuclear Plants
-#' @usage A matrix with 7 rows and 19 columns
+#' @format A matrix with 7 rows and 19 columns
 #' @keywords dataset
 #' @references Rosenbaum, P.R. (2002), \emph{Observational Studies},
 #'   Second Edition, p.307 (Springer).
