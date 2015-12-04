@@ -31,7 +31,9 @@ Suggests:
     brglm,
     arm,
     knitr,
-    rmarkdown
+    rmarkdown,
+    pander,
+    xtable
 License: file LICENSE
 URL: http://www.r-project.org, https://github.com/markmfredrickson/optmatch
 Collate:
