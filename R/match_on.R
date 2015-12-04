@@ -428,7 +428,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
     }
 
     return(
-        r_smahal(index, data, z, PACKAGE='optmatch')
+        r_smahal(index, data, z)
     )
 }
 
