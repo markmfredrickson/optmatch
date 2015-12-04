@@ -5,6 +5,7 @@
 ##' @return Some information about licenses of code and algorithms on
 ##'   which \code{fullmatch} depends.
 ##' @author Ben B. Hansen
+##' @export
 relaxinfo <- function() {
   if (!interactive()) {
     cat(
