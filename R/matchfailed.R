@@ -1,4 +1,5 @@
 #' @export
+#' @rdname matched
 matchfailed <- function(x) {
   failed <- !subproblemSuccess(x)
   grps <- attr(x, "subproblem")
