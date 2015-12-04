@@ -1,4 +1,5 @@
-#' @export
+##' @export
+##' @rdname minmaxctlcap
 maxControlsCap <- function(distance, min.controls = NULL)
 {
   # check if it is valid distance specification,
