@@ -16,7 +16,10 @@ test: FUNC=test
 check: FUNC=check
 document: FUNC=document
 vignette: FUNC=build_vignettes
-clean: FUNC=clean_vignettes
+clean-vignette: FUNC=clean_vignettes
 #build: FUNC=build # Can be re-enabled as needed
 #build: .devtools
-test check document vignette clean: .devtools
+test check document vignette clean-vignette: .devtools
+
+clean: clean-vignette
+	rm -rf man/ src/*.o
