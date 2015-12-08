@@ -178,8 +178,10 @@ b <- with(nuke.nopt, data.frame(
                          Date=round(date-65, 1),
                          Capacity=round(x=(cap-400),digits=-1))[!as.logical(pr),])
 
+rownames(a) <- NULL
+rownames(b) <- NULL
+
 c <- cbind(data.frame(rbind(as.matrix(a), matrix(nrow=nrow(b)-nrow(a), ncol=3))), b)
-rownames(c) <- NULL
 pandoc.table(c, style="multiline", missing="",
              caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
 ```
