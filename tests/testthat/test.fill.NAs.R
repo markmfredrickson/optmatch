@@ -138,7 +138,7 @@ test_that("response variables with complex names", {
 test_that("strata() function handling", {
 
   set.seed(20150624)
-  
+
   data.full <- data.frame(z = c(rep(1, 10), rep(0, 10)),
                           x = rnorm(20),
                           s = sample(c("A", "B", "C"), size = 20, replace = TRUE),
@@ -146,14 +146,14 @@ test_that("strata() function handling", {
   data.full$x[c(1, 2, 11)] <- NA
 
   # basic strata handling without NAs
-  res1 <- fill.NAs(z ~ x + strata(s), data = data.full) 
+  res1 <- fill.NAs(z ~ x + strata(s), data = data.full)
   expect_equal(dim(res1), c(20, 4)) # do not expand strata variable
   expect_false(any(is.na(res1)))
 
   res2 <- fill.NAs(z ~ x + strata(s) + strata(t), data = data.full)
   expect_equal(dim(res2), c(20, 5))
   expect_false(any(is.na(res2)))
-  
+
   # now, let's knock out some strata levels
   data.NAs <- data.full
   data.NAs$s[sample(1:20, size = 3)] <- NA
@@ -183,4 +183,13 @@ test_that("strata() function handling", {
 
   ## imputation should be per stratum
   expect_false(all(res1$x == (fill.NAs(z ~ x, data = data.full))$x))
+})
+
+test_that("Checking for fix to factors in fill.nas, mentioned in #103", {
+
+  data(nuclearplants)
+  nuclearplants$t1[1] <- NA
+  f <- fill.NAs(pr ~ cap + factor(t1), data=nuclearplants)
+  glm(f, family=binomial)
+
 })

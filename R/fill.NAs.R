@@ -185,7 +185,6 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
   #   return(result)
   # }
   result <- modmat
-  newfmla <- x
 
   if(any(original.NAs)) {
 
@@ -210,12 +209,15 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
       modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
     }
     result <- cbind(modmat, NA.columns)
-
-    newfmla <- update(newfmla, as.formula(paste0("~ . + ", paste0("`", colnames(NA.columns), "`", collapse = "+"))))
   }
 
   if(!all.covs){
     result <- cbind(data.trimmed[response], result)
+    newfmla <- formula(result)
+  } else {
+    p <- paste0("`", names(result), "`")
+    p <- gsub("``", "`", p)
+    newfmla <- formula(paste("~", paste(p, collapse="+")))
   }
 
   if (length(withStrata$strata) > 0) {
