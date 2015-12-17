@@ -96,19 +96,19 @@ The `glm` method is a wrapper around the `numeric` method for `match_on`. The
 `numeric` method takes a vector of scores (for example, the linear prediction
 for each unit from the model) and a vector indicating treatment status (`z`)
 for each unit. This method returns the absolute difference between each
-treated and control pair on their scores (additionally, 
+treated and control pair on their scores (additionally,
 the `glm` method rescales the data before invoking the `numeric` method). If
 you wish to fit a "caliper" to your distance matrix, a hard limit on allowed
 distances between treated and control units, you can pass a `caliper`
 argument, a scalar numeric value. Any treated and control pair that is larger
 than the caliper value will be replaced by `Inf`, an unmatchable value. The
 `caliper` argument also applies to `glm` method. Calipers are covered in more
-detail in the next sction.
+detail in the next section.
 
 The final convenience method of `match_on` is using an arbitrary function. This
 function is probably most useful for advanced users of `optmatch`. See the
 documentation of the `match_on` function for more details on how to write your
-own arbitrary computation functions. 
+own arbitrary computation functions.
 
 ### Combining and editing distances
 
@@ -165,7 +165,7 @@ Instead of creating the entire Euclidean distance matrix and *then* filtering
 out cross-strata matches, we use the results of `exactMatch` to compute only
 the interesting cases:
 
-    tmp <- exactMatch(z ~ w2, data = W) 
+    tmp <- exactMatch(z ~ w2, data = W)
     distances$exact <- match_on(z ~ w1, data = W, within = tmp)
 
 Users of previous versions of `optmatch` may notice that the `within`
@@ -216,13 +216,13 @@ the units by factor level:
 
     print(mahal.match, grouped = T)
 
-If you wish to join the match factor back to the original `data.frame`: 
+If you wish to join the match factor back to the original `data.frame`:
 
     W.matched <- cbind(W, matches = mahal.match)
 
 Make sure to include the `data` argument to `fullmatch` or `pairmatch`,
 otherwise results are not guaranteed to be in the same order as your original
-`data.frame` or `matrix`. 
+`data.frame` or `matrix`.
 
 
 ##  Using a development version of Optmatch
@@ -247,23 +247,29 @@ copy of GNU `make` to create the package from source (standard on Linux,
 included with [Apple's developer tools](http://developer.apple.com), included
 with the [Cygwin](http://www.cygwin.com/) UNIX tools for Windows).
 
-When these packages are installed, download a `.zip` of the `optmatch`
-source, which is available from [the project download
-tab](https://github.com/markmfredrickson/optmatch/archive/master.zip). Unzip
-the package in a directory.
+`optmatch` is built using [devtools](https://cran.r-project.org/package=devtools)
+which makes installing the current development version very easy. Simply install
+the `devtools` package and then use it to install from this repository.
+
+    install.packages("devtools")
+    devtools:::install_github("markmfredrickson/optmatch")
+
+You may pass `ref=<branchname>` as an argument to `install_github` to install a
+branch other than "master", which is the default.
 
 Alternatively, if you have a working installation of `git`
 and all the software mentioned in the previous section, you can checkout a
-copy of the source direclty.  Instead of downloading
+copy of the source directly.  Instead of downloading
 the source directly, fork the project and github and clone a working copy from
 your forked project:
 
     $ git clone git@github.com:YOURUSERNAME/optmatch.git
 
-To download all dependencies and create a bundled package:
+As mentioned, `optmatch` is developed with `devtools` and requires it to compile.
+Once you have installed `devtools`, you may create a bundled package with
 
     $ cd /path/to/package
-    $ make package
+    $ make build
 
 This should build a `optmatch_VERSION.tar.gz` file. You can install it in a
 local directory (for example `~/R/optmatch.demo`) using:
@@ -273,7 +279,7 @@ local directory (for example `~/R/optmatch.demo`) using:
 
 You can then load the library in `R` using:
 
-    > library("optmatch", lib.loc = "~/R/optmatch.demo") 
+    > library("optmatch", lib.loc = "~/R/optmatch.demo")
 
 ### Developing for Optmatch
 
@@ -281,35 +287,21 @@ You can then load the library in `R` using:
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the
 [testthat](http://github.com/hadley/test_that) package to write and run tests.
-See the `inst/tests` directory for examples. To run the test suite, use:
+See the `tests/testthat` directory for examples. To run the test suite, use:
 
     $ make test
 
-New features should include documentation. We prefer inline
-[Roxygen](http://roxygen.org/) style documentation to raw `.Rd` files. Any
-`Makefile` task that builds the package will create the documentation. These
-tasks are also useful for development:
+New features should include inline [Roxygen](http://roxygen.org/) documentation.
+You can generate all `.Rd` documents from the `Roxygen` code via
 
-- `R`: starts up an interactive session with `optmatch` loaded.
-- `spell`: checks the spelling of all Rd files in the package using the
-  []`aspell_*`
-  functions](http://stat.ethz.ch/R-manual/R-patched/library/utils/html/aspell-utils.html)
-  in the 'utils' package. - `check`: runs `R CMD Check` on a built package, includes the `test` and `spell` tasks
-- `package`: creates a `tar.gz` of the package
-- `check`: runs `R CMD check` on the package
+    $ make document
 
-If you need to edit the `DESCRIPTION` file (e.g. to add a suggested package),
-edit `DESCRIPTION.template` instead. This file is used during the build process
-to insert the version and date information.
+These other commands are also useful for development:
 
-You will need to have the `aspell` program installed and available on your
-`$PATH` in order to use the `spell` task. If you introduce new words that are
-not coveraged in the standard English dictionary, you can add them to the
-`lexicon.txt` file. There is also a task to create the lexicon from all found
-misspelled words (`make lexicon.txt`).  For more information on the use of
-spell checkers in R, see [Watch your
-spelling!](http://journal.r-project.org/archive/2011-2/RJournal_2011-2_Hornik+Murdoch.pdf)
-in the R journal.
+- `make interactive`: starts up an interactive session with `optmatch` loaded.
+- `make check`: runs `R CMD check` on the package
+- `make vignette`: Builds any vignettes in `vignettes/` directory
+- `make clean`: Removes files built by `make vignette`, `make document` or `make check`.
+   Should not be generally necessary, but can be useful for debugging.
 
 When your change is ready, make a pull request on github.
-
