@@ -443,6 +443,53 @@ t.InfinitySparseMatrix <- function(x) {
 #' @export
 setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(object)) })
 
+##' Sort the internal structure of an InfinitySparseMatrix.
+##'
+##' Internally, an InfinitySparseMatrix (Blocked or non) comprises of
+##' vectors of values, row positions, and column positions. The
+##' ordering of these vectors is not enforced. This function sorts the
+##' internal structure, leaving the external structure unchanged
+##' (e.g. `as.matrix(ism)` and `as.matrix(sort(ism))` will look
+##' identical despite sorting.)
+##'
+##' By default, the ISM is row-dominant, meaning the row positions are
+##' sorted first, then column positions are sorted within each
+##' row. Use argument `byCol` to change this.
+##' @param x An InfinitySparseMatrix or BlockedInfinitySparseMatrix.
+##' @param decreasing Logical. Should the sort be increasing or
+##'   decreasing?
+##' @param ... Additional arguments ignored.
+##' @param byCol Logical. Defaults to FALSE, so the returned ISM is
+##'   row-dominant. TRUE returns a column-dominant ISM.
+##' @return An object of the same class as `x` which is sorted
+##'   according to `byCol`.
+##' @rdname sort.ism
+##' @author Josh Errickson
+##' @export
+sort.InfinitySparseMatrix <- function(x,
+                                      decreasing=FALSE,
+                                      ...,
+                                      byCol = FALSE) {
+  byCol <- as.logical(byCol)
+  if (is.na(byCol)) {
+    stop("byCol must be TRUE or FALSE.")
+  }
+
+  sorter <- order(attr(x, ifelse(byCol, "cols", "rows")),
+                  attr(x, ifelse(byCol, "rows", "cols")),
+                  decreasing=decreasing)
+
+  makeInfinitySparseMatrix(x[sorter],
+                           cols = attr(x, "cols")[sorter],
+                           rows = attr(x, "rows")[sorter],
+                           rownames = attr(x, "rownames"),
+                           colnames = attr(x, "colnames"),
+                           dimension = attr(x, "dimension"),
+                           call = attr(x, "call"))
+
+}
+
+
 ################################################################################
 # Blocked Infinity Sparse Matrix
 # Just like an ISM, but keeps track of which group a unit is in
@@ -538,6 +585,19 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
   # drop off any subproblems lacking at least one treatment/control
   out[unlist(lapply(out, function(t) all(t > 0)))]
 }
+
+##' @rdname sort.ism
+##' @export
+sort.BlockedInfinitySparseMatrix <- function(x,
+                                             decreasing=FALSE,
+                                             ...,
+                                             byCol=FALSE) {
+  y <- sort.InfinitySparseMatrix(x, decreasing=decreasing, byCol=byCol)
+  attr(y, "groups") <- attr(x, "groups")
+  class(y) <- class(x)
+  y
+}
+
 
 #' Returns the number of eligible matches for the distance.
 #'
