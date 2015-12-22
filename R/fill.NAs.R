@@ -225,6 +225,7 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
     tmp           <- model.frame(sformula, data = data, na.action = na.pass)
     colnames(tmp) <- all.vars(sformula)
     result        <- cbind(result, tmp)
+    newfmla <- update(newfmla, paste0(".~.+", paste(withStrata$strata, collapse = "+")))
   }
 
 
