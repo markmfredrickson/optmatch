@@ -160,10 +160,12 @@ test_that("strata() function handling", {
 
   res3 <- fill.NAs(z ~ x + strata(s), data = data.NAs)
   expect_equal(sum(is.na(res3$s)), 3)
+  expect_true(is.matrix(model.matrix(terms(res3), res3)))
 
   res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
   expect_false(any(is.na(res4$s)))
-
+  expect_true(is.matrix(model.matrix(terms(res4), res4)))
+              
   ## checking for terms attribute on the returned data.frame
   tt <- terms(res1)
   expect_false(is.null(attr(tt, "specials")$strata)) # the strata term is marked as such
