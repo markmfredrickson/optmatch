@@ -27,7 +27,7 @@ Imports:
 Suggests:
     boot,
     biglm,
-    testthat,
+    testthat (>= 0.11.0),
     brglm,
     arm,
     knitr,
