@@ -287,7 +287,10 @@ You can then load the library in `R` using:
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the
 [testthat](http://github.com/hadley/test_that) package to write and run tests.
-See the `tests/testthat` directory for examples. To run the test suite, use:
+(Please ensure you have the latest version of testthat (or at least v0.11.0),
+as older versions stored the tests in a different directory, and may not
+test properly.) See the `tests/testthat` directory for examples. To run
+the test suite, use:
 
     $ make test
 
