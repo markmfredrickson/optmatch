@@ -361,3 +361,153 @@ test_that("Get subproblem size of each block", {
 
   expect_equal(subdim(m), list(dim(m)))
 })
+
+
+test_that("ISM sorting", {
+  X <- makeInfinitySparseMatrix(data = c(6,5,2,3,1),
+                                cols = c(2,1,2,1,1),
+                                rows = c(3,3,1,2,1))
+
+  # Output should still be ISM
+  expect_is(X, "InfinitySparseMatrix")
+  expect_is(sort(X), "InfinitySparseMatrix")
+  expect_is(sort(X, byCol=TRUE), "InfinitySparseMatrix")
+
+  X.rows <- sort(X, byCol=FALSE)
+  X.cols <- sort(X, byCol=TRUE)
+
+  expect_identical(dim(X.cols), dim(X))
+  expect_identical(dim(X.rows), dim(X))
+
+  expect_identical(as.matrix(X.cols), as.matrix(X))
+  expect_identical(as.matrix(X.rows), as.matrix(X))
+
+
+  # pairwise coords should be sorted, e.g.
+  # (1,1), (1,2), (2,1), (2,2)
+  # In original X, this is not true.
+  coordrc <- as.numeric(paste(attr(X, "rows"), attr(X, "cols"), sep=""))
+  coordcr <- as.numeric(paste(attr(X, "cols"), attr(X, "rows"), sep=""))
+  expect_true(is.unsorted(coordrc))
+  expect_true(is.unsorted(coordcr))
+
+  # When sorting by column, then when looking at column/row it should be
+  # true.
+  coordrc.sortcols <- as.numeric(paste(attr(X.cols, "rows"), attr(X.cols, "cols"), sep=""))
+  coordcr.sortcols <- as.numeric(paste(attr(X.cols, "cols"), attr(X.cols, "rows"), sep=""))
+  expect_true(is.unsorted(coordrc.sortcols))
+  expect_true(!is.unsorted(coordcr.sortcols))
+
+  # Ditto when sorting by row & looking at row first.
+  coordrc.sortrows <- as.numeric(paste(attr(X.rows, "rows"), attr(X.rows, "cols"), sep=""))
+  coordcr.sortrows <- as.numeric(paste(attr(X.rows, "cols"), attr(X.rows, "rows"), sep=""))
+  expect_true(!is.unsorted(coordrc.sortrows))
+  expect_true(is.unsorted(coordcr.sortrows))
+
+  # Checking for bad input on byCol
+  expect_that(sort(X, byCol=1), not(throws_error()))
+  expect_error(sort(X, byCol="a"))
+  expect_warning(expect_error(sort(X, byCol=c(1,1))))
+
+  # Checking argument `decreasing`
+  X.rows <- sort(X, byCol=FALSE, decreasing=TRUE)
+  X.cols <- sort(X, byCol=TRUE, decreasing=TRUE)
+
+  expect_identical(as.matrix(X.rows), as.matrix(X))
+  expect_identical(as.matrix(X.cols), as.matrix(X))
+
+  coordrc.sortcols <- as.numeric(paste(attr(X.cols, "rows"), attr(X.cols, "cols"), sep=""))
+  coordcr.sortcols <- as.numeric(paste(attr(X.cols, "cols"), attr(X.cols, "rows"), sep=""))
+  expect_true(is.unsorted(coordrc.sortcols))
+  # to check sorting, reverse the order.
+  expect_true(!is.unsorted(rev(coordcr.sortcols)))
+
+  data(nuclearplants)
+
+  m <- match_on(pr ~ cost, data=nuclearplants, caliper=1)
+
+  m.rows <- sort(m, byCol=FALSE)
+  m.cols <- sort(m, byCol=TRUE)
+
+  # by default, ISM's are row dominant, so resorting by row should not
+  # have any impact.
+  expect_identical(m, m.rows)
+
+  # However, sorting by column should change the internals, but not
+  # externals.
+  expect_identical(as.matrix(m), as.matrix(m.cols))
+  expect_false(identical(m, m.cols))
+
+  # Double-sorting
+  expect_identical(m, sort(m.cols))
+})
+
+
+test_that("BISM sorting", {
+
+  b <- makeInfinitySparseMatrix(c(1,2,3,4,5,6),
+                                cols=c(1,2,2,3,4,3),
+                                rows=c(1,1,2,3,3,4),
+                                colnames=c("1", "3", "5", "7"),
+                                rownames=c("2", "4", "6", "8"))
+
+  attr(b, "groups") <- factor(rep(c(1,2), each=4))
+  names(attr(b, "groups")) <- 1:8
+  class(b) <- "BlockedInfinitySparseMatrix"
+
+
+  # Output should still be BISM
+  expect_is(b, "BlockedInfinitySparseMatrix")
+  expect_is(sort(b), "BlockedInfinitySparseMatrix")
+  expect_is(sort(b, byCol=TRUE), "BlockedInfinitySparseMatrix")
+
+  b.rows <- sort(b, byCol=FALSE)
+  b.cols <- sort(b, byCol=TRUE)
+
+  expect_identical(dim(b.cols), dim(b))
+  expect_identical(dim(b.rows), dim(b))
+
+  expect_identical(as.matrix(b.cols), as.matrix(b))
+  expect_identical(as.matrix(b.rows), as.matrix(b))
+
+  expect_identical(as.matrix(b), as.matrix(sort(b, decreasing=TRUE)))
+
+  # When sorting by column, then when looking at column/row it should be
+  # true.
+  coordrc.sortcols <- as.numeric(paste(attr(b.cols, "rows"), attr(b.cols, "cols"), sep=""))
+  coordcr.sortcols <- as.numeric(paste(attr(b.cols, "cols"), attr(b.cols, "rows"), sep=""))
+  expect_true(is.unsorted(coordrc.sortcols))
+  expect_true(!is.unsorted(coordcr.sortcols))
+
+  # Ditto when sorting by row & looking at row first.
+  coordrc.sortrows <- as.numeric(paste(attr(b.rows, "rows"), attr(b.rows, "cols"), sep=""))
+  coordcr.sortrows <- as.numeric(paste(attr(b.rows, "cols"), attr(b.rows, "rows"), sep=""))
+  expect_true(!is.unsorted(coordrc.sortrows))
+  expect_true(is.unsorted(coordcr.sortrows))
+
+  # Checking for bad input on byCol
+  expect_that(sort(b, byCol=1), not(throws_error()))
+  expect_error(sort(b, byCol="a"))
+  expect_warning(expect_error(sort(b, byCol=c(1,1))))
+
+  data(nuclearplants)
+
+  m <- match_on(pr ~ cost, data=nuclearplants,
+                within=exactMatch(pr ~ ct, data=nuclearplants))
+
+  m.rows <- sort(m, byCol=FALSE)
+  m.cols <- sort(m, byCol=TRUE)
+
+  # by default, ISM's are row dominant, so resorting by row should not
+  # have any impact.
+  expect_identical(m, m.rows)
+
+  # However, sorting by column should change the internals, but not
+  # externals.
+  expect_identical(as.matrix(m), as.matrix(m.cols))
+  expect_false(identical(m, m.cols))
+
+  # Double-sorting
+  expect_identical(m, sort(m.cols))
+
+})
