@@ -115,7 +115,11 @@ setAs("matrix", "InfinitySparseMatrix", function(from) {
   return(x)
 })
 
-#' @export
+##' Convert an object to InfinitySparseMatrix
+##'
+##' @param x An object which can be coerced into InfinitySparseMatrix, typically a matrix.
+##' @return An InfinitySparseMatrix
+##' @export
 as.InfinitySparseMatrix <- function(x) { as(x, "InfinitySparseMatrix") }
 
 # dimnames implementation
@@ -440,7 +444,12 @@ t.InfinitySparseMatrix <- function(x) {
                            colnames = x@rownames, rownames = x@colnames)
 }
 
-#' @export
+##' Displays an InfinitySparseMatrix
+##'
+##' Specifically, displays an ISM by converting it to a matrix first.
+##' @param object An InfinitySparseMatrix to print.
+##' @return NULL
+##' @export
 setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(object)) })
 
 ##' Sort the internal structure of an InfinitySparseMatrix.
@@ -641,6 +650,10 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
   out
 }
 
-# Splits out the blocked matrix into its consitutent parts
-#' @export
+##' Displays a BlockedInfinitySparseMatrix
+##'
+##' Displays each block of the BISM separately.
+##' @param object An BlockedInfinitySparseMatrix to print.
+##' @return NULL
+##' @export
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
