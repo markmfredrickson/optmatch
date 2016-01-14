@@ -22,4 +22,4 @@ clean-vignette: FUNC=clean_vignettes
 test check document vignette clean-vignette: .devtools
 
 clean: clean-vignette
-	rm -rf man/ src/*.o
+	git clean -Xfd
