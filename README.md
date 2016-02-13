@@ -265,6 +265,11 @@ your forked project:
 
     $ git clone git@github.com:YOURUSERNAME/optmatch.git
 
+To ensure you have all the required dependencies to work with
+`optmatch`, you can automatically install them with
+
+    $ make dependencies
+
 As mentioned, `optmatch` is developed with `devtools` and requires it to compile.
 Once you have installed `devtools`, you may create a bundled package with
 

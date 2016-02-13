@@ -12,6 +12,7 @@ interactive-emacs:
 .devtools:
 	@$(RCMD) "library(devtools); devtools:::$(FUNC)()"
 
+dependencies: FUNC=install_deps
 test: FUNC=test
 check: FUNC=check
 document: FUNC=document
@@ -19,7 +20,7 @@ vignette: FUNC=build_vignettes
 clean-vignette: FUNC=clean_vignettes
 build: FUNC=build
 build_win: FUNC=build_win # Attempt a check & build on the win-builder server
-test check document vignette clean-vignette build build_win: .devtools
+dependencies test check document vignette clean-vignette build build_win: .devtools
 
 clean: clean-vignette
 	git clean -Xfd
