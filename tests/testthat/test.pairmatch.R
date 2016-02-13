@@ -162,6 +162,14 @@ test_that("pairmatch UI cleanup", {
   match_compare(pm.ps, pm.match)
   match_compare(pm.glm, pm.match)
 
+  # passing inherited from glm
+
+  class(ps) <- c("foo", class(ps))
+
+  pm.foo <- pairmatch(ps, data=test.data, caliper=2.5, remove.unmatchables=TRUE)
+
+  match_compare(pm.ps, pm.foo)
+
   # with scores
 
   ps <- glm(Z~X1, data=test.data, family=binomial)

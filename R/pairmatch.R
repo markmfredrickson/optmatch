@@ -91,10 +91,7 @@ pairmatch.default <- function(x,
                       within = NULL,
                       ...) {
 
-  klass <- class(x)[1]
-  if (is.object(x)) klass <- oldClass(x)[1]
-
-  if (is.null(getS3method("match_on", klass, optional = T))) {
+  if (!inherits(x, gsub("match_on.","",methods("match_on")))) {
     stop("Invalid input, must be a potential argument to match_on")
   }
 
