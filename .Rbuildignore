@@ -5,3 +5,4 @@ checkspelling.R
 lexicon.txt
 ^data-raw$
 .pkgexclude
+vignettes/Sweave.sty
