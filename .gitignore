@@ -16,7 +16,6 @@ performance-*.pdf
 vignettes/performance/*.rda
 *.swp
 .pkgexclude
-man/*
 inst/doc
 vignettes/figure
 vignettes/*.md
