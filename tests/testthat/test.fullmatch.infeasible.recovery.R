@@ -13,7 +13,7 @@ test_that("Invalid mean.controls input", {
   data(nuclearplants)
   m <- match_on(glm(pr~cost, data=nuclearplants))
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = 1, omit.fraction=.5),
-               "omit.fraction and mean.controls cannot both be specified.")
+               "omit.fraction and mean.controls cannot both be specified")
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = -1),
                "mean.controls must be NULL or numeric greater than 0")
   expect_error(fullmatch(m, data=nuclearplants, mean.controls = "a"),
