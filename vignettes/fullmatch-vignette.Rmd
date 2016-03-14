@@ -280,7 +280,7 @@ cap.noadj <- lm(cap ~ pr, data = nuke.nopt)
 summary(cap.noadj)
 ```
 
-The output is suppressed, as most it is not relevant to balance.
+The output is suppressed, as most of it is not relevant to balance.
 This variation hones in on the part that is:
 
 ```{r}
@@ -303,7 +303,7 @@ facilitiates checking balance on multiple variables at the same time. Here are s
 ```{r}
 
 xBalance(pr ~ cap + t2, report="all", data=nuke.nopt)
-xBalance(pr ~ cap + t2 + strata(pm),##, strata=data.frame("none"="-", "pm"=pm),
+xBalance(pr ~ cap + t2 + strata(pm),
          data=nuke.nopt,
          report=c("adj.mean.diffs", "std", "z"))
 ```
@@ -424,8 +424,8 @@ this:
 ```{r, eval=FALSE}
 library(RItools)
 xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, data = nuclearplants)
-xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
-         strata = ps.pm2,
+xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt +
+             strata(ps.pm2) -1, # the `-1` just focuses the output a little
          data = nuclearplants)
 ```
 
@@ -433,8 +433,8 @@ It can in the same display compare matching to no matching, on any of
 a number of axes.  Here is a demonstration:
 
 ```{r, fig.width=5, fig.height=5}
-myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n,
-                strata = list(unstrat = NULL, ps.pm2 = ~ ps.pm2),
+myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + 
+                strata(ps.pm2),
                 data = nuclearplants,
                 report = c("adj.means", "std.diffs",
                            "z.scores", "chisquare.test"))
