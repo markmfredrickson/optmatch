@@ -244,7 +244,7 @@ You must have the Fortran extensions for package building included. These can
 be had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
 [Windows](http://cran.r-project.org/bin/windows/Rtools/). You will also need a
 copy of GNU `make` to create the package from source (standard on Linux,
-included with [Apple's developer tools](http://developer.apple.com), included
+included with [Apple's developer tools](https://developer.apple.com), included
 with the [Cygwin](http://www.cygwin.com/) UNIX tools for Windows).
 
 `optmatch` is built using [devtools](https://cran.r-project.org/package=devtools)
