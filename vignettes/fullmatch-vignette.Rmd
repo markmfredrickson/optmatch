@@ -645,9 +645,9 @@ Dehejia and Wahba (1999, *JASA*) and by Smith and Todd (2005,
 "`{arm}`" and "`Matching`."  To get it:
 
 ```{r, eval=FALSE}
-library(arm)
-data(lalonde)
-help("lalonde")
+install.packages("arm", dep=T) # if not already installed
+data(lalonde, package="arm")
+help("lalonde", package="arm")
 ```
 
 Connors et al's (1996, *J. Am. Med. Assoc.*) brought propensity score
@@ -655,6 +655,6 @@ methods to the attention of the medical field broadly.  It's bundled
 with the "`Hmisc'" package.
 
 ```{r, eval=FALSE}
-library(Hmisc)
-getHdata(rhc, what = "all")
+install.packages("Hmisc", dep=T) # if not already installed
+Hmisc:::getHdata(rhc, what = "all")
 ```
