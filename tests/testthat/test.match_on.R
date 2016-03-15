@@ -137,14 +137,14 @@ test_that("Distances from formulas", {
 
   # with a single 2 level factor, numeric version to give same distances
   expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="euclidean")), as.matrix(match_on(Z~f1, method="euclidean")))
-  
+
   # passing a function name for method
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = optmatch:::compute_euclidean) - euclid) < tol)) # there is some rounding error, but it is small
 
-  # Mahalanobis distances involving factors 
+  # Mahalanobis distances involving factors
 
   expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="mahalanobis")), as.matrix(match_on(Z~f1, method="mahalanobis")))
-  
+
   # excluding matches combined with a formula
   stratify <- exactMatch(Z ~ B)
   res.strat <- match_on(Z ~ X1 + X2, within = stratify)
@@ -173,7 +173,7 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
   }
 
   expectedM <- c("FINITE", "FINITE", "INF", "FINITE", "FINITE", "INF")
-  
+
   expect_equivalent(f("mahalanobis"), expectedM)
   expect_equivalent(f("euclid"), expectedM)
   expect_equivalent(f("rank_mahal"), expectedM)
@@ -186,7 +186,7 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
   v <- as.matrix(match_on(x1, z = zz))
   expect_equivalent(g(v), expectedM)
 
-  ## glm should have the opposite behavior: automatically imputing 
+  ## glm should have the opposite behavior: automatically imputing
   v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial)))
   expect_equivalent(g(v), rep("FINITE", 6))
 })
@@ -439,6 +439,7 @@ test_that("Issue #44", {
   # this is the test case from:
   # https://github.com/markmfredrickson/optmatch/issues/44
 
+  library(survival)
   coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
   names(coxps) <- row.names(heart)
   coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
@@ -636,7 +637,7 @@ test_that("Subsetting an ISM by passing a new data object to match_on", {
 
   y <- match_on(x, data = d2)
   expect_equal(dim(y), c(3, 3))
-  
+
   y2 <- match_on(optmatch:::as.InfinitySparseMatrix(x), data = d2)
   expect_equal(dim(y2), c(3, 3))
 })

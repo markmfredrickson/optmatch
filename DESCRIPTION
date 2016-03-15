@@ -14,16 +14,16 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 LazyData: true
 Depends:
-    R (>= 2.15.1),
-    stats,
-    methods,
-    graphics,
-    survival
+    R (>= 2.15.1)
 LinkingTo: Rcpp
 Imports:
     Rcpp,
     RItools,
-    digest
+    digest,
+    stats,
+    methods,
+    graphics,
+    survival
 Suggests:
     boot,
     biglm,
