@@ -114,6 +114,11 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #'   beneficial computationally as well as statistically, for reasons indicated
 #'   in the below discussion of the \code{numeric} method.
 #'
+#'   One can also specify exactMatching criteria by using `strata(foo)` inside
+#'   the formula to build the `glm`. For example, passing
+#'   `glm(y ~ x + strata(s))` to `match_on` is equivalent to passing
+#'   `within=exactMatch(y ~ strata(s))`.
+#'
 #' @param standardization.scale Function for rescaling of \code{scores(x)}, or
 #'   \code{NULL}; defaults to \code{mad}.  (See Details.)
 #' @seealso \code{\link{scores}}

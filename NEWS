@@ -4,13 +4,13 @@ CHANGES IN OPTMATCH VERSION 0.9-6
   scoring model formula, then pass the fitted model to `pairmatch()`,
   `fullmatch()` or `match_on`, then the factor "fac" will both serve as
   an independent variable for the propensity model and an exact matching
-  variable (#101).
+  variable (#101). See the examples on the help documentation for `fullmatch`.
 * New material in vignettes, on general use of the package and on
   import/export of matching results and material between R and SAS
   or Stata (Josh Errickson).
 * `pairmatch` and `fullmatch` no longer generate "matched.distances" attributes
    for their results. To get this information, use `matched.distances`.
-* (Internal) methods for sorting of InfinitySparseMatrix's   
+* (Internal) methods for sorting of InfinitySparseMatrix's
 * Fixed Rcpp incompatibilities for some OSX users (4bbcaca), various minor issues
   affecting package development and deployment (#110,...).
 
@@ -45,7 +45,7 @@ CHANGES IN OPTMATCH VERSION 0.9-3
 * Fixed bug in dropping cases with extraneous NAs when using
   `fullmatch` or `pairmatch` to create distance specifications
   directly.
-* Fixed bug (#83) in `glm` method for `match_on` that caused 
+* Fixed bug (#83) in `glm` method for `match_on` that caused
   observations with fixable NAs to be dropped too often.
 * New function `distUnion` allows combining arbitrary distance
   specifications.
@@ -78,11 +78,11 @@ CHANGES IN OPTMATCH VERSION 0.9-1
 
 * Subsetting of optmatch objects now preserves (and subsets)
   the subproblem attribute.
-* Performance improvements for match_on applied to glm's. 
+* Performance improvements for match_on applied to glm's.
 * The solver update of version 0.9-0 had a bug that in some
-  circumstances caused hangups or malloc's [Issue #70].  We 
-  believe this is now fixed -- but please notify maintainer if 
-  you continue to experience the problem.  (If you do, we'll 
+  circumstances caused hangups or malloc's [Issue #70].  We
+  believe this is now fixed -- but please notify maintainer if
+  you continue to experience the problem.  (If you do, we'll
   reward you with an easy workaround.)
 
 CHANGES IN OPTMATCH VERSION 0.9-0

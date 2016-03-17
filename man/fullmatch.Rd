@@ -188,6 +188,24 @@ if (require(RItools)) summary(fm5,ppty)
 ### as the nuclearplants data.frame since we used the data argument
 ### when calling fullmatch. The order would be unspecified otherwise.
 cbind(nuclearplants, matches = fm5)
+
+### Match in subgroups only. There are a few ways to specify this.
+m1 <- fullmatch(pr ~ t1 + t2, data=nuclearplants,
+                within=exactMatch(pr ~ pt, data=nuclearplants))
+m2 <- fullmatch(pr ~ t1 + t2 + strata(pt), data=nuclearplants)
+### Matching on propensity scores within matching in subgroups only:
+m3 <- fullmatch(glm(pr ~ t1 + t2, data=nuclearplants, family=binomial),
+                data=nuclearplants,
+                within=exactMatch(pr ~ pt, data=nuclearplants))
+m4 <- fullmatch(glm(pr ~ t1 + t2 + pt, data=nuclearplants,
+                    family=binomial),
+                data=nuclearplants,
+                within=exactMatch(pr ~ pt, data=nuclearplants))
+m5 <- fullmatch(glm(pr ~ t1 + t2 + strata(pt), data=nuclearplants,
+                    family=binomial), data=nuclearplants)
+# Including `strata(foo)` inside a glm uses `foo` in the model as
+# well, so here m4 and m5 are equivalent. m3 differs in that it does
+# not include `pt` in the glm.
 }
 \references{
 Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{ Optimal full matching and related designs via network flows},

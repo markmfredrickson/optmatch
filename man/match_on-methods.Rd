@@ -149,6 +149,11 @@ The \code{glm} method assumes its first argument to be a fitted
   beneficial computationally as well as statistically, for reasons indicated
   in the below discussion of the \code{numeric} method.
 
+  One can also specify exactMatching criteria by using `strata(foo)` inside
+  the formula to build the `glm`. For example, passing
+  `glm(y ~ x + strata(s))` to `match_on` is equivalent to passing
+  `within=exactMatch(y ~ strata(s))`.
+
 The \code{bigglm}
 method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
 the \code{bigglm} function from package \sQuote{biglm}, which can
@@ -254,6 +259,25 @@ match_on.examples$mh2 <- match_on(pr ~ t1 + t2 , data = nuclearplants,
 ### Mahalanobis matching within subgroups, with a propensity score
 ### caliper:
 fullmatch(match_on.examples$mh2 + caliper(match_on.examples$ps3, 1), data = nuclearplants)
+
+### Alternative methods to matching without groups (exact matching)
+m1 <- match_on(pr ~ t1 + t2, data=nuclearplants, within=exactMatch(pr ~ pt, nuclearplants))
+m2 <- match_on(pr ~ t1 + t2 + strata(pt), data=nuclearplants)
+# m1 and m2 are identical
+
+m3 <- match_on(glm(pr ~ t1 + t2 + cost, data=nuclearplants,
+                   family=binomial),
+               data=nuclearplants,
+               within=exactMatch(pr ~ pt, data=nuclearplants))
+m4 <- match_on(glm(pr ~ t1 + t2 + cost + pt, data=nuclearplants,
+                   family=binomial),
+               data=nuclearplants,
+               within=exactMatch(pr ~ pt, data=nuclearplants))
+m5 <- match_on(glm(pr ~ t1 + t2 + cost + strata(pt), data=nuclearplants,
+                   family=binomial), data=nuclearplants)
+# Including `strata(foo)` inside a glm uses `foo` in the model as
+# well, so here m4 and m5 are equivalent. m3 differs in that it does
+# not include `pt` in the glm.
 }
 \references{
 P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
