@@ -1,6 +1,6 @@
-# (Internal) Sets up option to try recovery in \code{fullmatch}.
-#
-# @return NULL
+#' (Internal) Sets up option to try recovery in \code{fullmatch}.
+#'
+#' @return NULL
 setTryRecovery <- function() {
   options("fullmatch_try_recovery" = TRUE)
 }
