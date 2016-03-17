@@ -177,6 +177,9 @@ fullmatch <- function(x,
 
   cl <- match.call()
   if (is.null(data)) {
+    if (is(x, "InfinitySparseMatrix") |
+        is(x, "matrix") |
+        is(x, "optmatch.dlist") )
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")
   }

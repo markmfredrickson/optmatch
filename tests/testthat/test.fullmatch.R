@@ -306,7 +306,7 @@ test_that("fullmatch UI cleanup", {
 
   # with "with()"
 
-  expect_warning(fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2)))
+  fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2))
 
   match_compare(fm.dist, fm.with)
 
@@ -316,7 +316,7 @@ test_that("fullmatch UI cleanup", {
   fm.ps <- fullmatch(ps, data=test.data, caliper=2)
 
   fm.glm <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2)
-  expect_warning(fm.glm2 <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), caliper=2))
+  fm.glm2 <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), caliper=2)
 
   match_compare(fm.ps, fm.glm)
 
