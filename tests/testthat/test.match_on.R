@@ -439,7 +439,6 @@ test_that("Issue #44", {
   # this is the test case from:
   # https://github.com/markmfredrickson/optmatch/issues/44
 
-  library(survival)
   coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
   names(coxps) <- row.names(heart)
   coxmoA <- match_on(coxps, z = heart$event, caliper = 1)

@@ -14,7 +14,8 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 LazyData: true
 Depends:
-    R (>= 2.15.1)
+    R (>= 2.15.1),
+    survival
 LinkingTo: Rcpp
 Imports:
     Rcpp,
@@ -22,8 +23,7 @@ Imports:
     digest,
     stats,
     methods,
-    graphics,
-    survival
+    graphics
 Suggests:
     boot,
     biglm,
