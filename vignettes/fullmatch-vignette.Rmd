@@ -280,7 +280,7 @@ cap.noadj <- lm(cap ~ pr, data = nuke.nopt)
 summary(cap.noadj)
 ```
 
-The output is suppressed, as most it is not relevant to balance.
+The output is suppressed, as most of it is not relevant to balance.
 This variation hones in on the part that is:
 
 ```{r}
@@ -303,7 +303,7 @@ facilitiates checking balance on multiple variables at the same time. Here are s
 ```{r}
 
 xBalance(pr ~ cap + t2, report="all", data=nuke.nopt)
-xBalance(pr ~ cap + t2 + strata(pm),##, strata=data.frame("none"="-", "pm"=pm),
+xBalance(pr ~ cap + t2 + strata(pm),
          data=nuke.nopt,
          report=c("adj.mean.diffs", "std", "z"))
 ```
@@ -424,8 +424,8 @@ this:
 ```{r, eval=FALSE}
 library(RItools)
 xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, data = nuclearplants)
-xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
-         strata = ps.pm2,
+xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt +
+             strata(ps.pm2) -1, # the `-1` just focuses the output a little
          data = nuclearplants)
 ```
 
@@ -433,8 +433,8 @@ It can in the same display compare matching to no matching, on any of
 a number of axes.  Here is a demonstration:
 
 ```{r, fig.width=5, fig.height=5}
-myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n,
-                strata = list(unstrat = NULL, ps.pm2 = ~ ps.pm2),
+myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + 
+                strata(ps.pm2),
                 data = nuclearplants,
                 report = c("adj.means", "std.diffs",
                            "z.scores", "chisquare.test"))
@@ -638,23 +638,32 @@ check of propensity overlap may inform your decision as to whether to
 include a propensity caliper.  Be sure to check for balance, and do
 check the structure of the matched sets.
 
-Two sources of \textit{real} data can be gotten as follows.  The
-"Lalonde" data set, discussed by Lalonde in 1986 and more recently by
-Dehejia and Wahba (1999, *JASA*) and by Smith and Todd (2005,
+Three sources of \textit{real} data can be gotten as follows.  First,
+Paul Rosenbaum has posted many of the data sets discussed in his _Design of
+Observational Studies_ (2010) to his web site.  If you have an active
+internet connection then you can get them by (as of this writing):
+```{r, eval=FALSE}
+download.file("http://www-stat.wharton.upenn.edu/~rosenbap/DOSdata.RData",
+              destfile="./DOSdata.RData")
+load("./DOSdata.RData")
+```
+Second, the "`lalonde`" data set, discussed by Lalonde (1986,
+*Am. Econom. Rev.*), 
+Dehejia and Wahba (1999, *JASA*) and Smith and Todd (2005,
 *J. Econom.*), is bundled with several *R* packages, including
 "`{arm}`" and "`Matching`."  To get it:
 
 ```{r, eval=FALSE}
-library(arm)
-data(lalonde)
-help("lalonde")
+install.packages("arm", dep=T) # if not already installed
+data(lalonde, package="arm")
+help("lalonde", package="arm")
 ```
 
-Connors et al's (1996, *J. Am. Med. Assoc.*) brought propensity score
-methods to the attention of the medical field broadly.  It's bundled
-with the "`Hmisc'" package.
+Third, the data used by Connors et al (1996, *J. Am. Med. Assoc.*)
+to examine costs, benefits and risks associated with right heart catheterization
+is bundled with Frank Harrell and collaborators' "`Hmisc`" package.
 
 ```{r, eval=FALSE}
-library(Hmisc)
-getHdata(rhc, what = "all")
+install.packages("Hmisc", dep=T) # if not already installed
+Hmisc:::getHdata(rhc, what = "all")
 ```
