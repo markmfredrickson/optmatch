@@ -259,3 +259,13 @@ test_that("matched.distances attr removed per #57", {
 
   expect_true(is.null(attr(p1, "matched.distances")))
 })
+
+test_that("sane data arguments", {
+  Z <- rep(c(0,1), 4)
+  B <- rep(c(0,1), each = 4)
+  distances <- 1 + exactMatch(Z ~ B)
+
+  expect_warning(pairmatch(distances), "not guaranteed")
+  # Issue #56
+  expect_error(pairmatch(distances, data=distances), "are not found")
+})

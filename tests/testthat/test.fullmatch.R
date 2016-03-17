@@ -225,7 +225,10 @@ test_that("Results are in 'data order'", {
   # data argument should have useful names attached
   tmp <- as.matrix(df)
   rownames(tmp) <- colnames(tmp) <- NULL
-  expect_warning(fullmatch(mm, data = tmp), "names")
+  expect_error(fullmatch(mm, data = tmp), "are not found")
+
+  # Catching issue #56 rather than returning nonsense
+  expect_error(fullmatch(mm, data=mm), "are not found")
 
 })
 

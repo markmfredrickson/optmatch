@@ -312,6 +312,18 @@ fullmatch.matrix <- function(x,
     stop("omit.fraction and mean.controls cannot both be specified")
   }
 
+  # Issue #56: Checking for sane input in data
+  if (!is.null(data)) {
+    if (!is.vector(data)) {
+      dnames <- rownames(data)
+    } else {
+      dnames <- names(data)
+    }
+    if (any(!unlist(dimnames(x)) %in% dnames)) {
+      stop("Some elements of the distance matrix are not found in the data argument.")
+    }
+  }
+
   # problems is guaranteed to be a list of DistanceSpecifictions
   # it may only have 1 entry
   problems <- findSubproblems(x)
