@@ -160,16 +160,14 @@ test_that("strata() function handling", {
 
   res3 <- fill.NAs(z ~ x + strata(s), data = data.NAs)
   expect_equal(sum(is.na(res3$s)), 3)
-   ## Optmatch #103 need next 2 tests to pass
-###  expect_true(is.matrix(model.matrix(terms(res3), res3))) # has to work in order
-###  glm(res3, family=binomial) #for this line not to throw error
+  # The following line should not error per #103
+  glm(z ~ x + x.NA + strata(s), family=binomial, data=res3)
 
   res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
   expect_false(any(is.na(res4$s)))
-  ## Optmatch #103 need next 2 tests to pass
-###  expect_true(is.matrix(model.matrix(terms(res4), res4))) #has to work in order
-###  glm(res4, family=binomial) #for this line not to throw error
-  
+  # Again, this should not error per #103
+  glm(z ~ x + x.NA + strata(s, na.group=TRUE), family=binomial, data=res4)
+
   ## checking for terms attribute on the returned data.frame
   tt <- terms(res1)
   expect_false(is.null(attr(tt, "specials")$strata)) # the strata term is marked as such

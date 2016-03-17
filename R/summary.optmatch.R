@@ -72,7 +72,7 @@ summary.optmatch <- function(object,
     # we need to handle the different ways of creating glm objects
     # 1: glm(Z ~ f(X), data = mydata)
     # 2: glm(Z ~ f(X)) # uses environment
-    # 3: glm(fill.NAs(Z ~ f(x), data = mydata))
+    # 3: glm(fill.NAs(Z ~ f(x), data = mydata)) # This is no longer explicitly supported, see #103
     # each stores its data in different places.
 
     modelData <- NULL # be explicit for safety

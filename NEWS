@@ -13,6 +13,10 @@ CHANGES IN OPTMATCH VERSION 0.9-6
 * (Internal) methods for sorting of InfinitySparseMatrix's
 * Fixed Rcpp incompatibilities for some OSX users (4bbcaca), various minor issues
   affecting package development and deployment (#110,...).
+* Deprecate support passing the results of `fill.NAs` directly to `glm` or
+  similar. Use the traditional formula and `data` argument version. See help
+  documentation for `fill.NAs` for examples.
+
 
 CHANGES IN OPTMATCH VERSION 0.9-5
 * Documentation adjustments.

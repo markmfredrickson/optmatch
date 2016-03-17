@@ -88,32 +88,36 @@
 #' ### Extract some representative covariates:
 #' np.missing <- nuclearplants[c('t1', 't2', 'ne', 'ct', 'cum.n')]
 #'
-#' ### create some missingness in the covariates
-#' n <- dim(np.missing)[1]
-#' k <- dim(np.missing)[2]
+#'  ### create some missingness in the covariates
+#'  n <- dim(np.missing)[1]
+#'  k <- dim(np.missing)[2]
 #'
-#' for (i in 1:n) {
-#'   missing <- rbinom(1, prob = .1, size = k)
-#'   if (missing > 0) {
-#'     np.missing[i, sample(k, missing)] <- NA
-#'   }
-#' }
+#'  for (i in 1:n) {
+#'    missing <- rbinom(1, prob = .1, size = k)
+#'    if (missing > 0) {
+#'      np.missing[i, sample(k, missing)] <- NA
+#'    }
+#'  }
 #'
-#'### Restore outcome and treatment variables:
+#' ### Restore outcome and treatment variables:
 #' np.missing <- data.frame(nuclearplants[c('cost', 'pr')], np.missing)
 #'
 #' ### Fit a propensity score but with missing covariate data flagged
 #' ### and filled in, as in Rosenbaum and Rubin (1984, Appendix):
-#'(np.glm <- glm(fill.NAs(pr ~ t1 * t2, data=np.missing),
-#'                        family=binomial))
+#' np.filled <- fill.NAs(pr ~ t1 * t2, np.missing)
+#' # Look at np.filled to establish what missingness flags were created
+#' head(np.filled)
+#' (np.glm <- glm(pr ~ ., family=binomial, data=np.filled))
+#' (glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA,
+#'                 family=binomial, data=np.filled))
+#' # In a non-interactive session, the following may help, as long as
+#' # the formula passed to `fill.NAs` (plus any missinginess flags) is
+#' # the desired formula for the glm.
+#' (glm(formula(terms(np.filled)), family=binomial, data=np.filled))
 #'
-#' # the previous call is equivalent to:
-#' # glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, fill.NAs(np.missing), family =
-#' #binomial())
-
 #' ### produce a matrix of propensity distances based on the propensity model
 #' ### with fill-in and flagging. Then perform pair matching on it:
-#' pairmatch(match_on(np.glm))
+#' pairmatch(match_on(np.glm, data=np.filled), data=np.filled)
 #'
 #' ## fill NAs without using treatment contrasts by making a list of contrasts for
 #' ## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
