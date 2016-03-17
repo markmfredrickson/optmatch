@@ -1,3 +1,23 @@
+CHANGES IN OPTMATCH VERSION 0.9-6
+* Streamlined combinations of exact and propensity score matching.
+  If you include "+ strata(fac)" on the right hand side of a propensity
+  scoring model formula, then pass the fitted model to `pairmatch()`,
+  `fullmatch()` or `match_on`, then the factor "fac" will both serve as
+  an independent variable for the propensity model and an exact matching
+  variable (#101).
+* New material in vignettes, on general use of the package and on
+  import/export of matching results and material between R and SAS
+  or Stata (Josh Errickson).
+* `pairmatch` and `fullmatch` no longer generate "matched.distances" attributes
+   for their results. To get this information, use `matched.distances`.
+* (Internal) methods for sorting of InfinitySparseMatrix's   
+* Fixed Rcpp incompatibilities for some OSX users (4bbcaca), various minor issues
+  affecting package development and deployment (#110,...).
+
+CHANGES IN OPTMATCH VERSION 0.9-5
+* Documentation adjustments.
+* Explicit print method for output from explicit calls to `stratumStructure`.
+
 CHANGES IN OPTMATCH VERSION 0.9-4
 
 * Significant speed up of math operations for sparse distance objects
