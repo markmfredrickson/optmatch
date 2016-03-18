@@ -11,8 +11,9 @@ CHANGES IN OPTMATCH VERSION 0.9-6
 * `pairmatch` and `fullmatch` no longer generate "matched.distances" attributes
    for their results. To get this information, use `matched.distances`.
 * (Internal) methods for sorting of InfinitySparseMatrix's
-* Fixed Rcpp incompatibilities for some OSX users (4bbcaca), various minor issues
-  affecting package development and deployment (#110,...).
+* Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); `boxplot`
+  method for fitted propensities ignoring varwidth argument (#113); various 
+  minor issues affecting package development and deployment (#110,...).
 * Deprecate support passing the results of `fill.NAs` directly to `glm` or
   similar. Use the traditional formula and `data` argument version. See help
   documentation for `fill.NAs` for examples.

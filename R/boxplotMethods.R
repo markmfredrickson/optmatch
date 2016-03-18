@@ -11,7 +11,7 @@ boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, sym
   Data <- model.frame(terms(x), data)
   dependent.variable <- as.numeric(model.response(Data))
 }
-boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main,...)
+boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth,...)
   }
 
 #' @export
@@ -38,5 +38,5 @@ are there missing values in data?")
 
   Data <-  model.frame(x$terms, data = data)
   dependent.variable <- as.numeric(model.response(Data))
-boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main,...)
+boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth,...)
   }
