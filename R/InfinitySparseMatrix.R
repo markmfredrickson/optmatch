@@ -638,14 +638,14 @@ num_eligible_matches.matrix <- function(x) {
 #' @rdname num_eligible_matches-methods
 #' @export
 num_eligible_matches.InfinitySparseMatrix <- function(x) {
-  list(length(x@.Data))
+  list(sum(is.finite(x@.Data)))
 }
 
 #' @usage \method{num_eligible_matches}{BlockedInfinitySparseMatrix}(x)
 #' @rdname num_eligible_matches-methods
 #' @export
 num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
-  out <- lapply(levels(x@groups), function(k) length(x[x@groups == k]@.Data))
+  out <- lapply(levels(x@groups), function(k) sum(is.finite(x[x@groups == k]@.Data)))
   names(out) <- levels(x@groups)
   out
 }

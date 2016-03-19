@@ -255,11 +255,11 @@ test_that("optmatch_same_distance", {
 
 
 ## test_that("update.optmatch", {
-  Z <- c(1,0,0,0,0,1,0,0)
-  B <- c(rep('a', 5), rep('b', 3))
-  d <- as.data.frame(cbind(Z,B))
-  rm(Z)
-  rm(B)
+##  Z <- c(1,0,0,0,0,1,0,0)
+##  B <- c(rep('a', 5), rep('b', 3))
+##  d <- as.data.frame(cbind(Z,B))
+##  rm(Z)
+##  rm(B)
 
 ##   res.b <- exactMatch(Z ~ B, data=d)
 
@@ -372,39 +372,51 @@ test_that("optmatch_same_distance", {
 ## })
 
 test_that("num_eligible_matches", {
-  x <- rnorm(10)
-  y <- as.factor(rep(c("a", "b"), 5))
-  y2 <- as.factor(rep(1:2, 5))
-  z <- c(rep(0,6), rep(1,4))
-  d1 <- as.data.frame(cbind(x,z))
-  d1$y <- y
-  d1$y2 <- y2
-  rm(x)
-  rm(y)
-  rm(y2)
-  rm(z)
 
-  a <- match_on(z ~ x, data = d1)
-  expect_true(num_eligible_matches(a) == 24)
+  a <- matrix(rep(0,9), nrow=3)
+  class(a) <- c("DenseMatrix", class(a))
+  expect_true(num_eligible_matches(a) == 9)
 
-  b <- caliper(a, 1e-5)
-  expect_true(num_eligible_matches(b) == 0)
+  a[1] <- Inf
+  expect_true(num_eligible_matches(a) == 8)
 
-  c <- exactMatch(z ~ y, data=d1)
-  nemc <- num_eligible_matches(c)
-  expect_true(identical(nemc, list(a=as.integer(6), b=as.integer(6))))
+  b <- makeInfinitySparseMatrix(1:4,
+                                rows=c(1L,1L,2L,3L),
+                                cols=c(1L,2L,3L,3L),
+                                dimension=c(3L,3L),
+                                colnames=letters[1:3],
+                                rownames=LETTERS[1:3])
 
-  c2 <- exactMatch(z ~ y2, data=d1)
-  nemc2 <- num_eligible_matches(c2)
-  expect_true(identical(nemc2, list(`1`=as.integer(6), `2`=as.integer(6))))
+  expect_true(num_eligible_matches(b) == 4)
+  c <- b
+  c[1] <- Inf
+  expect_true(num_eligible_matches(c) == 3)
 
-  expect_true(num_eligible_matches(optmatch:::as.InfinitySparseMatrix(c)) == 12)
+  d <- as(b, "BlockedInfinitySparseMatrix")
+  d@groups <- factor(c("cat","cat","dog","cat","cat","dog"))
+  names(d@groups) <- c(LETTERS[1:3], letters[1:3])
+
+  nem <- num_eligible_matches(d)
+  expect_equal(names(nem), c("cat", "dog"))
+  expect_equal(nem[[1]], 3)
+  expect_equal(nem[[2]], 1)
+  expect_true(num_eligible_matches.InfinitySparseMatrix(d) == 4)
+  expect_true(num_eligible_matches(as.InfinitySparseMatrix(d)) == 4)
+
+  e <- d
+  e[1] <- Inf
+
+  nem <- num_eligible_matches(e)
+  expect_equal(names(nem), c("cat", "dog"))
+  expect_equal(nem[[1]], 2)
+  expect_equal(nem[[2]], 1)
+  expect_true(num_eligible_matches.InfinitySparseMatrix(e) == 3)
+  expect_true(num_eligible_matches(as.InfinitySparseMatrix(e)) == 3)
+
 
   d <- matrix(rep(1:2, 10), 10, 2)
   d <- caliper(d, 1.5)
   expect_true(num_eligible_matches(d) == 10)
-
-
 
 })
 
