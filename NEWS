@@ -5,6 +5,8 @@ CHANGES IN OPTMATCH VERSION 0.9-6
   `fullmatch()` or `match_on`, then the factor "fac" will both serve as
   an independent variable for the propensity model and an exact matching
   variable (#101). See the examples on the help documentation for `fullmatch`.
+* New `summary` methods for InfinitySparseMatrix, BlockedInfinitySparseMatrix
+  and DenseMatrix.
 * New material in vignettes, on general use of the package and on
   import/export of matching results and material between R and SAS
   or Stata (Josh Errickson).
@@ -12,7 +14,7 @@ CHANGES IN OPTMATCH VERSION 0.9-6
    for their results. To get this information, use `matched.distances`.
 * (Internal) methods for sorting of InfinitySparseMatrix's
 * Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); `boxplot`
-  method for fitted propensities ignoring varwidth argument (#113); various 
+  method for fitted propensities ignoring varwidth argument (#113); various
   minor issues affecting package development and deployment (#110,...).
 * Deprecate support passing the results of `fill.NAs` directly to `glm` or
   similar. Use the traditional formula and `data` argument version. See help
