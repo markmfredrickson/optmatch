@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.9-5
+Version: 0.9-6
 Title: Functions for Optimal Matching
 Description: Provides routines for distance based bipartite matching to reduce
     covariate imbalance between treatment and control groups in observational
