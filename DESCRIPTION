@@ -69,6 +69,7 @@ Collate:
     'scores.R'
     'stratumStructure.R'
     'subDivStrat.R'
+    'summary.ism.R'
     'summary.optmatch.R'
     'utilities.R'
     'zzz.R'
