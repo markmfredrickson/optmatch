@@ -35,11 +35,8 @@ internal structure, leaving the external structure unchanged
 identical despite sorting.)
 }
 \details{
-By default, the ISM is row-dominant, meaning the row positions are
-sorted first, then column positions are sorted within each
-row. Use argument `byCol` to change this.
-}
-\author{
-Josh Errickson
+By default, the InfinitySparseMatrix is row-dominant, meaning the
+row positions are sorted first, then column positions are sorted
+within each row. Use argument `byCol` to change this.
 }
 

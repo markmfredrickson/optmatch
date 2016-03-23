@@ -446,7 +446,8 @@ t.InfinitySparseMatrix <- function(x) {
 
 ##' Displays an InfinitySparseMatrix
 ##'
-##' Specifically, displays an ISM by converting it to a matrix first.
+##' Specifically, displays an InfinitySparseMatrix by converting it to
+##' a matrix first.
 ##' @param object An InfinitySparseMatrix to print.
 ##' @return NULL
 ##' @export
@@ -461,9 +462,9 @@ setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(obje
 ##' (e.g. `as.matrix(ism)` and `as.matrix(sort(ism))` will look
 ##' identical despite sorting.)
 ##'
-##' By default, the ISM is row-dominant, meaning the row positions are
-##' sorted first, then column positions are sorted within each
-##' row. Use argument `byCol` to change this.
+##' By default, the InfinitySparseMatrix is row-dominant, meaning the
+##' row positions are sorted first, then column positions are sorted
+##' within each row. Use argument `byCol` to change this.
 ##' @param x An InfinitySparseMatrix or BlockedInfinitySparseMatrix.
 ##' @param decreasing Logical. Should the sort be increasing or
 ##'   decreasing?
@@ -473,7 +474,6 @@ setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(obje
 ##' @return An object of the same class as `x` which is sorted
 ##'   according to `byCol`.
 ##' @rdname sort.ism
-##' @author Josh Errickson
 ##' @export
 sort.InfinitySparseMatrix <- function(x,
                                       decreasing=FALSE,
@@ -652,7 +652,7 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
 
 ##' Displays a BlockedInfinitySparseMatrix
 ##'
-##' Displays each block of the BISM separately.
+##' Displays each block of the BlockedInfinitySparseMatrix separately.
 ##' @param object An BlockedInfinitySparseMatrix to print.
 ##' @return NULL
 ##' @export

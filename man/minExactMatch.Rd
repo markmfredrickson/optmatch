@@ -24,7 +24,7 @@ A factor grouping units, suitable for \code{\link{exactMatch}}.
 \description{
 The \code{\link{exactMatch}} function creates a smaller matching problem by
 stratifying observations into smaller groups. For a problem that is larger
-than maximum allowed size, \code{minExatMatch} provides a way to find the
+than maximum allowed size, \code{minExactMatch} provides a way to find the
 smallest exact matching problem that will allow for matching.
 }
 \details{

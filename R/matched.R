@@ -40,7 +40,7 @@
 ##' @seealso \code{\link{fullmatch}}
 ##'
 ##' @examples
-##' data(plandist)
+##' data(plantdist)
 ##'
 ##' mxpl.fm0 <- fullmatch(plantdist) # A feasible matching problem
 ##' c(sum(matched(mxpl.fm0)), sum(unmatched(mxpl.fm0)))

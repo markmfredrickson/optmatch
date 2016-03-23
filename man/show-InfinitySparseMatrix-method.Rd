@@ -11,6 +11,7 @@
 \item{object}{An InfinitySparseMatrix to print.}
 }
 \description{
-Specifically, displays an ISM by converting it to a matrix first.
+Specifically, displays an InfinitySparseMatrix by converting it to
+a matrix first.
 }
 

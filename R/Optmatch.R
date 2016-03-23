@@ -173,7 +173,6 @@ makeOptmatch <- function(distance,
 #' @param obj An optmatch object
 #' @return A list of \code{min.controls}, \code{max.controls} and either
 #' \code{omit.fraction} or \code{mean.controls}.
-#' @author Josh Errickson
 #' @export
 optmatch_restrictions <- function(obj) {
   if (!is(obj, "optmatch")) {
@@ -201,7 +200,6 @@ optmatch_restrictions <- function(obj) {
 #' @param obj An optmatch object.
 #' @param newdist A distance
 #' @return Boolean whether the two distance specifications are identical.
-#' @author Josh Errickson
 #' @export
 optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
@@ -225,7 +223,6 @@ optmatch_same_distance <- function(obj, newdist) {
 #' @param ... Additional arguments to the call, or arguments with changed values.
 #' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
-#' @author Josh Errickson
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")

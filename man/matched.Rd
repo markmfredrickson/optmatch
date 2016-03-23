@@ -55,7 +55,7 @@ To understand the output of \code{matchfailed} element-wise,
   \code{matchfailed}.
 }
 \examples{
-data(plandist)
+data(plantdist)
 
 mxpl.fm0 <- fullmatch(plantdist) # A feasible matching problem
 c(sum(matched(mxpl.fm0)), sum(unmatched(mxpl.fm0)))

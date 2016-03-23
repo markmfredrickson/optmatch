@@ -11,6 +11,6 @@
 \item{object}{An BlockedInfinitySparseMatrix to print.}
 }
 \description{
-Displays each block of the BISM separately.
+Displays each block of the BlockedInfinitySparseMatrix separately.
 }
 

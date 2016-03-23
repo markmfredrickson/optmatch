@@ -3,7 +3,7 @@
 ################################################################################
 
 # mdist.R provides some S3/S4 stuff for the optmatch.dlist class
-#' @include mdist.R 
+#' @include mdist.R
 NULL
 
 ### prepareMatching: DistanceSpecification -> arcs
@@ -18,7 +18,7 @@ function(distances) {
   cs <- colnames(distances)
   rs <- rownames(distances)
   raw.distances <- as.vector(distances)
-  
+
   control.reps <- length(raw.distances) / length(cs)
   treatment.reps <- length(raw.distances) / length(rs)
 
@@ -28,11 +28,11 @@ function(distances) {
   idx <- is.finite(raw.distances)
 
   # call factor() in order to drop unused levels
-  tmp <- data.frame(control = factor(controls[idx]), 
-                    treated = factor(treatments[idx]), 
+  tmp <- data.frame(control = factor(controls[idx]),
+                    treated = factor(treatments[idx]),
                     distance = raw.distances[idx])
 
-  return(tmp) 
+  return(tmp)
 })
 
 setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
@@ -45,14 +45,14 @@ setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
                     distance = distances@.Data)
 
   return(tmp)
-  
+
 })
 
-setMethod("prepareMatching", "optmatch.dlist", 
+setMethod("prepareMatching", "optmatch.dlist",
 function(distances) {
   Reduce(rbind, lapply(distances, function(grp) {
-    prepareMatching(grp) # should be a matrix object  
-  }))  
+    prepareMatching(grp) # should be a matrix object
+  }))
 })
 
 
@@ -62,12 +62,12 @@ function(distances) {
 setGeneric("subproblems", function(distances)
   standardGeneric("subproblems"))
 
-setMethod("subproblems", "InfinitySparseMatrix", function(distances) FALSE)  
-setMethod("subproblems", "matrix", function(distances) FALSE)  
-setMethod("subproblems", "DenseMatrix", function(distances) FALSE)  
+setMethod("subproblems", "InfinitySparseMatrix", function(distances) FALSE)
+setMethod("subproblems", "matrix", function(distances) FALSE)
+setMethod("subproblems", "DenseMatrix", function(distances) FALSE)
 
 # same method for matrices and ISMs
-setMethod("subproblems", "BlockedInfinitySparseMatrix", 
+setMethod("subproblems", "BlockedInfinitySparseMatrix",
 function(distances) {
   tmp <- lapply(levels(distances@groups), function(l) {
     members <- names(distances@groups[distances@groups == l])
@@ -78,8 +78,8 @@ function(distances) {
 
     idx <- ridx & cidx
 
-    makeInfinitySparseMatrix(distances[idx], 
-      rows = match(distances@rows[idx], row.members), 
+    makeInfinitySparseMatrix(distances[idx],
+      rows = match(distances@rows[idx], row.members),
       cols = match(distances@cols[idx], col.members),
       rownames = distances@rownames[row.members],
       colnames = distances@colnames[col.members])
@@ -90,7 +90,7 @@ function(distances) {
   ftmp <- Filter(function(x) { length(x) > 0 }, tmp)
 
   if (length(ftmp) == 0) {
-    return(FALSE) # no subproblems found  
+    return(FALSE) # no subproblems found
   }
 
   return(ftmp)
@@ -101,22 +101,30 @@ setMethod("subproblems", "optmatch.dlist", function(distances) distances)
 # a helper to get all the subproblems from the implied tree of a DS
 findSubproblems <- function(d) {
   res <- subproblems(d)
-  
+
   if (is.list(res)) {
     return(do.call(c, lapply(res, findSubproblems)))
   }
 
   return(list(d))
 
-} 
+}
 
-# (Internal) Validate that objects are valid distance specifications.
-#
-# The functions \code{\link{fullmatch}} and \code{\link{pairmatch}} create optimal matchings of treated and control units given a matrix (or similar representation) of distances between treated and control units. These distance specifications must implement certain generic functions. This function checks that all necessary methods exist and the object can be used to specify distances in a way that the matching functions can use.
-#
-# @param distance The object to test.
-# @param stopOnProblem If \code{TRUE} (default) the function will raise an error for invalid objects. Otherwise, it returns a logical.
-# @return logical
+#' (Internal) Validate that objects are valid distance specifications.
+#'
+#' The functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
+#' create optimal matchings of treated and control units given a
+#' matrix (or similar representation) of distances between treated and
+#' control units. These distance specifications must implement certain
+#' generic functions. This function checks that all necessary methods
+#' exist and the object can be used to specify distances in a way that
+#' the matching functions can use.
+#'
+#' @param distance The object to test.
+#' @param stopOnProblem If \code{TRUE} (default) the function will
+#'   raise an error for invalid objects. Otherwise, it returns a
+#'   logical.
+#' @return logical
 validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
   klass <- class(distance)[1] # in case there are multiple class names
 
@@ -127,9 +135,9 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
     if (!hasMethod(m, klass)) {
       # skip the FUN = ... in the call stack
       if (stopOnProblem) {
-        stop(paste("Invalid distance: object must have a", m, "method."), call. = F)  
+        stop(paste("Invalid distance: object must have a", m, "method."), call. = F)
       } else {
-        return(FALSE)  
+        return(FALSE)
       }
     }
   })
@@ -137,19 +145,19 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
 
   if (is.null(dimnames(distance))) {
     if (stopOnProblem) {
-      stop("Invalid distance: object must have dimnames. Rows are treated, columns are control.")  
+      stop("Invalid distance: object must have dimnames. Rows are treated, columns are control.")
     }
     return(FALSE)
   }
-  
+
   sbprobs <- findSubproblems(distance)
 
   for(i in length(sbprobs)) {
     # for matrices we check with is.numeric
-  
+
     if (!is.numeric(sbprobs[[i]])) {
       if (stopOnProblem) {
-        stop("Invalid distance: object must be numeric.")  
+        stop("Invalid distance: object must be numeric.")
       }
       return(FALSE)
     }
@@ -157,11 +165,10 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
 
   if(!hasMethod(dim, class(distance)[1])) {
     if (stopOnProblem) {
-      stop("Invalid distance: object must have dim method")  
+      stop("Invalid distance: object must have dim method")
     }
     return(FALSE)
   }
 
   return(TRUE)
 }
-

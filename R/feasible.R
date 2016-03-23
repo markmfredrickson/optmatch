@@ -34,7 +34,7 @@ getMaxProblemSize <- function() {
 #'
 #' The \code{\link{exactMatch}} function creates a smaller matching problem by
 #' stratifying observations into smaller groups. For a problem that is larger
-#' than maximum allowed size, \code{minExatMatch} provides a way to find the
+#' than maximum allowed size, \code{minExactMatch} provides a way to find the
 #' smallest exact matching problem that will allow for matching.
 #'
 #' \code{x} is a formula of the form \code{Z ~ X1 + X2}, where

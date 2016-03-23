@@ -17,7 +17,7 @@ exactMatch(x, ...)
 \arguments{
 \item{x}{A factor vector or a formula, used to select method.}
 
-\item{...}{Additional rguments for methods.}
+\item{...}{Additional arguments for methods.}
 
 \item{treatment}{A vector the same length as \code{x} that can be
 coerced to a two level factor (e.g. a vector of 1s and 0s or a

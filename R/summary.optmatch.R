@@ -5,11 +5,25 @@
 #' match reduces average differences.
 #'
 #' @param object The \code{optmatch} object to summarize.
-#' @param propensity.model An optional propensity model (the result of a call to \code{glm}) to use when summarizing the match. Using the \code{RItools} package, an additional chi-squared test will be performed on the average differences between treated and control units on each variable used in the model. See the \code{xBalance} function in the \code{RItools} package for more details.
-#' @param ... Additional arguments to pass to \code{xBalance} when also passing a propensity model.
-#' @param min.controls To minimize the the display of a groups with many treated and few controls, all groups with more than 5 treated units will be summarized as \dQuote{5+}. This is the reciprocal of the default value (1/5 = 0.2). Lower this value to see more groups.
-#' @param max.controls Like \code{min.controls} sets maximum group sized displayed with respect to the number of controls. Raise this value to see more groups.
-#' @param quantiles A points in the ECDF at which the distances between units will be displayed.
+#' @param propensity.model An optional propensity model (the result of
+#'   a call to \code{glm}) to use when summarizing the match. Using
+#'   the \code{RItools} package, an additional chi-squared test will
+#'   be performed on the average differences between treated and
+#'   control units on each variable used in the model. See the
+#'   \code{xBalance} function in the \code{RItools} package for more
+#'   details.
+#' @param ... Additional arguments to pass to \code{xBalance} when
+#'   also passing a propensity model.
+#' @param min.controls To minimize the the display of a groups with
+#'   many treated and few controls, all groups with more than 5
+#'   treated units will be summarized as \dQuote{5+}. This is the
+#'   reciprocal of the default value (1/5 = 0.2). Lower this value to
+#'   see more groups.
+#' @param max.controls Like \code{min.controls} sets maximum group
+#'   sized displayed with respect to the number of controls. Raise
+#'   this value to see more groups.
+#' @param quantiles A points in the ECDF at which the distances
+#'   between units will be displayed.
 #' @return \code{optmatch.summary}
 #' @seealso \code{\link{print.optmatch}}
 #' @method summary optmatch

@@ -79,7 +79,7 @@
 #'
 #' Von Hipple, Paul T. (2009) \sQuote{How to impute interactions,
 #'   squares, and other transformed variables,} \emph{Sociological
-#'   Methodlogy}, \bold{39}(1), 265 -- 291.
+#'   Methodology}, \bold{39}(1), 265 -- 291.
 #'
 #' @seealso \code{\link{match_on}}, \code{\link{lm}}
 #'
@@ -111,7 +111,7 @@
 #' (glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA,
 #'                 family=binomial, data=np.filled))
 #' # In a non-interactive session, the following may help, as long as
-#' # the formula passed to `fill.NAs` (plus any missinginess flags) is
+#' # the formula passed to `fill.NAs` (plus any missingness flags) is
 #' # the desired formula for the glm.
 #' (glm(formula(terms(np.filled)), family=binomial, data=np.filled))
 #'

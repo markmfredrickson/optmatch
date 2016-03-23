@@ -38,7 +38,7 @@
 #'   observations to be used
 #' @param na.action A function which indicates what should happen when
 #'   the data contain `NA's
-#' @param ... Additional rguments for methods.
+#' @param ... Additional arguments for methods.
 #'
 #' @return A matrix like object, which is suitable to be given as
 #'   \code{distance} argument to \code{\link{fullmatch}} or
