@@ -91,7 +91,7 @@ summary.InfinitySparseMatrix <- function(object, ..., distanceSummary=TRUE) {
   mcontrol  <- 1:dim(object)[2] %in% sort(unique(colsfinite))
 
   if (distanceSummary & length(datafinite)) {
-    distances <- summary(tapply(datafinite, rowsfinite, min))
+    distances <- summary(sapply(split(datafinite, rowsfinite), min))
   } else {
     distances <- NULL
   }
