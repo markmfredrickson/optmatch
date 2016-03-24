@@ -1,24 +1,27 @@
 CHANGES IN OPTMATCH VERSION 0.9-6
+* New material in vignettes, on general use of the package and on
+  import/export of matching results and material between R and SAS
+  or Stata (Josh Errickson).
+* New `summary` methods for InfinitySparseMatrix, BlockedInfinitySparseMatrix
+  and DenseMatrix.  I.e., you can call `summary` on the result of a call to
+  `match_on` or `caliper`.  The information this returns may be useful for
+  selecting caliper widths, and for managing computational burdens with large
+  matching problems.
 * Streamlined combinations of exact and propensity score matching.
   If you include "+ strata(fac)" on the right hand side of a propensity
   scoring model formula, then pass the fitted model to `pairmatch()`,
   `fullmatch()` or `match_on`, then the factor "fac" will both serve as
   an independent variable for the propensity model and an exact matching
   variable (#101). See the examples on the help documentation for `fullmatch`.
-* New `summary` methods for InfinitySparseMatrix, BlockedInfinitySparseMatrix
-  and DenseMatrix.
-* New material in vignettes, on general use of the package and on
-  import/export of matching results and material between R and SAS
-  or Stata (Josh Errickson).
 * `pairmatch` and `fullmatch` no longer generate "matched.distances" attributes
    for their results. To get this information, use `matched.distances`.
 * (Internal) methods for sorting of InfinitySparseMatrix's
+* Deprecated: support passing the results of `fill.NAs` directly to `glm` or
+  similar. Use the traditional formula and `data` argument version. See help
+  documentation for `fill.NAs` for examples.
 * Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); `boxplot`
   method for fitted propensities ignoring varwidth argument (#113); various
   minor issues affecting package development and deployment (#110,...).
-* Deprecate support passing the results of `fill.NAs` directly to `glm` or
-  similar. Use the traditional formula and `data` argument version. See help
-  documentation for `fill.NAs` for examples.
 
 
 CHANGES IN OPTMATCH VERSION 0.9-5
