@@ -24,3 +24,6 @@ dependencies test check document vignette clean-vignette build build_win: .devto
 
 clean: clean-vignette
 	git clean -Xfd
+
+spell-check-DESCRIPTION:
+	aspell -c DESCRIPTION --personal=NULL
