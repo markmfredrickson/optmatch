@@ -1,12 +1,11 @@
 Package: optmatch
 Version: 0.9-6
 Title: Functions for Optimal Matching
-Description: Provides routines for distance based bipartite matching to reduce
-    covariate imbalance between treatment and control groups in observational
-    studies. Routines are provided to generate distances from GLM models (propensity
-    score matching) and formulas (Euclidean and Mahalanobis matching), stratified
-    matching (exact matching), and calipers. Results of the fullmatch routine are
-    guaranteed to provide minimum average within matched set distance.
+Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
+    oriented to matching of treatment and control groups in observational
+    studies. Routines are provided to generate distances from generalised linear models (propensity
+    score matching), formulas giving variables on which to limit matched distances, stratified or
+    exact matching directives, or calipers, alone or in combination.
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
     <mark.m.fredrickson@gmail.com>, Josh Buckner, Josh Errickson, and Peter
     Solenberger, with embedded Fortran code due to Dimitri P. Bertsekas
