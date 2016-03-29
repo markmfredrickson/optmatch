@@ -1,6 +1,7 @@
 ## Use devtools to load most recent version
 library(utils)
 library("devtools")
+library(testthat)
 devtools:::load_all(export_all=FALSE)
 
 ## `utils` is loaded first to ensure proper ordering in the search
