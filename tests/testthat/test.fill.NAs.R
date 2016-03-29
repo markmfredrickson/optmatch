@@ -2,7 +2,6 @@
 # fill.NAs tests
 ################################################################################
 
-library(testthat)
 context("fill.NAs")
 
 test_that("Basic Tests", {
@@ -34,17 +33,18 @@ test_that("Basic Tests", {
 })
 
 test_that("Function expansion", {
-  library(splines)
-  # for variables encapsulated in functions, only the variable should be expanded into a NA column
-  sample.df <- data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA, 3, 4), 20))
+  if (require(splines)) {
+    # for variables encapsulated in functions, only the variable should be expanded into a NA column
+    sample.df <- data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA, 3, 4), 20))
 
-  result <- fill.NAs(a ~ ns(c, df = 3), sample.df)
-  expect_equal(length(result), 5)
-  expect_equal(colnames(result)[1], "a")
+    result <- fill.NAs(a ~ ns(c, df = 3), sample.df)
+    expect_equal(length(result), 5)
+    expect_equal(colnames(result)[1], "a")
 
-  ## right number of columns if 2 of the same variable used
-  imputed.fmla <- fill.NAs(a ~ log(c) + sqrt(c), data = sample.df)
-  expect_equal(dim(imputed.fmla)[2],  4)
+    ## right number of columns if 2 of the same variable used
+    imputed.fmla <- fill.NAs(a ~ log(c) + sqrt(c), data = sample.df)
+    expect_equal(dim(imputed.fmla)[2],  4)
+  }
 
 })
 

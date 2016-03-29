@@ -1,6 +1,5 @@
 context("summary method for ISM and related")
 
-
 test_that("summary for ISM", {
   set.seed(1)
   d <- data.frame(z=rep(0:1, each=5),

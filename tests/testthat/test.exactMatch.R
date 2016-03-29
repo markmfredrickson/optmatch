@@ -2,8 +2,6 @@
 # Tests for exactMatch function: a function to create InfinitySpareMatrices
 ################################################################################
 
-library(testthat)
-
 context("exactMatch function")
 
 test_that("Exact Match on Factors", {
@@ -18,7 +16,7 @@ test_that("Exact Match on Factors", {
 
   res <- exactMatch(B, treatment = Z) # factor, factor implementation
 
-  # the resulting matrix should be block diagonal with 32 non-inf entries 
+  # the resulting matrix should be block diagonal with 32 non-inf entries
 
   expect_equal(dim(res), c(8,8))
   expect_equal(length(res), 32)
@@ -68,7 +66,7 @@ test_that("Exact match on formula", {
   res.multi <- exactMatch(Z ~ B + B2)
 
   expect_equal(as.matrix(res.bb), as.matrix(res.multi))
-  
+
 })
 
 test_that("Use proper environment or data.frame", {
@@ -85,7 +83,7 @@ test_that("Use proper environment or data.frame", {
   res.df <- exactMatch(a ~ c, data = test.data)
 
   expect_equivalent(res.envir, res.df)
-  
+
 })
 
 test_that("Makes correct mask", {
@@ -104,8 +102,8 @@ test_that("Makes correct mask", {
   names(Y) <- rownames(data)
   names(A) <- rownames(data)
 
-  reference <- matrix(c(rep(c(0,0,0,Inf,Inf), 2), 
-                        rep(c(Inf, Inf, Inf, 0, 0), 3)), 
+  reference <- matrix(c(rep(c(0,0,0,Inf,Inf), 2),
+                        rep(c(Inf, Inf, Inf, 0, 0), 3)),
                       nrow = 5, ncol = 5)
 
   mask.df <- exactMatch(z ~ b, data = data)
@@ -115,7 +113,7 @@ test_that("Makes correct mask", {
   expect_equal(length(mask.fac), 12)
 
   expect_equivalent(mask.df, mask.fac)
-  
+
 })
 
 test_that("Must have names", {
@@ -129,21 +127,21 @@ test_that("Must have names", {
   expect_false(is.null(em@rownames))
   expect_false(is.null(names(em@groups)))
 
-  position <- rep(1:4, each = 4)  
+  position <- rep(1:4, each = 4)
   z <- rep(0:1, 8)
   names(z) <- letters[1:16]
   dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
   allin <- exactMatch(rep(1, 16), z)
-  
+
   expect_equal(names(allin@groups), letters[1:16])
 })
 
 
 test_that("Contains grouping information", {
-  Z <- rep(c(0,1), 8)
-  B <- rep(letters[1:4], each = 4)
-  
-  res.em <- exactMatch(Z ~ B)
+  d <- data.frame(Z = rep(c(0,1), 8),
+                  B = rep(letters[1:4], each = 4))
+
+  res.em <- exactMatch(Z ~ B, data=d)
   expect_is(res.em, "BlockedInfinitySparseMatrix")
 
   # the grouping factor must have names
@@ -152,10 +150,10 @@ test_that("Contains grouping information", {
   # the names of the strata should be used as names of the subprobs list
   expect_equal(names(findSubproblems(res.em)), letters[1:4])
 
-  ### these next few tests are related to eM(), so I'm putting the test here, 
+  ### these next few tests are related to eM(), so I'm putting the test here,
   ### but it is implemented in fullmatch.R
   # the result of the fullmatch should use the original names
-  fm <- fullmatch(res.em)
+  fm <- fullmatch(res.em, data=d)
   expect_true(all(1:16 %in% names(fm)))
 
   # the prefixes shoudl be used in the levels of the factor
@@ -165,7 +163,7 @@ test_that("Contains grouping information", {
 test_that("t() maintains stratification", {
   Z <- rep(c(0,1), 8)
   B <- rep(letters[1:4], each = 4)
-  
+
   em <- exactMatch(Z ~ B)
   em.t <- t(em)
 
@@ -184,7 +182,7 @@ test_that("Cbind/rbind an exact match", {
   test.data <- data.frame(Z, W, B)
 
   res <- exactMatch(B, treatment = Z) # factor, factor implementation
-  
+
   mc <- matrix(c(rep(1, n/2), rep(2, n/2)), ncol = 2,
     dimnames = list(letters[(26 - n/2 + 1):26], c("new.1", "new.2")))
 
@@ -195,7 +193,7 @@ test_that("Cbind/rbind an exact match", {
   colnames(mr) <- LETTERS[1:(n/2)]
   res.rbind <- rbind(res, mr)
   expect_equal(dim(res.rbind), c(n/2 + 2, n/2))
-  
+
 })
 
 test_that("exactMatch objs can be update()'d", {
@@ -203,11 +201,11 @@ test_that("exactMatch objs can be update()'d", {
   B <- rep(letters[1:4], each = 4)
 
   simple <- exactMatch(Z ~ B)
-  expect_equal(length(levels(simple@groups)), 4) 
+  expect_equal(length(levels(simple@groups)), 4)
 
   B <- rep(letters[1:2], each = 8)
   updated <- update(simple)
-  expect_equal(length(levels(updated@groups)), 2) 
+  expect_equal(length(levels(updated@groups)), 2)
 })
 
 
@@ -222,7 +220,7 @@ test_that("antiExactMatch", {
                    control = c("X1", "X3", "X5")))
 
   res <- antiExactMatch(x, z)
-  
+
   expect_equal(as.matrix(res), ex)
 
 })

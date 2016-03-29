@@ -2,7 +2,6 @@
 ### R/Fortran Interface Tests
 ################################################################################
 
-library(testthat)
 context("R/Fortran Interface")
 
 test_that("fmatch accepts DistanceSpecifications", {

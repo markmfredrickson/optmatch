@@ -1,8 +1,6 @@
 ################################################################################
 # Tests for the optmatch object and basic methods
 ################################################################################
-
-library(testthat)
 context("Optmatch object")
 
 test_that("Object creation", {
@@ -189,9 +187,8 @@ test_that("Indicating failing subproblems", {
 })
 
 test_that("optmatch_restrictions", {
-  Z <- c(1,0,0,0,0,1,0,0)
-  B <- c(rep('a', 5), rep('b', 3))
-  d <- as.data.frame(cbind(Z,B))
+  d <- data.frame(Z = c(1,0,0,0,0,1,0,0),
+                  B = rep(c('a', 'b'), times=c(5, 3)))
 
   res.b <- exactMatch(Z ~ B, data=d)
 
@@ -220,7 +217,8 @@ test_that("optmatch_restrictions", {
   expect_true(all(names(o$max.controls) == c('a','b')))
   expect_true(all(names(o$mean.controls) == c('a','b')))
 
-  f <- fullmatch(res.b, data=d, max.controls=1)
+  expect_warning(f <- fullmatch(res.b, data=d, max.controls=1),
+                 "infeasible")
   o <- optmatch_restrictions(f)
   expect_true(all(o$min.controls == 0))
   expect_true(all(o$max.controls == 1))
@@ -229,9 +227,8 @@ test_that("optmatch_restrictions", {
 })
 
 test_that("optmatch_same_distance", {
-  Z <- c(1,0,0,0,0,1,0,0)
-  B <- c(rep('a', 5), rep('b', 3))
-  d <- as.data.frame(cbind(Z,B))
+  d <- data.frame(Z = c(1,0,0,0,0,1,0,0),
+                  B = rep(c('a', 'b'), times=c(5, 3)))
 
   res.b <- exactMatch(Z ~ B, data=d)
   res.b2 <- res.b
@@ -239,7 +236,8 @@ test_that("optmatch_same_distance", {
 
   f1 <- fullmatch(res.b, data=d)
   f2 <- fullmatch(res.b2, data=d)
-  f3 <- fullmatch(res.b, data=d, max.controls=1)
+  expect_warning(f3 <- fullmatch(res.b, data=d, max.controls=1),
+                 "infeasible")
 
   expect_true(optmatch_same_distance(f1, res.b))
   expect_true(optmatch_same_distance(f2, res.b2))

@@ -2,9 +2,6 @@
 # Fullmatch tests
 ################################################################################
 
-library(testthat)
-library(optmatch)
-
 context("feasibility")
 
 test_that("Problems bigger than the max are not feasible", {
@@ -17,19 +14,19 @@ test_that("Problems bigger than the max are not feasible", {
   # now we use the options() function to set this limit(!) much lower and create a problem that should pass
   options('optmatch_max_problem_size' = 256)
   maxprob <- getMaxProblemSize()
-  
+
   feasible.n <- floor(sqrt(maxprob)) - 1
 
   largeButFeasible <- matrix(0, nrow = feasible.n, ncol = feasible.n,
     dimnames = list(1:feasible.n, (feasible.n + 1):(2 * feasible.n)))
-  
-  fullmatch(largeButFeasible)
+
+  fullmatch(largeButFeasible, data=data.frame(1:30))
 
   # now we make too big a problem and try again
   infeasible <- matrix(0, nrow = feasible.n, ncol = 2 * feasible.n,
     dimnames = list(1:feasible.n, (feasible.n + 1):(3 * feasible.n)))
 
-  expect_error(fullmatch(infeasible), "too many")
+  expect_error(fullmatch(infeasible, data=data.frame(1:45)), "too many")
 
   setFeasibilityConstants() # reset the values to make sure that other tests pass
 })
@@ -41,7 +38,7 @@ test_that("minExactMatch creates minimal exact match", {
                    E1 = rep(c(1,1,0,0,0,0,0,0), each = 4), # cuts size in 1/2, too big still
                    E2 = rep(c(1,1,0,0), 8),
                    E3 = rep(c(1,1,1,1,0,0,0,0), 4))
-  
+
   res <- minExactMatch(Z ~ E1 + E2 + E3, data = df, maxarcs = maxarcs)
 
   expect_equal(length(levels(res)), 3) # uses E1 and partial E2, not E3
@@ -72,11 +69,11 @@ test_that("minExactMatch creates minimal exact match", {
   # Level 0 and 2 are small enough that they can be kept after the first round
   # Level 1 needs to be split again using E3 => 1.0 and 1.1
   res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df, maxarcs = maxarcs)
-  expect_equal(length(levels(res)), 4) 
+  expect_equal(length(levels(res)), 4)
 
   # now if we bump the max arcs to 65 we should be able to keep just the 3 levels of E1 + E2
   res <- minExactMatch(Z ~ I(E1 + E2) + E3, data = df, maxarcs = 65)
-  expect_equal(length(levels(res)), 3) 
+  expect_equal(length(levels(res)), 3)
 
   # short circuit if we don't need ot split
   res <- minExactMatch(Z ~ E1 + E2 + E3, data = df)
@@ -89,9 +86,9 @@ test_that("minExactMatch creates minimal exact match", {
 })
 
 test_that("find size of caliper result", {
-  
+
   # start with the helper function that computes the maximum number of comparisons
-  scores <- c(1:5, seq(6, 22, by = 2)) 
+  scores <- c(1:5, seq(6, 22, by = 2))
   z <- rep(c(1,0), 7)
   b <- rep(c(1,0), each = 7)
 
@@ -111,7 +108,7 @@ test_that("find size of caliper result", {
   # 20: 18, 22
   # => Total: 13
   expect_equal(caliperSize(scores, z, 2), 13)
-  
+
   # treated: controls within caliper
   # 1: 2, 4
   # 3: 2, 4, 6
@@ -122,13 +119,13 @@ test_that("find size of caliper result", {
   # 20: 18, 22
   # => Total: 16
   expect_equal(caliperSize(scores, z, 3), 16)
-  
+
   # include every one! (7 * 7 = 49)
   expect_equal(caliperSize(scores, z, 100), 49)
 
   # include no one
   expect_error(caliperSize(scores, z, 0), "Invalid caliper width")
-  
+
   # a quicker upper bound test of the caliper size.
   # goal of tests: the upper bound should be less than the max and more than the true value
 
@@ -167,7 +164,7 @@ test_that("find size of caliper result", {
   # will be feasible, ie. use fewer arcs than required
 
   # a caliper with width 2 has 13 arcs, 3 has 16 and would be too wide
-  oldopts <- options("optmatch_max_problem_size" = 15)  
+  oldopts <- options("optmatch_max_problem_size" = 15)
   expect_equal(maxCaliper(scores, z, 5:1), 2)
 
   # if 2 is missing, pick the next best
@@ -177,7 +174,7 @@ test_that("find size of caliper result", {
   expect_error(maxCaliper(scores, z, 5:3), "caliper size")
 
   # introduce a structure argument, a factor indicating groups
-  # even a very wide caliper is helped by the structure. without b, this would take a caliper of 3 
+  # even a very wide caliper is helped by the structure. without b, this would take a caliper of 3
   expect_equal(maxCaliper(scores, z, 5:1, structure = b), 5)
 
   # tighten down the problem size to require a smaller caliper
@@ -188,7 +185,7 @@ test_that("find size of caliper result", {
   options("optmatch_max_problem_size" = 14)
   # use the upper bound, rather than the exact computation method, to get a caliper value
   expect_equal(maxCaliper(scores, z, 5:1, exact = FALSE), 1)
-  
+
   # play nice with other tests
   setFeasibilityConstants()
 })
@@ -197,7 +194,7 @@ test_that("match_on does not allow too large problems (via makedist fn)", {
   X <- rnorm(100)
   Z <- rep(c(0,1), 50)
   B <- rep(c(0,1), each = 50)
-  
+
   # expected behavior:
   # exactMatch should create BlockedISMs of any size, as they can be strung
   # together to form smaller problems.
@@ -225,8 +222,7 @@ test_that("match_on does not allow too large problems (via makedist fn)", {
   match_on(Z ~ X)
   options(warn = 0)
 
-  setFeasibilityConstants() 
-  
+  setFeasibilityConstants()
+
 
 })
-

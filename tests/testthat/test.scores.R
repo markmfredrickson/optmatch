@@ -2,8 +2,6 @@
 # scores: wrapper of predict to automatically use lm()'s data as newdata
 #############################################################################
 
-library(testthat)
-
 context("scores function")
 
 test_that("Works like predict", {
@@ -22,6 +20,7 @@ test_that("Works like predict", {
   scores2 <- scores(pg2, newdata=nuclearplants)
 
   expect_equal(pred2, scores2)
+
 })
 
 test_that("Works like predict with 'with' and 'attach'", {
@@ -32,28 +31,32 @@ test_that("Works like predict with 'with' and 'attach'", {
   scores1 <- with(nuclearplants, scores(pg))
 
   expect_equal(pred, scores1, check.attributes=FALSE)
+
 })
 
 test_that("Correct in a model", {
   data(nuclearplants)
   pg <- lm(cost ~ ., data=nuclearplants, subset=(pr==0))
 
-  options(warn=-1)
-  ps1 <- glm(pr ~ cap + date + t1 + bw + scores(pg), data=nuclearplants)
-  ps2 <- glm(pr ~ cap + date + t1 + bw + scores(pg, newdata=nuclearplants), data=nuclearplants)
-  ps3 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
+  suppressWarnings({
+    ps1 <- glm(pr ~ cap + date + t1 + bw + scores(pg), data=nuclearplants)
+    ps2 <- glm(pr ~ cap + date + t1 + bw + scores(pg, newdata=nuclearplants), data=nuclearplants)
+    ps3 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
+  })
 
   expect_equal(fitted(ps1), fitted(ps2), check.attributes=FALSE)
   expect_equal(fitted(ps1), fitted(ps3), check.attributes=FALSE)
+
 })
 
 test_that("Correct in a model using 'with'", {
   data(nuclearplants)
   pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
 
-  options(warn=-1)
-  ps1 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
-  ps2 <- with(nuclearplants, glm(pr ~ cap + date + t1 + bw + scores(pg)))
+  suppressWarnings({
+    ps1 <- glm(pr ~ cap + date + t1 + bw + predict(pg, newdata=nuclearplants), data=nuclearplants)
+    ps2 <- with(nuclearplants, glm(pr ~ cap + date + t1 + bw + scores(pg)))
+  })
 
   expect_equal(fitted(ps1), fitted(ps2), check.attributes=FALSE)
 })
@@ -62,9 +65,13 @@ test_that("Works in match_on", {
   data(nuclearplants)
   pg <- lm(cost~., data=nuclearplants, subset=(pr==0))
 
-  m1 <- match_on(pr~cap + predict(pg, newdata=nuclearplants), data=nuclearplants)
-  m2 <- match_on(pr~cap + scores(pg), data=nuclearplants)
-  m3 <- with(match_on(pr~cap + scores(pg)), data=nuclearplants)
+  expect_warning({
+    m1 <- match_on(pr~cap + predict(pg, newdata=nuclearplants), data=nuclearplants)
+    m2 <- match_on(pr~cap + scores(pg), data=nuclearplants)
+    m3 <- with(match_on(pr~cap + scores(pg)), data=nuclearplants)
+  },
+  "rank-deficient"
+  )
 
   expect_equal(m1@.Data, m2@.Data)
   expect_true(all.equal(m1@.Data, m3@.Data, check.attributes=FALSE))
@@ -79,15 +86,19 @@ test_that("Finds variables", {
   #to find a variable (Petal.Length) not OW mentioned in containing formula
   psb <- glm(Petal.Width ~ predict(mod, newdata=iris), data=iris)
   expect_equal(fitted(psa), fitted(psb))
+
 })
 
 test_that("indep vars of class logical properly handled", {
   data(iris)
   iris$Species <- iris$Species=="setosa"
   mod <- lm(Sepal.Length ~ Species + Sepal.Width, data=iris, subset=Species)
-  psb <- glm(Petal.Width ~ Species + predict(mod, newdata=iris), data=iris)
-  psa <- glm(Petal.Width ~ Species + scores(mod), data=iris)
+  suppressWarnings({
+    psb <- glm(Petal.Width ~ Species + predict(mod, newdata=iris), data=iris)
+    psa <- glm(Petal.Width ~ Species + scores(mod), data=iris)
+  })
   expect_equal(fitted(psa), fitted(psb))
+
 })
 
 test_that("Handles weights with no missingness", {
@@ -103,6 +114,7 @@ test_that("Handles weights with no missingness", {
 })
 
 test_that("NA imputation", {
+
   data(nuclearplants)
   nuclearplants[c(3,5,12,19),1] <- NA
   nuclearplants$cap[7] <- NA
@@ -131,7 +143,7 @@ test_that("NA imputation", {
   g4 <- glm(pr ~ cost + cap + costcap + t1 + cost.NA + cap.NA,
             data=np3, family=binomial)
 
-  l4 <- lm(pr ~ ne + scores(g3), data=nuclearplants)
+  suppressWarnings(l4 <- lm(pr ~ ne + scores(g3), data=nuclearplants))
   l4a <- lm(pr ~ ne + scores(g4), data=np3)
   l4b <- lm(pr ~ ne + predict(g4, data=np3), data=nuclearplants)
 
@@ -171,8 +183,10 @@ test_that("NA imputation", {
   pgscore <- lm(cost~cap + interaction(ct,bw), subset=(pr==0),
                 weights=t1, data=nuclearplants)
 
-  w1 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
-  w2 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  suppressWarnings({
+    w1 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
+    w2 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  })
   w3 <- lm(pr ~ t2 + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
   expect_equal(length(fitted(w1)), 32)
   expect_equal(fitted(w1), fitted(w2))
@@ -184,8 +198,10 @@ test_that("NA imputation", {
   pgscore <- lm(cost~cap + ct*bw, subset=(pr==0),
                 weights=t1, data=nuclearplants)
 
-  w4 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
-  w5 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  suppressWarnings({
+    w4 <- lm(pr ~ t2 + scores(pgscore, newdata=nuclearplants), data=nuclearplants)
+    w5 <- lm(pr ~ t2 + scores(pgscore), data=nuclearplants)
+  })
   w6 <- lm(pr ~ t2 + predict(pgscore, newdata=nuclearplants), data=nuclearplants)
   expect_equal(length(fitted(w4)), 32)
   expect_equal(fitted(w4), fitted(w5))
@@ -197,41 +213,38 @@ test_that("NA imputation", {
 
 test_that("scores with bigglm", {
   # Currently, scores() for bigglm is not supported
-  library(biglm)
-  n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  test.data <- data.frame(Z, X1, X2)
-  rm(Z)
-  rm(X1)
-  rm(X2)
+  if (require(biglm)) {
+    n <- 16
+    test.data <- data.frame(Z = rep(0:1, each = n/2),
+                            X1 = rnorm(n, mean = 5),
+                            X2 = rnorm(n, mean = -2, sd = 2))
 
-  bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
-  m1 <- lm(Z ~ scores(bgps), data=test.data)
-  m2 <- lm(Z ~ predict(bgps, newdata=test.data), data=test.data)
+    bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
+    m1 <- lm(Z ~ scores(bgps), data=test.data)
+    m2 <- lm(Z ~ predict(bgps, newdata=test.data), data=test.data)
 
-  expect_equal(fitted(m1), fitted(m2))
+    expect_equal(fitted(m1), fitted(m2))
 
-  test.data2 <- test.data
-  test.data2$X1[1] <- NA
+    test.data2 <- test.data
+    test.data2$X1[1] <- NA
 
-  # predict's na.action=na.pass is ignored in bigglm, so we'll need to impute
-  # beforehand to get the same results
-  bgps2 <- bigglm(Z ~ X1 + X2, data = test.data2, family = binomial())
-  expect_warning(m3 <- lm(Z ~ scores(bgps2), data=test.data2),
-                 "Imputation and refitting of bigglm objects")
-  m4 <- lm(Z ~ predict(bgps2, newdata=fill.NAs(test.data2)), data=test.data2)
+    # predict's na.action=na.pass is ignored in bigglm, so we'll need to impute
+    # beforehand to get the same results
+    bgps2 <- bigglm(Z ~ X1 + X2, data = test.data2, family = binomial())
+    expect_warning(m3 <- lm(Z ~ scores(bgps2), data=test.data2),
+                   "Imputation and refitting of bigglm objects")
+    m4 <- lm(Z ~ predict(bgps2, newdata=fill.NAs(test.data2)), data=test.data2)
 
-  expect_equal(fitted(m3), fitted(m4))
+    expect_equal(fitted(m3), fitted(m4))
 
-  bgps3 <- bigglm(Z ~ X1*X2, data = test.data2, family = binomial())
-  fill.test.data <- fill.NAs(Z ~ X1*X2, data=test.data2)
-  expect_warning(m5 <- lm(Z ~ scores(bgps3), data=fill.test.data),
-                 "Imputation and refitting of bigglm objects")
-  m6 <- lm(Z ~ predict(bgps3, newdata=fill.test.data), data=test.data2)
+    suppressWarnings(bgps3 <- bigglm(Z ~ X1*X2, data = test.data2, family = binomial()))
+    fill.test.data <- fill.NAs(Z ~ X1*X2, data=test.data2)
+    expect_warning(m5 <- lm(Z ~ scores(bgps3), data=fill.test.data),
+                   "Imputation and refitting of bigglm objects")
+    m6 <- lm(Z ~ predict(bgps3, newdata=fill.test.data), data=test.data2)
 
-  expect_equal(fitted(m5), fitted(m6))
+    expect_equal(fitted(m5), fitted(m6))
+  }
 
 })
 

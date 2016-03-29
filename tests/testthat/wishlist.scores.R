@@ -2,8 +2,6 @@
 # wishlist for scores
 #############################################################################
 
-library(testthat)
-
 context("scores wishlist")
 
 test_that("scores works with attach/detach", {

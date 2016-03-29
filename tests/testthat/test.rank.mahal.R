@@ -3,11 +3,11 @@
 # of vectors
 ################################################################################
 
-library(testthat)
-
 context("compute_rank.mahalanobis function")
 
 test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
+
+  if (require(MASS)) {
     # Rosenbaum's original rank mahalanobis distance code
     # from Design of observational studies
     # http://www-stat.wharton.upenn.edu/~rosenbap/Rdospublic.RData
@@ -28,7 +28,6 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
         Xt <- X[z == 1, ]
         rownames(out) <- rownames(X)[z == 1]
         colnames(out) <- rownames(X)[z == 0]
-        library(MASS)
         icov <- ginv(cv)
         for (i in 1:m) out[i, ] <- mahalanobis(Xc, Xt[i, ], icov,
                                                inverted = T)
@@ -50,4 +49,5 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
     df <- data.frame(z = z, X)
     expect_equivalent(as.matrix(match_on(z ~ ., data = df, method = "rank")), compute_smahal(z, X))
+  }
 })

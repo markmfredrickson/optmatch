@@ -2,7 +2,6 @@
 # Caliper Tests
 ################################################################################
 
-library(testthat)
 context("Caliper")
 
 test_that("Caliper return values", {
@@ -14,7 +13,7 @@ test_that("Caliper return values", {
   # use the Mahalanobis distance match_on method
   result <- caliper(A, 2)
   expect_true(validDistanceSpecification(result))
-  
+
   expect_equal(result@.Data, c(0,0))
 
   # make sure that matrix input does same thing
@@ -39,17 +38,17 @@ test_that("Caliper exclusion", {
                               control = c("C", "D")))
 
   expect_equal(as.matrix(result), m2)
-  
+
 })
 
 test_that("Caliper respects groups", {
-  
+
   # set up the exact match
   Z <- rep(c(T,F), each = 4)
   names(Z) <- c(LETTERS[1:4], letters[23:26])
   B <- c(T,T,F,F,T,T,F,F)
   em <- exactMatch(Z ~ B)
-  
+
   expect_equal(length(findSubproblems(em)), 2)
 
   expect_equal(length(findSubproblems(caliper(em, 2))), 2)
@@ -57,7 +56,7 @@ test_that("Caliper respects groups", {
 
   # expect_equal(sum(is.na(f(m))), 8) # should fail entirely
   # expect_equal(sum(is.na(f(em))), 0) # everything should work within strata
-  
+
   # here is the real test, can we combine the two to firewall the failure?
   # expect_equal(sum(is.na(f(m + em))), 4)
 })
@@ -73,10 +72,10 @@ test_that("calipers for optmatch.dlist", {
 
   odl <- list(m1 = m1, m2 = m2)
   class(odl) <- c("optmatch.dlist", "list")
- 
+
   cal.res <- caliper(odl, 1.5)
 
-  expect_true(inherits(cal.res, "InfinitySparseMatrix")) # gets promoted 
+  expect_true(inherits(cal.res, "InfinitySparseMatrix")) # gets promoted
   expect_equal(length(cal.res), 4) # two entries in each block are less than 1.5
 })
 
@@ -98,7 +97,7 @@ test_that("update() caliper objects", {
   S <- rep(1:10 * 2, 2)
   names(Z) <- names(S) <- letters[1:20]
   optdl <- caliper(mdist(Z ~ S, data = data.frame(Z, S)), 0.11)
-  
+
   # however, results will be ISMs
   expect_equal(length(optdl), 28)
 
@@ -107,4 +106,3 @@ test_that("update() caliper objects", {
   expect_equal(length(optdl.updated), 10)
 
 })
-

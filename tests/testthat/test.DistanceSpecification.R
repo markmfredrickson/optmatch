@@ -1,17 +1,16 @@
 ################################################################################
 ### Tests for objects implementing the distance specification protocol
 ################################################################################
-library(testthat)
 
 context("Distance Specification Protocol")
 
 test_that("Matrix => nodes and arcs", {
   # tests:
   expect_true(isGeneric("prepareMatching"))
-  
+
   # matrix and matrix.csr implement prepareMatching
   # each returns the proper number of nodes and arcs
-  
+
   # test data: 4 arcs (2 pairs unmatchable)
   m <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
   colnames(m) <- c("A", "B", "C")
@@ -47,14 +46,14 @@ test_that("Subproblems", {
   m <- matrix(1, nrow = 2, ncol = 2)
   expect_false(subproblems(m))
   expect_false(subproblems(as.InfinitySparseMatrix(m)))
-  
+
   B <- rep(c(0,1), each = 5)
   names(B) <- letters[1:10]
   em <- exactMatch(B, rep(c(0,1), 5))
   res.em <- subproblems(em)
   expect_equal(length(res.em), 2)
-  
-  expect_true(all(sapply(res.em, function(i) { 
+
+  expect_true(all(sapply(res.em, function(i) {
     validDistanceSpecification(i)})))
 
   m1 <- matrix(0, nrow = 2, ncol = 3,
@@ -69,7 +68,7 @@ test_that("Subproblems", {
   # findSubproblems should always return a list, of length # of probs
   expect_equal(length(findSubproblems(m)), 1)
   expect_equal(length(findSubproblems(as.InfinitySparseMatrix(m))), 1)
-  
+
   B2 <- rep(1:5, each = 2)
   names(B2) <- letters[1:10]
   em2 <- exactMatch(B2, rep(c(0,1), 5))
@@ -77,17 +76,17 @@ test_that("Subproblems", {
   expect_equal(length(em.subps), 5)
   expect_is(em.subps, "list")
   lapply(em.subps, function(i) {
-    expect_true(validDistanceSpecification(i))  
+    expect_true(validDistanceSpecification(i))
   })
 
 
   # a dense problem that looks likes a sparse problem
-  position <- rep(1:4, each = 4)  
+  position <- rep(1:4, each = 4)
   z <- rep(0:1, 8)
   names(z) <- letters[1:16]
   dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
   allin <- exactMatch(rep(1, 16), z)
-  
+
   res.allin <- findSubproblems(dist + allin)
   expect_equal(length(res.allin), 1)
   expect_equal(dim(res.allin[[1]]), c(8,8))
@@ -135,7 +134,7 @@ test_that("Validating DistSpecs", {
 })
 
 test_that("optmatch.dlist => nodes and arcs", {
-  
+
   # test data: 8 arcs (2 pairs unmatchable in each subgroup)
   m1 <- m2 <- matrix(c(1, Inf, 1, 2, 2, Inf), nrow = 2, ncol = 3)
 

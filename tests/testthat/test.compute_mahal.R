@@ -2,7 +2,6 @@
 # Tests for makedist function
 ################################################################################
 
-library(testthat)
 context("compute_mahalanobis tests")
 
 mahal.cov <- function(x, z) {
@@ -27,20 +26,20 @@ make.data <- function(k) {
                       0.25, 1, 0.25,
                       0.25, 1, 0.25), nrow = 3))
     rownames(x) <- paste('v', 1:nrow(x), sep='')
-    
+
     # top 10% assigned to treatment
     tmp <- rowSums(x)
     z <- vector("integer", k)
     z[order(tmp, decreasing = TRUE)[1:(0.1 * k)]] <- 1L
     z <- as.logical(z)
-    
+
     # get treatment X control pairs into an index
     tns <- rownames(x)[z]
     nt <- length(tns)
-    
+
     cns <- rownames(x)[!z]
     nc <- length(cns)
-    
+
     t.coord <- rep(tns, nc)
     c.coord <- rep(cns, each = nt)
 
@@ -53,7 +52,7 @@ make.data <- function(k) {
 test_that("Checking mahalanobis distance", {
     # random data set of size btw 100 and 500
     args <- make.data(sample(100:500, 1))
-    
+
     expect_equal(
         compute_mahalanobis(args$index, args$data, args$z),
         trad.mahal(args$index, args$data, args$z))

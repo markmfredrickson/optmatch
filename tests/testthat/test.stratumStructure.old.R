@@ -1,4 +1,3 @@
-library(testthat)
 
 context('stratumStructure tests old')
 

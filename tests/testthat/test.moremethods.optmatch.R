@@ -1,4 +1,3 @@
-library(testthat)
 
 context("more optmatch methods")
 

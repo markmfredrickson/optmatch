@@ -1,8 +1,7 @@
-library(testthat)
 
 context("fullmatch function old")
 
-test_that("", {
+test_that("fullmatch function, old version", {
   data(plantdist)
   # this will give a warning about not having data order
   expect_warning(f <- fullmatch(1 * (plantdist < 10)), "Without 'data' argument the order of the match is not guaranteed

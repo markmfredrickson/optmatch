@@ -2,8 +2,6 @@
 # Fullmatch-recover-infeasible tests
 ################################################################################
 
-library(testthat)
-
 context("fullmatch-recover-infeasible update")
 
 # basic tests are in the general test.fullmatch.R file (as this update should not change
@@ -139,11 +137,15 @@ test_that("Correctly apply max.controls", {
   max.controls <- max(as.numeric(unlist(lapply(strsplit(names(s3), ":"),"[",2))))
   expect_true(max.controls <= 1)
 
-  # size of control group is sum of treatment group of
-  # pmin of max.controls and control:treatment ratio for tx group member
-  # (prior to resolution of issue 74, the below led to a single 2:1 matched set)
+  # size of control group is sum of treatment group of pmin of
+  # max.controls and control:treatment ratio for tx group member
+  # (prior to resolution of issue 74, the below led to a single 2:1
+  # matched set)
   adist <- matrix(c(1:4, rep(Inf, 8)), 2, 6, dimnames=list(letters[1:2], letters[3:8]))
-  expect_true(all(table(fullmatch(adist, max.c=1))==2))
+  expect_silent(fullmatch(adist, data=data.frame(1:8, row.names=letters[1:8])))
+  expect_warning(fm <- fullmatch(adist, max.c=1, data=data.frame(1:8, row.names=letters[1:8])), "infeasible")
+
+  expect_true(all(table(fm)==2))
 })
 
 test_that("Omits occur only on controls", {
@@ -324,8 +326,7 @@ test_that("Issue #92", {
                   "x" <- rnorm(1120))
 
   expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
-  expect_that(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8), not(gives_warning("infeasible"))) # this shouldn't
-                                                                                                 # warn about
-                                                                                                 # infeasible
+  # this shouldn't warn about infeasible
+  expect_silent(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8))
   expect_that(fullmatch(z ~ x, data=d, min=1, max=2, omit=.2), gives_warning("infeasible"))
 })

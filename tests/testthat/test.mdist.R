@@ -2,8 +2,6 @@
 # Mdist: methods to create distance specifications, possibliy sparse
 ################################################################################
 
-library(testthat)
-
 context("mdist function")
 
 test_that("Distances from glms", {
@@ -127,7 +125,7 @@ test_that("Jake found a bug 2010-06-14", {
 
   absdist1 <- mdist(jb.sdiffs, structure.fmla = Z ~ 1, data = test.data)
   # failing because fmatch is in transition, commentb back in later
-  expect_true(length(pairmatch(absdist1)) > 0)
+  expect_true(length(pairmatch(absdist1, data=test.data)) > 0)
 
 })
 

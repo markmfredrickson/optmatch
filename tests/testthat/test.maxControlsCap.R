@@ -2,8 +2,6 @@
 # maxControlsCap: finding the best input for fullmatch
 ################################################################################
 
-library(testthat)
-
 context("maxControlsCap function")
 
 test_that("basics", {
@@ -17,7 +15,7 @@ test_that("basics", {
   em <- exactMatch(B, treatment = Z) # factor, factor implementation
 
   res <- maxControlsCap(em)
-  
+
   expect_equal(length(res$strictest.feasible.max.controls), 2) # two level problem
   expect_true(all(!is.na(res$strictest.feasible.max.controls)))
 })
@@ -34,17 +32,20 @@ test_that("Testing input", {
   expect_error(maxControlsCap(res.em, min.controls = c(x = 1, y = 2, z = 3, w = 4)),
               "Names of 'min.controls' must match the subproblems. See 'findSubproblems' and 'exactMatch'.")
   # should not expect an error for this:
-  maxControlsCap(res.em, min.controls = c(a = 1, b = 1, c = 1, d = 1))
+  mcc <- maxControlsCap(res.em, min.controls = c(a = 1, b = 1, c = 1, d = 1))
+  expect_equal(length(mcc), 2)
+  expect_true(all.equal(sapply(mcc, length), c(4,4),
+                        check.attributes=FALSE))
 
 })
 
 test_that("Correct output", {
   # borrowing from the R CMD Check tests to nail down proper output.
-  data(nuclearplants, env = parent.env()) 
+  data(nuclearplants)
 
   mhd2a <- t(match_on(pr ~ date + cum.n, data = nuclearplants) + exactMatch(pr ~ pt, data = nuclearplants))
   res.mxcc <- maxControlsCap(mhd2a + caliper(mhd2a, sqrt(3)))
 
   expect_equivalent(res.mxcc$strictest.feasible.max.controls, c(1,1))
-  
+
 })

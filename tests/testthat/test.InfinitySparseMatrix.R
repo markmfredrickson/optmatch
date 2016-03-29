@@ -1,7 +1,6 @@
 ################################################################################
 ### Tests for the InfinitySparseMatrix class
 ###############################################################################
-library(testthat)
 
 context("InfinitySparseMatrix tests")
 
@@ -173,28 +172,30 @@ test_that("Math ops with vectors", {
   m <- as.matrix(A)
   v <- 1:5
 
-  options(warn=-1)
-  expect_true(all(as.matrix(A/v) == m/v))
-  expect_true(all(as.matrix(A*v) == m*v))
-  expect_true(all(as.matrix(A+v) == m+v))
-  expect_true(all(as.matrix(A-v) == m-v))
-  expect_true(all(as.matrix(A^v) == m^v))
-  expect_true(all(as.matrix(A%%v) == m%%v, na.rm=TRUE))
-  expect_true(all(as.matrix(A%/%v) == m%/%v, na.rm=TRUE))
-  vm <- v/m
-  vm[!is.finite(as.matrix(A))] <- Inf
-  expect_true(all(as.matrix(v/A) == vm))
-  expect_true(all(as.matrix(v*A) == v*m))
-  expect_true(all(as.matrix(v+A) == v+m))
-  vm <- v-m
-  vm[!is.finite(as.matrix(A))] <- Inf
-  expect_true(all(as.matrix(v-A) == vm))
-  vm <- v^m
-  vm[!is.finite(as.matrix(A))] <- Inf
-  expect_true(all(as.matrix(v^A) == vm))
-  expect_true(all(as.matrix(v%%A) == v%%m, na.rm=TRUE))
-  expect_true(all(as.matrix(v%/%A) == v%/%m, na.rm=TRUE))
-  options(warn=0)
+  # There's some dimensionality issues here, so we'll get lots of "not
+  # a multiple" warnings.
+  expect_warning({expect_true(all(as.matrix(A/v) == m/v))
+    expect_true(all(as.matrix(A*v) == m*v))
+    expect_true(all(as.matrix(A+v) == m+v))
+    expect_true(all(as.matrix(A-v) == m-v))
+    expect_true(all(as.matrix(A^v) == m^v))
+    expect_true(all(as.matrix(A%%v) == m%%v, na.rm=TRUE))
+    expect_true(all(as.matrix(A%/%v) == m%/%v, na.rm=TRUE))
+    vm <- v/m
+    vm[!is.finite(as.matrix(A))] <- Inf
+    expect_true(all(as.matrix(v/A) == vm))
+    expect_true(all(as.matrix(v*A) == v*m))
+    expect_true(all(as.matrix(v+A) == v+m))
+    vm <- v-m
+    vm[!is.finite(as.matrix(A))] <- Inf
+    expect_true(all(as.matrix(v-A) == vm))
+    vm <- v^m
+    vm[!is.finite(as.matrix(A))] <- Inf
+    expect_true(all(as.matrix(v^A) == vm))
+    expect_true(all(as.matrix(v%%A) == v%%m, na.rm=TRUE))
+    expect_true(all(as.matrix(v%/%A) == v%/%m, na.rm=TRUE))},
+    "not a multiple")
+
 
   # Error on non-numeric input
   expect_error("a"*A, "non-numeric")
@@ -263,7 +264,7 @@ test_that("rbinding ISMs and matrices", {
   # and the names should be uniquified (that's a word, really!)
   expect_equal(length(unique(rownames(res.AA))), 4)
 
-  res.Am <- rbind(A, m)
+  expect_warning(res.Am <- rbind(A, m), "share row names")
   expect_equal(res.Am, res.AA)
 
   # flipped column names should not matter
@@ -405,7 +406,7 @@ test_that("ISM sorting", {
   expect_true(is.unsorted(coordcr.sortrows))
 
   # Checking for bad input on byCol
-  expect_that(sort(X, byCol=1), not(throws_error()))
+  expect_silent(sort(X, byCol=1))
   expect_error(sort(X, byCol="a"))
   expect_warning(expect_error(sort(X, byCol=c(1,1))))
 
@@ -486,7 +487,7 @@ test_that("BISM sorting", {
   expect_true(is.unsorted(coordcr.sortrows))
 
   # Checking for bad input on byCol
-  expect_that(sort(b, byCol=1), not(throws_error()))
+  expect_silent(sort(b, byCol=1))
   expect_error(sort(b, byCol="a"))
   expect_warning(expect_error(sort(b, byCol=c(1,1))))
 

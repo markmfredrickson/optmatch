@@ -2,9 +2,6 @@
 # Fullmatch tests
 ################################################################################
 
-library(testthat)
-library(optmatch)
-
 context("fullmatch function")
 
 # test whether two matches are the same. Uses all.equal exceedances to
@@ -26,91 +23,93 @@ match_compare <- function(match1, match2) {
 
 test_that("No cross strata matches", {
   # test data
-  Z <- rep(c(0,1), 4)
-  B <- rep(c(0,1), each = 4)
-  distances <- 1 + exactMatch(Z ~ B)
+  d <- data.frame(Z = rep(c(0,1), 4),
+                  B = rep(c(0,1), each = 4))
+  distances <- 1 + exactMatch(Z ~ B, data=d)
 
-  res <- fullmatch(distances)
+  res <- fullmatch(distances, data=d)
   expect_false(any(res[1:4] %in% res[5:8]))
 })
 
 test_that("Basic Matches", {
-  position <- rep(1:4, each = 4)
-  z <- rep(0:1, 8)
-  names(z) <- letters[1:16]
-  dist <- match_on(z ~ position, inv.scale.matrix = diag(1))
+  d <- data.frame(position = rep(1:4, each = 4),
+                  z = rep(0:1, 8),
+                  rownames=letters[1:16])
+  dist <- match_on(z ~ position, inv.scale.matrix = diag(1), data=d)
 
-  res.mat <- fullmatch(dist)
-  res.ism <- fullmatch(as.InfinitySparseMatrix(dist))
+  res.mat <- fullmatch(dist, data=d)
+  res.ism <- fullmatch(as.InfinitySparseMatrix(dist), data=d)
   expect_equivalent(res.mat, res.ism)
 
-  allin <- exactMatch(rep(1, 16), z)
-  expect_equivalent(fullmatch(dist + allin), res.mat)
-  expect_equivalent(fullmatch(as.InfinitySparseMatrix(dist) + allin), res.mat)
+  allin <- exactMatch(rep(1, 16), structure(d$z, names=rownames(d)))
+  expect_equivalent(fullmatch(dist + allin, data=d), res.mat)
+  expect_equivalent(fullmatch(as.InfinitySparseMatrix(dist) + allin, data=d), res.mat)
 
-  # now that we know they are all the same, check that we got what we want
-  # while this is not explicitly blocked, the position vector should
-  # completely determine who matches whom (though for the same level, this
-  # test is agnostic about which pairs should be matched.
-  lapply(1:4, function(i) {
-    in.level <- names(z)[position == i] # possibly reorders factor
-    not.in.level <- names(z)[position != i]
+  # Now that we know they are all the same, check that we got what we
+  # want.  While this is not explicitly blocked, the position vector
+  # should completely determine who matches whom (though for the same
+  # level, this test is agnostic about which pairs should be matched.
+  for (i in 1:4) {
+    in.level <- rownames(d)[d$position == i] # possibly reorders factor
+    not.in.level <- rownames(d)[d$position != i]
     expect_false(any(res.mat[in.level] %in% res.mat[not.in.level]))
-  })
+  }
 })
 
 test_that("Checks input", {
   # no dimnames, bad!
   m <- matrix(1:8, nrow = 2, ncol = 4)
-  expect_error(fullmatch(m))
-  expect_error(fullmatch(as.InfinitySparseMatrix(m)))
+  # Throw both an error and a warning about lack of data
+  expect_warning(expect_error(fullmatch(m)))
+  expect_warning(expect_error(fullmatch(as.InfinitySparseMatrix(m))))
   # then to make sure it was the names
   dimnames(m) <- list(treated = c("A", "B"),
                       control = c("C", "D", "E", "F"))
-  expect_is(fullmatch(m), "factor") # no error expected
-  expect_true(all(names(fullmatch(m)) %in% LETTERS[1:6]))
-  expect_false(any(is.na(fullmatch(m))))
+  # Still should warn about lack of data
+  expect_warning(expect_is(fullmatch(m), "factor")) # no error expected
+  expect_warning(expect_true(all(names(fullmatch(m)) %in% LETTERS[1:6])))
+  expect_warning(expect_false(any(is.na(fullmatch(m)))))
 
   # add only colnames
   m <- matrix(1:8, nrow = 2, ncol = 4)
   colnames(m) <- LETTERS[3:6]
-  expect_error(fullmatch(m))
-  expect_error(fullmatch(as.InfinitySparseMatrix(m)))
+  expect_warning(expect_error(fullmatch(m)))
+  expect_warning(expect_error(fullmatch(as.InfinitySparseMatrix(m))))
 
   # repeat for rownames
   m <- matrix(1:8, nrow = 2, ncol = 4)
   rownames(m) <- LETTERS[1:2]
-  expect_error(fullmatch(m))
-  expect_error(fullmatch(as.InfinitySparseMatrix(m)))
+  expect_warning(expect_error(fullmatch(m)))
+  expect_warning(expect_error(fullmatch(as.InfinitySparseMatrix(m))))
 
   # a logical matrix should case an error
   ml <- matrix(rep(c(T,F), 4), nrow = 2, ncol = 2, dimnames =
     list(letters[1:2], letters[3:4]))
 
-  expect_error(fullmatch(ml))
+  expect_warning(expect_error(fullmatch(ml)))
   ml <- replace(ml, 1:4, as.numeric(ml))
-  expect_is(fullmatch(ml), "factor")
+  expect_warning(expect_is(fullmatch(ml), "factor"))
 
   # row and columns share names
   dimnames(ml) <- list(letters[1:2], letters[2:3])
-  expect_error(fullmatch(ml))
+  expect_warning(expect_error(fullmatch(ml)))
 
-  # the min, max, and omit must be same length as the number of subproblems,
-  # which might be more than 1 if using exactMatch, e.g.
+  # the min, max, and omit must be same length as the number of
+  # subproblems, which might be more than 1 if using exactMatch, e.g.
 
-  m <- matrix(1, nrow = 2, ncol = 2, dimnames = list(c("a", "b"), c('d',
-  'e')))
+  m <- matrix(1, nrow = 2, ncol = 2, dimnames = list(c("a", "b"),
+                                                     c('d', 'e')))
 
-  expect_error(fullmatch(m, min.controls = c(0,0)))
-  expect_error(fullmatch(m, max.controls = c(Inf,Inf)))
-  expect_error(fullmatch(m, omit.fraction = c(1, 1)))
+  expect_warning(expect_error(fullmatch(m, min.controls = c(0,0))))
+  expect_warning(expect_error(fullmatch(m, max.controls = c(Inf,Inf))))
+  expect_warning(expect_error(fullmatch(m, omit.fraction = c(1, 1))))
 
   B <- rep(1:5, each = 2)
   names(B) <- letters[1:10]
   em <- exactMatch(B, rep(c(0,1), 5))
-  expect_error(fullmatch(em, min.controls = c(0,0)))
-  expect_error(fullmatch(em, max.controls = c(Inf,Inf)))
-  expect_error(fullmatch(em, omit.fraction = c(1, 1)))
+  expect_warning(expect_error(fullmatch(em, min.controls = c(0,0))))
+  expect_warning(expect_error(fullmatch(em, max.controls = c(Inf,Inf))))
+  expect_warning(expect_error(fullmatch(em, omit.fraction = c(1, 1))))
 
 })
 
@@ -135,8 +134,8 @@ test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
   # the omit.fraction values as computed by pairmatch and was the same
   # for both A and Ai
 
-  res.a <- fullmatch(A, min.controls = 1, max.controls = 1, omit.fraction = 0.5)
-  res.ai <- fullmatch(Ai, min.controls = 1, max.controls = 1, omit.fraction = 0.5)
+  res.a <- fullmatch(A, min.controls = 1, max.controls = 1, omit.fraction = 0.5, data=data.frame(1:7))
+  res.ai <- fullmatch(Ai, min.controls = 1, max.controls = 1, omit.fraction = 0.5, data=data.frame(1:7))
 
   expect_equivalent(res.a, res.ai)
 
@@ -145,10 +144,10 @@ test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
 test_that("Reversion Test: Inf entries in matrix", {
   # this was handled in the previous version just fine
   d <- matrix(c(1,2, 3,4, Inf, Inf), nrow = 2, dimnames = list(c(1,2), c(3,4, "U")))
-  expect_equal(length(fullmatch(d)), 5)
+  expect_warning(expect_equal(length(fullmatch(d)), 5))
 
   # the previous version also returned all 5 entries, not just the matched ones.
-  expect_equal(length(fullmatch(as.InfinitySparseMatrix(d))), 5)
+  expect_warning(expect_equal(length(fullmatch(as.InfinitySparseMatrix(d))), 5))
 })
 
 test_that("Reversion Test: Proper labeling of NAs", {
@@ -157,7 +156,7 @@ test_that("Reversion Test: Proper labeling of NAs", {
   dimnames(A) <- list(1:3, 4:7)
 
   Ai <- as.InfinitySparseMatrix(A)
-  res <- fullmatch(Ai)
+  res <- fullmatch(Ai, data=data.frame(1:7))
 
   expect_true(is.na(res[[3]])) # improperly labeled as "1.NA"
   expect_true(!all(is.na(res[-3])))
@@ -171,7 +170,7 @@ test_that("Reversion Test: Proper labeling of NAs", {
   names(scores) <- names(B) <- names(Z) <- letters[1:17]
 
   d <- match_on(scores, z = Z, within = exactMatch(Z ~ B))
-  res <- pairmatch(caliper(d, 2))
+  expect_warning(res <- pairmatch(caliper(d, 2)))
 
   expect_equal(sum(is.na(res)), 9)
 
@@ -181,10 +180,10 @@ test_that("Reversion Test: Proper labeling of NAs", {
 
   class(od) <- c("optmatch.dlist", "list")
 
-  expect_equal(sum(is.na(pairmatch(od))), 9)
+  expect_warning(expect_equal(sum(is.na(pairmatch(od))), 9))
 
   # while we're at it, check that match failed only indicates that 1 level failed
-  expect_equal(sum(matchfailed(pairmatch(od))), 8)
+  expect_warning(expect_equal(sum(matchfailed(pairmatch(od))), 8))
 })
 
 test_that("Results are in 'data order'", {
@@ -239,13 +238,13 @@ test_that("Complete Inf matrices/ISMs => all NA optmatch object", {
   rownames(m) <- LETTERS[1:3]
   colnames(m) <- letters[23:26]
 
-  res.m <- fullmatch(m)
+  expect_warning(res.m <- fullmatch(m))
 
   expect_true(all(is.na(res.m)))
 
   ism <- as.InfinitySparseMatrix(m)
 
-  res.ism <- fullmatch(ism)
+  expect_warning(res.ism <- fullmatch(ism))
 
   expect_true(all(is.na(res.ism)))
 
@@ -256,17 +255,16 @@ test_that("Both mdist and match_on objects accepted", {
   # it will probably fail if those fail
 
   n <- 14
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
+  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
+                          X1 = rnorm(n, mean = 5),
+                          X2 = rnorm(n, mean = -2, sd = 2),
+                          B = rep(c(0,1), n/2))
 
   model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
   tmp <- mdist(model)
   names(tmp) <- c(1) # mdist adds an 'm' to the front by default
-  res.mdist <- fullmatch(tmp)
-  res.mon <- fullmatch(match_on(model))
+  res.mdist <- fullmatch(tmp, data=test.data)
+  res.mon <- fullmatch(match_on(model), data=test.data)
 
   expect_equivalent(res.mdist, res.mon)
 
@@ -275,26 +273,25 @@ test_that("Both mdist and match_on objects accepted", {
 test_that("full() and pair() are alises to _match functions", {
 
   n <- 14
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
+  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
+                          X1 = rnorm(n, mean = 5),
+                          X2 = rnorm(n, mean = -2, sd = 2),
+                          B = rep(c(0,1), n/2))
 
   model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
   dists <- match_on(model)
-  expect_equivalent(fullmatch(dists), full(dists))
-  expect_equivalent(pairmatch(dists), pair(dists))
+  expect_equivalent(fullmatch(dists, data=test.data),
+                    full(dists, data=test.data))
+  expect_equivalent(pairmatch(dists, data=test.data),
+                    pair(dists, data=test.data))
 })
 
 test_that("fullmatch UI cleanup", {
   n <- 14
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
-  rm(list=c("Z", "X1", "X2", "B", "n"))
+  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
+                          X1 = rnorm(n, mean = 5),
+                          X2 = rnorm(n, mean = -2, sd = 2),
+                          B = rep(c(0,1), n/2))
 
   m <- match_on(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
@@ -358,14 +355,9 @@ test_that("fullmatch UI cleanup", {
   # function
 
   n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rep(c(1,2,3,4), each = n/4)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, B)
-  rm(n)
-  rm(Z)
-  rm(X1)
-  rm(B)
+  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
+                          X1 = rep(c(1,2,3,4), each = n/4),
+                          B = rep(c(0,1), n/2))
 
   sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
@@ -390,14 +382,11 @@ test_that("fullmatch UI cleanup", {
 
 test_that("NAs in irrelevant data slots don't trip us up", {
   n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rep(c(1,2,3,4), each = n/4)
-  B <- rep(c(0,1), n/2)
-  B[1] <- NA
-  test.data <- data.frame(Z, X1, B)
-  rm(Z)
-  rm(X1)
-  rm(B)
+  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
+                          X1 = rep(c(1,2,3,4), each = n/4),
+                          B = rep(c(0,1), n/2))
+  test.data$B[1] <- NA
+
   expect_equal(length(fullmatch(Z~X1, data=test.data)), n)
 })
 
@@ -475,15 +464,18 @@ test_that("strata in GLMs", {
   # strata(a,b) is equivalent to interaction(a,b)
   f8 <- fullmatch(glm(pr ~ cost + strata(ct,ne), data=nuclearplants),
                   data=nuclearplants)
-  f9 <- fullmatch(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
-                      data=nuclearplants),
-                  within=e1, data=nuclearplants)
+  suppressWarnings(
+    f9 <- fullmatch(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
+                        data=nuclearplants),
+                    within=e1, data=nuclearplants)
+  )
   f10 <- fullmatch(glm(pr ~ cost + interaction(ne,ct), data=nuclearplants),
                    within=e2, data=nuclearplants)
   f11 <- fullmatch(glm(pr ~ cost + ne*ct, data=nuclearplants),
                    within=e2, data=nuclearplants)
-  # f9 is a bit weird because of the double inclusion of ct, and is an unlikely
-  # way for users to enter code, but the extra ct is of course ignored.
+  # f9 is a bit weird because of the double inclusion of ct, and is an
+  # unlikely way for users to enter code, but the extra ct is of
+  # course ignored.
 
   expect_true(compare_optmatch(f8, f9))
   expect_true(compare_optmatch(f8, f10))

@@ -2,9 +2,6 @@
 # Pairmatch tests
 ################################################################################
 
-library(testthat)
-library(optmatch)
-
 context("pairmatch function")
 
 # test whether two matches are the same. Uses all.equal on exceedances
@@ -31,7 +28,7 @@ test_that("No cross strata matches", {
   B <- rep(c(0,1), each = 4)
   distances <- 1 + exactMatch(Z ~ B)
 
-  res <- pairmatch(distances)
+  expect_warning(res <- pairmatch(distances))
   expect_false(any(is.na(res)))
   expect_false(any(res[1:4] %in% res[5:8]))
 
@@ -41,25 +38,29 @@ test_that("Remove unmatchables", {
   A <- matrix(c(1,1,Inf,1,1,Inf,1,1,Inf,1,1,Inf), nrow = 3)
   dimnames(A) <- list(1:3, 4:7)
 
-  expect_true(all(is.na(pairmatch(A, remove.unmatchables = FALSE))))
-  expect_true(!all(is.na(pairmatch(A, remove.unmatchables = TRUE))))
+  expect_warning({expect_true(all(is.na(pairmatch(A, remove.unmatchables = FALSE))))
+    expect_true(!all(is.na(pairmatch(A, remove.unmatchables = TRUE))))
+  })
 
   Ai <- as.InfinitySparseMatrix(A)
-  expect_true(all(is.na(pairmatch(Ai, remove.unmatchables = FALSE))))
-  expect_true(!all(is.na(pairmatch(Ai, remove.unmatchables = TRUE))))
+  expect_warning({expect_true(all(is.na(pairmatch(Ai, remove.unmatchables = FALSE))))
+    expect_true(!all(is.na(pairmatch(Ai, remove.unmatchables = TRUE))))
+  })
+
 })
 
 test_that("Omit fraction computed per subproblem", {
 
   # this is easiest to show using the nuclearplants data
-  data(nuclearplants, env = parent.env())
+  data(nuclearplants)
 
   psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
   em <- exactMatch(pr ~ pt, data = nuclearplants)
 
-  res.pm <- pairmatch(match_on(psm) + em)
+  res.pm <- pairmatch(match_on(psm) + em, data=nuclearplants)
 
   expect_true(!all(is.na(res.pm)))
+
 })
 
 test_that("Compute omit fraction based on reachable treated units", {
@@ -73,7 +74,7 @@ test_that("Compute omit fraction based on reachable treated units", {
   # Control unit Z is completely unreachable. Therefore it should not be a problem
   # to drop it.
 
-  expect_true(!all(is.na(pairmatch(m[,1:4]))))
+  expect_warning(expect_true(!all(is.na(pairmatch(m[,1:4])))))
 
   ## 12/3/13: The below is no longer correct. Per issue #74, 0.4 is the correct omit.fraction,
   ## since subDivStrat now handles adjusting it for unmatchable controls automatically.
@@ -85,8 +86,9 @@ test_that("Compute omit fraction based on reachable treated units", {
   # expect_true(!all(is.na(pairmatch(m, remove.unmatchables = TRUE))))
 
   ## 12/3/13: With the update, 0.4 is correct. Remove.unmatchables = TRUE should operate the same here
-  p1 <- pairmatch(m)
-  p2 <- pairmatch(m, remove.unmatchables=TRUE)
+  expect_warning({p1 <- pairmatch(m)
+    p2 <- pairmatch(m, remove.unmatchables=TRUE)
+  })
 
   expect_true(sum(is.na(p1)) == 2)
   expect_true(all(p1==p2, na.rm=TRUE))
@@ -95,7 +97,9 @@ test_that("Compute omit fraction based on reachable treated units", {
 })
 
 test_that("Pass additional arguments to fullmatch", {
-  df <- data.frame(z = rep(c(0,1), 5), x = 1:10, y = rnorm(10))
+  df <- data.frame(z = rep(c(0,1), 5),
+                   x = 1:10,
+                   y = rnorm(10))
   df$w <- df$y + rnorm(10)
   rownames(df) <- letters[1:10][sample(1:10)]
 
@@ -104,10 +108,7 @@ test_that("Pass additional arguments to fullmatch", {
 
   expect_warning(pairmatch(m), "data") # no 'data' argument
 
-  # raise warnings to error level to make sure any warnings get caught
-  oldopts <- options(warn = 2)
   pairmatch(m, data = df)
-  options(oldopts)
 
   # it is an error to pass any of the following: max.controls, min.controls.
   # omit.fraction
@@ -124,19 +125,17 @@ test_that("Pass additional arguments to fullmatch", {
 
 test_that("pairmatch UI cleanup", {
   n <- 14
-  Z <- c(rep(0, n/2), rep(1, n/2))
   set.seed(124202)
-  X1 <- rnorm(n, mean = 5)
-  X2 <- rnorm(n, mean = -2, sd = 2)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, X2, B)
-  rm(list=c("Z", "X1", "X2", "B", "n"))
+  test.data <- data.frame(Z = rep(0:1, each = n/2),
+                          X1 = rnorm(n, mean = 5),
+                          X2 = rnorm(n, mean = -2, sd = 2),
+                          B = rep(0:1, times = n/2))
 
-  m <- match_on(Z~X1 + X2, data=test.data)
+  m <- match_on(Z ~ X1 + X2, data=test.data)
 
   pm.dist <- pairmatch(m, data=test.data)
 
-  pm.form <- pairmatch(Z~X1 + X2, data=test.data)
+  pm.form <- pairmatch(Z ~ X1 + X2, data=test.data)
 
   match_compare(pm.dist, pm.form)
 
@@ -196,15 +195,14 @@ test_that("pairmatch UI cleanup", {
   pm.mi <- pairmatch(m, data=test.data)
 
   match_compare(pm.vector, pm.mi)
+  rm(X1, Z)
 
   # function
 
   n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rep(c(1,2,3,4), each = n/4)
-  B <- rep(c(0,1), n/2)
-  test.data <- data.frame(Z, X1, B)
-  rm(list=c("n", "Z", "X1", "B"))
+  test.data <- data.frame(Z = rep(0:1, each = n/2),
+                          X1 = rep(1:4, each = n/4),
+                          B = rep(0:1, times = n/2))
 
   sdiffs <- function(index, data, z) {
     abs(data[index[,1], "X1"] - data[index[,2], "X1"])
@@ -239,15 +237,13 @@ test_that("pairmatch warns when given a 'within' arg that it's going to ignore",
 
 test_that("NAs in irrelevant data slots don't trip us up", {
   n <- 16
-  Z <- c(rep(0, n/2), rep(1, n/2))
-  X1 <- rep(c(1,2,3,4), each = n/4)
-  B <- rep(c(0,1), n/2)
-  B[1] <- NA
-  test.data <- data.frame(Z, X1, B)
-  rm(Z)
-  rm(X1)
-  rm(B)
+  test.data <- data.frame(Z = rep(0:1, each = n/2),
+                          X1 = rep(1:4, each = n/4),
+                          B = rep(0:1, times = n/2))
+  test.data$B[1] <- NA
+
   expect_equal(length(pairmatch(Z~X1, data=test.data)), n)
+
 })
 
 test_that("matched.distances attr removed per #57", {
@@ -258,6 +254,7 @@ test_that("matched.distances attr removed per #57", {
                   data=nuclearplants)
 
   expect_true(is.null(attr(p1, "matched.distances")))
+
 })
 
 test_that("sane data arguments", {

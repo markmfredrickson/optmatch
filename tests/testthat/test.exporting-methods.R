@@ -2,8 +2,6 @@
 # so it can't detect if we forget to export methods
 # R CMD check tests, on the other hand, use the package externally
 
-library(testthat)
-
 context('exporting methods')
 
 test_that("sparse", {

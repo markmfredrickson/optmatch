@@ -1,71 +1,123 @@
-library(testthat)
+################################################################################
+# Tests for utility functions
+################################################################################
 
-context('summary optmatch')
+context("Matching summaries")
 
-test_that("summary.optmatch", {
-  data(plantdist)
-  expect_warning(s1 <- summary(f1 <- fullmatch(1 * (plantdist < 10)))) # a zero-1 matrix
-  expect_true(all.equal(s1$thematch, f1))
-  expect_true(is.null(s1$matching.failed))
-  expect_true(all.equal(as.vector(s1$matched.set.structures), c(5,1,1)))
-  expect_equal(s1$effective.sample.size, 8.1794871)
-  #expect_equal(s1$total.distance, 0)
-  #expect_equal(s1$total.tolerances, .0054166666)
-  #expect_equal(sum(s1$matched.dist.quantiles), 0)
+test_that("Failing subgroups", {
+  # good case:
+  m <- matrix(1, nrow = 3, ncol = 4, dimnames = list(letters[1:3], LETTERS[23:26]))
+  expect_warning(res.good <- summary(fullmatch(m)))
+  expect_true(all(res.good$matching.failed == 0))
 
+  # good case, but one unit unmatched
+  m[, 4] <- Inf
 
-  # Mtching doesn't fail everywhere
-  #expect_error(summary(pairmatch(plantdist + caliper(plantdist, 1)))) # Matching fails everywhere
+  expect_warning(res.one.unmatched <- summary(fullmatch(m)))
+  expect_true(all(res.one.unmatched$matching.failed == 0))
 
+  # matching fails for all
+  f <- matrix(Inf, nrow = 3, ncol = 4, dimnames = list(letters[1:3], LETTERS[23:26]))
+  expect_warning(res.all.fail <- summary(fullmatch(f)))
+  expect_true(all(res.all.fail$matching.failed > 0))
+
+  # blocked good, 2 2x2 groups
+  b <- rep(c("A", "B"), each = 8)
+  z <- rep(c(0, 1), 8)
+  names(z) <- names(b) <- letters[1:16]
+  em <- exactMatch(z ~ b)
+
+  expect_warning(res.bg <- summary(fullmatch(em)))
+  expect_true(all(res.bg$matching.failed == 0))
+
+  # blocked group as above but with one un-matched unit
+  x <- matrix(0, nrow = 8, ncol = 8, dimnames = list(letters[c(2,4,6,8,10,12,14,16)],
+                                                     letters[c(1,3,5,7,9,11,13,15)]))
+  x[, "a"] <- Inf
+  expect_warning(res.b.one.unmatched <- summary(fullmatch(em + x)))
+  expect_true(all(res.b.one.unmatched$matching.failed == 0))
+
+  # now mock up a match in which one group failed (and there is also one unmatched unit)
+  expect_warning(tmp <- fullmatch(em + x))
+  tmp[c(letters[9:16])] <- NA
+  res.b.subgrp.fail <- summary(tmp)
+  expect_true(all(res.b.subgrp.fail$matching.failed ==  c(4,4)))
+
+})
+
+test_that("New matching.failed", {
   data(nuclearplants)
-  psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
-  psd <- match_on(psm, standardization.scale = sd) # backwards compatible to 0.7-2
-  psfm <- fullmatch(psd + caliper(psd, 0.25), data = nuclearplants)
-  summary(psfm) #!
+  # one subproblem, good
+  # should be NULL
 
-  # Matching fails in a subgroup
-  pspm <- pairmatch(caliper(match_on(psm, standarization.scale = sd,
-                                     within = exactMatch(pr ~ pt, data = nuclearplants)),
-                            width=2))
+  f <- fullmatch(pt ~ cost, data=nuclearplants)
 
-  expect_true(!is.null(summary(pspm)$matching.failed))
-  psd[1,] <- psd[1,] + rep(100,22)
+  expect_true(is.null(summary(f)$matching.failed))
 
-  # due to slight differences in the match on different platforms, just check that the
-  # total.distances remain the same
-  #expect_equal(summary(pairmatch(psd, controls=2, data = nuclearplants))$total.distance, 225.83338)
+  # one subproblem, bad
+  # should be row matrix
 
-  # RItools is loaded directly, so this occasion can not happen
-  # without PEBKAC.
-  ## if ("RItools" %in% loadedNamespaces()) {
-  ##   detach(package:RItools, unload=TRUE)
-  ## }
-  ## s2 <- summary(psfm, propensity.model=psm)
-  ## expect_true(!is.null(s2$warnings))
+  f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8)
 
-  require('RItools')
-  s3 <- summary(psfm, propensity.model='foo')
-  expect_true(!is.null(s3$warnings))
-  s4 <- summary(psfm, propensity.model=psm)
-  expect_true(is.null(s4$warnings))
-  s5 <- summary(psfm, psm)
-  expect_true(is.null(s5$warnings))
+  expect_true(all(summary(f)$matching.failed ==  c(26,6)))
 
-  #expect_equal(s2$thematch, s3$thematch)
-  #expect_equal(s2$thematch, s4$thematch)
-  #expect_equal(s2$thematch, s5$thematch)
+  # many subproblems, all good
+  # should be NULL
 
+  np <- nuclearplants[nuclearplants$pt==0,]
 
-  psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
-              t1 + t2 + cap + ne + ct + bw + cum.n + pt,
-              family=binomial, data=nuclearplants)
-  psd2 <- match_on(psm2, standardization.scale = sd)
-  psd2summary <- summary(pairmatch(psd2, data = nuclearplants), propensity.model=psm2)
+  frame <- exactMatch(pr ~ ne + ct, data=np)
+  frame@.Data[frame@rows==2] <- Inf
 
-  # due to slight differences in the match on different platforms, just check that the
-  # total.distances are the same and that the chi-squared value is 9.5 +- 0.5
+  m <- match_on(pr ~ cost, within=frame, data=np)
 
-  #expect_equal(psd2summary$total.distance, 7.5621504)
-  chisquared.value <- psd2summary$balance$overall$chisquare
-  expect_true(abs(9.5 - chisquared.value) < 0.5)
+  f <- fullmatch(m, data=np)
+
+  expect_true(is.null(summary(f)$matching.failed))
+
+  # many subproblems, all good, some excluded individuals
+  # should be empty matrix
+
+  f <- fullmatch(pt ~ cost, data=nuclearplants, within=exactMatch(pt ~ ne, data=nuclearplants))
+
+  expect_true(is.null(summary(f)$matching.failed))
+
+  # many subproblems, 1 bad
+  # should be row matrix
+
+  f <- fullmatch(m, data=np)
+  f[attr(f, "subproblem") == "0.0"] <- NA
+
+  expect_true(all(summary(f)$matching.failed ==  c(7,3)))
+
+  # many subproblems, many bad
+  # should be matrix of 2 rows
+
+  f[attr(f, "subproblem") == "0.0"] <- NA
+  f[attr(f, "subproblem") == "1.0"] <- NA
+
+  mf <- summary(f)$matching.failed
+  expect_true(all(row.names(mf) == c("0.0", "1.0")))
+  expect_true(all(as.numeric(mf) == c(7,3,3,1)))
+
+  # many subproblems, all bad
+  # should be table of all z's
+
+  f[1:26] <- NA
+
+  mf <- summary(f)$matching.failed
+  expect_true(all(row.names(mf) == c("0.0", "0.1", "1.0", "1.1")))
+  expect_true(all(as.numeric(mf) == c(7,6,3,3,3,2,1,1)))
+
+  # recovered
+  data(nuclearplants)
+  m <- match_on(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ct + ne, data=nuclearplants))
+  m@.Data[m@rows==2] <- Inf
+
+  f <- fullmatch(m, data=nuclearplants)
+  f[1] <- NA
+
+  # there are 5 NA's, but matching.failed only reports the 4 in the bad subgroup
+  expect_equal(sum(is.na(f)), 5)
+  expect_true(all(summary(f)$matching.failed ==  c(3,1)))
 })

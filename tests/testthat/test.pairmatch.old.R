@@ -1,4 +1,3 @@
-library(testthat)
 
 context("Pairmatch function old")
 

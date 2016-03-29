@@ -2,7 +2,6 @@
 # Tests for makedist function
 ################################################################################
 
-library(testthat)
 context("Makedist tests")
 
 # this is inefficient (in that it duplicates data entries many times)
@@ -58,7 +57,7 @@ test_that("Mask => ISM result", {
                      y = rnorm(10),
                      b = rep(c(1,0), each = 5))
   rownames(data) <- letters[1:10]
- 
+
   yminus <- function(index, data, z) { data[index[,1], 'y'] - data[index[,2], 'y'] }
 
   upper.left <- makedist(data$z[data$b == 1], data[data$b == 1,], yminus)
@@ -79,7 +78,7 @@ test_that("Mask => ISM result", {
   data2 <- data
   rownames(data2) <- letters[11:20]
   test.within.bad <- exactMatch(z ~ b, data = data2)
-  
+
   expect_error(makedist(data$z, data, yminus, within = test.within.bad),
                "names")
 
@@ -87,14 +86,14 @@ test_that("Mask => ISM result", {
   data3 <- data
   rownames(data3) <- c("foo", rownames(data[-1,]))
   test.within.bad.treat <- exactMatch(z ~ b, data = data3)
-  
+
   expect_error(makedist(data$z, data, yminus, within = test.within.bad.treat),
                "names")
 
   data4 <- data
   rownames(data3) <- c(rownames(data)[1:9], "bar")
   test.within.bad.cntrl <- exactMatch(z ~ b, data = data3)
-  
+
   expect_error(makedist(data$z, data, yminus, within = test.within.bad.cntrl),
                "names")
 
@@ -117,16 +116,16 @@ test_that("Z can be a numeric, logical, or two level factor", {
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
   X1 <- rnorm(n, mean = 5)
-  
+
   names(X1) <- letters[1:n]
 
-  res.one <- makedist(Z, X1, absdiff) 
-  res.logical <- makedist(as.logical(Z), X1, absdiff) 
+  res.one <- makedist(Z, X1, absdiff)
+  res.logical <- makedist(as.logical(Z), X1, absdiff)
   expect_identical(res.one, res.logical)
-  
-  res.factor <- makedist(as.factor(Z), X1, absdiff) 
+
+  res.factor <- makedist(as.factor(Z), X1, absdiff)
   expect_identical(res.one, res.factor)
-  
+
   Y <- rep(1:4, n/4)
   expect_error(makedist(as.factor(Y), X1, absdiff), "Treatment")
 })
@@ -145,6 +144,5 @@ test_that("distancefn specification", {
   }
 
   expect_true(all(makedist(Z, X, absdiffz) == 5))
-  
-})
 
+})

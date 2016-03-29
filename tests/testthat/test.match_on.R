@@ -1,9 +1,6 @@
 ################################################################################
-# Mdist: methods to create distance specifications, possibliy sparse
+# Match: methods to create distance specifications, possibliy sparse
 ################################################################################
-
-library(testthat)
-library(biglm)
 
 context("match_on function")
 
@@ -187,7 +184,7 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
   expect_equivalent(g(v), expectedM)
 
   ## glm should have the opposite behavior: automatically imputing
-  v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial)))
+  expect_warning(v <- as.matrix(match_on(glm(z ~ x1 + x2, data = d, family = binomial))), "fitted")
   expect_equivalent(g(v), rep("FINITE", 6))
 })
 
@@ -288,19 +285,21 @@ test_that("Errors for numeric vectors", {
 ###     )
 ###test(all.equal(unlist(result.combined), unlist(with(nuclearplants, match_on(pr ~ t1 + t2, structure.fmla=strat.fmla)))))
 test_that("Bigglm distances", {
+  if (require(biglm)) {
     n <- 16
-    Z <- c(rep(0, n/2), rep(1, n/2))
-    X1 <- rnorm(n, mean = 5)
-    X2 <- rnorm(n, mean = -2, sd = 2)
-    B <- rep(c(0,1), n/2)
-    test.data <- data.frame(Z, X1, X2, B)
+    test.data <- data.frame(Z = rep(0:1, each = n/2),
+                            X1 = rnorm(n, mean = 5),
+                            X2 = rnorm(n, mean = -2, sd = 2),
+                            B = rep(c(0,1), times = n/2))
+
 
     bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
     res.bg <- match_on(bgps, data = test.data)
 
-    # compare to glm
+  # compare to glm
     res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
     expect_equivalent(res.bg, res.glm)
+  }
 })
 
 test_that("Numeric: simple differences of scores", {
@@ -600,9 +599,11 @@ test_that("strata in GLMs", {
   m8 <- match_on(glm(pr ~ cost + strata(ct,ne), data=nuclearplants,
                      family=binomial),
                  data=nuclearplants)
-  m9 <- match_on(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
-                     data=nuclearplants, family=binomial),
-                 within=e1, data=nuclearplants)
+  suppressWarnings(
+    m9 <- match_on(glm(pr ~ cost + interaction(ne, ct) + strata(ct),
+                       data=nuclearplants, family=binomial),
+                   within=e1, data=nuclearplants)
+  )
   m10 <- match_on(glm(pr ~ cost + interaction(ne,ct), data=nuclearplants,
                       family=binomial),
                   within=e2, data=nuclearplants)
