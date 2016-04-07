@@ -27,6 +27,7 @@ Suggests:
     boot,
     biglm,
     testthat (>= 0.11.0),
+    roxygen2,
     brglm,
     arm,
     knitr,
