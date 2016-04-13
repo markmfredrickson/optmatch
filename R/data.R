@@ -47,11 +47,11 @@
 #' @keywords datasets
 "nuclearplants"
 
-#' #' This matrix gives discrepancies between light water nuclear power
+#' This matrix gives discrepancies between light water nuclear power
 #' plants of two types, seven built on the site of an existing plant
-#' and 19 built on new sites.  The discrepancies summarize
-#' differences in two covariates that are predictive of the cost of
-#' building a plant.
+#' and 19 built on new sites.  The discrepancies summarize differences
+#' in two covariates that are predictive of the cost of building a
+#' plant.
 #'
 #' @source The data appear in Cox, D.R. and Snell, E.J. (1981),
 #'   \emph{Applied Statistics: Principles and Examples}, p.82 (Chapman

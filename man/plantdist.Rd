@@ -14,11 +14,11 @@ The data appear in Cox, D.R. and Snell, E.J. (1981),
 plantdist
 }
 \description{
-#' This matrix gives discrepancies between light water nuclear power
+This matrix gives discrepancies between light water nuclear power
 plants of two types, seven built on the site of an existing plant
-and 19 built on new sites.  The discrepancies summarize
-differences in two covariates that are predictive of the cost of
-building a plant.
+and 19 built on new sites.  The discrepancies summarize differences
+in two covariates that are predictive of the cost of building a
+plant.
 }
 \references{
 Rosenbaum, P.R. (2002), \emph{Observational Studies},
