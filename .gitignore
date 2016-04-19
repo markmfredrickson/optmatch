@@ -19,3 +19,6 @@ vignettes/performance/*.rda
 inst/doc
 vignettes/figure
 vignettes/*.md
+vignettes/*.R
+vignettes/*.pdf
+.Rproj.user

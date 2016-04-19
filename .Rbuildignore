@@ -6,3 +6,5 @@ lexicon.txt
 ^data-raw$
 .pkgexclude
 vignettes/Sweave.sty
+^.*\.Rproj$
+^\.Rproj\.user$
