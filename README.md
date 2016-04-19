@@ -236,7 +236,7 @@ Additional features are added in their own branches. A list of branches is
 available at (the optmatch project
 page)[http://github.com/markmfredrickson/optmatch].
 
-### Installing globally
+### Installing a development version
 
 You must have the Fortran extensions for package building included. These can be
 had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
@@ -246,84 +246,67 @@ had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
 which makes installing the current development version very easy. Simply install
 the `devtools` package and then use it to install from this repository.
 
-    install.packages("devtools")
-    devtools:::install_github("markmfredrickson/optmatch")
+```{r}
+install.packages("devtools")
+devtools:::install_github("markmfredrickson/optmatch")
+```
 
 You may pass `ref=<branchname>` as an argument to `install_github` to install a
 branch other than "master", which is the default.
 
-Note that this will install the deverlopment version globally, such that the 
+Note that this will install the development version globally, such that the 
 existing release version from CRAN is overwritten. To revert to the current release 
 version from CRAN, remove and re-install via the following
 
-    remove.packages("optmatch")
-    install.packages("optmatch")
+```{r}
+remove.packages("optmatch")
+install.packages("optmatch")
+```
 
-### Fetching and installing in a local directory
+## Developing for Optmatch
 
-Chances are you already have an installation of `optmatch` that you use. These
-directions will install the development version in a way that will not
-overwrite your existing installation.
+You may use RStudio to develop for Optmatch, by opening the `optmatch.Rproj` file.
+We suggest you ensure all required dependencies are installed by running
 
-This requires a working installation of `git` and all the software mentioned 
-in the previous section (Fortran extensions and `devtools`). You will also need a
-copy of GNU `make` to create the package from source (standard on Linux, included
-with Apple's Xcode, included with the [Cygwin](http://www.cygwin.com/) UNIX tools
-for Windows). Fork the project and github and clone a working copy from
-your forked project:
-
-    $ git clone git@github.com:YOURUSERNAME/optmatch.git
-
-To ensure you have all the required dependencies to work with `optmatch`, you can
-automatically install them with
-
-    $ make dependencies
-
-You may create a bundled package with
-
-    $ cd /path/to/package
-    $ make build
-
-This should build a `optmatch_VERSION.tar.gz` file. You can install it in a
-local directory (for example `~/R/optmatch.demo`) using:
-
-    $ mkdir -p ~/R/optmatch.demo
-    $ R CMD Install --no-multiarch --library=~/R/optmatch.demo ./optmatch_VERSION.tar.gz
-
-You can then load the library in `R` using:
-
-    > library("optmatch", lib.loc = "~/R/optmatch.demo")
-
-### Developing for Optmatch
+```{r}
+devtools::install_deps(dependencies = TRUE)
+```
 
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the
 [testthat](http://github.com/hadley/test_that) package to write and run tests.
 (Please ensure you have the latest version of testthat (or at least v0.11.0),
 as older versions stored the tests in a different directory, and may not
-test properly.) See the `tests/testthat` directory for examples. 
-
-If you are using RStudio, after loading the `optmatch.Rproj` file, you can run 
+test properly.) See the `tests/testthat` directory for examples. You can run 
 the test suite via Build -> Test Package.
 
 New features should include inline [Roxygen](http://roxygen.org/) documentation.
 You can generate all `.Rd` documents from the `Roxygen` code using Build -> 
 Document.
 
-If you prefer not to use RStudio, you can develop using Make.
+Finally, you can use Build -> Build and Reload or Build -> Clean and Rebuild to
+load an updated version of `optmatch` in your current RStudio session. 
+Alternatively, to install the developed version permanently, use Build -> Build 
+Binary Version, followed by
 
-To run the test suite, use:
+```{r}
+install.packages("../optmatch_VERSION.tgz", repo=NULL)
+```
 
-    $ make test
+You can revert back to the current CRAN version by 
 
-To update documentation, use:
+```{r}
+remove.packages("optmatch")
+install.packages("optmatch")
+```
 
-    $ make document
+If you prefer not to use RStudio, you can develop using Make. 
 
-These other Make commands are also useful for development:
-
-- `make interactive`: starts up an interactive session with `optmatch` loaded.
-- `make check`: runs `R CMD check` on the package
+- `make test`: Run the full test suite.
+- `make document`: Update all documentation from Roxygen inline comments.
+- `make interactive`: Start up an interactive session with `optmatch` loaded.
+- `make check`: Run `R CMD check` on the package
+- `make build`: Build a binary package.
 - `make vignette`: Builds any vignettes in `vignettes/` directory
 - `make clean`: Removes files built by `make vignette`, `make document` or `make check`.
    Should not be generally necessary, but can be useful for debugging.
