@@ -150,7 +150,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   }
   lp.adj <- lp/pooled.sd
 
-  if (any(grepl("strata", formula(x)))) {
+  if (any(grepl("strata\\(", formula(x)))) {
     newwithin <- makeWithinFromStrata(formula(x), data)
     if (is.null(within)) {
       within <- newwithin$within
@@ -261,7 +261,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   rm(m)
 
-  if (any(grepl("strata", x))) {
+  if (any(grepl("strata\\(", x))) {
     newwithin <- makeWithinFromStrata(x, data)
     x <- newwithin$x
     mf[[2]] <- x

@@ -655,3 +655,25 @@ test_that("#114 informative error if caliper in formula", {
                "within=caliper\\(m\\)\\ \\+\\ caliper\\(n\\)")
 
 })
+
+test_that("variables named strata or caliper are allowed", {
+
+  data <- data.frame(z = rep(0:1, each = 10),
+                     x = rnorm(20),
+                     strata = rep(1:4, times = 5),
+                     caliper = rnorm(20))
+  # Try some valid albeit confusing inputs, along with some oddly formed input
+  expect_silent(match_on(z ~ x + strata, data = data))
+  expect_silent(match_on(z ~ x + caliper, data = data))
+  expect_silent(match_on(z ~ x + strata + strata(strata), data = data))
+  expect_silent(match_on(z ~ x + caliper + strata(strata), data = data))
+
+  data(nuclearplants)
+  m1 <- match_on(pr ~ t1 + t2 + strata(pt), data = nuclearplants)
+
+  names(nuclearplants)[11] <- "strata"
+
+  m2 <- match_on(pr ~ t1 + t2 + strata(strata), data = nuclearplants)
+  expect_identical(as.matrix(m1), as.matrix(m2))
+
+})
