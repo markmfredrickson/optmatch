@@ -646,13 +646,18 @@ test_that("#114 informative error if caliper in formula", {
 
   data(nuclearplants)
 
-  m <- match_on(pr ~ cost, data=nuclearplants)
-  expect_error(match_on(pr ~ t1 + caliper(m), data=nuclearplants),
+  m <- match_on(pr ~ cost, data = nuclearplants)
+  expect_error(match_on(pr ~ t1 + caliper(m), data = nuclearplants),
                "be applied via")
-  expect_error(match_on(pr ~ t1 + caliper(m), data=nuclearplants),
-               "within=caliper\\(m\\)")
-  expect_error(match_on(pr ~ t1 + caliper(m) + caliper(n), data=nuclearplants),
-               "within=caliper\\(m\\)\\ \\+\\ caliper\\(n\\)")
+  expect_error(match_on(pr ~ t1 + caliper(m), data = nuclearplants),
+               "within\\ =\\ caliper\\(m\\)")
+  expect_error(match_on(pr ~ t1 + caliper(m) + caliper(n), data = nuclearplants),
+               "within\\ =\\ caliper\\(m\\)\\ \\+\\ caliper\\(n\\)")
+
+  em <- exactMatch(pr ~ pt, data = nuclearplants)
+  expect_error(match_on(pr ~ t1 + caliper(m) + caliper(n),
+                        data = nuclearplants, within = em),
+               "within\\ =\\ em\\ \\+\\ caliper\\(m\\)\\ \\+\\ caliper\\(n\\)")
 
 })
 
