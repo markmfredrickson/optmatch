@@ -150,7 +150,8 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
   }
   lp.adj <- lp/pooled.sd
 
-  if (any(grepl("strata\\(", formula(x)))) {
+  if (!is.null(attr(terms(formula(x), special = "strata", data = data),
+                    "specials")$strata)) {
     newwithin <- makeWithinFromStrata(formula(x), data)
     if (is.null(within)) {
       within <- newwithin$within
@@ -261,7 +262,9 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
 
   rm(m)
 
-  if (any(grepl("strata\\(", x))) {
+  # Get terms, with flags for any strata (to handle) or caliper (to break)
+  t <- terms(x, specials = c("strata","caliper"), data = data)
+  if (!is.null(attr(t, "specials")$strata)) {
     newwithin <- makeWithinFromStrata(x, data)
     x <- newwithin$x
     mf[[2]] <- x
@@ -273,8 +276,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   }
 
   # #114 - Catching user input of caliper in formula
-  if (any(grepl("caliper\\(", x))) {
-    t <- terms(x, specials = "caliper")
+  if (!is.null(attr(t, "specials")$caliper)) {
     calnames <- rownames(attr(t, 'factors'))[attr(t, "specials")$caliper]
     withinname <- as.list(match.call())$within
     if (is.null(withinname)) {
