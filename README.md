@@ -236,18 +236,11 @@ Additional features are added in their own branches. A list of branches is
 available at (the optmatch project
 page)[http://github.com/markmfredrickson/optmatch].
 
-### Fetching and installing in a local directory
-
-Chances are you already have an installation of `optmatch` that you use. These
-directions will install the development version in a way that will not
-overwrite your existing installation.
+### Installing globally
 
 You must have the Fortran extensions for package building included. These can be
 had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
-[Windows](http://cran.r-project.org/bin/windows/Rtools/). You will also need a
-copy of GNU `make` to create the package from source (standard on Linux, included
-with Apple's Xcode, included with the [Cygwin](http://www.cygwin.com/) UNIX tools
-for Windows).
+[Windows](http://cran.r-project.org/bin/windows/Rtools/). 
 
 `optmatch` is built using [devtools](https://cran.r-project.org/package=devtools)
 which makes installing the current development version very easy. Simply install
@@ -259,21 +252,34 @@ the `devtools` package and then use it to install from this repository.
 You may pass `ref=<branchname>` as an argument to `install_github` to install a
 branch other than "master", which is the default.
 
-Alternatively, if you have a working installation of `git`
-and all the software mentioned in the previous section, you can checkout a
-copy of the source directly.  Instead of downloading
-the source directly, fork the project and github and clone a working copy from
+Note that this will install the deverlopment version globally, such that the 
+existing release version from CRAN is overwritten. To revert to the current release 
+version from CRAN, remove and re-install via the following
+
+    remove.packages("optmatch")
+    install.packages("optmatch")
+
+### Fetching and installing in a local directory
+
+Chances are you already have an installation of `optmatch` that you use. These
+directions will install the development version in a way that will not
+overwrite your existing installation.
+
+This requires a working installation of `git` and all the software mentioned 
+in the previous section (Fortran extensions and `devtools`). You will also need a
+copy of GNU `make` to create the package from source (standard on Linux, included
+with Apple's Xcode, included with the [Cygwin](http://www.cygwin.com/) UNIX tools
+for Windows). Fork the project and github and clone a working copy from
 your forked project:
 
     $ git clone git@github.com:YOURUSERNAME/optmatch.git
 
-To ensure you have all the required dependencies to work with
-`optmatch`, you can automatically install them with
+To ensure you have all the required dependencies to work with `optmatch`, you can
+automatically install them with
 
     $ make dependencies
 
-As mentioned, `optmatch` is developed with `devtools` and requires it to compile.
-Once you have installed `devtools`, you may create a bundled package with
+You may create a bundled package with
 
     $ cd /path/to/package
     $ make build
@@ -295,17 +301,26 @@ how the new feature should be added. The test suite uses the
 [testthat](http://github.com/hadley/test_that) package to write and run tests.
 (Please ensure you have the latest version of testthat (or at least v0.11.0),
 as older versions stored the tests in a different directory, and may not
-test properly.) See the `tests/testthat` directory for examples. To run
-the test suite, use:
+test properly.) See the `tests/testthat` directory for examples. 
+
+If you are using RStudio, after loading the `optmatch.Rproj` file, you can run 
+the test suite via Build -> Test Package.
+
+New features should include inline [Roxygen](http://roxygen.org/) documentation.
+You can generate all `.Rd` documents from the `Roxygen` code using Build -> 
+Document.
+
+If you prefer not to use RStudio, you can develop using Make.
+
+To run the test suite, use:
 
     $ make test
 
-New features should include inline [Roxygen](http://roxygen.org/) documentation.
-You can generate all `.Rd` documents from the `Roxygen` code via
+To update documentation, use:
 
     $ make document
 
-These other commands are also useful for development:
+These other Make commands are also useful for development:
 
 - `make interactive`: starts up an interactive session with `optmatch` loaded.
 - `make check`: runs `R CMD check` on the package
