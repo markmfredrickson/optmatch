@@ -272,6 +272,15 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     }
   }
 
+  # #114 - Catching user input of caliper in formula
+  if (any(grepl("caliper\\(", x))) {
+    t <- terms(x, specials="caliper")
+    calnames <- rownames(attr(t, 'factors'))[attr(t, "specials")$caliper]
+
+    stop(paste0("Calipers should be applied via the `within=` argument instead of in the formula.\n",
+                "\tE.g. `within=", paste(calnames, collapse=" + "), "`"))
+  }
+
   names(mf)[names(mf) == "x"] <- "formula"
   mf$drop.unused.levels <- TRUE
   mf$na.action <- na.pass
