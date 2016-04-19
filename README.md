@@ -1,5 +1,7 @@
 # Optmatch: Optimal Fullmatching for R
 
+[![Travis-CI Build Status](https://travis-ci.org/markmfredrickson/optmatch.svg?branch=master)](https://travis-ci.org/markmfredrickson/optmatch)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/markmfredrickson/optmatch?branch=master&svg=true)](https://ci.appveyor.com/project/markmfredrickson/optmatch)
+
 The `optmatch` package implements the optimal full matching algorithm for
 bipartite matching problems. Given a matrix describing the distances between
 two groups (where one group is represented by row entries, and the other by
@@ -287,7 +289,6 @@ You can then load the library in `R` using:
     > library("optmatch", lib.loc = "~/R/optmatch.demo")
 
 ### Developing for Optmatch
-
 
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the

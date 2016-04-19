@@ -8,3 +8,5 @@ lexicon.txt
 vignettes/Sweave.sty
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.travis\.yml$
+^appveyor\.yml$
