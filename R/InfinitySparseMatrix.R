@@ -299,7 +299,7 @@ function(e1, e2) {
 ##' This matches the syntax and semantics of
 ##' subset for matrices.
 ##'
-##' @title Subsetting for InfinitySparseMatricies
+##' @title Subsetting for InfinitySparseMatrices
 ##' @param x InfinitySparseMatrix to be subset or bound.
 ##' @param subset Logical expression indicating rows to keep.
 ##' @param select Logical expression indicating columns to keep.

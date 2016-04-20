@@ -18,7 +18,7 @@ logical
 }
 \description{
 The functions \code{\link{fullmatch}} and \code{\link{pairmatch}}
-create optimal matchings of treated and control units given a
+create optimal matches of treated and control units given a
 matrix (or similar representation) of distances between treated and
 control units. These distance specifications must implement certain
 generic functions. This function checks that all necessary methods

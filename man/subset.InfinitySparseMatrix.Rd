@@ -2,7 +2,7 @@
 % Please edit documentation in R/InfinitySparseMatrix.R
 \name{subset.InfinitySparseMatrix}
 \alias{subset.InfinitySparseMatrix}
-\title{Subsetting for InfinitySparseMatricies}
+\title{Subsetting for InfinitySparseMatrices}
 \usage{
 \method{subset}{InfinitySparseMatrix}(x, subset, select, ...)
 }

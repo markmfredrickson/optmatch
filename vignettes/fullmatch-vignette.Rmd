@@ -298,7 +298,7 @@ summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
 ```
 
 The RItools package's `xBalance` function zeroes in on balance, and
-facilitiates checking balance on multiple variables at the same time. Here are some examples:
+facilitates checking balance on multiple variables at the same time. Here are some examples:
 
 ```{r}
 

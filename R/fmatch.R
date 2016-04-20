@@ -2,7 +2,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 			min.col.units = 1, f = 1)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
-    stop("Distance argument is not a cannonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
+    stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
   }
 
   # NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
