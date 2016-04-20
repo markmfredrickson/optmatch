@@ -457,7 +457,7 @@ __Exercise.__
 Try out {at least 3} different combinations of propensity score and
 Mahalanobis matching.  Identify the matches that gives:
 
-1. the "best balance overall," as measured by chisquare statistics;
+1. the "best balance overall," as measured by Chi-square statistics;
 1. the "best balance overall," as indicated by the largest
   standardized difference among the covariates;
 1. the best balance on `date` and `cap`, as measured by the larger of
