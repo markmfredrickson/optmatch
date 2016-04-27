@@ -144,13 +144,21 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
 
 #' @rdname dimnames-InfinitySparseMatrix
 #' @export
-setMethod("dimnames<-", "InfinitySparseMatrix", function(x, value) {
+setMethod("dimnames<-", c("InfinitySparseMatrix", "list"), function(x, value) {
   if (length(value) != 2) {
     # message copied from matrix method
     stop(paste("length of 'dimnames' [", length(value), "] not equal to dims [2]", sep = ""))
   }
   x@rownames <- value[[1]]
   x@colnames <- value[[2]]
+  x
+})
+
+#' @rdname dimnames-InfinitySparseMatrix
+#' @export
+setMethod("dimnames<-", c("InfinitySparseMatrix", "NULL"), function(x, value) {
+  x@rownames <- NULL
+  x@colnames <- NULL
   x
 })
 

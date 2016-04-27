@@ -50,6 +50,9 @@ test_that("ISM Handles Names", {
 
   dimnames(m) <- dms
   expect_equal(as.matrix(A), m)
+
+  dimnames(A) <- NULL
+  expect_null(dimnames(A))
 })
 
 test_that("Math Ops", {

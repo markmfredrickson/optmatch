@@ -3,12 +3,15 @@
 \docType{methods}
 \name{dimnames,InfinitySparseMatrix-method}
 \alias{dimnames,InfinitySparseMatrix-method}
-\alias{dimnames<-,InfinitySparseMatrix,ANY-method}
+\alias{dimnames<-,InfinitySparseMatrix,NULL-method}
+\alias{dimnames<-,InfinitySparseMatrix,list-method}
 \title{Get and set dimnames for InfinitySparseMatrix objects}
 \usage{
 \S4method{dimnames}{InfinitySparseMatrix}(x)
 
-\S4method{dimnames}{InfinitySparseMatrix,ANY}(x) <- value
+\S4method{dimnames}{InfinitySparseMatrix,list}(x) <- value
+
+\S4method{dimnames}{InfinitySparseMatrix,`NULL`}(x) <- value
 }
 \arguments{
 \item{x}{An InfinitySparseMatrix object.}
