@@ -10,6 +10,7 @@ r:
 r_packages:
   - biglm
   - arm
+  - brglm
 r_github_packages:
   - jimhester/covr
 after_success:
