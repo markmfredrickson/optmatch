@@ -5,7 +5,7 @@
 .local
 src-*
 OPTMATCH_TIMESTAMP
-optmatch_*
+./optmatch_*
 performance.aux
 performance.fdb_latexmk
 performance.fls
