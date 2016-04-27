@@ -7,6 +7,9 @@ r:
   - oldrel
   - release
   - devel
+r_packages:
+  - biglm
+  - arm
 r_github_packages:
   - jimhester/covr
 after_success:
