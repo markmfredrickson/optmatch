@@ -1,6 +1,6 @@
 # Optmatch: Optimal Fullmatching for R
 
-[![Travis-CI Build Status](https://travis-ci.org/markmfredrickson/optmatch.svg?branch=master)](https://travis-ci.org/markmfredrickson/optmatch)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/markmfredrickson/optmatch?branch=master&svg=true)](https://ci.appveyor.com/project/markmfredrickson/optmatch)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)[![Travis-CI Build Status](https://travis-ci.org/markmfredrickson/optmatch.svg?branch=master)](https://travis-ci.org/markmfredrickson/optmatch)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/markmfredrickson/optmatch?branch=master&svg=true)](https://ci.appveyor.com/project/markmfredrickson/optmatch)
 
 The `optmatch` package implements the optimal full matching algorithm for
 bipartite matching problems. Given a matrix describing the distances between
