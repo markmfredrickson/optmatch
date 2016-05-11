@@ -4,7 +4,7 @@ author: "Ben B. Hansen, Mark Fredrickson, Josh Buckner, Josh Errickson, and Pete
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
 vignette: >
-  %\VignetteIndexEntry{Matching with Optmatch}
+  %\VignetteIndexEntry{Using Optmatch with Foreign Software}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
