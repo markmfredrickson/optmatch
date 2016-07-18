@@ -124,10 +124,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
 
-  feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
+  feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
             (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
-  x <- feas * fop$x - (1 - feas)
+  x <- feas * fop$x1 - (1 - feas)
 
   ans <- numeric(narcs)
   ans <- x[1:narcs]
