@@ -240,28 +240,41 @@ page)[http://github.com/markmfredrickson/optmatch].
 
 You must have the Fortran extensions for package building included. These can be
 had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
-[Windows](http://cran.r-project.org/bin/windows/Rtools/). 
+[Windows](http://cran.r-project.org/bin/windows/Rtools/).
 
-`optmatch` is built using [devtools](https://cran.r-project.org/package=devtools)
-which makes installing the current development version very easy. Simply install
-the `devtools` package and then use it to install from this repository.
+We recommend using `dev_mode` from the `devtools` package to install the
+development branch so that you can keep the current CRAN version as the primary
+package. Activating `dev_mode` creates a secondary library of packages which can
+only be accessed while in `dev_mode`. Packages normally installed can still be
+used, but if different versions are installed normally and in `dev_mode`, the
+`dev_mode` version takes precedent if in `dev_mode`.
 
-```{r}
-install.packages("devtools")
-devtools:::install_github("markmfredrickson/optmatch")
-```
+Install and load the `devtools` package:
 
-You may pass `ref=<branchname>` as an argument to `install_github` to install a
-branch other than "master", which is the default.
+    > install.packages("devtools")
+    > library("devtools")
 
-Note that this will install the development version globally, such that the 
-existing release version from CRAN is overwritten. To revert to the current release 
-version from CRAN, remove and re-install via the following
+Activate `dev_mode`:
 
-```{r}
-remove.packages("optmatch")
-install.packages("optmatch")
-```
+    > dev_mode()
+    d>
+
+Note that the prompt changes from `>` to `d>` to let you know you're in
+`dev_mode`. Now choose the development branch you want to use. To install
+`master`:
+
+    d> install_github("markmfredrickson/optmatch")
+
+Now, while in `dev_mode`, using `library(optmatch)` will load the development
+branch. If you are not in `dev_mode` (to disable `dev_mode`, run the command
+again:
+
+    d> dev_mode()
+    >
+
+) then `library(optmatch)` will load the version from CRAN.
+
+We suggest re-starting R if you want to switch between versions.
 
 ## Developing for Optmatch
 
@@ -277,30 +290,30 @@ how the new feature should be added. The test suite uses the
 [testthat](http://github.com/hadley/test_that) package to write and run tests.
 (Please ensure you have the latest version of testthat (or at least v0.11.0),
 as older versions stored the tests in a different directory, and may not
-test properly.) See the `tests/testthat` directory for examples. You can run 
+test properly.) See the `tests/testthat` directory for examples. You can run
 the test suite via Build -> Test Package.
 
 New features should include inline [Roxygen](http://roxygen.org/) documentation.
-You can generate all `.Rd` documents from the `Roxygen` code using Build -> 
+You can generate all `.Rd` documents from the `Roxygen` code using Build ->
 Document.
 
 Finally, you can use Build -> Build and Reload or Build -> Clean and Rebuild to
-load an updated version of `optmatch` in your current RStudio session. 
-Alternatively, to install the developed version permanently, use Build -> Build 
+load an updated version of `optmatch` in your current RStudio session.
+Alternatively, to install the developed version permanently, use Build -> Build
 Binary Version, followed by
 
 ```{r}
 install.packages("../optmatch_VERSION.tgz", repo=NULL)
 ```
 
-You can revert back to the current CRAN version by 
+You can revert back to the current CRAN version by
 
 ```{r}
 remove.packages("optmatch")
 install.packages("optmatch")
 ```
 
-If you prefer not to use RStudio, you can develop using Make. 
+If you prefer not to use RStudio, you can develop using Make.
 
 - `make test`: Run the full test suite.
 - `make document`: Update all documentation from Roxygen inline comments.
