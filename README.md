@@ -242,12 +242,13 @@ You must have the Fortran extensions for package building included. These can be
 had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
 [Windows](http://cran.r-project.org/bin/windows/Rtools/).
 
-We recommend using `dev_mode` from the `devtools` package to install the
-development branch so that you can keep the current CRAN version as the primary
-package. Activating `dev_mode` creates a secondary library of packages which can
-only be accessed while in `dev_mode`. Packages normally installed can still be
-used, but if different versions are installed normally and in `dev_mode`, the
-`dev_mode` version takes precedent if in `dev_mode`.
+We recommend using `dev_mode` from the `devtools` package to install
+in-development version of the package so that you can keep the current CRAN
+version as the primary package. Activating `dev_mode` creates a secondary
+library of packages which can only be accessed while in `dev_mode`. Packages
+normally installed can still be used, but if different versions are installed
+normally and in `dev_mode`, the `dev_mode` version takes precedent if in
+`dev_mode`.
 
 Install and load the `devtools` package:
 
@@ -265,16 +266,24 @@ Note that the prompt changes from `>` to `d>` to let you know you're in
 
     d> install_github("markmfredrickson/optmatch")
 
-Now, while in `dev_mode`, using `library(optmatch)` will load the development
-branch. If you are not in `dev_mode` (to disable `dev_mode`, run the command
-again:
+Either way, the package is then loaded in the usual fashion, provided you're
+still in `dev_mode`:
+
+     d> library(optmatch)
+
+Once you've done this you can disable `dev_mode` as follows
 
     d> dev_mode()
     >
 
-) then `library(optmatch)` will load the version from CRAN.
+The development version of the package remains loaded.
 
-We suggest re-starting R if you want to switch between versions.
+Note that if you load the package -- ie, enter `library(optmatch)` (when the
+package hasn't already been loaded otherwise) -- while _not_ in `dev_mode`, then
+you'll get whatever version of the package may be installed in your library
+tree, not this development version.
+
+If you want to switch between versions of `RItools`, we suggest re-starting R.
 
 ## Developing for Optmatch
 
