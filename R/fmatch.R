@@ -132,8 +132,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   ans <- numeric(narcs)
   ans <- x[1:narcs]
+
   if (identical(options()$use_fallback_optmatch_solver, FALSE)) {
-    ans <- rc[1:narcs]
-  }
-  return(cbind(distance, solution = ans))
+  cbind(distance, solution = ans, reduced.cost=rc)
+  } else cbind(distance, solution = ans)
 }
