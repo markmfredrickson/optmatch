@@ -2,7 +2,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 			min.col.units = 1, f = 1)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
-    stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
+    stop("Distance argument is not a cannonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
   }
 
   # NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
@@ -115,6 +115,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     as.integer(ucap),
                     as.integer(b),
                     x1=integer(length(startn)),
+                    rc1=integer(length(startn)),
                     crash1=as.integer(0),
                     large1=as.integer(.Machine$integer.max/4),
                     feasible1=integer(1),
@@ -124,12 +125,15 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
 
-  feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
+  feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
             (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
-  x <- feas * fop$x1 - (1 - feas)
+  x <- feas * fop$x - (1 - feas)
 
   ans <- numeric(narcs)
   ans <- x[1:narcs]
+  if (identical(options()$use_fallback_optmatch_solver, FALSE)) {
+    ans <- rc[1:narcs]
+  }
   return(cbind(distance, solution = ans))
 }
