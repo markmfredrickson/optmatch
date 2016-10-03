@@ -254,6 +254,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   }
   if (!exists("cl")) cl <- match.call()
 
+  if (grepl(".", as.character(x)[3], fixed = TRUE) &
+      grepl("strata(", as.character(x)[3], fixed = TRUE)) {
+    stop("Cannot use . expansion in formula when defining strata.")
+  }
+
   mf <- match.call(expand.dots = FALSE)
 
   m <- match(c("x", "data", "subset"), # maybe later add "na.action"
