@@ -43,19 +43,24 @@ summary.optmatch <- function(object,
   so <- list()
   so$thematch <- object
   mfd <- is.na(object)
+  subprobs <- attr(object, "subproblem")
+  if (is.null(subprobs)) {
+    warning("Object is missing subproblem identification. Assuming a single subproblem.")
+    subprobs <- as.factor(rep(1, length(object)))
+    names(subprobs) <- names(object)
+  }
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
-      so$matching.failed <- table(attr(object, "subproblem"), attr(object, "contrast.group"))
+      so$matching.failed <- table(subprobs, attr(object, "contrast.group"))
       dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
       so$warnings <- c(so$warnings,
                        list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
                        )
       return(so)
     }
-  subprobs <- attr(object, "subproblem")
   match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
-  so$matching.failed <- table(attr(object, "subproblem"), attr(object, "contrast.group"), exclude=names(match.succeed)[match.succeed])
+  so$matching.failed <- table(subprobs, attr(object, "contrast.group"), exclude=names(match.succeed)[match.succeed])
   if (prod(dim(so$matching.failed)) == 0) {
     so$matching.failed <- NULL
   } else {
@@ -131,7 +136,13 @@ summary.optmatch <- function(object,
 print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...) {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
 
-  numsubprob <- length(levels(attr(x$thematch, "subproblem")))
+
+  subprobs <- attr(x$thematch, "subproblem")
+  if (is.null(subprobs)) {
+    numsubprob <- 1
+  } else {
+    numsubprob <- length(levels(subprobs))
+  }
   numsubprobfail <- if (is.null(x$matching.failed)) 0 else nrow(x$matching.failed)
   numobs <- length(x$thematch)
   numobsfail <- sum(x$matching.failed)
