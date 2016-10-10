@@ -60,7 +60,9 @@ summary.optmatch <- function(object,
       return(so)
     }
   match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
-  so$matching.failed <- table(subprobs, attr(object, "contrast.group"), exclude=names(match.succeed)[match.succeed])
+  so$matching.failed <- table(subprobs, attr(object, "contrast.group"),
+                              exclude = names(match.succeed)[match.succeed],
+                              useNA = 'no')
   if (prod(dim(so$matching.failed)) == 0) {
     so$matching.failed <- NULL
   } else {
