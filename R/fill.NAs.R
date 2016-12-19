@@ -120,7 +120,7 @@
 #' pairmatch(match_on(np.glm, data=np.filled), data=np.filled)
 #'
 #' ## fill NAs without using treatment contrasts by making a list of contrasts for
-#' ## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
+#' ## each factor ## following hints from https://stackoverflow.com/a/4569239/161808
 #'
 #' np.missing$t1F<-factor(np.missing$t1)
 #' cov.factors <- sapply(np.missing[,c("t1F","t2")],is.factor)
