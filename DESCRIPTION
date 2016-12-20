@@ -22,14 +22,15 @@ Imports:
     digest,
     stats,
     methods,
-    graphics
+    graphics,
+    arm
 Suggests:
     boot,
     biglm,
+    CBPS,
     testthat (>= 0.11.0),
     roxygen2,
     brglm,
-    arm,
     knitr,
     rmarkdown,
     pander,

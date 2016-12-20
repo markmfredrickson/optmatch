@@ -72,7 +72,7 @@ scores <- function(object, newdata=NULL, ...) {
   } else {
     mf <- tryCatch(model.frame(object, na.action=na.pass),
                    error = function(e) {
-      fallback <- model.frame(object)                 
+      fallback <- model.frame(object)
       warning(paste("Error gathering complete data.",
                     "If the data has missing cases, imputation will not be performed.",
                     "(Sometimes this can be fixed by supplying a `data` argument",
@@ -118,5 +118,22 @@ scores <- function(object, newdata=NULL, ...) {
   names(newdata2) <- gsub("`", "", names(newdata2))
   newdata2 <- cbind(resp, newdata2)
 
-  eval(predict(newobject, newdata=newdata2, ...))
+  if (is(newobject, "CBPS")) {
+    eval(predict_CBPS(newobject))
+  } else {
+    eval(predict(newobject, newdata=newdata2, ...))
+  }
+}
+
+
+##' (Internal) Predict for CBPS objets
+##'
+##' @param x A CBPS object
+##'
+##' @return Inverse logit of the fitted values.
+##' @import arm
+predict_CBPS <- function(x) {
+  out <- arm::invlogit(x$fitted.values)
+  names(out) <- rownames(x$x)
+  return(out)
 }

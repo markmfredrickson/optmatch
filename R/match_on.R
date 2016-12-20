@@ -127,7 +127,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @export
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
 
-  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
+  stopifnot(all(c('y','data') %in% names(x)))
 
   # If the data is given, using x$data intead of model.frame avoids issue #39
   if (is.data.frame(x$data)) {
