@@ -138,8 +138,9 @@ scores <- function(object, newdata=NULL, ...) {
 ##' @param x A CBPS object
 ##'
 ##' @return Inverse logit of the fitted values.
+##' @importFrom stats plogis
 predict_CBPS <- function(x) {
-  out <- plogis(x$fitted.values)
+  out <- stats::plogis(x$fitted.values)
   names(out) <- rownames(x$x)
   return(out)
 }
