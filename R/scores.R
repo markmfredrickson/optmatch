@@ -125,21 +125,19 @@ scores <- function(object, newdata=NULL, ...) {
   names(newdata2) <- gsub("`", "", names(newdata2))
   newdata2 <- cbind(resp, newdata2)
 
-  if (is(newobject, "CBPS")) {
-    eval(predict_CBPS(newobject))
-  } else {
-    eval(predict(newobject, newdata=newdata2, ...))
-  }
+  eval(predict(newobject, newdata=newdata2, ...))
 }
 
 
 ##' (Internal) Predict for CBPS objets
 ##'
 ##' @param x A CBPS object
+##' @param newdata Unused.
+##' @param ... Unused.
 ##'
 ##' @return Inverse logit of the fitted values.
 ##' @importFrom stats plogis
-predict_CBPS <- function(x) {
+predict.CBPS <- function(x, newdata=NULL, ...) {
   out <- stats::plogis(x$fitted.values)
   names(out) <- rownames(x$x)
   return(out)
