@@ -26,7 +26,6 @@ Imports:
 Suggests:
     boot,
     biglm,
-    CBPS,
     testthat (>= 0.11.0),
     roxygen2,
     brglm,
@@ -35,6 +34,8 @@ Suggests:
     rmarkdown,
     pander,
     xtable
+Enhances:
+    CBPS
 License: file LICENSE
 URL: https://www.r-project.org, https://github.com/markmfredrickson/optmatch
 Collate:
