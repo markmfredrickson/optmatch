@@ -22,8 +22,7 @@ Imports:
     digest,
     stats,
     methods,
-    graphics,
-    arm
+    graphics
 Suggests:
     boot,
     biglm,
@@ -31,6 +30,7 @@ Suggests:
     testthat (>= 0.11.0),
     roxygen2,
     brglm,
+    arm,
     knitr,
     rmarkdown,
     pander,
