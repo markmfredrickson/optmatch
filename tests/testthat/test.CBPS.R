@@ -11,7 +11,7 @@ test_that("internal predict.CBPS function", {
   nuclearplants$t1[c(2,5,10)] <- NA
   nuclearplants$ne[c(6,25,23)] <- NA
 
-  cpsm <- CBPS(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, ATT = 0, data = nuclearplants)
+  cpsm <- CBPS::CBPS(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, ATT = 0, data = nuclearplants)
   expect_true(length(fullmatch(cpsm, data = nuclearplants)) == nrow(nuclearplants))
 }
 })
