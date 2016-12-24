@@ -129,16 +129,26 @@ scores <- function(object, newdata=NULL, ...) {
 }
 
 
-##' (Internal) Predict for CBPS objets
+##' (Internal) Predict for CBPS objects 
 ##'
+##' The CBPS package fits \sQuote{covariate balancing propensity score} for use in propensity score
+##' weighting.  In the binary treatment case they can also be used for matching.  This method helps to 
+##' implement that process in a manner consistent with use of propensity scores elsewhere in optmatch; see
+##' \code{\link{scores}} documentation. 
+##' 
 ##' @param x A CBPS object
 ##' @param newdata Unused.
+##' @param type Return inverse logits of fitted values (the default) or fitted values themselves 
 ##' @param ... Unused.
 ##'
 ##' @return Inverse logit of the fitted values.
 ##' @importFrom stats plogis
-predict.CBPS <- function(x, newdata=NULL, ...) {
-  out <- stats::plogis(x$fitted.values)
+predict.CBPS <- function(x, newdata=NULL, type=c("link", "response"), ...) {
+    type <- match.arg(type)
+    stopifnot(type %in% c("link", "response") )
+    if (length(unique(x$y))>2) stop("Only binary treatments are supported")
+    
+    out <- if (type=="link") stats::plogis(x$fitted.values) else x$fitted.values
   names(out) <- rownames(x$x)
   return(out)
 }

@@ -2,14 +2,16 @@
 % Please edit documentation in R/scores.R
 \name{predict.CBPS}
 \alias{predict.CBPS}
-\title{(Internal) Predict for CBPS objets}
+\title{(Internal) Predict for CBPS objects}
 \usage{
-\method{predict}{CBPS}(x, newdata = NULL, ...)
+\method{predict}{CBPS}(x, newdata = NULL, type = c("link", "response"), ...)
 }
 \arguments{
 \item{x}{A CBPS object}
 
 \item{newdata}{Unused.}
+
+\item{type}{Return inverse logits of fitted values (the default) or fitted values themselves}
 
 \item{...}{Unused.}
 }
@@ -17,6 +19,9 @@
 Inverse logit of the fitted values.
 }
 \description{
-(Internal) Predict for CBPS objets
+The CBPS package fits \sQuote{covariate balancing propensity score} for use in propensity score
+weighting.  In the binary treatment case they can also be used for matching.  This method helps to 
+implement that process in a manner consistent with use of propensity scores elsewhere in optmatch; see
+\code{\link{scores}} documentation.
 }
 
