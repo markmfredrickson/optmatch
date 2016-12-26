@@ -8,16 +8,16 @@
 \alias{caliper,optmatch.dlist-method}
 \title{Prepare matching distances suitable for matching within calipers.}
 \usage{
-caliper(x, width = 1, exclude = c(), compare = `<=`, values = FALSE)
+caliper(x, width, exclude = c(), compare = `<=`, values = FALSE)
 
-\S4method{caliper}{InfinitySparseMatrix}(x, width = 1, exclude = c(),
+\S4method{caliper}{InfinitySparseMatrix}(x, width, exclude = c(),
   compare = `<=`, values = FALSE)
 
-\S4method{caliper}{matrix}(x, width = 1, exclude = c(), compare = `<=`,
+\S4method{caliper}{matrix}(x, width, exclude = c(), compare = `<=`,
   values = FALSE)
 
-\S4method{caliper}{optmatch.dlist}(x, width = 1, exclude = c(),
-  compare = `<=`, values = FALSE)
+\S4method{caliper}{optmatch.dlist}(x, width, exclude = c(), compare = `<=`,
+  values = FALSE)
 }
 \arguments{
 \item{x}{A distance specification created with \code{\link{match_on}} or similar.}
@@ -65,6 +65,15 @@ to this distance, it is allowed kept; otherwise, the pair is discarded from futu
 matching. The default comparison of ``equal or less than can'' be changed to any other
 comparison function using the \code{comparison} argument.
 
+It is important to understand that \code{width} argument is defined on the
+scale of these distances. For univariate distances such as propensity scores,
+it is common to specificy calipers in standard deviations. If a caliper of
+this nature is desired, you must either find the standard deviation directly
+or use the \code{\link{match_on}} function with its \code{caliper} argument.
+Since \code{match_on} has access to the underlying univariate scores, for
+example for the GLM method, it can determine the caliper width in standard
+deviations.
+
 If you wish to exclude specific units from the caliper requirements, pass the names of 
 these units in the \code{exclude} argument. These units will be allowed to match any other
 unit.
@@ -98,7 +107,8 @@ pairmatch(mhd.pptyc, data = nuclearplants)
 caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A", "f"))
 
 ### Returning values directly (equal up to the the attributes)
-all(abs((caliper(ppty.dist) + ppty.dist) - caliper(ppty.dist, values = TRUE)) < .Machine$Double.eps)
+all(abs((caliper(ppty.dist, 1) + ppty.dist) -
+        caliper(ppty.dist, 1, values = TRUE)) < .Machine$Double.eps)
 }
 \author{
 Mark M. Fredrickson and Ben B. Hansen
