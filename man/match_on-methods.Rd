@@ -149,10 +149,12 @@ The \code{glm} method assumes its first argument to be a fitted
   beneficial computationally as well as statistically, for reasons indicated
   in the below discussion of the \code{numeric} method.
 
-  One can also specify exactMatching criteria by using `strata(foo)` inside
-  the formula to build the `glm`. For example, passing
-  `glm(y ~ x + strata(s))` to `match_on` is equivalent to passing
-  `within=exactMatch(y ~ strata(s))`.
+  One can also specify exactMatching criteria by using \code{strata(foo)} inside
+  the formula to build the \code{glm}. For example, passing
+  \code{glm(y ~ x + strata(s))} to \code{match_on} is equivalent to passing
+  \code{within=exactMatch(y ~ strata(s))}. Note that when combining with
+  the \code{caliper} argument, the standard deviation used for the caliper will be
+  computed across all strata, not within each strata.
 
 The \code{bigglm}
 method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
@@ -176,10 +178,13 @@ The formula method produces, by default, a Mahalanobis distance
   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
 
   As an alternative to specifying a \code{within} argument, when \code{x} is
-  a formula, the `strata` command can be used inside the formula to specify
+  a formula, the \code{strata} command can be used inside the formula to specify
   exact matching. For example, rather than using \code{within=exactMatch(y ~
   z, data=data)}, you may update your formula as \code{y ~ x + strata(z)}. Do
-  not use both methods (\code{within} and \code{strata} simultaneously.
+  not use both methods (\code{within} and \code{strata} simultaneously. Note
+  that when combining with the \code{caliper} argument, the standard
+  deviation used for the caliper will be computed across all strata, not
+  within each strata.
 
 The \code{function} method takes as its \code{x} argument a function
   of three arguments: \code{index}, \code{data}, and \code{z}. The
