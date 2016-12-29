@@ -212,9 +212,9 @@ C     INITIALIZE DUAL PRICES
 C     (DEFAULT: ALL DUAL PRICES = 0, SO REDUCED COST IS SET 
 C     EQUAL TO COST)
 C
-      DO 60 I=1,NA
+      DO I=1,NA
          RC(I)=C(I)
- 60   END DO
+      END DO
 C
 C     SPECIFY THAT WE ARE SOLVING THE PROBLEM FROM SCRATCH 
 C
@@ -391,13 +391,13 @@ C
 C     ALLOCATE THE ARRAYS
       ALLOCATE (TEMPIN(N), TEMPOU(N))
 
-      DO 10 I=1,N
+      DO I=1,N
         FIN(I)=0
         FOU(I)=0
         TEMPIN(I)=0
         TEMPOU(I)=0
- 10   END DO
-      DO 20 I=1,NA
+      END DO
+      DO I=1,NA
         NXTIN(I)=0
         NXTOU(I)=0
         I1=STARTN(I)
@@ -414,7 +414,7 @@ C     ALLOCATE THE ARRAYS
           FIN(I2)=I
         END IF
         TEMPIN(I2)=I
- 20     END DO
+        END DO
 
 C     DEALLOCATE THE ARRAYS
       DEALLOCATE (TEMPIN, TEMPOU)

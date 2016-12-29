@@ -199,9 +199,9 @@ C     INITIALIZE DUAL PRICES
 C     (DEFAULT: ALL DUAL PRICES = 0, SO REDUCED COST IS SET
 C     EQUAL TO COST)
 C
-      DO 60 I=1,NA
+      DO I=1,NA
          RC(I)=C(I)
- 60   END DO
+      END DO
 C
 C     SPECIFY THAT WE ARE SOLVING THE PROBLEM FROM SCRATCH
 C
@@ -210,9 +210,9 @@ C
 C     STORE CAPACITY OF ARCS IN CAP
 C     (OPTIONAL IF SENSITIVITY ANALYSIS WILL NOT BE ACTIVATED)
 C
-      DO 70 I=1,NA
+      DO I=1,NA
          CAP(I)=U(I)
- 70   END DO
+      END DO
 C
 C---------------------------------------------------------------
 C
@@ -371,13 +371,13 @@ C
 C
 C---------------------------------------------------------------
 C
-      DO 10 I=1,N
+      DO I=1,N
         FIN(I)=0
         FOU(I)=0
         TEMPIN(I)=0
         TEMPOU(I)=0
- 10   END DO
-      DO 20 I=1,NA
+      END DO
+      DO I=1,NA
         NXTIN(I)=0
         NXTOU(I)=0
         I1=STARTN(I)
@@ -394,7 +394,7 @@ C
           FIN(I2)=I
         END IF
         TEMPIN(I2)=I
- 20   END DO
+      END DO
       RETURN
       END
 C
