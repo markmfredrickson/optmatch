@@ -139,7 +139,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     themf <- model.frame(x$formula, na.action=na.pass)
     z <- model.response(themf)
   }
-  lp <- scores(x, newdata=themf)
+  lp <- scores(x, newdata=themf, ...)
 
   # If z has any missingness, drop it from both z and lp
   lp <- lp[!is.na(z)]
