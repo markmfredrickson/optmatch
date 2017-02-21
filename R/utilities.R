@@ -6,7 +6,6 @@
 ### accepts a variety of inputs and keeps names/rownames if present
 
 setGeneric("toZ", function(x) {
-
   if (any(is.na(x))) {
     stop("NAs not allowed in treatment indicator.")
   }
@@ -36,13 +35,13 @@ setGeneric("toZ", function(x) {
 # a noop
 setMethod("toZ", "logical", identity)
 
-# we already know it has two levels, so just call as.logical
-setMethod("toZ", "numeric", function(x) as.logical(x))
+# this is a little awkward, but we want to get it down to FALSE for the low value, TRUE for the high value
+setMethod("toZ", "numeric", function(x) as.logical(as.numeric(as.factor(x)) - 1))
 
 setMethod("toZ", "character", function(x) toZ(as.factor(x)))
 
 setMethod("toZ", "factor", function(x) {
-  toZ(as.numeric(x) - 1)
+  as.logical(as.numeric(x) - 1)
 })
 
 #' (Internal) Remove the call before digesting a distance so things
