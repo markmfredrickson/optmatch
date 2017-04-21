@@ -9,4 +9,3 @@ setTryRecovery()
 \description{
 (Internal) Sets up option to try recovery in \code{fullmatch}.
 }
-

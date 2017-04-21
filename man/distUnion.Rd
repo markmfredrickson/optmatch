@@ -41,4 +41,3 @@ input distances, the first entry will be used.
 \code{\link{fullmatch}}, \code{\link{pairmatch}},
 \code{\link{cbind}}, \code{\link{rbind}}
 }
-

@@ -25,4 +25,3 @@ subset for matrices.
 \author{
 Mark Fredrickson
 }
-

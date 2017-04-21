@@ -37,4 +37,3 @@ The the arguments \code{scores} and \code{width} must be passed together.
 The function will apply the caliper implied by the scores and the width while
 also adding in blocking factors.
 }
-

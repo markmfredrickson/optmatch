@@ -29,4 +29,3 @@ caliper can significantly decrease the size of a matching problem. The
 \code{caliperSize} function reports exactly who many valid treated-control
 comparisons remain after applying a caliper of the given width.
 }
-

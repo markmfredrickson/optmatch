@@ -49,4 +49,3 @@ table(nuclearplants$pt, aem)
 \seealso{
 \code{\link{exactMatch}}, \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}
 }
-

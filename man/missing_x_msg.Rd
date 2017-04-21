@@ -26,4 +26,3 @@ to print a helpful message.
 \author{
 Josh Buckner
 }
-

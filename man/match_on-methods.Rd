@@ -3,13 +3,13 @@
 \docType{methods}
 \name{match_on}
 \alias{match_on}
-\alias{match_on.InfinitySparseMatrix}
+\alias{match_on.glm}
 \alias{match_on.bigglm}
 \alias{match_on.formula}
 \alias{match_on.function}
-\alias{match_on.glm}
-\alias{match_on.matrix}
 \alias{match_on.numeric}
+\alias{match_on.InfinitySparseMatrix}
+\alias{match_on.matrix}
 \title{Create treated to control distances for matching problems}
 \usage{
 match_on(x, within = NULL, caliper = NULL, data = NULL, ...)
@@ -295,4 +295,3 @@ P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
 
 \code{\link{scores}}
 }
-

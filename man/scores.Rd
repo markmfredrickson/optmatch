@@ -56,9 +56,6 @@ ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants),
            data=nuclearplants)
 ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 }
-\author{
-Josh Errickson
-}
 \references{
 P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
   control group using multivariate matched sampling methods that incorporate
@@ -67,4 +64,6 @@ P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
 \seealso{
 \code{\link{predict}}
 }
-
+\author{
+Josh Errickson
+}

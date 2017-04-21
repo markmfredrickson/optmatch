@@ -24,4 +24,3 @@ weighting.  In the binary treatment case they can also be used for matching.  Th
 implement that process in a manner consistent with use of propensity scores elsewhere in optmatch; see
 \code{\link{scores}} documentation.
 }
-

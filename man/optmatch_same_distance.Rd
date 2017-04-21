@@ -27,4 +27,3 @@ data=d, caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical
 matches (since the default argument to \code{caliper} is \code{NULL}) but
 distinct calls.)
 }
-

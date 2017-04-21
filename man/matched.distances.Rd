@@ -46,4 +46,3 @@ mean(unlist(plantsfm.d))
 Ben B. Hansen
 }
 \keyword{nonparametric}
-

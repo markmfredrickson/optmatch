@@ -24,4 +24,3 @@ Note that if the matching algorithm attempted to recover from initial
 infeasible restrictions, the output from this function may not be the same as
 the original function call.
 }
-

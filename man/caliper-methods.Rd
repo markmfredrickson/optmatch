@@ -110,9 +110,6 @@ caliper(match_on(pr ~ t1 + t2, data = nuclearplants), width = 3, exclude = c("A"
 all(abs((caliper(ppty.dist, 1) + ppty.dist) -
         caliper(ppty.dist, 1, values = TRUE)) < .Machine$Double.eps)
 }
-\author{
-Mark M. Fredrickson and Ben B. Hansen
-}
 \references{
 P.~R. Rosenbaum and D.~B. Rubin (1985),
 \sQuote{Constructing a control group using multivariate matched sampling
@@ -122,5 +119,7 @@ P.~R. Rosenbaum and D.~B. Rubin (1985),
 \seealso{
 \code{\link{exactMatch}}, \code{\link{match_on}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}
 }
+\author{
+Mark M. Fredrickson and Ben B. Hansen
+}
 \keyword{nonparametric}
-

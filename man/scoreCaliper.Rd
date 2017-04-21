@@ -24,4 +24,3 @@ An \code{InfinitySparseMatrix} object, suitable to be
 (Internal) Helper function to create an InfinitySparseMatrix from a set of
 scores, a treatment indicator, and a caliper width.
 }
-

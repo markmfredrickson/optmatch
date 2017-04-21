@@ -37,4 +37,3 @@ caliper value, for a given vector of scores and a treatment indicator, that
 will be possible given the maximum problem size constraints imposed by
 \code{\link{fullmatch}} and \code{\link{pairmatch}}.
 }
-

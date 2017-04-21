@@ -20,4 +20,3 @@ Given a function and any of the arguments normally passed to model.frame,
 this function will return a data.frame with two columns: a treatment indicator
 and a blocking factor.
 }
-

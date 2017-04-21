@@ -3,8 +3,8 @@
 \docType{methods}
 \name{dimnames,InfinitySparseMatrix-method}
 \alias{dimnames,InfinitySparseMatrix-method}
-\alias{dimnames<-,InfinitySparseMatrix,NULL-method}
 \alias{dimnames<-,InfinitySparseMatrix,list-method}
+\alias{dimnames<-,InfinitySparseMatrix,NULL-method}
 \title{Get and set dimnames for InfinitySparseMatrix objects}
 \usage{
 \S4method{dimnames}{InfinitySparseMatrix}(x)
@@ -27,4 +27,3 @@ with treated units as rows of a matrix and controls units as
 the columns of the matrix. The names of the units can be retrieved
 and set using these methods.
 }
-

@@ -127,9 +127,6 @@ cov.contrasts <- lapply(
 np.noNA2<-fill.NAs(pr~t1F+t2,data=np.missing,contrasts.arg=cov.contrasts)
 
 }
-\author{
-Mark M. Fredrickson and Jake Bowers
-}
 \references{
 Rosenbaum, Paul R. and Rubin, Donald B. (1984) \sQuote{Reducing
   Bias in Observational Studies using Subclassification on the
@@ -143,5 +140,7 @@ Von Hipple, Paul T. (2009) \sQuote{How to impute interactions,
 \seealso{
 \code{\link{match_on}}, \code{\link{lm}}
 }
+\author{
+Mark M. Fredrickson and Jake Bowers
+}
 \keyword{manip}
-
