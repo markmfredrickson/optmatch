@@ -1,3 +1,10 @@
+CHANGES IN OPTMATCH VERSION 0.9-8
+
+CHANGES IN OPTMATCH VERSION 0.9-7
+* Added support for CBPS created objects (#121).
+* Improvments to documentation for several functions.
+* Several small bugfixes.
+
 CHANGES IN OPTMATCH VERSION 0.9-6
 * New material in vignettes, on general use of the package and on
   import/export of matching results and material between R and SAS
@@ -22,7 +29,6 @@ CHANGES IN OPTMATCH VERSION 0.9-6
 * Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); `boxplot`
   method for fitted propensities ignoring varwidth argument (#113); various
   minor issues affecting package development and deployment (#110,...).
-
 
 CHANGES IN OPTMATCH VERSION 0.9-5
 * Documentation adjustments.

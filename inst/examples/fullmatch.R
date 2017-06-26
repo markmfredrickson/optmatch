@@ -22,7 +22,7 @@ optmatch_restrictions(fm4)
 ppty <- glm(pr ~ . - (pr + cost), family = binomial(), data = nuclearplants)
 ### Note that units without counterparts within the caliper are automatically dropped.
 ### For more complicated models, create a distance matrix and pass it to fullmatch.
-mhd <- match_on(pr ~ t1 + t2, data = nuclearplants) + caliper(match_on(ppty))
+mhd <- match_on(pr ~ t1 + t2, data = nuclearplants) + caliper(match_on(ppty), width = 1)
 ( fm5 <- fullmatch(mhd, data = nuclearplants) )
 summary(fm5)
 

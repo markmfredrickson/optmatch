@@ -3,7 +3,7 @@
 
 setClassUnion("OptionalCall", c("call", "NULL"))
 setClass("DenseMatrix",
-  representation(call = "OptionalCall"),
+  slots = c(call = "OptionalCall"),
   contains = "matrix")
 
 #' @export

@@ -14,10 +14,9 @@ problems.
 Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
 \code{\link{exactMatch}}.
 }
-\author{
-Mark M. Fredrickson
-}
 \seealso{
 \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 }
-
+\author{
+Mark M. Fredrickson
+}

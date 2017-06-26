@@ -13,4 +13,3 @@
 \description{
 Displays each block of the BlockedInfinitySparseMatrix separately.
 }
-

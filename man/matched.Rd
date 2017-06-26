@@ -2,8 +2,8 @@
 % Please edit documentation in R/matched.R, R/matchfailed.R
 \name{matched}
 \alias{matched}
-\alias{matchfailed}
 \alias{unmatched}
+\alias{matchfailed}
 \title{Identification of units placed into matched sets}
 \usage{
 matched(x)
@@ -88,11 +88,10 @@ mxpl.fm2[unmatched(mxpl.fm2) &   # isolated units return as
          !matchfailed(mxpl.fm2)] # unmatched but not matchfailed
 
 }
-\author{
-Ben Hansen
-}
 \seealso{
 \code{\link{fullmatch}}
 }
+\author{
+Ben Hansen
+}
 \keyword{manip}
-

@@ -30,4 +30,10 @@ test_that("toZ", {
 
   mZ <- matrix(Z, ncol = 1) ; rownames(mZ) <- names(Z)
   expect_identical(Z, toZ(mZ))
+
+  ## two level numerics should be ok (issue #124)
+  numZ <- c(2,2,2,3,3,3,3)
+  names(numZ) <- letters[1:7]
+
+  expect_equal(toZ(numZ), toZ(numZ == 3))
 })

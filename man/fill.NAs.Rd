@@ -114,7 +114,7 @@ head(np.filled)
 pairmatch(match_on(np.glm, data=np.filled), data=np.filled)
 
 ## fill NAs without using treatment contrasts by making a list of contrasts for
-## each factor ## following hints from http://stackoverflow.com/a/4569239/161808
+## each factor ## following hints from https://stackoverflow.com/a/4569239/161808
 
 np.missing$t1F<-factor(np.missing$t1)
 cov.factors <- sapply(np.missing[,c("t1F","t2")],is.factor)
@@ -126,9 +126,6 @@ cov.contrasts <- lapply(
 ## excluding any levels of any factors
 np.noNA2<-fill.NAs(pr~t1F+t2,data=np.missing,contrasts.arg=cov.contrasts)
 
-}
-\author{
-Mark M. Fredrickson and Jake Bowers
 }
 \references{
 Rosenbaum, Paul R. and Rubin, Donald B. (1984) \sQuote{Reducing
@@ -143,5 +140,7 @@ Von Hipple, Paul T. (2009) \sQuote{How to impute interactions,
 \seealso{
 \code{\link{match_on}}, \code{\link{lm}}
 }
+\author{
+Mark M. Fredrickson and Jake Bowers
+}
 \keyword{manip}
-

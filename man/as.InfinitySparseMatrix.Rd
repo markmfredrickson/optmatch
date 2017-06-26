@@ -15,4 +15,3 @@ An InfinitySparseMatrix
 \description{
 Convert an object to InfinitySparseMatrix
 }
-

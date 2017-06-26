@@ -57,4 +57,3 @@ Cox, D.R. and Snell, E.J. (1981) \emph{Applied Statistics:
   Principles and Examples}. Chapman and Hall.
 }
 \keyword{datasets}
-

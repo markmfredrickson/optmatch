@@ -3,9 +3,9 @@
 \docType{methods}
 \name{subdim}
 \alias{subdim}
-\alias{subdim.BlockedInfinitySparseMatrix}
 \alias{subdim.InfinitySparseMatrix}
 \alias{subdim.matrix}
+\alias{subdim.BlockedInfinitySparseMatrix}
 \alias{subdim.optmatch.dlist}
 \title{Returns the dimension of each valid subproblem}
 \usage{
@@ -30,4 +30,3 @@ subproblems, if they exist.
 \description{
 Returns a list containing the dimensions of all valid subproblems.
 }
-

@@ -1,6 +1,6 @@
 # Optmatch: Optimal Fullmatching for R
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)[![Travis-CI Build Status](https://travis-ci.org/markmfredrickson/optmatch.svg?branch=master)](https://travis-ci.org/markmfredrickson/optmatch)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/markmfredrickson/optmatch?branch=master&svg=true)](https://ci.appveyor.com/project/markmfredrickson/optmatch)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)[![Travis-CI Build Status](https://travis-ci.org/markmfredrickson/optmatch.svg?branch=master)](https://travis-ci.org/markmfredrickson/optmatch)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/markmfredrickson/optmatch?branch=master&svg=true)](https://ci.appveyor.com/project/markmfredrickson/optmatch)
 
 The `optmatch` package implements the optimal full matching algorithm for
 bipartite matching problems. Given a matrix describing the distances between
@@ -14,7 +14,7 @@ more on the application and its implementation, see:
     Hansen, B.B. and Klopfer, S.O. (2006) Optimal full matching and
      related designs via network flows, JCGS 15 609-627.
 
-`optmatch` is available on [CRAN](http://cran.r-project.org):
+`optmatch` is available on [CRAN](https://cran.r-project.org):
 
     > install.packages("optmatch")
     > library("optmatch")
@@ -59,7 +59,7 @@ treatment.
 The next steps use the covariates to pair up similar treated and control
 units. For more on assessing the amount and severity of imbalance between
 groups on observed covariates, see the
-[RItools](http://github.com/markmfredrickson/RItools) `R` package.
+[RItools](https://github.com/markmfredrickson/RItools) `R` package.
 
 ### Setting up distances
 
@@ -78,7 +78,7 @@ The `method` argument tells the `match_on` function how to compute the
 distances over the space defined by the formula. The default method extends the
 simple Euclidean distance by rescaling the distances by the covariance of the
 variables, the [Mahalanobis
-distance](http://en.wikipedia.org/wiki/Mahalanobis_distance):
+distance](https://en.wikipedia.org/wiki/Mahalanobis_distance):
 
     distances$mahal <- match_on(z ~ w1 + w2, data = W)
 
@@ -234,13 +234,13 @@ start using the latest features. Before starting, you should know which branch
 you wish to install. Currently, the "master" branch is the main code base.
 Additional features are added in their own branches. A list of branches is
 available at (the optmatch project
-page)[http://github.com/markmfredrickson/optmatch].
+page)[https://github.com/markmfredrickson/optmatch].
 
 ### Installing a development version
 
 You must have the Fortran extensions for package building included. These can be
-had from CRAN: [OS X](http://cran.r-project.org/bin/macosx/tools/),
-[Windows](http://cran.r-project.org/bin/windows/Rtools/).
+had from CRAN: [OS X](https://cran.r-project.org/bin/macosx/tools/),
+[Windows](https://cran.r-project.org/bin/windows/Rtools/).
 
 We recommend using `dev_mode` from the `devtools` package to install
 in-development version of the package so that you can keep the current CRAN
@@ -296,7 +296,7 @@ devtools::install_deps(dependencies = TRUE)
 
 We prefer changes that include unit tests demonstrating the problem or showing
 how the new feature should be added. The test suite uses the
-[testthat](http://github.com/hadley/test_that) package to write and run tests.
+[testthat](https://github.com/hadley/test_that) package to write and run tests.
 (Please ensure you have the latest version of testthat (or at least v0.11.0),
 as older versions stored the tests in a different directory, and may not
 test properly.) See the `tests/testthat` directory for examples. You can run

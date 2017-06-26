@@ -2,9 +2,9 @@
 % Please edit documentation in R/InfinitySparseMatrix.R
 \docType{methods}
 \name{+,InfinitySparseMatrix,InfinitySparseMatrix-method}
-\alias{*,InfinitySparseMatrix,InfinitySparseMatrix-method}
 \alias{+,InfinitySparseMatrix,InfinitySparseMatrix-method}
 \alias{-,InfinitySparseMatrix,InfinitySparseMatrix-method}
+\alias{*,InfinitySparseMatrix,InfinitySparseMatrix-method}
 \alias{/,InfinitySparseMatrix,InfinitySparseMatrix-method}
 \title{Element-wise addition}
 \usage{
@@ -46,4 +46,3 @@ an InfinitySparseMatrix object representing
   If either element is inf then
   the resulting element will be inf.
 }
-

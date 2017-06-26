@@ -24,4 +24,3 @@ OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
 Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 \code{optmatch} object differs from the hash of the new \code{data}.
 }
-

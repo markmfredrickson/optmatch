@@ -17,4 +17,3 @@ Function to display license information regarding code embedded in
 \author{
 Ben B. Hansen
 }
-

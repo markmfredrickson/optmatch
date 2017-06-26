@@ -18,7 +18,7 @@ knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
 All the software used in this worksheet is freely available. The *R*
 statistical package is installed for you in the lab, but you may
 download and install *R* for Windows, Mac, and Linux systems from:
-<http://www.r-project.org>.
+<https://www.r-project.org>.
 
 The following document walks through a common propensity score
 matching work-flow in *R*. Example *R* code will appear with a `>`
@@ -433,7 +433,7 @@ It can in the same display compare matching to no matching, on any of
 a number of axes.  Here is a demonstration:
 
 ```{r, fig.width=5, fig.height=5}
-myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + 
+myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
                 strata(ps.pm2),
                 data = nuclearplants,
                 report = c("adj.means", "std.diffs",
@@ -587,7 +587,7 @@ library(foreign)
 ```
 
 For much more detail on this topic, see the ["*R* Data Import/Export"
-manual](http://cran.r-project.org/doc/manuals/r-release/R-data.html).
+manual](https://cran.r-project.org/doc/manuals/r-release/R-data.html).
 
 If you use CSV files, consult your statistical package's manuals for
 details on how to export your data as a CSV. Once you have exported
@@ -648,7 +648,7 @@ download.file("http://www-stat.wharton.upenn.edu/~rosenbap/DOSdata.RData",
 load("./DOSdata.RData")
 ```
 Second, the "`lalonde`" data set, discussed by Lalonde (1986,
-*Am. Econom. Rev.*), 
+*Am. Econom. Rev.*),
 Dehejia and Wahba (1999, *JASA*) and Smith and Todd (2005,
 *J. Econom.*), is bundled with several *R* packages, including
 "`{arm}`" and "`Matching`."  To get it:
