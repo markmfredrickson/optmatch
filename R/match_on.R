@@ -114,10 +114,12 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #'   beneficial computationally as well as statistically, for reasons indicated
 #'   in the below discussion of the \code{numeric} method.
 #'
-#'   One can also specify exactMatching criteria by using `strata(foo)` inside
-#'   the formula to build the `glm`. For example, passing
-#'   `glm(y ~ x + strata(s))` to `match_on` is equivalent to passing
-#'   `within=exactMatch(y ~ strata(s))`.
+#'   One can also specify exactMatching criteria by using \code{strata(foo)} inside
+#'   the formula to build the \code{glm}. For example, passing
+#'   \code{glm(y ~ x + strata(s))} to \code{match_on} is equivalent to passing
+#'   \code{within=exactMatch(y ~ strata(s))}. Note that when combining with
+#'   the \code{caliper} argument, the standard deviation used for the caliper will be
+#'   computed across all strata, not within each strata.
 #'
 #' @param standardization.scale Function for rescaling of \code{scores(x)}, or
 #'   \code{NULL}; defaults to \code{mad}.  (See Details.)
@@ -127,7 +129,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @export
 match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
 
-  stopifnot(all(c('y', 'linear.predictors','data') %in% names(x)))
+  stopifnot(all(c('y','data') %in% names(x)))
 
   # If the data is given, using x$data intead of model.frame avoids issue #39
   if (is.data.frame(x$data)) {
@@ -137,7 +139,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     themf <- model.frame(x$formula, na.action=na.pass)
     z <- model.response(themf)
   }
-  lp <- scores(x, newdata=themf)
+  lp <- scores(x, newdata=themf, ...)
 
   # If z has any missingness, drop it from both z and lp
   lp <- lp[!is.na(z)]
@@ -234,10 +236,13 @@ are there missing values in data?")
 #'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
 #'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
-#'   a formula, the `strata` command can be used inside the formula to specify
+#'   a formula, the \code{strata} command can be used inside the formula to specify
 #'   exact matching. For example, rather than using \code{within=exactMatch(y ~
 #'   z, data=data)}, you may update your formula as \code{y ~ x + strata(z)}. Do
-#'   not use both methods (\code{within} and \code{strata} simultaneously.
+#'   not use both methods (\code{within} and \code{strata} simultaneously. Note
+#'   that when combining with the \code{caliper} argument, the standard
+#'   deviation used for the caliper will be computed across all strata, not
+#'   within each strata.
 #'
 #' @param subset A subset of the data to use in creating the distance
 #'   specification.
@@ -253,6 +258,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     stop("Formula must have a left hand side.")
   }
   if (!exists("cl")) cl <- match.call()
+
+  if (grepl(".", as.character(x)[3], fixed = TRUE) &
+      grepl("strata(", as.character(x)[3], fixed = TRUE)) {
+    stop("Cannot use . expansion in formula when defining strata.")
+  }
 
   mf <- match.call(expand.dots = FALSE)
 

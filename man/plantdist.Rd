@@ -25,4 +25,3 @@ Rosenbaum, P.R. (2002), \emph{Observational Studies},
   Second Edition, p.307 (Springer).
 }
 \keyword{dataset}
-

@@ -3,8 +3,8 @@
 \docType{methods}
 \name{exactMatch}
 \alias{exactMatch}
-\alias{exactMatch,formula-method}
 \alias{exactMatch,vector-method}
+\alias{exactMatch,formula-method}
 \title{Generate an exact matching set of subproblems.}
 \usage{
 exactMatch(x, ...)
@@ -84,13 +84,12 @@ match.ppty.em <- fullmatch(ppty.distances + pt.em)
 print(match.ppty.em, grouped = TRUE)
 
 }
-\author{
-Mark M. Fredrickson
-}
 \seealso{
 \code{\link{caliper}}, \code{\link{antiExactMatch}},
   \code{\link{match_on}}, \code{\link{fullmatch}},
   \code{\link{pairmatch}}
 }
+\author{
+Mark M. Fredrickson
+}
 \keyword{nonparametric}
-

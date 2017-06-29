@@ -23,4 +23,3 @@ numeric Total number of pairwise distances remaining after the caliper is placed
 \description{
 (Internal) Returns a reasonable upper bound on the arcs remaining after placing a caliper.
 }
-

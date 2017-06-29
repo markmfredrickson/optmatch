@@ -19,6 +19,15 @@ NA
 #' to this distance, it is allowed kept; otherwise, the pair is discarded from future
 #' matching. The default comparison of ``equal or less than can'' be changed to any other
 #' comparison function using the \code{comparison} argument.
+#'
+#' It is important to understand that \code{width} argument is defined on the
+#' scale of these distances. For univariate distances such as propensity scores,
+#' it is common to specificy calipers in standard deviations. If a caliper of
+#' this nature is desired, you must either find the standard deviation directly
+#' or use the \code{\link{match_on}} function with its \code{caliper} argument.
+#' Since \code{match_on} has access to the underlying univariate scores, for
+#' example for the GLM method, it can determine the caliper width in standard
+#' deviations.
 #' 
 #' If you wish to exclude specific units from the caliper requirements, pass the names of 
 #' these units in the \code{exclude} argument. These units will be allowed to match any other
@@ -60,7 +69,7 @@ NA
 #' @export
 #' @docType methods
 #' @rdname caliper-methods
-setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+setGeneric("caliper", function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
   tmp <- standardGeneric("caliper")
   tmp@call <- match.call()
   return(tmp)
@@ -69,7 +78,7 @@ setGeneric("caliper", function(x, width = 1, exclude = c(), compare = `<=`, valu
 #' @rdname caliper-methods
 #' @aliases caliper,InfinitySparseMatrix-method
 setMethod("caliper", "InfinitySparseMatrix",
-function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
 
   excluded.rows <- which(x@rownames %in% exclude)
   excluded.cols <- which(x@colnames %in% exclude)
@@ -88,13 +97,13 @@ function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
 #' @rdname caliper-methods
 #' @aliases caliper,matrix-method
 setMethod("caliper", "matrix",
-function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
   caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, values = values)  
 })
 
 #' @rdname caliper-methods
 #' @aliases caliper,optmatch.dlist-method
 setMethod("caliper", "optmatch.dlist",
-function(x, width = 1, exclude = c(), compare = `<=`, values = FALSE) {
+function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
   caliper(as.matrix(x), width = width, exclude = exclude, compare = compare, values = values)  
 })

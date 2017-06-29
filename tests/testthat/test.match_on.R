@@ -682,3 +682,13 @@ test_that("variables named strata or caliper are allowed", {
   expect_identical(as.matrix(m1), as.matrix(m2))
 
 })
+
+test_that("dot and strata in formula", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10),
+                     s = rep(0:1, times = 5))
+
+  expect_error(m <- match_on(z ~ . - s + strata(s), data = data),
+               "Cannot use . expansion", fixed = TRUE)
+
+})

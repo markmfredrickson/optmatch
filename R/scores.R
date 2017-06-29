@@ -5,6 +5,10 @@
 #' constructs its own \code{newdata} in a manner that's generally better suited
 #' for matching.
 #'
+#' Like \code{predict}, its default predictions from a \code{glm} are on
+#' the scale of the linear predictor, not the scale of the response; see
+#' Rosenbaum \& Rubin (1985).  (This default can
+#' be overridden by specifying \code{type="response"}.)
 #' In contrast to \code{predict}, if \code{scores} isn't given an explicit
 #' \code{newdata} argument then it attempts to reconstruct one from the context
 #' in which it is called, rather than from its first argument.  For example, if
@@ -32,6 +36,9 @@
 #' @return See individual \code{predict} functions.
 #' @author Josh Errickson
 #' @seealso \code{\link{predict}}
+#' @references P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
+#'   control group using multivariate matched sampling methods that incorporate
+#'   the propensity score}, \emph{The American Statistician}, \bold{39} 33--38.
 #' @export
 #' @examples
 #' data(nuclearplants)
@@ -72,7 +79,7 @@ scores <- function(object, newdata=NULL, ...) {
   } else {
     mf <- tryCatch(model.frame(object, na.action=na.pass),
                    error = function(e) {
-      fallback <- model.frame(object)                 
+      fallback <- model.frame(object)
       warning(paste("Error gathering complete data.",
                     "If the data has missing cases, imputation will not be performed.",
                     "(Sometimes this can be fixed by supplying a `data` argument",
@@ -119,4 +126,29 @@ scores <- function(object, newdata=NULL, ...) {
   newdata2 <- cbind(resp, newdata2)
 
   eval(predict(newobject, newdata=newdata2, ...))
+}
+
+
+##' (Internal) Predict for CBPS objects 
+##'
+##' The CBPS package fits \sQuote{covariate balancing propensity score} for use in propensity score
+##' weighting.  In the binary treatment case they can also be used for matching.  This method helps to 
+##' implement that process in a manner consistent with use of propensity scores elsewhere in optmatch; see
+##' \code{\link{scores}} documentation. 
+##' 
+##' @param x A CBPS object
+##' @param newdata Unused.
+##' @param type Return inverse logits of fitted values (the default) or fitted values themselves 
+##' @param ... Unused.
+##'
+##' @return Inverse logit of the fitted values.
+##' @importFrom stats plogis
+predict.CBPS <- function(x, newdata=NULL, type=c("link", "response"), ...) {
+    type <- match.arg(type)
+    stopifnot(type %in% c("link", "response") )
+    if (length(unique(x$y))>2) stop("Only binary treatments are supported")
+    
+    out <- if (type=="link") stats::plogis(x$fitted.values) else x$fitted.values
+  names(out) <- rownames(x$x)
+  return(out)
 }

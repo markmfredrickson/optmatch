@@ -33,4 +33,3 @@ print(fm, grouped = TRUE)
 \code{\link{fullmatch}}, \code{\link{pairmatch}},
   \code{\link{print}}, \code{\link{summary.optmatch}}
 }
-

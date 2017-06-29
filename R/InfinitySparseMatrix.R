@@ -34,12 +34,12 @@ setClassUnion("OptionalCharacter", c("character", "NULL"))
 #' @author Mark M. Fredrickson
 #' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 setClass("InfinitySparseMatrix",
-  representation(cols = "integer",
-                 rows = "integer",
-                 dimension = "integer",
-                 colnames = "OptionalCharacter",
-                 rownames = "OptionalCharacter",
-                 call = "OptionalCall"),
+         slots = c(cols = "integer",
+                   rows = "integer",
+                   dimension = "integer",
+                   colnames = "OptionalCharacter",
+                   rownames = "OptionalCharacter",
+                   call = "OptionalCall"),
   contains = "vector")
 
 # using a maker function for now, probably should be an initialize function
@@ -513,7 +513,7 @@ sort.InfinitySparseMatrix <- function(x,
 ################################################################################
 
 setClass("BlockedInfinitySparseMatrix",
-  representation(groups = "factor"),
+  slots = c(groups = "factor"),
   contains = "InfinitySparseMatrix")
 
 # in both of the next two methods I use callGeneric(as(...), ...)

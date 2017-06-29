@@ -121,3 +121,23 @@ test_that("New matching.failed", {
   expect_equal(sum(is.na(f)), 5)
   expect_true(all(summary(f)$matching.failed ==  c(3,1)))
 })
+
+test_that("#118 missing subproblem attribute", {
+  data(nuclearplants)
+
+  f <- fullmatch(pr ~ cost, data=nuclearplants)
+  attr(f, "subproblem") <- NULL
+
+  expect_warning(summary(f))
+
+  f2 <- fullmatch(pr ~ cost + strata(pt), data = nuclearplants)
+  attr(f2, "subproblem") <- NULL
+
+  expect_warning(summary(f2))
+
+  f3 <- fullmatch(pr ~ cost + strata(pt), data = nuclearplants)
+  s <- summary(f3)
+  attr(s$thematch, "subproblem") <- NULL
+
+  expect_silent(s)
+})

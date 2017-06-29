@@ -2,12 +2,12 @@
 % Please edit documentation in R/mdist.R
 \name{mdist}
 \alias{mdist}
-\alias{mdist.bigglm}
-\alias{mdist.formula}
-\alias{mdist.function}
-\alias{mdist.glm}
-\alias{mdist.numeric}
 \alias{mdist.optmatch.dlist}
+\alias{mdist.function}
+\alias{mdist.formula}
+\alias{mdist.glm}
+\alias{mdist.bigglm}
+\alias{mdist.numeric}
 \title{(Deprecated, in favor of \code{\link{match_on}}) Create
   matching distances}
 \usage{
@@ -112,9 +112,6 @@ An \code{mdist.glm} method takes an argument of class \code{glm}
  before matching to avoid memory problems. So you'll have to use
  the \code{structure.fmla} argument anyway.)
 }
-\author{
-Mark M. Fredrickson
-}
 \references{
 P.~R. Rosenbaum and D.~B. Rubin (1985),
   \sQuote{Constructing a control group using multivariate matched
@@ -125,5 +122,7 @@ P.~R. Rosenbaum and D.~B. Rubin (1985),
 \code{\link{fullmatch}}, \code{\link{pairmatch}},
   \code{\link{match_on}}
 }
+\author{
+Mark M. Fredrickson
+}
 \keyword{nonparametric}
-

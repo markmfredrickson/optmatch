@@ -2,8 +2,8 @@
 % Please edit documentation in R/stratumStructure.R
 \name{effectiveSampleSize}
 \alias{effectiveSampleSize}
-\alias{effectiveSampleSize.default}
 \alias{effectiveSampleSize.factor}
+\alias{effectiveSampleSize.default}
 \alias{effectiveSampleSize.table}
 \title{Compute the effective sample size of a match.}
 \usage{
@@ -35,4 +35,3 @@ effective sample size decreases.
 \seealso{
 \code{\link{summary.optmatch}}, \code{\link{stratumStructure}}
 }
-

@@ -3,10 +3,10 @@
 \docType{methods}
 \name{num_eligible_matches}
 \alias{num_eligible_matches}
-\alias{num_eligible_matches.BlockedInfinitySparseMatrix}
-\alias{num_eligible_matches.InfinitySparseMatrix}
-\alias{num_eligible_matches.matrix}
 \alias{num_eligible_matches.optmatch.dlist}
+\alias{num_eligible_matches.matrix}
+\alias{num_eligible_matches.InfinitySparseMatrix}
+\alias{num_eligible_matches.BlockedInfinitySparseMatrix}
 \title{Returns the number of eligible matches for the distance.}
 \usage{
 num_eligible_matches(x)
@@ -31,4 +31,3 @@ matrix. If the distance has no subgroups, it will be a list of length 1. If
 the distance has subgroups (i.e. \code{x} is an
 \code{BlockedInfinitySparseMatrix}, it will be a named list.)
 }
-

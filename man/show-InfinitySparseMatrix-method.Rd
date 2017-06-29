@@ -14,4 +14,3 @@
 Specifically, displays an InfinitySparseMatrix by converting it to
 a matrix first.
 }
-

@@ -25,4 +25,3 @@ object is \code{NA}. If matched objects have differing names, this is automatica
 Note this ignores the names of the subgroups. So four members in subgroups either
 \code{c("a", "a", "b", "b")} or \code{c("b", "b", "a", "a")} would be identical to this call.
 }
-

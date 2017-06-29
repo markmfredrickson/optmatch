@@ -29,4 +29,3 @@ information relating to the quality of the match.
 \seealso{
 \code{\link{summary.optmatch}}
 }
-

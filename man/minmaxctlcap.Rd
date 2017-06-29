@@ -62,9 +62,6 @@ Essentially this is just a line search.  I've done several
   ceases to work if you increase (decrease) those values.
   Comments appreciated.
 }
-\author{
-Ben B. Hansen
-}
 \references{
 Hansen, B.B. and S. Olsen Klopfer (2006),
   \sQuote{Optimal full matching and related designs via network
@@ -74,5 +71,7 @@ Hansen, B.B. and S. Olsen Klopfer (2006),
 \seealso{
 \code{\link{fullmatch}}
 }
+\author{
+Ben B. Hansen
+}
 \keyword{optimize}
-

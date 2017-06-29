@@ -24,6 +24,10 @@ constructs its own \code{newdata} in a manner that's generally better suited
 for matching.
 }
 \details{
+Like \code{predict}, its default predictions from a \code{glm} are on
+the scale of the linear predictor, not the scale of the response; see
+Rosenbaum \& Rubin (1985).  (This default can
+be overridden by specifying \code{type="response"}.)
 In contrast to \code{predict}, if \code{scores} isn't given an explicit
 \code{newdata} argument then it attempts to reconstruct one from the context
 in which it is called, rather than from its first argument.  For example, if
@@ -52,10 +56,14 @@ ps1 <- glm(pr~cap+date+t1+bw+predict(pg, newdata=nuclearplants),
            data=nuclearplants)
 ps2 <- glm(pr~cap+date+t1+bw+scores(pg), data=nuclearplants)
 }
-\author{
-Josh Errickson
+\references{
+P.~R. Rosenbaum and D.~B. Rubin (1985), \sQuote{Constructing a
+  control group using multivariate matched sampling methods that incorporate
+  the propensity score}, \emph{The American Statistician}, \bold{39} 33--38.
 }
 \seealso{
 \code{\link{predict}}
 }
-
+\author{
+Josh Errickson
+}
