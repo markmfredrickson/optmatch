@@ -1,5 +1,5 @@
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1)
+			min.col.units = 1, f = 1, stability.increment=1L)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -71,7 +71,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # we use the levels of the treated and control factors to generate the ID numbers
   # the capacity of these arcs is 1
 
-  dists <- as.vector(distance$distance) + 1
+  dists <- as.vector(distance$distance) + stability.increment
   startn <- as.numeric(distance$treated)
   endn <- nt + as.numeric(distance$control)
   ucap <- rep(1, narcs)
