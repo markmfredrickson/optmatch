@@ -130,10 +130,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   x <- feas * fop$x - (1 - feas)
 
-  ans <- numeric(narcs)
   ans <- x[1:narcs]
-
+  rcosts <- fop$rc[1:narcs]
+  
   if (identical(options()$use_fallback_optmatch_solver, FALSE)) {
-  cbind(distance, solution = ans, reduced.cost=rc)
+  cbind(distance, solution = ans, reduced.cost=rcosts)
   } else cbind(distance, solution = ans)
 }
