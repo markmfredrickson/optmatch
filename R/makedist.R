@@ -85,7 +85,9 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
     }
   }
 
-  dists <- distancefn(cbind(treatmentids, controlids), data, z)
+    dists <- distancefn(cbind(treatmentids, controlids), data, z)
+    if (length(dists)!=length(treatmentids))
+        stop("Internal optmatch error - malformed distances.\n (Try a different method argument to match_on.)")
 
   # z was copied <- toZ(z) so should be safe to rm
   # before massive matrix alloc
