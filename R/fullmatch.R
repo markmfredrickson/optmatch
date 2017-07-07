@@ -385,7 +385,7 @@ fullmatch.matrix <- function(x,
   }
 
   if (any(!is.na(mean.controls))) {
-    if (any(mean.controls > lapply(subdim(x), function(x) x[2]/x[1]), na.rm=TRUE)) {
+    if (any(mean.controls > lapply(problems, function(p) {x <- subdim(p)[[1]] ;  x[2]/x[1]}), na.rm=TRUE)) {
       stop("mean.controls cannot be larger than the ratio of number of controls to treatments")
     }
   }
@@ -402,7 +402,7 @@ fullmatch.matrix <- function(x,
 
   if (any(!is.na(mean.controls) & is.na(omit.fraction))) {
     user.input.mean.controls <- TRUE
-    omit.fraction <- 1 - mapply(function(x,y) x*y[1]/y[2], mean.controls, subdim(x))
+    omit.fraction <- 1 - mapply(function(x,y) {z <- subdim(y)[[1]] ; x*z[1]/z[2]}, mean.controls, problems)
   }
 
   total.n <- sum(dim(x))
