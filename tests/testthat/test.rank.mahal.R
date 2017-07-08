@@ -42,12 +42,21 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
     X <- matrix(runif(nr * nc), nr)
 
-    expect_that(compute_rank_mahalanobis(NULL, X, as.logical(z)),
-                is_equivalent_to(compute_smahal(z, X)))
+    reference_rankmahal <- compute_smahal(z, X)
+    expect_that(optmatch:::compute_rank_mahalanobis(NULL, X, as.logical(z)),
+                is_equivalent_to(reference_rankmahal))
 
-    expect_equivalent(as.matrix(match_on(z ~ X, method = "rank")), compute_smahal(z, X))
+    indices <- expand.grid(rownames(reference_rankmahal), colnames(reference_rankmahal))
+    indices <- as.matrix(indices)
+    expect_that(optmatch:::compute_rank_mahalanobis(indices, X, as.logical(z)),
+                is_equivalent_to(reference_rankmahal))
+    expect_that(optmatch:::compute_rank_mahalanobis(indices[-1L, ], X, as.logical(z)),
+                is_equivalent_to(reference_rankmahal[-1L]))
+
+      
+    expect_equivalent(as.matrix(match_on(z ~ X, method = "rank")), reference_rankmahal)
 
     df <- data.frame(z = z, X)
-    expect_equivalent(as.matrix(match_on(z ~ ., data = df, method = "rank")), compute_smahal(z, X))
+    expect_equivalent(as.matrix(match_on(z ~ ., data = df, method = "rank")), reference_rankmahal)
   }
 })
