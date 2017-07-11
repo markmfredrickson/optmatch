@@ -460,9 +460,24 @@ compute_rank_mahalanobis <- function(index, data, z) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
 
-    return(
-        r_smahal(index, data, z)
-    )
+    if (is.null(index)) return(r_smahal(NULL, data, z))
+
+    if (is.null(rownames(data)) | !all(index %in% rownames(data)))
+        stop("data must have row names matching index")
+
+    # begin workaround solution to #128
+    all_treated <- rownames(data)[as.logical(z)]
+    all_control <- rownames(data)[!z]
+    all_indices <- expand.grid(all_treated, all_control,
+                               KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+    all_indices <- paste(all_indices[[1]], all_indices[[2]], sep="%@%")
+    short_indices <- paste(index[,1], index[,2], sep="%@%")
+    indices <- match(short_indices, all_indices)
+    if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
+    # Now, since `r_smahal` is ignoring its `index` argument anyway:
+    rankdists <- r_smahal(NULL, data, z)
+    rankdists <- rankdists[indices]
+    return(rankdists)
 }
 
 #' @details The \code{function} method takes as its \code{x} argument a function
