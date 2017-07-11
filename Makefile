@@ -1,7 +1,7 @@
 # load.R fixes a bug with devtool's `help` to enable `help` on
 # functions in this package, as well as loading the package
 LOAD=R_PROFILE=load.R
-RCMD=R --vanilla -q -e
+RCMD=R -q -e
 
 interactive:
 	@$(LOAD) R -q --no-save
