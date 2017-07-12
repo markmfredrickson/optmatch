@@ -689,3 +689,27 @@ test_that("dot and strata in formula", {
                "Cannot use . expansion", fixed = TRUE)
 
 })
+
+test_that("#123: Supporting NA's in treatment", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+  # Now add an NA
+
+  data$z[1] <- NA
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+
+  data$z[c(2,5,6,7)] <- NA
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+})

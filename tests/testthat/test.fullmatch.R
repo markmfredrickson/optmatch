@@ -492,3 +492,25 @@ test_that("matched.distances attr removed per #57", {
 
   expect_true(is.null(attr(f1, "matched.distances")))
 })
+
+test_that("#123: Supporting NA's in treatment", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+  f <- fullmatch(z ~ x, data = data)
+  expect_true(all(!is.na(f)))
+
+  # Now add an NA
+
+  data$z[1] <- NA
+  f <- fullmatch(z ~ x, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+
+  data$z[c(2,5,6,7)] <- NA
+  f <- fullmatch(z ~ x, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+})

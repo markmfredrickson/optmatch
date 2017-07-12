@@ -328,6 +328,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
 
+  # If there are any NA treated members, throw them away first
+  mf <- mf[!is.na(tmpz), ]
+  tmpn <- tmpn[!is.na(tmpz)]
+  tmpz <- tmpz[!is.na(tmpz)]
+
   mf <- na.omit(mf)
 
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
