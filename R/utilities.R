@@ -6,10 +6,6 @@
 ### accepts a variety of inputs and keeps names/rownames if present
 
 setGeneric("toZ", function(x) {
-  if (any(is.na(x))) {
-    stop("NAs not allowed in treatment indicator.")
-  }
-
   if (is.data.frame(x) | is.matrix(x)) {
     if (dim(x)[2] > 1) {
       stop("Treatment indicators must be vectors or single column
@@ -21,27 +17,45 @@ setGeneric("toZ", function(x) {
     names(x) <- nms
   }
 
-  if (length(unique(x)) != 2) {
-    stop(paste("Treatment indicator must have exactly 2 levels not",
-      length(unique(x))))
-  }
-
   nms <- names(x)
   tmp <- standardGeneric("toZ")
   names(tmp) <- nms
   return(tmp)
 })
 
-# a noop
-setMethod("toZ", "logical", identity)
+setMethod("toZ", "logical", function(x) {
+  u <- unique(x)
+  if (!(TRUE %in% u)) {
+    stop("There must be at least treatment unit.")
+  }
+  if (!(FALSE %in% u)) {
+    stop("There must be at least control unit.")
+  }
+  x
+})
 
-# this is a little awkward, but we want to get it down to FALSE for the low value, TRUE for the high value
-setMethod("toZ", "numeric", function(x) as.logical(as.numeric(as.factor(x)) - 1))
+setMethod("toZ", "numeric", function(x) {
+  u <- unique(x)
+  if (any(!(u[!is.na(u)] %in% 0:1))) {
+    stop("Numeric treatment indicators can only take on values 1 (treatment) and 0 (control).")
+  }
+  if (!(1 %in% u)) {
+    stop("There must be at least treatment unit.")
+  }
+  if (!(0 %in% u)) {
+    stop("There must be at least control unit.")
+  }
+  as.logical(x)
+})
 
-setMethod("toZ", "character", function(x) toZ(as.factor(x)))
+setMethod("toZ", "character", function(x) {
+  stop(paste("Character treatment indicators no longer supported.\n",
+             "Convert into a numeric or logical vector."))
+})
 
 setMethod("toZ", "factor", function(x) {
-  as.logical(as.numeric(x) - 1)
+  stop(paste("Factor treatment indicators no longer supported.\n",
+             "Convert into a numeric or logical vector."))
 })
 
 #' (Internal) Remove the call before digesting a distance so things

@@ -104,9 +104,6 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
-  res.factor <- match_on(as.factor(Z) ~ X1)
-  expect_equivalent(res.one, res.factor)
-
   # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
@@ -189,8 +186,8 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
 })
 
 # while the formula method often handles mahalanobis distances, separating the tests for clarity
-test_that("Mahalanobis distance calcualtions", {
-  badData <- data.frame(Z = as.factor(rep(c(0,1), 10)),
+test_that("Mahalanobis distance calculations", {
+  badData <- data.frame(Z = rep(c(0,1), 10),
                         all1 = as.factor(rep(1,20)),
                         badf1 = c(rep(1,3), rep(0,7)),
                         badf2 = c(rep(0,3), rep(1,7)))

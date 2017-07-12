@@ -235,6 +235,10 @@ are there missing values in data?")
 #'   Euclidean distance is also available, via \code{method="euclidean"}, and
 #'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
 #'
+#'   The treatment indicator \code{Z} as noted above must either be numeric
+#'   (1 representing treated units and 0 control units) or logical
+#'   (\code{TRUE} for treated and \code{FALSE} for controls.)
+#'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
 #'   a formula, the \code{strata} command can be used inside the formula to specify
 #'   exact matching. For example, rather than using \code{within=exactMatch(y ~
@@ -481,8 +485,9 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #'   data[pair[1]] - data[pair[2]] })) }}.  (Note: This simple case is precisely
 #'   handled by the \code{numeric} method.)
 #'
-#' @param z A factor, logical, or binary vector indicating treatment (the higher
-#'   level) and control (the lower level) for each unit in the study.
+#' @param z A logical or binary vector indicating treatment and control for each
+#'  unit in the study. TRUE or 1 represents a treatment unit, FALSE of 0 represents
+#'  a control unit.
 #' @method match_on function
 #' @rdname match_on-methods
 #' @export
