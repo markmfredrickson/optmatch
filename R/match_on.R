@@ -544,6 +544,9 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
 
   z <- toZ(z)
 
+  x <- x[!is.na(z)]
+  z <- z[!is.na(z)]
+
   missingX <- is.na(x)
   rnms <- names(z)
   dropped.t <- rnms[missingX & z]

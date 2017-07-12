@@ -690,7 +690,7 @@ test_that("dot and strata in formula", {
 
 })
 
-test_that("#123: Supporting NA's in treatment", {
+test_that("#123: Supporting NA's in treatment, match_on.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
                      x = rnorm(10))
   m <- match_on(z ~ x, data = data)
@@ -706,10 +706,53 @@ test_that("#123: Supporting NA's in treatment", {
   expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
   expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
 
-
   data$z[c(2,5,6,7)] <- NA
   m <- match_on(z ~ x, data = data)
   expect_equal(dim(m), c(3, 2))
   expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
   expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+
+})
+
+test_that("#123: Supporting NA's in treatment, match_on.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  names(z) <- names(x) <- 1:10
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m <- match_on(x, z = z, data = data)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  # Now add an NA
+
+  z[1] <- NA
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m <- match_on(x, z = z, data = data)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  z[c(2,5,6,7)] <- NA
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m <- match_on(x, z = z, data = data)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
 })

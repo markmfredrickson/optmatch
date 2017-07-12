@@ -493,7 +493,7 @@ test_that("matched.distances attr removed per #57", {
   expect_true(is.null(attr(f1, "matched.distances")))
 })
 
-test_that("#123: Supporting NA's in treatment", {
+test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
                      x = rnorm(10))
   f <- fullmatch(z ~ x, data = data)
@@ -514,3 +514,45 @@ test_that("#123: Supporting NA's in treatment", {
   expect_true(all(is.na(f[c(1,2,5,6,7)])))
   expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
 })
+
+test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  names(z) <- names(x) <- 1:10
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z))
+
+  data <- data.frame(z, x)
+  f <- fullmatch(x, z = z, data = data)
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), nrow(data))
+
+  # Now add an NA
+
+  z[1] <- NA
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z) - 1)
+  expect_false("1" %in% names(f))
+
+  data <- data.frame(z, x)
+  f <- fullmatch(x, z = z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+
+  z[c(2,5,6,7)] <- NA
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z) - 5)
+  expect_false("1" %in% names(f))
+
+  data <- data.frame(z, x)
+  f <- fullmatch(x, z = z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+})
+
