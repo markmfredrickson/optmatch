@@ -556,7 +556,7 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
 })
 
-test_that("#123: Supporting NA's in treatment, match_on.function", {
+test_that("#123: Supporting NA's in treatment, fullmatch.function", {
 
   data <- data.frame(z = rep(0:1, each = 5),
                      x = rnorm(10))
