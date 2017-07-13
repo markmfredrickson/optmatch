@@ -69,7 +69,8 @@ created distance function.}
 
 \item{z}{A logical or binary vector indicating treatment and control for each
 unit in the study. TRUE or 1 represents a treatment unit, FALSE of 0 represents
-a control unit.}
+a control unit. Any unit with NA treatment status will be excluded from the
+distance matrix.}
 }
 \value{
 A distance specification (a matrix or similar object) which is
@@ -180,7 +181,8 @@ The formula method produces, by default, a Mahalanobis distance
 
   The treatment indicator \code{Z} as noted above must either be numeric
   (1 representing treated units and 0 control units) or logical
-  (\code{TRUE} for treated and \code{FALSE} for controls.)
+  (\code{TRUE} for treated and \code{FALSE} for controls.) A unit with NA
+  treatment status is ignored and will not be included in the distance output.
 
   As an alternative to specifying a \code{within} argument, when \code{x} is
   a formula, the \code{strata} command can be used inside the formula to specify

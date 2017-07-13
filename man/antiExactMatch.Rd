@@ -12,7 +12,7 @@ antiExactMatch(x, z)
 \item{z}{A logical or binary vector the same length as \code{x}
 indicating treatment and control for each unit in the study.
 TRUE or 1 represents a treatment unit, FALSE of 0 represents
-a control unit.}
+a control unit. NA units are excluded.}
 }
 \value{
 A distance specification that encodes the across factor level constraint.
