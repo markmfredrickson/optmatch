@@ -524,9 +524,8 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   expect_equal(length(f), length(z))
 
   data <- data.frame(z, x)
-  f <- fullmatch(x, z = z, data = data)
-  expect_true(all(!is.na(f)))
-  expect_equal(length(f), nrow(data))
+  f2 <- fullmatch(x, z = z, data = data)
+  expect_equivalent(f[sort(names(f))], f2[sort(names(f2))])
 
   # Now add an NA
 

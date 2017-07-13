@@ -725,10 +725,8 @@ test_that("#123: Supporting NA's in treatment, match_on.numeric", {
   expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
 
   data <- data.frame(z, x)
-  m <- match_on(x, z = z, data = data)
-  expect_equal(dim(m), c(5, 5))
-  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
-  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
 
   # Now add an NA
 
@@ -739,10 +737,8 @@ test_that("#123: Supporting NA's in treatment, match_on.numeric", {
   expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
 
   data <- data.frame(z, x)
-  m <- match_on(x, z = z, data = data)
-  expect_equal(dim(m), c(5, 4))
-  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
-  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
 
   z[c(2,5,6,7)] <- NA
   m <- match_on(x, z = z)
@@ -751,10 +747,8 @@ test_that("#123: Supporting NA's in treatment, match_on.numeric", {
   expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
 
   data <- data.frame(z, x)
-  m <- match_on(x, z = z, data = data)
-  expect_equal(dim(m), c(3, 2))
-  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
-  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
 })
 
 test_that("#123: Supporting NA's in treatment, match_on.function", {
@@ -799,10 +793,8 @@ test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
   expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
   expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
 
-  m <- match_on(mod, data = data)
-  expect_equal(dim(m), c(5, 5))
-  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
-  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
 
   data$z[1] <- NA
 
@@ -813,11 +805,8 @@ test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
   expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
   expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
 
-  m <- match_on(mod, data = data)
-  expect_equal(dim(m), c(5, 4))
-  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
-  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
-
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
 
   data$z[c(2,5,6,7)] <- NA
 
@@ -828,9 +817,7 @@ test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
   expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
   expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
 
-  m <- match_on(mod, data = data)
-  expect_equal(dim(m), c(3, 2))
-  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
-  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
 })
 
