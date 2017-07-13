@@ -556,3 +556,30 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
 })
 
+test_that("#123: Supporting NA's in treatment, match_on.function", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "x"] - data[index[,2], "x"])
+  }
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+
+  data$z[1] <- NA
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+  data$z[c(2,5,6,7)] <- NA
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+
+})

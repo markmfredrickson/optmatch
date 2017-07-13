@@ -505,6 +505,9 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 
   theFun <- match.fun(x)
 
+  data <- data[!is.na(z), ]
+  z <- z[!is.na(z)]
+
   tmp <- makedist(z, data, theFun, within)
 
   if (is.null(caliper)) {
