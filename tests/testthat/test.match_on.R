@@ -787,4 +787,50 @@ test_that("#123: Supporting NA's in treatment, match_on.function", {
 
 })
 
+test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m <- match_on(mod, data = data)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  data$z[1] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m <- match_on(mod, data = data)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+
+  data$z[c(2,5,6,7)] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m <- match_on(mod, data = data)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+})
 
