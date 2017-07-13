@@ -26,10 +26,10 @@ setGeneric("toZ", function(x) {
 setMethod("toZ", "logical", function(x) {
   u <- unique(x)
   if (!(TRUE %in% u)) {
-    stop("There must be at least treatment unit.")
+    stop("There must be at least one treatment unit.")
   }
   if (!(FALSE %in% u)) {
-    stop("There must be at least control unit.")
+    stop("There must be at least one control unit.")
   }
   x
 })
