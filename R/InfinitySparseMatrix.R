@@ -576,6 +576,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 #' @export
 #' @docType methods
 #' @rdname subdim-methods
+#' @example inst/examples/subdim.R
 #' @export
 subdim <- function(x) {
   UseMethod("subdim")
