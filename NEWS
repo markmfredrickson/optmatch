@@ -1,4 +1,14 @@
 CHANGES IN OPTMATCH VERSION 0.9-8
+* The treatment indicator must be either numeric 0/1 (1 for treatment, 0 for control)
+  or logical (TRUE for treatment, FALSE for control).
+* Support for any other type of treatment vector (factors, character, other numerical values)
+  has been deprecated. You can easily update treatment vectors using conditional
+  statements, e.g. if you have a character "T" and "C", `treatment_new = treatement == "T"`.
+* The treatment indicator can now include NA's. Any observations with NA treatment
+  status will be excluded from distances matrices and will never match. WARNING:
+  if the `data` argument is excluded from `fullmatch` or `pairmatch` and there are NA
+  treatment status observations, the vector of matches will not include the NA observations.
+  Always pass a `data` argument!
 
 CHANGES IN OPTMATCH VERSION 0.9-7
 * Added support for CBPS created objects (#121).
