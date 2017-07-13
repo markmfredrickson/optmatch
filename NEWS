@@ -10,6 +10,14 @@ CHANGES IN OPTMATCH VERSION 0.9-8
   treatment status observations, the vector of matches will not include the NA observations.
   Always pass a `data` argument!
 
+* Addressed an issue affecting certain problems with both exact matching
+  and caliper restrictions, where min/mean/max.controls directives would
+  have been mistakenly applied to the wrong subclasses, resulting in strange
+  warnings and, potentially, spurious match failures or unintended 
+  structural restrictions in some subclasses (#129)
+  
+  
+
 CHANGES IN OPTMATCH VERSION 0.9-7
 * Added support for CBPS created objects (#121).
 * Improvments to documentation for several functions.
