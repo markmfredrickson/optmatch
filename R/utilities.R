@@ -40,10 +40,10 @@ setMethod("toZ", "numeric", function(x) {
     stop("Numeric treatment indicators can only take on values 1 (treatment) and 0 (control).")
   }
   if (!(1 %in% u)) {
-    stop("There must be at least treatment unit.")
+    stop("There must be at least one treatment unit.")
   }
   if (!(0 %in% u)) {
-    stop("There must be at least control unit.")
+    stop("There must be at least one control unit.")
   }
   as.logical(x)
 })
