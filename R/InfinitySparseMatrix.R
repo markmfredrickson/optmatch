@@ -599,8 +599,17 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]),
                                                 sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
-  # drop off any subproblems lacking at least one treatment/control
-  out[unlist(lapply(out, function(t) all(t > 0)))]
+  # drop off any subproblems lacking at least one possible treatment-control pairing
+  filt <- vapply(levels(x@groups), function(l) {
+      members <- names(x@groups[x@groups == l])
+      row.members <- which(x@rownames %in% members)
+      col.members <- which(x@colnames %in% members)
+      ridx <- x@rows %in% row.members
+      cidx <- x@cols %in% col.members
+      any(ridx & cidx)
+  },
+  TRUE)
+  out[filt]
 }
 
 ##' @rdname sort.ism
