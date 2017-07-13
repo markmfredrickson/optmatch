@@ -585,8 +585,8 @@ test_that("#123: Supporting NA's in treatment, fullmatch.function", {
 
 test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
-  data <- data.frame(z = rep(0:1, each = 5),
-                     x = rnorm(10))
+  data <- data.frame(z = rep(0:1, each = 10),
+                     x = rnorm(20))
 
   mod <- glm(z ~ x, data = data, family = binomial)
 
@@ -608,14 +608,14 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
   f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
 
-  data$z[c(2,5,6,7)] <- NA
+  data$z[c(2,5,16,17)] <- NA
 
   mod <- glm(z ~ x, data = data, family = binomial)
 
   f <- fullmatch(mod)
   expect_equal(length(f), nrow(data))
-  expect_true(all(is.na(f[c(1,2,5,6,7)])))
-  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+  expect_true(all(is.na(f[c(1,2,5,16,17)])))
+  expect_true(all(!is.na(f[-c(1,2,5,16,17)])))
 
   f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
