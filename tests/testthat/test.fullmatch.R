@@ -610,13 +610,13 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
   data$z[c(2,5,6,7)] <- NA
 
-  expect_warning(mod <- glm(z ~ x, data = data, family = binomial))
+  mod <- glm(z ~ x, data = data, family = binomial)
 
-  expect_warning(f <- fullmatch(mod))
+  f <- fullmatch(mod)
   expect_equal(length(f), nrow(data))
   expect_true(all(is.na(f[c(1,2,5,6,7)])))
   expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
 
-  expect_warning(f2 <- fullmatch(mod, data = data))
+  f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
 })
