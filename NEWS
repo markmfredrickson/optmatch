@@ -3,18 +3,19 @@ CHANGES IN OPTMATCH VERSION 0.9-8
   or logical (TRUE for treatment, FALSE for control).
 * Support for any other type of treatment vector (factors, character, other numerical values)
   has been deprecated. You can easily update treatment vectors using conditional
-  statements, e.g. if you have a character "T" and "C", `treatment_new = treatement == "T"`.
+  statements, e.g. if you have a character "T" and "C", `treatment_new = treatment == "T"`.
 * The treatment indicator can now include NA's. Any observations with NA treatment
   status will be excluded from distances matrices and will never match. WARNING:
-  if the `data` argument is excluded from `fullmatch` or `pairmatch` and there are NA
-  treatment status observations, the vector of matches will not include the NA observations.
-  Always pass a `data` argument!
+  if the `data` argument is excluded from `fullmatch` or `pairmatch` and `num_NA` > 0 
+  entries in the treatment status vector are NA, then the length of the vector
+  produced by `fullmatch` or `pairmatch` won't match the length of the treatment status
+  vector, having `num_NA` fewer observations. Don't forget to pass a `data` argument!
 
 * Addressed an issue affecting certain problems with both exact matching
   and caliper restrictions, where min/mean/max.controls directives would
   have been mistakenly applied to the wrong subclasses, resulting in strange
   warnings and, potentially, spurious match failures or unintended 
-  structural restrictions in some subclasses (#129)
+  structural restrictions in some subclasses (#129).
   
   
 
