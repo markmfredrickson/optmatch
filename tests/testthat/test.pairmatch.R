@@ -270,10 +270,12 @@ test_that("sane data arguments", {
 
 test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
-                     x = rnorm(10))
+                     x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
   p <- pairmatch(z ~ x, data = data)
   expect_true(all(!is.na(p)))
-
+  p <- pairmatch(z ~ x + strata(fac), data = data)
+  expect_true(all(!is.na(p)))
+  
   # Now add an NA
 
   data$z[c(1, 6)] <- NA
@@ -281,20 +283,31 @@ test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
   expect_equal(length(p), nrow(data))
   expect_true(all(is.na(p[c(1, 6)])))
   expect_true(all(!is.na(p[-c(1, 6)])))
+  
+  p <- pairmatch(z ~ x + strata(fac), data = data)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1, 6)])))
+  expect_true(all(!is.na(p[-c(1, 6)])))
+  
 })
 
 test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   z <- rep(0:1, each = 5)
   x <- rnorm(10)
-  names(z) <- names(x) <- 1:10
+  fac=rep(c(rep("a",2), rep("b",3)),2)
+  names(z) <- names(x) <- names(fac) <- 1:10
   expect_warning(p <- pairmatch(x, z = z))
   expect_true(all(!is.na(p)))
   expect_equal(length(p), length(z))
 
-  data <- data.frame(z, x)
+  data <- data.frame(z, x, fac)
   p2 <- pairmatch(x, z = z, data = data)
   expect_equivalent(p[sort(names(p))], p2[sort(names(p2))])
 
+  em <- exactMatch(z~fac, data = data)
+  p3 <- pairmatch(x, z = z, within=em, data=data)
+  expect_true(all(!is.na(p3)))
+              
   # Now add an NA
 
   z[c(1, 6)] <- NA
@@ -304,11 +317,18 @@ test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   expect_false("1" %in% names(p))
   expect_false("6" %in% names(p))
 
-  data <- data.frame(z, x)
+  data <- data.frame(z, x, fac)
   p <- pairmatch(x, z = z, data = data)
   expect_equal(length(p), nrow(data))
   expect_true(all(is.na(p[c(1,6)])))
   expect_true(all(!is.na(p[-c(1,6)])))
+
+  em <- exactMatch(z~fac, data = data)
+  p <- pairmatch(x, z = z, within=em, data=data)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1,6)])))
+  expect_true(all(!is.na(p[-c(1,6)])))
+
 })
 
 test_that("#123: Supporting NA's in treatment, pairmatch.function", {

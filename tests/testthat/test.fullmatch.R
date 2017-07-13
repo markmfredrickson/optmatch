@@ -495,7 +495,7 @@ test_that("matched.distances attr removed per #57", {
 
 test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
-                     x = rnorm(10))
+                     x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2))
   f <- fullmatch(z ~ x, data = data)
   expect_true(all(!is.na(f)))
 
@@ -507,6 +507,10 @@ test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
   expect_true(is.na(f[1]))
   expect_true(all(!is.na(f[-1])))
 
+  f <- fullmatch(z ~ x + strata(fac), data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
 
   data$z[c(2,5,6,7)] <- NA
   f <- fullmatch(z ~ x, data = data)
