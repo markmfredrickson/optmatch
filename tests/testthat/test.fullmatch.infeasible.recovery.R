@@ -270,7 +270,7 @@ test_that("attr saved after recovery", {
 
   Z <- c(1,0,0,0,0,1,0,0)
   B <- c(rep('a', 5), rep('b', 3))
-  d <- as.data.frame(cbind(Z,B))
+  d <- data.frame(Z, B)
 
   res.b <- exactMatch(Z ~ B, data=d)
 

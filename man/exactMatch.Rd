@@ -19,9 +19,10 @@ exactMatch(x, ...)
 
 \item{...}{Additional arguments for methods.}
 
-\item{treatment}{A vector the same length as \code{x} that can be
-coerced to a two level factor (e.g. a vector of 1s and 0s or a
-logical vector).}
+\item{treatment}{A logical or binary vector the same length as \code{x}
+indicating treatment and control for each unit in the study.
+TRUE or 1 represents a treatment unit, FALSE or 0 represents
+a control unit. NA units are excluded.}
 
 \item{data}{A \code{data.frame} or \code{matrix} that contains the
 variables used in the formula \code{x}.}

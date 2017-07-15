@@ -224,3 +224,30 @@ test_that("antiExactMatch", {
   expect_equal(as.matrix(res), ex)
 
 })
+
+test_that("#123: exactmatch accepts NA treatment", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     b = rep(0:1, times = 5))
+
+  m <- match_on(z ~ b, data = data)
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+
+  data$z[1] <- NA
+
+  m <- match_on(z ~ b, data = data)
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+
+  data$z[c(2,4,6,7)] <- NA
+
+  m <- match_on(z ~ b, data = data)
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+})
