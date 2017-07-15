@@ -70,6 +70,11 @@ setMethod("subproblems", "DenseMatrix", function(distances) FALSE)
 setMethod("subproblems", "BlockedInfinitySparseMatrix",
 function(distances) {
   tmp <- lapply(levels(distances@groups), function(l) {
+    ## for each group, we need to know how is in the group
+    ## the @groups slot maps units to groups
+    ## and the row and colnames match units to treatment and control
+    ## we get subsets of the treated and control groups
+    ## that are in the subproblem, putting them in row.members and col.members
     members <- names(distances@groups[distances@groups == l])
     row.members <- which(distances@rownames %in% members)
     col.members <- which(distances@colnames %in% members)

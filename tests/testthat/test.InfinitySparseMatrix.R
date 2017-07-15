@@ -337,9 +337,9 @@ test_that("Get subproblem size of each block", {
   res.b2 <- exactMatch(Z ~ B2)
   res.b3 <- exactMatch(Z ~ B3)
 
-  expect_equal(subdim(res.b1), list('a' = c(1, 2),'b' = c(2, 1),'c' = c(3, 3),'d' = c(2, 2)))
-  expect_equal(subdim(res.b2), list('0' = c(3, 4),'1' = c(5, 4)))
-  expect_equal(subdim(res.b3), list('b' = c(8, 7)))
+  expect_equal(as.list(subdim(res.b1)), list('a' = c(1, 2),'b' = c(2, 1),'c' = c(3, 3),'d' = c(2, 2)))
+  expect_equivalent(as.list(subdim(res.b2)), list('0' = c(3, 4),'1' = c(5, 4)))
+  expect_equal(as.list(subdim(res.b3)), list('b' = c(8, 7)))
 
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
               dimnames = list(control = c("A", "B"),
@@ -347,8 +347,8 @@ test_that("Get subproblem size of each block", {
   a <- as.InfinitySparseMatrix(m)
 
   # subdim on a matrix or non-blocked ISM is equivalent to calling dim
-  expect_equal(subdim(m), list(dim(m)))
-  expect_equal(subdim(a), list(dim(a)))
+  expect_equivalent(as.list(subdim(m)), list(dim(m)))
+  expect_equivalent(as.list(subdim(a)), list(dim(a)))
 
   # test on optmatch.dlist
   od <- list(matrix(c(0,0,0,0, Inf,Inf,Inf,Inf, rep(0, 12)), nrow = 2, ncol = 10, dimnames = list(letters[1:2], letters[3:12])),
@@ -363,9 +363,19 @@ test_that("Get subproblem size of each block", {
 
   m <- match_on(Z ~ W)
 
-  expect_equal(subdim(m), list(dim(m)))
+  expect_equivalent(as.list(subdim(m)), list(dim(m)))
 })
 
+test_that("subdim drops blocks w/ no possible matches (#129)", {
+  Z <- rep(c(0,1), 4)
+  B <- rep(c("a", "b"), each=4)
+  x <- c((1L:4L)/10, (1L:4L) *10)
+  m <- exactMatch(Z ~ B)
+  m <- match_on(Z ~ x, within=m, method="euclidean")
+  m <- caliper(m, width=1)
+  # Prior to #129, subdim(m) would have been `list(a=c(2,2),b=c(2,2)`
+  expect_equivalent(subdim(m), list(c(2,2)))
+})
 
 test_that("ISM sorting", {
   X <- makeInfinitySparseMatrix(data = c(6,5,2,3,1),

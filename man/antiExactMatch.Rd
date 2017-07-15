@@ -9,8 +9,10 @@ antiExactMatch(x, z)
 \arguments{
 \item{x}{A factor across which matches should be allowed.}
 
-\item{z}{A treatment indicator factor (a numeric vector of 1 and 0,
-a logical vector, or a 2 level factor).}
+\item{z}{A logical or binary vector the same length as \code{x}
+indicating treatment and control for each unit in the study.
+TRUE or 1 represents a treatment unit, FALSE of 0 represents
+a control unit. NA units are excluded.}
 }
 \value{
 A distance specification that encodes the across factor level constraint.

@@ -29,9 +29,10 @@
 #' @keywords nonparametric
 #'
 #' @param x A factor vector or a formula, used to select method.
-#' @param treatment A vector the same length as \code{x} that can be
-#'   coerced to a two level factor (e.g. a vector of 1s and 0s or a
-#'   logical vector).
+#' @param treatment A logical or binary vector the same length as \code{x}
+#' indicating treatment and control for each unit in the study.
+#' TRUE or 1 represents a treatment unit, FALSE or 0 represents
+#' a control unit. NA units are excluded.
 #' @param data A \code{data.frame} or \code{matrix} that contains the
 #'   variables used in the formula \code{x}.
 #' @param subset an optional vector specifying a subset of
@@ -170,8 +171,10 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
 #' the factor variable \code{x}).
 #'
 #' @param x A factor across which matches should be allowed.
-#' @param z A treatment indicator factor (a numeric vector of 1 and 0,
-#' a logical vector, or a 2 level factor).
+#' @param z A logical or binary vector the same length as \code{x}
+#' indicating treatment and control for each unit in the study.
+#' TRUE or 1 represents a treatment unit, FALSE of 0 represents
+#' a control unit. NA units are excluded.
 #' @return A distance specification that encodes the across factor level constraint.
 #' @seealso \code{\link{exactMatch}}, \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{fullmatch}}, \code{\link{pairmatch}}
 #' @export
