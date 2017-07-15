@@ -440,6 +440,7 @@ fullmatch.matrix <- function(x,
       maxc <- min(1/mnctl, ncol)
       minc <- max(1/mxctl, 1/nrow)
       omf.calc <- -1 * omf
+      d <- t(d)
     }
 
     temp <- SubDivStrat(rownames = rownames(d),
