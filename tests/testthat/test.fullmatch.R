@@ -657,14 +657,34 @@ test_that("symmetry w.r.t. structural requirements (#132)",{
     f0 <- fullmatch(z ~ x, min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x, min.c=.5, max.c=.5, data = data)
     match_equivalent(f0, f1)
-
-#    f0 <- fullmatch(z ~ x, min.c=1, max.c=2, mean.c=1.6, data = data)
-#    f1 <- fullmatch(!z ~ x, min.c=.5, max.c=1, mean.c=5/8, data = data)
-#    match_equivalent(f0, f1)
-
     
     f0 <- fullmatch(z ~ x + strata(fac), min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x + strata(fac), min.c=.5, max.c=.5, data = data)
     match_equivalent(f0, f1)
 
+})
+
+test_that("Problems w/ fewer controls than treatment don't break mean.controls", {
+
+    data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+    
+    f1 <- fullmatch(!z ~ x, min.c=.25, mean.c=.4, max.c=1, data = data)
+    expect_true(sum(is.na(f1)) <= 1)
+    f2 <- fullmatch(!z ~ x, min.c=.25, max.c=1, omit.fraction=.2, data = data)
+    match_equivalent(f1, f2)
+
+    f1 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
+                                     mean.c=c("a"=.25, "b"=(1/3)),
+                                     max.c=1, data = data)
+                           ) # Saw warnings here indicating that .fullmatch.with.recovery
+# had been entered. Not sure why, and couldn't reproduce interactively. So there *may*
+# be a testing bug here; decided to go ahead anyway. (BBH)                           
+                           
+    expect_true(sum(is.na(f1)) <= 2)
+    f2 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
+                                     max.c=1, omit.fraction=c("a"=.5, "b"=(1/3)),
+                                     data = data)
+                           ) # Saw same funny warning here as just above.
+    match_equivalent(f1, f2)
 })
