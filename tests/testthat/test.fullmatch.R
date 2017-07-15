@@ -492,3 +492,131 @@ test_that("matched.distances attr removed per #57", {
 
   expect_true(is.null(attr(f1, "matched.distances")))
 })
+
+test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+  f <- fullmatch(z ~ x, data = data)
+  expect_true(all(!is.na(f)))
+
+  # Now add an NA
+
+  data$z[1] <- NA
+  f <- fullmatch(z ~ x, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+
+  data$z[c(2,5,6,7)] <- NA
+  f <- fullmatch(z ~ x, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+})
+
+test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  names(z) <- names(x) <- 1:10
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z))
+
+  data <- data.frame(z, x)
+  f2 <- fullmatch(x, z = z, data = data)
+  expect_equivalent(f[sort(names(f))], f2[sort(names(f2))])
+
+  # Now add an NA
+
+  z[1] <- NA
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z) - 1)
+  expect_false("1" %in% names(f))
+
+  data <- data.frame(z, x)
+  f <- fullmatch(x, z = z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+
+  z[c(2,5,6,7)] <- NA
+  expect_warning(f <- fullmatch(x, z = z))
+  expect_true(all(!is.na(f)))
+  expect_equal(length(f), length(z) - 5)
+  expect_false("1" %in% names(f))
+
+  data <- data.frame(z, x)
+  f <- fullmatch(x, z = z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+})
+
+test_that("#123: Supporting NA's in treatment, fullmatch.function", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "x"] - data[index[,2], "x"])
+  }
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+
+  data$z[1] <- NA
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+  data$z[c(2,5,6,7)] <- NA
+
+  f <- fullmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,6,7)])))
+  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+
+})
+
+test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
+
+  data <- data.frame(z = rep(0:1, each = 10),
+                     x = rnorm(20))
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  f <- fullmatch(mod)
+  expect_equal(length(f), nrow(data))
+
+  f2 <- fullmatch(mod, data = data)
+  expect_equivalent(f, f2)
+
+  data$z[1] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  f <- fullmatch(mod)
+  expect_equal(length(f), nrow(data))
+  expect_true(is.na(f[1]))
+  expect_true(all(!is.na(f[-1])))
+
+  f2 <- fullmatch(mod, data = data)
+  expect_equivalent(f, f2)
+
+  data$z[c(2,5,16,17)] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  f <- fullmatch(mod)
+  expect_equal(length(f), nrow(data))
+  expect_true(all(is.na(f[c(1,2,5,16,17)])))
+  expect_true(all(!is.na(f[-c(1,2,5,16,17)])))
+
+  f2 <- fullmatch(mod, data = data)
+  expect_equivalent(f, f2)
+})

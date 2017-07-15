@@ -266,3 +266,94 @@ test_that("sane data arguments", {
   # Issue #56
   expect_error(pairmatch(distances, data=distances), "are not found")
 })
+
+
+test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+  p <- pairmatch(z ~ x, data = data)
+  expect_true(all(!is.na(p)))
+
+  # Now add an NA
+
+  data$z[c(1, 6)] <- NA
+  p <- pairmatch(z ~ x, data = data)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1, 6)])))
+  expect_true(all(!is.na(p[-c(1, 6)])))
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  names(z) <- names(x) <- 1:10
+  expect_warning(p <- pairmatch(x, z = z))
+  expect_true(all(!is.na(p)))
+  expect_equal(length(p), length(z))
+
+  data <- data.frame(z, x)
+  p2 <- pairmatch(x, z = z, data = data)
+  expect_equivalent(p[sort(names(p))], p2[sort(names(p2))])
+
+  # Now add an NA
+
+  z[c(1, 6)] <- NA
+  expect_warning(p <- pairmatch(x, z = z))
+  expect_true(all(!is.na(p)))
+  expect_equal(length(p), length(z) - 2)
+  expect_false("1" %in% names(p))
+  expect_false("6" %in% names(p))
+
+  data <- data.frame(z, x)
+  p <- pairmatch(x, z = z, data = data)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1,6)])))
+  expect_true(all(!is.na(p[-c(1,6)])))
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.function", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "x"] - data[index[,2], "x"])
+  }
+
+  p <- pairmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(p), nrow(data))
+
+  data$z[c(1,6)] <- NA
+
+  p <- pairmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1,6)])))
+  expect_true(all(!is.na(p[-c(1,6)])))
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  p <- pairmatch(mod)
+  expect_equal(length(p), nrow(data))
+
+  p2 <- pairmatch(mod, data = data)
+  expect_equivalent(p, p2)
+
+  data$z[c(1,6)] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  p <- pairmatch(mod)
+  expect_equal(length(p), nrow(data))
+  expect_true(all(is.na(p[c(1,6)])))
+  expect_true(all(!is.na(p[-c(1,6)])))
+
+  p2 <- pairmatch(mod, data = data)
+  expect_equivalent(p, p2)
+
+})
