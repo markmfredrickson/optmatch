@@ -688,3 +688,19 @@ test_that("Problems w/ fewer controls than treatment don't break mean.controls",
                            ) # Saw same funny warning here as just above.
     match_equivalent(f1, f2)
 })
+
+test_that("accept negative omit.fraction", {
+
+        data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    f2 <- fullmatch(!z ~ x, min.c=1, max.c=1, omit.fraction=-.5, data = data)
+    match_equivalent(f1, f2)
+
+    f1 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
+    f2 <- fullmatch(!z ~ x+strata(fac), min.c=1, max.c=1, omit.fraction=-.5, data = data)
+    match_equivalent(f1, f2)
+    
+ 
+})
