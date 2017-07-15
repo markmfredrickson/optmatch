@@ -46,6 +46,13 @@ setTryRecovery <- function() {
 #' feasible match. The auto recovery is controlled by
 #' \code{options("fullmatch_try_recovery")}.
 #'
+#' In full matching problems permitting many-one matches (\code{min.controls}
+#' less than 1), the number of controls contributing to matches can exceed
+#' what was requested by setting a value of \code{mean.controls} or
+#' \code{omit.fraction}.  I.e., in this setting \code{mean.controls} sets
+#' the minimum ratio of number of controls to number of treatments placed
+#' into matched sets.
+#'
 #' If the program detects a large problem as been requested that may exceed the
 #' computational power of the user's computer, a warning is issued. If you wish
 #' to disable this warning, set \code{options("optmatch_warn_on_big_problem" =
