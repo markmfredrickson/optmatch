@@ -160,7 +160,7 @@ pairmatch.matrix <- function(x,
 
     if (!is.null(within)) warning("Ignoring non-null 'within' argument. When using 'pairmatch' with\n pre-formed distances, please combine them using '+'.")
 
-  omf <- mapply(controls, subprobs, FUN = function(control, prob) {
+  get_omf <- function(control, prob) {
     # hard coding type based trimming for now. this should probably
     # be a DistanceSpecification method, e.g. finiteRows()
     if (remove.unmatchables) {
@@ -181,12 +181,13 @@ pairmatch.matrix <- function(x,
 
     nt <- nrow(prob)
     nc <- ncol(prob)
-    return((nc - control * nt)/nc)
-  })
-
-  if (any(omf<0)) {
-    stop('not enough controls in some subclasses')
+    ans1 <- (nc - control * nt)/nc
+    ans0 <- -(nt - nc/control)/nt
+    return(ifelse(ans1>=0, ans1, ans0))
   }
+    
+  omf <- mapply(controls, subprobs, FUN = get_omf)
+
 
   if(!remove.unmatchables) {
     saveopt <- options()$fullmatch_try_recovery

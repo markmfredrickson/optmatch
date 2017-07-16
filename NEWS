@@ -1,4 +1,7 @@
 CHANGES IN OPTMATCH VERSION 0.9-8
+* If pairmatch is asked to match within a strata with fewer eligible controls
+  than `controls` times the number of treatments, it now attempts to match in that
+  stratum by leaving out some of the treatment units. (#116)
 * The treatment indicator must be either numeric 0/1 (1 for treatment, 0 for control)
   or logical (TRUE for treatment, FALSE for control).
 * Support for any other type of treatment vector (factors, character, other numerical values)
