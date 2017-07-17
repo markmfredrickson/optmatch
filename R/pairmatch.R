@@ -165,25 +165,37 @@ pairmatch.matrix <- function(x,
     # be a DistanceSpecification method, e.g. finiteRows()
     if (remove.unmatchables) {
       if (inherits(prob, "matrix")) {
-      # drop any rows that are entirely NA
-      prob <- prob[apply(prob, 1, function(row) {
-        any(is.finite(row)) }),]
+          # drop any rows that are entirely NA
+          prob <- prob[apply(prob, 1, function(row) {
+              any(is.finite(row)) }),, drop=FALSE]
+          # Now do the same for columns -- but only if 
+          # there are one or more rows left.  
+          # (Otherwise subsequent `apply()` quits.)
+          if (nrow(prob)) {
+              prob <- prob[,apply(prob, 2, function(col) {
+                  any(is.finite(col)) }), drop=FALSE]
+              }
       } else {
         # assuming an InfinitySparseMatrix here
         validrows <- which(1:(nrow(prob)) %in% prob@rows)
-        prob@dimension <- c(length(validrows), ncol(prob))
         prob@rownames <- prob@rownames[validrows]
+          if (length(validrows)) {
+              validcols <- which(1:(ncol(prob)) %in% prob@cols)
+              prob@colnames <- prob@colnames[validcols]
+              prob@dimension <- c(length(validrows), length(validcols))
+              } else {
+                  prob@dimension <- c(length(validrows), ncol(prob))
+              }
       }
     }
 
-    # No longer need to remove all controls that are unreachable because
-    # subDivStrat adjust omit.fraction automatically to accomodate them.
-
-    nt <- nrow(prob)
-    nc <- ncol(prob)
-    ans1 <- (nc - control * nt)/nc
-    ans0 <- -(nt - nc/control)/nt
-    return(ifelse(ans1>=0, ans1, ans0))
+    treatment_group_n <- nrow(prob)
+    control_group_n <- ncol(prob)
+    control_group_overage <- control_group_n - control * treatment_group_n
+    treatment_group_overage <- treatment_group_n - control_group_n/control
+      return(ifelse(control_group_overage>=0,
+                    control_group_overage/control_group_n,
+                    -1*treatment_group_overage/treatment_group_n))
   }
     
   omf <- mapply(controls, subprobs, FUN = get_omf)
