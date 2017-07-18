@@ -383,4 +383,8 @@ test_that("#116: If nt>nc, try creating nc pairs" , {
                      x = rnorm(5))
   p <- pairmatch(z ~ x, data = data)
   expect_false(all(is.na(p)))
+
+  data <- data.frame(z = c(rep(0, 2),rep(1,2)),
+                     x = rnorm(4))
+  expect_error(p <- pairmatch(z~x, controls = 2, data = data))
 })
