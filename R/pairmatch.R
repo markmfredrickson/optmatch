@@ -12,10 +12,17 @@
 #' If \code{remove.unmatchables} is \code{FALSE}, then if there are unmatchable
 #' treated units then the matching as a whole will fail and no units will be
 #' matched.  If \code{TRUE}, then this unit will be removed and the function will
-#' attempt to match each of the other treatment units.  (In this case matching
-#' can still fail, if there is too much competition for certain controls; if you
+#' attempt to match each of the other treatment units.  As of version 0.9-8,
+#' if there are fewer matchable treated units than matchable controls then
+#' \code{pairmatch} will attempt to place each into a matched pair each of the
+#' matchable controls and a strict subset of the matchable treated units.
+#' (Previously matching would have failed for subclasses of this structure.)
+#'
+#' Matching can still fail,
+#' even with \code{remove.unmatchables} set to \code{TRUE},
+#' if there is too much competition for certain controls; if you
 #' find yourself in that situation you should consider full matching, which
-#' necessarily finds a match for everyone with an eligible match somewhere.)
+#' necessarily finds a match for everyone with an eligible match somewhere.
 #'
 #' The units of the \code{optmatch} object returned correspond to members of the
 #' treatment and control groups in reference to which the matching problem was
