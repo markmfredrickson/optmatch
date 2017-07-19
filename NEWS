@@ -21,8 +21,6 @@ CHANGES IN OPTMATCH VERSION 0.9-8
 * Structural restrictions allowing only many-one matches no longer cause fullmatch
   to automatically fail.  I.e. we've restored the behaviour of the software prior to
   version 0.8.  (#132)
-  
-  
 
 CHANGES IN OPTMATCH VERSION 0.9-7
 * Added support for CBPS created objects (#121).
