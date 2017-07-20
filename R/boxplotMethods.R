@@ -1,7 +1,9 @@
 #' @importFrom graphics boxplot
 #' @export
-boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
-  {
+boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE, horizontal=FALSE, ...)
+{
+    #' NB: if default xlab or ylab is altered,
+    #' update accordingly w/in function body below
     if (is.null(data))
       {
         dependent.variable <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
@@ -11,11 +13,21 @@ boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, sym
   Data <- model.frame(terms(x), data)
   dependent.variable <- as.numeric(model.response(Data))
 }
-boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth,...)
+    if (horizontal) { #switch default axis labelings 
+        if (missing(xlab)) {
+            xlab <- # default value of ylab
+                expression(paste(X, symbol("\242"), hat(beta)))
+        }
+        if (missing(ylab)) {
+            ylab <- # default value of xlab
+                "Group"
+        }
+    }
+boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth,horizontal=horizontal,...)
   }
 
 #' @export
-boxplot.bigglm <- function(x, data,xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE,...)
+boxplot.bigglm <- function(x, data,xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE, horizontal=FALSE,...)
   {
   if (is.null(data)) {
     stop("data argument is required for making boxplots from bigglms")
@@ -38,5 +50,16 @@ are there missing values in data?")
 
   Data <-  model.frame(x$terms, data = data)
   dependent.variable <- as.numeric(model.response(Data))
-boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth,...)
+
+  if (horizontal) { #switch default axis labelings 
+      if (missing(xlab)) {
+          xlab <- # default value of ylab
+              expression(paste(X, symbol("\242"), hat(beta)))
+      }
+      if (missing(ylab)) {
+          ylab <- # default value of xlab
+              "Group"
+      }
+  }
+  boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth, horizontal=horizontal,...)
   }
