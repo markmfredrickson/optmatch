@@ -7,7 +7,7 @@ context("fullmatch function")
 # test whether two matches are the same. Uses all.equal exceedances to
 # ignore errors below some tolerance. After checking those, strips
 # attributes that may differ but not break `identical` status.
-match_compare <- function(match1, match2) {
+match_equal <- function(match1, match2) {
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
 
@@ -18,6 +18,30 @@ match_compare <- function(match1, match2) {
   attr(match1, "call") <- NULL
   attr(match2, "call") <- NULL
 
+  expect_true(identical(match1, match2))
+}
+
+#' Similar to match_equal, but doesn't care about differences
+#' among labels of matched sets. 
+match_equivalent <- function(match1, match2) {
+  expect_true(all.equal(attr(match1, "exceedances"),
+                        attr(match2, "exceedances")))
+
+  attr(match1, "hashed.distance") <- NULL
+  attr(match2, "hashed.distance") <- NULL
+  attr(match1, "exceedances") <- NULL
+  attr(match2, "exceedances") <- NULL
+  attr(match1, "call") <- NULL
+  attr(match2, "call") <- NULL
+
+  m1labs <- as.character(match1[!is.na(match1) & !duplicated(match1)])
+  levels(match1)[match(m1labs, levels(match1))] <- m1labs
+  match1 <- factor(match1)
+
+  m2labs <- as.character(match2[!is.na(match2) & !duplicated(match2)])
+  levels(match2)[match(m2labs, levels(match2))] <- m2labs
+  match2 <- factor(match2)
+  
   expect_true(identical(match1, match2))
 }
 
@@ -299,13 +323,13 @@ test_that("fullmatch UI cleanup", {
 
   fm.form <- fullmatch(Z~X1 + X2, within=exactMatch(Z~B, data=test.data), data=test.data, caliper=2)
 
-  match_compare(fm.dist, fm.form)
+  match_equal(fm.dist, fm.form)
 
   # with "with()"
 
   fm.with <- with(data=test.data, fullmatch(Z~X1 + X2, within=exactMatch(Z~B), caliper=2))
 
-  match_compare(fm.dist, fm.with)
+  match_equal(fm.dist, fm.with)
 
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
@@ -315,7 +339,7 @@ test_that("fullmatch UI cleanup", {
   fm.glm <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2)
   fm.glm2 <- fullmatch(glm(Z~X1+X2, data=test.data, family=binomial), caliper=2)
 
-  match_compare(fm.ps, fm.glm)
+  match_equal(fm.ps, fm.glm)
 
   # passing inherited from glm
 
@@ -323,7 +347,7 @@ test_that("fullmatch UI cleanup", {
 
   fm.foo <- fullmatch(ps, data=test.data, caliper=2)
 
-  match_compare(fm.ps, fm.foo)
+  match_equal(fm.ps, fm.foo)
 
   # with scores
 
@@ -335,7 +359,7 @@ test_that("fullmatch UI cleanup", {
 
   fm.form <- fullmatch(Z~ X1 + scores(ps), within=exactMatch(Z~B, data=test.data), data=test.data)
 
-  match_compare(fm.dist, fm.form)
+  match_equal(fm.dist, fm.form)
 
   # passing numeric
 
@@ -350,7 +374,7 @@ test_that("fullmatch UI cleanup", {
   m <- match_on(X1, z=Z, caliper=1)
   fm.mi <- fullmatch(m, data=test.data)
 
-  match_compare(fm.vector, fm.mi)
+  match_equal(fm.vector, fm.mi)
 
   # function
 
@@ -370,7 +394,7 @@ test_that("fullmatch UI cleanup", {
   fm.func <- fullmatch(sdiffs, z = test.data$Z, data=test.data)
   expect_error(fullmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
 
-  match_compare(fm.funcres, fm.func)
+  match_equal(fm.funcres, fm.func)
 
   # passing bad arguments
 
@@ -623,4 +647,60 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
   f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
+})
+
+test_that("symmetry w.r.t. structural requirements (#132)",{
+
+    
+    data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+    f0 <- fullmatch(z ~ x, min.c=2, max.c=2, data = data)
+    f1 <- fullmatch(!z ~ x, min.c=.5, max.c=.5, data = data)
+    match_equivalent(f0, f1)
+    
+    f0 <- fullmatch(z ~ x + strata(fac), min.c=2, max.c=2, data = data)
+    f1 <- fullmatch(!z ~ x + strata(fac), min.c=.5, max.c=.5, data = data)
+    match_equivalent(f0, f1)
+
+})
+
+test_that("Problems w/ fewer controls than treatment don't break mean.controls", {
+
+    data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+    
+    f1 <- fullmatch(!z ~ x, min.c=.25, mean.c=.4, max.c=1, data = data)
+    expect_true(sum(is.na(f1)) <= 1)
+    f2 <- fullmatch(!z ~ x, min.c=.25, max.c=1, omit.fraction=.2, data = data)
+    match_equivalent(f1, f2)
+
+    f1 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
+                                     mean.c=c("a"=.25, "b"=(1/3)),
+                                     max.c=1, data = data)
+                           ) # Saw warnings here indicating that .fullmatch.with.recovery
+# had been entered. Not sure why, and couldn't reproduce interactively. So there *may*
+# be a testing bug here; decided to go ahead anyway. (BBH)                           
+                           
+    expect_true(sum(is.na(f1)) <= 2)
+    f2 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
+                                     max.c=1, omit.fraction=c("a"=.5, "b"=(1/3)),
+                                     data = data)
+                           ) # Saw same funny warning here as just above.
+    match_equivalent(f1, f2)
+})
+
+test_that("accept negative omit.fraction", {
+
+        data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    f2 <- fullmatch(!z ~ x, min.c=1, max.c=1, omit.fraction=-.5, data = data)
+    match_equivalent(f1, f2)
+
+    f1 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
+    f2 <- fullmatch(!z ~ x+strata(fac), min.c=1, max.c=1, omit.fraction=-.5, data = data)
+    match_equivalent(f1, f2)
+    
+ 
 })

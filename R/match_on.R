@@ -388,7 +388,8 @@ makeWithinFromStrata <- function(x, data)
   xs <- findStrata(x, data)
 
   em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
-  within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
+  lhs <- paste(xs$newx[[2]], collapse="")
+  within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
   return(list(x= xs$newx, within=within))
 }
