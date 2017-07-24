@@ -22,7 +22,7 @@ match_equal <- function(match1, match2) {
 }
 
 #' Similar to match_equal, but doesn't care about differences
-#' among labels of matched sets. 
+#' among labels of matched sets.
 match_equivalent <- function(match1, match2) {
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
@@ -41,7 +41,7 @@ match_equivalent <- function(match1, match2) {
   m2labs <- as.character(match2[!is.na(match2) & !duplicated(match2)])
   levels(match2)[match(m2labs, levels(match2))] <- m2labs
   match2 <- factor(match2)
-  
+
   expect_true(identical(match1, match2))
 }
 
@@ -517,6 +517,19 @@ test_that("matched.distances attr removed per #57", {
   expect_true(is.null(attr(f1, "matched.distances")))
 })
 
+# Helper function for issue #123 - making sure NA's in
+# treatment vector properly apply to match and propogate
+# down to attributes
+NA_checker <- function(match, NAvals) {
+  expect_true(all(is.na(match[NAvals])))
+  expect_true(all(!is.na(match[-NAvals])))
+  for (attr in c("contrast.group", "subproblem")) {
+    vals <- attr(match, attr)
+    expect_true(all(is.na(vals[NAvals])))
+    expect_true(all(!is.na(vals[-NAvals])))
+  }
+}
+
 test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
                      x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2))
@@ -528,19 +541,16 @@ test_that("#123: Supporting NA's in treatment, fullmatch.formula", {
   data$z[1] <- NA
   f <- fullmatch(z ~ x, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(is.na(f[1]))
-  expect_true(all(!is.na(f[-1])))
+  NA_checker(f, 1)
 
   f <- fullmatch(z ~ x + strata(fac), data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(is.na(f[1]))
-  expect_true(all(!is.na(f[-1])))
+  NA_checker(f, 1)
 
   data$z[c(2,5,6,7)] <- NA
   f <- fullmatch(z ~ x, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(all(is.na(f[c(1,2,5,6,7)])))
-  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+  NA_checker(f, c(1, 2, 5, 6, 7))
 })
 
 test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
@@ -566,8 +576,7 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   data <- data.frame(z, x)
   f <- fullmatch(x, z = z, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(is.na(f[1]))
-  expect_true(all(!is.na(f[-1])))
+  NA_checker(f, 1)
 
 
   z[c(2,5,6,7)] <- NA
@@ -579,8 +588,7 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   data <- data.frame(z, x)
   f <- fullmatch(x, z = z, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(all(is.na(f[c(1,2,5,6,7)])))
-  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+  NA_checker(f, c(1, 2, 5, 6, 7))
 })
 
 test_that("#123: Supporting NA's in treatment, fullmatch.function", {
@@ -599,15 +607,13 @@ test_that("#123: Supporting NA's in treatment, fullmatch.function", {
 
   f <- fullmatch(sdiffs, z = data$z, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(is.na(f[1]))
-  expect_true(all(!is.na(f[-1])))
+  NA_checker(f, 1)
 
   data$z[c(2,5,6,7)] <- NA
 
   f <- fullmatch(sdiffs, z = data$z, data = data)
   expect_equal(length(f), nrow(data))
-  expect_true(all(is.na(f[c(1,2,5,6,7)])))
-  expect_true(all(!is.na(f[-c(1,2,5,6,7)])))
+  NA_checker(f, c(1, 2, 5, 6, 7))
 
 })
 
@@ -630,8 +636,7 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
   f <- fullmatch(mod)
   expect_equal(length(f), nrow(data))
-  expect_true(is.na(f[1]))
-  expect_true(all(!is.na(f[-1])))
+  NA_checker(f, 1)
 
   f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
@@ -642,8 +647,7 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
   f <- fullmatch(mod)
   expect_equal(length(f), nrow(data))
-  expect_true(all(is.na(f[c(1,2,5,16,17)])))
-  expect_true(all(!is.na(f[-c(1,2,5,16,17)])))
+  NA_checker(f, c(1, 2, 5, 16, 17))
 
   f2 <- fullmatch(mod, data = data)
   expect_equivalent(f, f2)
@@ -651,13 +655,13 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
 
 test_that("symmetry w.r.t. structural requirements (#132)",{
 
-    
+
     data <- data.frame(z = c(rep(0,10), rep(1,5)),
                      x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
     f0 <- fullmatch(z ~ x, min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x, min.c=.5, max.c=.5, data = data)
     match_equivalent(f0, f1)
-    
+
     f0 <- fullmatch(z ~ x + strata(fac), min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x + strata(fac), min.c=.5, max.c=.5, data = data)
     match_equivalent(f0, f1)
@@ -668,7 +672,7 @@ test_that("Problems w/ fewer controls than treatment don't break mean.controls",
 
     data <- data.frame(z = c(rep(0,10), rep(1,5)),
                      x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
-    
+
     f1 <- fullmatch(!z ~ x, min.c=.25, mean.c=.4, max.c=1, data = data)
     expect_true(sum(is.na(f1)) <= 1)
     f2 <- fullmatch(!z ~ x, min.c=.25, max.c=1, omit.fraction=.2, data = data)
@@ -679,8 +683,8 @@ test_that("Problems w/ fewer controls than treatment don't break mean.controls",
                                      max.c=1, data = data)
                            ) # Saw warnings here indicating that .fullmatch.with.recovery
 # had been entered. Not sure why, and couldn't reproduce interactively. So there *may*
-# be a testing bug here; decided to go ahead anyway. (BBH)                           
-                           
+# be a testing bug here; decided to go ahead anyway. (BBH)
+
     expect_true(sum(is.na(f1)) <= 2)
     f2 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
                                      max.c=1, omit.fraction=c("a"=.5, "b"=(1/3)),
@@ -701,6 +705,6 @@ test_that("accept negative omit.fraction", {
     f1 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
     f2 <- fullmatch(!z ~ x+strata(fac), min.c=1, max.c=1, omit.fraction=-.5, data = data)
     match_equivalent(f1, f2)
-    
- 
+
+
 })

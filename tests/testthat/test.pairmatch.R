@@ -267,6 +267,18 @@ test_that("sane data arguments", {
   expect_error(pairmatch(distances, data=distances), "are not found")
 })
 
+# Helper function for issue #123 - making sure NA's in
+# treatment vector properly apply to match and propogate
+# down to attributes
+NA_checker <- function(match, NAvals) {
+  expect_true(all(is.na(match[NAvals])))
+  expect_true(all(!is.na(match[-NAvals])))
+  for (attr in c("contrast.group", "subproblem")) {
+    vals <- attr(match, attr)
+    expect_true(all(is.na(vals[NAvals])))
+    expect_true(all(!is.na(vals[-NAvals])))
+  }
+}
 
 test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
@@ -275,20 +287,18 @@ test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
   expect_true(all(!is.na(p)))
   p <- pairmatch(z ~ x + strata(fac), data = data)
   expect_true(all(!is.na(p)))
-  
+
   # Now add an NA
 
   data$z[c(1, 6)] <- NA
   p <- pairmatch(z ~ x, data = data)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1, 6)])))
-  expect_true(all(!is.na(p[-c(1, 6)])))
-  
+  NA_checker(p, c(1, 6))
+
   p <- pairmatch(z ~ x + strata(fac), data = data)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1, 6)])))
-  expect_true(all(!is.na(p[-c(1, 6)])))
-  
+  NA_checker(p, c(1, 6))
+
 })
 
 test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
@@ -307,7 +317,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   em <- exactMatch(z~fac, data = data)
   p3 <- pairmatch(x, z = z, within=em, data=data)
   expect_true(all(!is.na(p3)))
-              
+
   # Now add an NA
 
   z[c(1, 6)] <- NA
@@ -316,18 +326,24 @@ test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   expect_equal(length(p), length(z) - 2)
   expect_false("1" %in% names(p))
   expect_false("6" %in% names(p))
+  cg <- attr(p, "contrast.group")
+  expect_equal(length(cg), length(z) - 2)
+  expect_false("1" %in% names(cg))
+  expect_false("6" %in% names(cg))
+  sp <- attr(p, "subproblem")
+  expect_equal(length(sp), length(z) - 2)
+  expect_false("1" %in% names(sp))
+  expect_false("6" %in% names(sp))
 
   data <- data.frame(z, x, fac)
   p <- pairmatch(x, z = z, data = data)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1,6)])))
-  expect_true(all(!is.na(p[-c(1,6)])))
+  NA_checker(p, c(1, 6))
 
   em <- exactMatch(z~fac, data = data)
   p <- pairmatch(x, z = z, within=em, data=data)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1,6)])))
-  expect_true(all(!is.na(p[-c(1,6)])))
+  NA_checker(p, c(1, 6))
 
 })
 
@@ -347,8 +363,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.function", {
 
   p <- pairmatch(sdiffs, z = data$z, data = data)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1,6)])))
-  expect_true(all(!is.na(p[-c(1,6)])))
+  NA_checker(p, c(1, 6))
 })
 
 test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
@@ -370,8 +385,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
 
   p <- pairmatch(mod)
   expect_equal(length(p), nrow(data))
-  expect_true(all(is.na(p[c(1,6)])))
-  expect_true(all(!is.na(p[-c(1,6)])))
+  NA_checker(p, c(1, 6))
 
   p2 <- pairmatch(mod, data = data)
   expect_equivalent(p, p2)
