@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // mahalanobisHelper
 SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat);
-RcppExport SEXP optmatch_mahalanobisHelper(SEXP dataSEXP, SEXP indexSEXP, SEXP invScaleMatSEXP) {
+RcppExport SEXP _optmatch_mahalanobisHelper(SEXP dataSEXP, SEXP indexSEXP, SEXP invScaleMatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // ismOps
 SEXP ismOps(SEXP o, SEXP a, SEXP b);
-RcppExport SEXP optmatch_ismOps(SEXP oSEXP, SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _optmatch_ismOps(SEXP oSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,7 +33,7 @@ END_RCPP
 }
 // r_smahal
 SEXP r_smahal(SEXP index, SEXP data, SEXP z);
-RcppExport SEXP optmatch_r_smahal(SEXP indexSEXP, SEXP dataSEXP, SEXP zSEXP) {
+RcppExport SEXP _optmatch_r_smahal(SEXP indexSEXP, SEXP dataSEXP, SEXP zSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -46,7 +46,7 @@ END_RCPP
 }
 // subsetInfSparseMatrix
 SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x);
-RcppExport SEXP optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP xSEXP) {
+RcppExport SEXP _optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
