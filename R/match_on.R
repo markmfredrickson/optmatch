@@ -237,7 +237,9 @@ are there missing values in data?")
 #'
 #'   The treatment indicator \code{Z} as noted above must either be numeric
 #'   (1 representing treated units and 0 control units) or logical
-#'   (\code{TRUE} for treated and \code{FALSE} for controls.) A unit with NA
+#'   (\code{TRUE} for treated, \code{FALSE} for controls). (Earlier versions of
+#'   the software accepted factor variables and other types of numeric variable; you
+#'   may have to update existing scripts to get them to run.) A unit with NA
 #'   treatment status is ignored and will not be included in the distance output.
 #'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
