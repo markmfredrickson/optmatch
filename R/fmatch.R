@@ -1,5 +1,20 @@
+##'
+##' @title Prep full matching problem (w/ optional restrictions) for RELAX-IV solver
+##' @param distance data frame w/ columns treated, control, distance (integer), encoding adjacency list of graph
+##' @param max.row.units A positive integer.  In HK2006, this is  \tilde{U}, or max(1, 1/minc(f)) 
+##' @param max.col.units A positive integer.  In HK2006, this is U, or maxc(f).
+##' @param min.col.units A positive integer less than or equal to \code{max.col.units}.  In HK2006, this is max(1, minc(f)).
+##' @param f the (minimum) fraction of avaliable controls (col units) to be matched 
+##' @param stability.increment A double-precision number.  Also called stability increment in HK2006.
+#' @references
+#'  Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{ Optimal full matching and related designs via network flows},
+#'  \emph{Journal of Computational and Graphical Statistics}, \bold{15}, 609--627.
+#'
+##' @return data frame similar to \code{distance} except with an additional column,
+##' \code{solutions}, identifying matches with 1s vs non-matches with 0s.   
+##' @author Ben B Hansen, Mark M Fredrickson
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1)
+			min.col.units = 1, f = 1, stability.increment=1L)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a cannonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -71,7 +86,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # we use the levels of the treated and control factors to generate the ID numbers
   # the capacity of these arcs is 1
 
-  dists <- as.vector(distance$distance) + 1
+  dists <- as.vector(distance$distance) + stability.increment
   startn <- as.numeric(distance$treated)
   endn <- nt + as.numeric(distance$control)
   ucap <- rep(1, narcs)
@@ -130,10 +145,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   x <- feas * fop$x - (1 - feas)
 
-  ans <- numeric(narcs)
   ans <- x[1:narcs]
-
+  rcosts <- fop$rc[1:narcs]
+  
   if (identical(options()$use_fallback_optmatch_solver, FALSE)) {
-  cbind(distance, solution = ans, reduced.cost=rc)
+  cbind(distance, solution = ans, reduced.cost=rcosts)
   } else cbind(distance, solution = ans)
 }
