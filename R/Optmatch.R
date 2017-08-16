@@ -106,8 +106,8 @@ makeOptmatch <- function(distance,
 
   if (!is.null(optorder)) {
     optmatch.obj <- optmatch.obj[optorder]
-    names(optmatch.obj) <- optorder
     subproblems <- subproblems[optorder]
+    names(optmatch.obj) <- names(subproblems) <- optorder
   }
 
   class(optmatch.obj) <- c("optmatch", "factor")
@@ -118,7 +118,10 @@ makeOptmatch <- function(distance,
 
   attr(optmatch.obj, "call") <- call
 
-  attr(optmatch.obj, "contrast.group") <- names(optmatch.obj) %in% treated ### WHAT IS INROW?
+  cg <- rep(NA, length(names(optmatch.obj)))
+  cg[names(optmatch.obj) %in% treated] <- 1
+  cg[names(optmatch.obj) %in% colnames(distance)] <- 0
+  attr(optmatch.obj, "contrast.group") <- as.logical(cg)
 
   attr(optmatch.obj, "subproblem") <- subproblems
 

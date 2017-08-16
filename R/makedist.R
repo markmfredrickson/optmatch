@@ -51,10 +51,11 @@ makedist <- function(z, data, distancefn, within = NULL) {
     
     if ((nc * nr > getMaxProblemSize()) && warning.requested) {
 
-      warning("I've been asked to compute a large number of treatment-control distances. 
-The result will present too large an optimization problem for optimal matching.  
-You can split up or simplify the problem by providing an appropriate 'within'
-argument; see 'match_on', 'exactMatch' and 'caliper' documentation for details.")  
+      warning("match_on has been asked to compute a large number of treatment-control
+distances.  You can reduce this number by providing an appropriate 'within'
+argument; see 'match_on', 'exactMatch' and 'caliper' documentation for
+details.  Alternatively you could increase the problem size limit; see
+documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")  
 
     }
 

@@ -237,7 +237,9 @@ are there missing values in data?")
 #'
 #'   The treatment indicator \code{Z} as noted above must either be numeric
 #'   (1 representing treated units and 0 control units) or logical
-#'   (\code{TRUE} for treated and \code{FALSE} for controls.) A unit with NA
+#'   (\code{TRUE} for treated, \code{FALSE} for controls). (Earlier versions of
+#'   the software accepted factor variables and other types of numeric variable; you
+#'   may have to update existing scripts to get them to run.) A unit with NA
 #'   treatment status is ignored and will not be included in the distance output.
 #'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
@@ -388,7 +390,8 @@ makeWithinFromStrata <- function(x, data)
   xs <- findStrata(x, data)
 
   em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
-  within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
+  lhs <- paste(xs$newx[[2]], collapse="")
+  within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
   return(list(x= xs$newx, within=within))
 }
@@ -470,9 +473,24 @@ compute_rank_mahalanobis <- function(index, data, z) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
 
-    return(
-        r_smahal(index, data, z)
-    )
+    if (is.null(index)) return(r_smahal(NULL, data, z))
+
+    if (is.null(rownames(data)) | !all(index %in% rownames(data)))
+        stop("data must have row names matching index")
+
+    # begin workaround solution to #128
+    all_treated <- rownames(data)[as.logical(z)]
+    all_control <- rownames(data)[!z]
+    all_indices <- expand.grid(all_treated, all_control,
+                               KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+    all_indices <- paste(all_indices[[1]], all_indices[[2]], sep="%@%")
+    short_indices <- paste(index[,1], index[,2], sep="%@%")
+    indices <- match(short_indices, all_indices)
+    if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
+    # Now, since `r_smahal` is ignoring its `index` argument anyway:
+    rankdists <- r_smahal(NULL, data, z)
+    rankdists <- rankdists[indices]
+    return(rankdists)
 }
 
 #' @details The \code{function} method takes as its \code{x} argument a function

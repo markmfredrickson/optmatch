@@ -28,16 +28,30 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   rfeas <- length(unique(dm$treated))
   cfeas <- length(unique(dm$control))
 
-  # If any controls were unmatchable, they were dropped by prepareMatching, and omit.fraction
-  # needs to be updated.
-  if (cfeas < length(colnames) & is.numeric(omit.fraction)) {
-    omit.fraction <- (omit.fraction*length(colnames) - (length(colnames) - cfeas))/cfeas
+  # If any controls were unmatchable, they were dropped by prepareMatching, and 
+  # positive `omit.fraction`'s need to be updated.
+  if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
+      original_number_to_omit <- omit.fraction*length(colnames)
+      number_implicitly_omitted_already <- length(colnames) - cfeas
+    omit.fraction <- (original_number_to_omit - number_implicitly_omitted_already)/cfeas
     # This can happen if the number to be omitted is less than the number of unmatchables
     if (omit.fraction <= 0) {
       omit.fraction <- NULL
     }
   }
 
+  # ... and similarly in the case of negative `omit.fraction` if there were 
+  # treatments that couldn't be matched.
+  if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
+      original_number_to_omit <- -1*omit.fraction*length(rownames)
+      number_implicitly_omitted_already <- length(rownames) - rfeas
+    omit.fraction <- - (original_number_to_omit - number_implicitly_omitted_already)/rfeas
+    # This can happen if the number to be omitted is less than the number of unmatchables
+    if (omit.fraction >= 0) {
+      omit.fraction <- NULL
+    }
+  }
+  
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
     ans <- rep("NA",length(rownames)+length(colnames))

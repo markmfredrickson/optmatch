@@ -511,6 +511,9 @@ test_that("Building exactMatch from formula with strata", {
   expect_equivalent(em, nw$within)
   expect_equivalent(t ~ 1, nw$x)
 
+  nw1 <- makeWithinFromStrata(!!t ~ strata(z), d)
+  expect_equivalent(nw1$within, nw$within)
+  
   nw2 <- makeWithinFromStrata(t ~ x + strata(z), d)
 
   expect_equivalent(em, nw2$within)

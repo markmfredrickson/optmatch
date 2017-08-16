@@ -52,8 +52,10 @@ in each subclass.}
 \item{omit.fraction}{Optionally, specify what fraction of controls or treated
 subjects are to be rejected.  If \code{omit.fraction} is a positive fraction
 less than one, then \code{fullmatch} leaves up to that fraction of the control
-reservoir unmatched.  (Negative \code{omit.fraction} values are not currently supported.)
-Positive values are only accepted if \code{max.controls} >= 1.
+reservoir unmatched.  If \code{omit.fraction} is a negative number greater
+than -1, then \code{fullmatch} leaves up to |\code{omit.fraction}| of the
+treated group unmatched.  Positive values are only accepted if
+\code{max.controls} >= 1; negative values, only if \code{min.controls} <= 1.
 If neither \code{omit.fraction} or \code{mean.controls} are specified, then
 only those treated and control subjects without permissible matches among the
 control and treated subjects, respectively, are omitted.
@@ -145,6 +147,13 @@ within the given constraints. It may often be possible to loosen the
 \code{omit.fraction} or \code{mean.controls} constraint and still find a
 feasible match. The auto recovery is controlled by
 \code{options("fullmatch_try_recovery")}.
+
+In full matching problems permitting many-one matches (\code{min.controls}
+less than 1), the number of controls contributing to matches can exceed
+what was requested by setting a value of \code{mean.controls} or
+\code{omit.fraction}.  I.e., in this setting \code{mean.controls} sets
+the minimum ratio of number of controls to number of treatments placed
+into matched sets.
 
 If the program detects a large problem as been requested that may exceed the
 computational power of the user's computer, a warning is issued. If you wish

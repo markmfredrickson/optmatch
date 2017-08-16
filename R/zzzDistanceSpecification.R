@@ -103,7 +103,15 @@ function(distances) {
 
 setMethod("subproblems", "optmatch.dlist", function(distances) distances)
 
-# a helper to get all the subproblems from the implied tree of a DS
+
+##' Get all the subproblems from a distance specification
+##'
+##' 
+##' @title List subproblems of a distance
+##' @param d a distance specification 
+##' @return list of distance specifications
+##' @author Mark M. Fredrickson
+##' @export 
 findSubproblems <- function(d) {
   res <- subproblems(d)
 
