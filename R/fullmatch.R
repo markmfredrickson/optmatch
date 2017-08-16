@@ -180,6 +180,7 @@ fullmatch <- function(x,
 
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
+  if (length(x_str)>1) x_str <- paste(x_str, collapse="")
   data_str <- deparse(substitute(data))
   tryCatch(x, error = function(e) {
     stop(missing_x_msg(x_str, data_str, ...))})
