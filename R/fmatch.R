@@ -55,7 +55,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if (problem.size > getMaxProblemSize()) {
       stop(paste('Maximum matching problem may have only',
-                 getMaxProblemSize(), "- (nrows + ncols + 2) finite entries;",
+                 signif(getMaxProblemSize(), 2), "- (nrows + ncols + 2) finite entries;",
                  problem.size - getMaxProblemSize(), 'too many.',
                  "Set 'options(\"optmatch_max_problem_size\" = Inf)' to disable this check."),
            call. = FALSE)

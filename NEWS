@@ -1,4 +1,28 @@
 CHANGES IN OPTMATCH VERSION 0.9-8
+* If pairmatch is asked to match within a stratum with fewer eligible controls
+  than `controls` times the number of treatments, it now attempts to match in that
+  stratum by leaving out some of the treatment units. (#116)
+* The treatment indicator must be either numeric 0/1 (1 for treatment, 0 for control)
+  or logical (TRUE for treatment, FALSE for control).
+* Support for any other type of treatment vector (factors, character, other numerical values)
+  has been deprecated. You can easily update treatment vectors using conditional
+  statements, e.g. if you have a character "T" and "C", `treatment_new = treatment == "T"`.
+* The treatment indicator can now include NA's. Any observations with NA treatment
+  status will be excluded from distances matrices and will never match. WARNING:
+  if the `data` argument is excluded from `fullmatch` or `pairmatch` and `num_NA` > 0 
+  entries in the treatment status vector are NA, then the length of the vector
+  produced by `fullmatch` or `pairmatch` won't match the length of the treatment status
+  vector, having `num_NA` fewer observations. Don't forget to pass a `data` argument!
+* Fixed bug affecting rank Mahalanobis matching in combination with
+  calipers and/or exact matching constraints (#128)
+* Addressed an issue affecting certain problems with both exact matching
+  and caliper restrictions, where min/mean/max.controls directives would
+  have been mistakenly applied to the wrong subclasses, resulting in strange
+  warnings and, potentially, spurious match failures or unintended 
+  structural restrictions in some subclasses (#129).
+* Structural restrictions allowing only many-one matches no longer cause fullmatch
+  to automatically fail.  I.e. we've restored the behaviour of the software prior to
+  version 0.8.  (#132)
 
 CHANGES IN OPTMATCH VERSION 0.9-7
 * Added support for CBPS created objects (#121).

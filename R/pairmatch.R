@@ -12,10 +12,17 @@
 #' If \code{remove.unmatchables} is \code{FALSE}, then if there are unmatchable
 #' treated units then the matching as a whole will fail and no units will be
 #' matched.  If \code{TRUE}, then this unit will be removed and the function will
-#' attempt to match each of the other treatment units.  (In this case matching
-#' can still fail, if there is too much competition for certain controls; if you
+#' attempt to match each of the other treatment units.  As of version 0.9-8,
+#' if there are fewer matchable treated units than matchable controls then
+#' \code{pairmatch} will attempt to place each into a matched pair each of the
+#' matchable controls and a strict subset of the matchable treated units.
+#' (Previously matching would have failed for subclasses of this structure.)
+#'
+#' Matching can still fail,
+#' even with \code{remove.unmatchables} set to \code{TRUE},
+#' if there is too much competition for certain controls; if you
 #' find yourself in that situation you should consider full matching, which
-#' necessarily finds a match for everyone with an eligible match somewhere.)
+#' necessarily finds a match for everyone with an eligible match somewhere.
 #'
 #' The units of the \code{optmatch} object returned correspond to members of the
 #' treatment and control groups in reference to which the matching problem was
@@ -160,33 +167,46 @@ pairmatch.matrix <- function(x,
 
     if (!is.null(within)) warning("Ignoring non-null 'within' argument. When using 'pairmatch' with\n pre-formed distances, please combine them using '+'.")
 
-  omf <- mapply(controls, subprobs, FUN = function(control, prob) {
+  get_omf <- function(control, prob) {
     # hard coding type based trimming for now. this should probably
     # be a DistanceSpecification method, e.g. finiteRows()
     if (remove.unmatchables) {
       if (inherits(prob, "matrix")) {
-      # drop any rows that are entirely NA
-      prob <- prob[apply(prob, 1, function(row) {
-        any(is.finite(row)) }),]
+          # drop any rows that are entirely NA
+          prob <- prob[apply(prob, 1, function(row) {
+              any(is.finite(row)) }),, drop=FALSE]
+          # Now do the same for columns -- but only if 
+          # there are one or more rows left.  
+          # (Otherwise subsequent `apply()` quits.)
+          if (nrow(prob)) {
+              prob <- prob[,apply(prob, 2, function(col) {
+                  any(is.finite(col)) }), drop=FALSE]
+              }
       } else {
         # assuming an InfinitySparseMatrix here
         validrows <- which(1:(nrow(prob)) %in% prob@rows)
-        prob@dimension <- c(length(validrows), ncol(prob))
         prob@rownames <- prob@rownames[validrows]
+          if (length(validrows)) {
+              validcols <- which(1:(ncol(prob)) %in% prob@cols)
+              prob@colnames <- prob@colnames[validcols]
+              prob@dimension <- c(length(validrows), length(validcols))
+              } else {
+                  prob@dimension <- c(length(validrows), ncol(prob))
+              }
       }
     }
 
-    # No longer need to remove all controls that are unreachable because
-    # subDivStrat adjust omit.fraction automatically to accomodate them.
-
-    nt <- nrow(prob)
-    nc <- ncol(prob)
-    return((nc - control * nt)/nc)
-  })
-
-  if (any(omf<0)) {
-    stop('not enough controls in some subclasses')
+    treatment_group_n <- nrow(prob)
+    control_group_n <- ncol(prob)
+    control_group_overage <- control_group_n - control * treatment_group_n
+    treatment_group_overage <- treatment_group_n - control_group_n/control
+      return(ifelse(control_group_overage>=0,
+                    control_group_overage/control_group_n,
+                    -1*treatment_group_overage/treatment_group_n))
   }
+    
+  omf <- mapply(controls, subprobs, FUN = get_omf)
+
 
   if(!remove.unmatchables) {
     saveopt <- options()$fullmatch_try_recovery

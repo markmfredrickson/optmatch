@@ -104,9 +104,6 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
-  res.factor <- match_on(as.factor(Z) ~ X1)
-  expect_equivalent(res.one, res.factor)
-
   # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
@@ -189,8 +186,8 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
 })
 
 # while the formula method often handles mahalanobis distances, separating the tests for clarity
-test_that("Mahalanobis distance calcualtions", {
-  badData <- data.frame(Z = as.factor(rep(c(0,1), 10)),
+test_that("Mahalanobis distance calculations", {
+  badData <- data.frame(Z = rep(c(0,1), 10),
                         all1 = as.factor(rep(1,20)),
                         badf1 = c(rep(1,3), rep(0,7)),
                         badf2 = c(rep(0,3), rep(1,7)))
@@ -514,6 +511,9 @@ test_that("Building exactMatch from formula with strata", {
   expect_equivalent(em, nw$within)
   expect_equivalent(t ~ 1, nw$x)
 
+  nw1 <- makeWithinFromStrata(!!t ~ strata(z), d)
+  expect_equivalent(nw1$within, nw$within)
+  
   nw2 <- makeWithinFromStrata(t ~ x + strata(z), d)
 
   expect_equivalent(em, nw2$within)
@@ -692,3 +692,135 @@ test_that("dot and strata in formula", {
                "Cannot use . expansion", fixed = TRUE)
 
 })
+
+test_that("#123: Supporting NA's in treatment, match_on.formula", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+  # Now add an NA
+
+  data$z[1] <- NA
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+  data$z[c(2,5,6,7)] <- NA
+  m <- match_on(z ~ x, data = data)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(rownames(m), rownames(data)[!is.na(data$z) & data$z == 1])
+  expect_equal(colnames(m), rownames(data)[!is.na(data$z) & data$z == 0])
+
+
+})
+
+test_that("#123: Supporting NA's in treatment, match_on.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  names(z) <- names(x) <- 1:10
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
+
+  # Now add an NA
+
+  z[1] <- NA
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
+
+  z[c(2,5,6,7)] <- NA
+  m <- match_on(x, z = z)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), names(z[1:5])[!is.na(z[1:5])])
+  expect_equal(rownames(m), names(z[6:10])[!is.na(z[6:10])])
+
+  data <- data.frame(z, x)
+  m2 <- match_on(x, z = z, data = data)
+  expect_equivalent(m, m2)
+})
+
+test_that("#123: Supporting NA's in treatment, match_on.function", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "x"] - data[index[,2], "x"])
+  }
+
+  m <- match_on(sdiffs, z = data$z, data = data)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  data$z[1] <- NA
+
+  m <- match_on(sdiffs, z = data$z, data = data)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  data$z[c(2,5,6,7)] <- NA
+
+  m <- match_on(sdiffs, z = data$z, data = data)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+})
+
+test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(5, 5))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
+
+  data$z[1] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(5, 4))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
+
+  data$z[c(2,5,6,7)] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  m <- match_on(mod)
+  expect_equal(dim(m), c(3, 2))
+  expect_equal(colnames(m), rownames(data)[1:5][!is.na(data$z[1:5])])
+  expect_equal(rownames(m), rownames(data)[6:10][!is.na(data$z[6:10])])
+
+  m2 <- match_on(mod, data = data)
+  expect_equivalent(m, m2)
+})
+

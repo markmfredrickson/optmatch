@@ -12,17 +12,14 @@ absdiff <- function(index, data, z) {
 
 test_that("Checking input", {
   # Z should have exactly two levels
-  expect_error(makedist(rep(1,10), rep(1,10), identity), "Treatment")
-  expect_error(makedist(rep(0,10), rep(1,10), identity), "Treatment")
-  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity), "Treatment")
+  expect_error(makedist(rep(1,10), rep(1,10), identity), "control unit")
+  expect_error(makedist(rep(0,10), rep(1,10), identity), "treatment unit")
+  expect_error(makedist(rep(c(1,2,3), 3), rep(1,9), identity), "can only take on")
 
   # Z and data should be same length
   expect_error(makedist(rep(c(1,0), 5), c(1,2,3), identity), "length")
   expect_error(makedist(rep(c(1,0), 5), data.frame(c(1,2,3), c(4,5,6))),
                "length")
-
-  # no NA's in Z
-  expect_error(makedist(c(NA, 1, 0, 1, 0), c(1,2,3,4,5), identity), "NA")
 
   # Z and/or data should have rownames
   expect_error(makedist(c(rep(1, 5), rep(0, 5)), 1:10, absdiff), "names")
@@ -111,7 +108,7 @@ test_that("makedist works on single column data.frames", {
   expect_true(all(res != 0)) # makes sure res <- ... worked
 })
 
-test_that("Z can be a numeric, logical, or two level factor", {
+test_that("Z can be a numeric or logical", {
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -122,12 +119,6 @@ test_that("Z can be a numeric, logical, or two level factor", {
   res.one <- makedist(Z, X1, absdiff)
   res.logical <- makedist(as.logical(Z), X1, absdiff)
   expect_identical(res.one, res.logical)
-
-  res.factor <- makedist(as.factor(Z), X1, absdiff)
-  expect_identical(res.one, res.factor)
-
-  Y <- rep(1:4, n/4)
-  expect_error(makedist(as.factor(Y), X1, absdiff), "Treatment")
 })
 
 test_that("distancefn specification", {

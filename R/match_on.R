@@ -235,6 +235,13 @@ are there missing values in data?")
 #'   Euclidean distance is also available, via \code{method="euclidean"}, and
 #'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
 #'
+#'   The treatment indicator \code{Z} as noted above must either be numeric
+#'   (1 representing treated units and 0 control units) or logical
+#'   (\code{TRUE} for treated, \code{FALSE} for controls). (Earlier versions of
+#'   the software accepted factor variables and other types of numeric variable; you
+#'   may have to update existing scripts to get them to run.) A unit with NA
+#'   treatment status is ignored and will not be included in the distance output.
+#'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
 #'   a formula, the \code{strata} command can be used inside the formula to specify
 #'   exact matching. For example, rather than using \code{within=exactMatch(y ~
@@ -324,6 +331,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
 
+  # If there are any NA treated members, throw them away first
+  mf <- mf[!is.na(tmpz), ]
+  tmpn <- tmpn[!is.na(tmpz)]
+  tmpz <- tmpz[!is.na(tmpz)]
+
   mf <- na.omit(mf)
 
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
@@ -378,7 +390,8 @@ makeWithinFromStrata <- function(x, data)
   xs <- findStrata(x, data)
 
   em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
-  within <- exactMatch(as.formula(paste(xs$newx[[2]], "~", paste(em, collapse="+"))),
+  lhs <- paste(xs$newx[[2]], collapse="")
+  within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
   return(list(x= xs$newx, within=within))
 }
@@ -460,9 +473,24 @@ compute_rank_mahalanobis <- function(index, data, z) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
 
-    return(
-        r_smahal(index, data, z)
-    )
+    if (is.null(index)) return(r_smahal(NULL, data, z))
+
+    if (is.null(rownames(data)) | !all(index %in% rownames(data)))
+        stop("data must have row names matching index")
+
+    # begin workaround solution to #128
+    all_treated <- rownames(data)[as.logical(z)]
+    all_control <- rownames(data)[!z]
+    all_indices <- expand.grid(all_treated, all_control,
+                               KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+    all_indices <- paste(all_indices[[1]], all_indices[[2]], sep="%@%")
+    short_indices <- paste(index[,1], index[,2], sep="%@%")
+    indices <- match(short_indices, all_indices)
+    if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
+    # Now, since `r_smahal` is ignoring its `index` argument anyway:
+    rankdists <- r_smahal(NULL, data, z)
+    rankdists <- rankdists[indices]
+    return(rankdists)
 }
 
 #' @details The \code{function} method takes as its \code{x} argument a function
@@ -481,8 +509,10 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #'   data[pair[1]] - data[pair[2]] })) }}.  (Note: This simple case is precisely
 #'   handled by the \code{numeric} method.)
 #'
-#' @param z A factor, logical, or binary vector indicating treatment (the higher
-#'   level) and control (the lower level) for each unit in the study.
+#' @param z A logical or binary vector indicating treatment and control for each
+#'  unit in the study. TRUE or 1 represents a treatment unit, FALSE of 0 represents
+#'  a control unit. Any unit with NA treatment status will be excluded from the
+#'  distance matrix.
 #' @method match_on function
 #' @rdname match_on-methods
 #' @export
@@ -494,6 +524,9 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
   if (!exists("cl")) cl <- match.call()
 
   theFun <- match.fun(x)
+
+  data <- data[!is.na(z), ]
+  z <- z[!is.na(z)]
 
   tmp <- makedist(z, data, theFun, within)
 
@@ -533,6 +566,9 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
   if (!exists("cl")) cl <- match.call()
 
   z <- toZ(z)
+
+  x <- x[!is.na(z)]
+  z <- z[!is.na(z)]
 
   missingX <- is.na(x)
   rnms <- names(z)

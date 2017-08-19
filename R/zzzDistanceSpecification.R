@@ -70,6 +70,11 @@ setMethod("subproblems", "DenseMatrix", function(distances) FALSE)
 setMethod("subproblems", "BlockedInfinitySparseMatrix",
 function(distances) {
   tmp <- lapply(levels(distances@groups), function(l) {
+    ## for each group, we need to know how is in the group
+    ## the @groups slot maps units to groups
+    ## and the row and colnames match units to treatment and control
+    ## we get subsets of the treated and control groups
+    ## that are in the subproblem, putting them in row.members and col.members
     members <- names(distances@groups[distances@groups == l])
     row.members <- which(distances@rownames %in% members)
     col.members <- which(distances@colnames %in% members)
@@ -98,7 +103,15 @@ function(distances) {
 
 setMethod("subproblems", "optmatch.dlist", function(distances) distances)
 
-# a helper to get all the subproblems from the implied tree of a DS
+
+##' Get all the subproblems from a distance specification
+##'
+##' 
+##' @title List subproblems of a distance
+##' @param d a distance specification 
+##' @return list of distance specifications
+##' @author Mark M. Fredrickson
+##' @export 
 findSubproblems <- function(d) {
   res <- subproblems(d)
 

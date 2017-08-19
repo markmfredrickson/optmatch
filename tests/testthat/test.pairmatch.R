@@ -266,3 +266,139 @@ test_that("sane data arguments", {
   # Issue #56
   expect_error(pairmatch(distances, data=distances), "are not found")
 })
+
+# Helper function for issue #123 - making sure NA's in
+# treatment vector properly apply to match and propogate
+# down to attributes
+NA_checker <- function(match, NAvals) {
+  expect_true(all(is.na(match[NAvals])))
+  expect_true(all(!is.na(match[-NAvals])))
+  for (attr in c("contrast.group", "subproblem")) {
+    vals <- attr(match, attr)
+    expect_true(all(is.na(vals[NAvals])))
+    expect_true(all(!is.na(vals[-NAvals])))
+  }
+}
+
+test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
+  p <- pairmatch(z ~ x, data = data)
+  expect_true(all(!is.na(p)))
+  p <- pairmatch(z ~ x + strata(fac), data = data)
+  expect_true(all(!is.na(p)))
+
+  # Now add an NA
+
+  data$z[c(1, 6)] <- NA
+  p <- pairmatch(z ~ x, data = data)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+
+  p <- pairmatch(z ~ x + strata(fac), data = data)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
+  z <- rep(0:1, each = 5)
+  x <- rnorm(10)
+  fac=rep(c(rep("a",2), rep("b",3)),2)
+  names(z) <- names(x) <- names(fac) <- 1:10
+  expect_warning(p <- pairmatch(x, z = z))
+  expect_true(all(!is.na(p)))
+  expect_equal(length(p), length(z))
+
+  data <- data.frame(z, x, fac)
+  p2 <- pairmatch(x, z = z, data = data)
+  expect_equivalent(p[sort(names(p))], p2[sort(names(p2))])
+
+  em <- exactMatch(z~fac, data = data)
+  p3 <- pairmatch(x, z = z, within=em, data=data)
+  expect_true(all(!is.na(p3)))
+
+  # Now add an NA
+
+  z[c(1, 6)] <- NA
+  expect_warning(p <- pairmatch(x, z = z))
+  expect_true(all(!is.na(p)))
+  expect_equal(length(p), length(z) - 2)
+  expect_false("1" %in% names(p))
+  expect_false("6" %in% names(p))
+  cg <- attr(p, "contrast.group")
+  expect_equal(length(cg), length(z) - 2)
+  expect_false("1" %in% names(cg))
+  expect_false("6" %in% names(cg))
+  sp <- attr(p, "subproblem")
+  expect_equal(length(sp), length(z) - 2)
+  expect_false("1" %in% names(sp))
+  expect_false("6" %in% names(sp))
+
+  data <- data.frame(z, x, fac)
+  p <- pairmatch(x, z = z, data = data)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+
+  em <- exactMatch(z~fac, data = data)
+  p <- pairmatch(x, z = z, within=em, data=data)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.function", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  sdiffs <- function(index, data, z) {
+    abs(data[index[,1], "x"] - data[index[,2], "x"])
+  }
+
+  p <- pairmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(p), nrow(data))
+
+  data$z[c(1,6)] <- NA
+
+  p <- pairmatch(sdiffs, z = data$z, data = data)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+})
+
+test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
+
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10))
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  p <- pairmatch(mod)
+  expect_equal(length(p), nrow(data))
+
+  p2 <- pairmatch(mod, data = data)
+  expect_equivalent(p, p2)
+
+  data$z[c(1,6)] <- NA
+
+  mod <- glm(z ~ x, data = data, family = binomial)
+
+  p <- pairmatch(mod)
+  expect_equal(length(p), nrow(data))
+  NA_checker(p, c(1, 6))
+
+  p2 <- pairmatch(mod, data = data)
+  expect_equivalent(p, p2)
+
+})
+
+test_that("#116: If nt>nc, try creating nc pairs" , {
+  data <- data.frame(z = c(rep(0, 2),rep(1,3)),
+                     x = rnorm(5))
+  p <- pairmatch(z ~ x, data = data)
+  expect_false(all(is.na(p)))
+
+  data <- data.frame(z = c(rep(0, 2),rep(1,2)),
+                     x = rnorm(4))
+  expect_error(p <- pairmatch(z~x, controls = 2, data = data))
+})

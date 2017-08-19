@@ -570,12 +570,13 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 #'
 #' Returns a list containing the dimensions of all valid subproblems.
 #' @param x A distance specification to get the sub-dimensions of.
-#' @return A list of the dimensions of each valid subproblem. Any subproblems with 0 controls
+#' @return A data frame listing the dimensions of each valid subproblem. Any subproblems with 0 controls
 #' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
-#' subproblems, if they exist.
+#' subproblems, if they exist.  There will be two rows, named "treatments" and "controls". 
 #' @export
 #' @docType methods
 #' @rdname subdim-methods
+#' @example inst/examples/subdim.R
 #' @export
 subdim <- function(x) {
   UseMethod("subdim")
@@ -584,13 +585,13 @@ subdim <- function(x) {
 #' @rdname subdim-methods
 #' @export
 subdim.InfinitySparseMatrix <- function(x) {
-  list(dim(x))
+  data.frame("._"=dim(x), row.names=c("treatments", "controls"))
 }
 
 #' @rdname subdim-methods
 #' @export
 subdim.matrix <- function(x) {
-  list(dim(x))
+  data.frame("._"=dim(x), row.names=c("treatments", "controls"))
 }
 
 #' @rdname subdim-methods
@@ -599,8 +600,22 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
   out <- lapply(levels(x@groups), function(k) c(sum(row.names(x) %in% names(x@groups)[x@groups == k]),
                                                 sum(colnames(x) %in% names(x@groups)[x@groups == k])))
   names(out) <- levels(x@groups)
-  # drop off any subproblems lacking at least one treatment/control
-  out[unlist(lapply(out, function(t) all(t > 0)))]
+  # drop off any subproblems lacking at least one possible treatment-control pairing
+  filt <- vapply(levels(x@groups), function(l) {
+      members <- names(x@groups[x@groups == l])
+      row.members <- which(x@rownames %in% members)
+      col.members <- which(x@colnames %in% members)
+      ridx <- x@rows %in% row.members
+      cidx <- x@cols %in% col.members
+      any(ridx & cidx)
+  },
+  TRUE)
+  out <- out[filt]
+  out.cnms <- names(out)
+  out <- as.data.frame(out)
+  colnames(out) <- out.cnms
+  row.names(out) <- c("treatments", "controls")
+  out
 }
 
 ##' @rdname sort.ism
