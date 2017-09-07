@@ -138,6 +138,7 @@ findSubproblems <- function(d) {
 #'   raise an error for invalid objects. Otherwise, it returns a
 #'   logical.
 #' @return logical
+#' @keywords internal
 validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
   klass <- class(distance)[1] # in case there are multiple class names
 

@@ -25,3 +25,4 @@ generic functions. This function checks that all necessary methods
 exist and the object can be used to specify distances in a way that
 the matching functions can use.
 }
+\keyword{internal}

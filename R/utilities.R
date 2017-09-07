@@ -66,6 +66,7 @@ setMethod("toZ", "factor", function(x) {
 #'   \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
 #' @return Hash on the distance object with a null \code{call}
 #' @import digest
+#' @keywords internal
 dist_digest <- function(dist) {
   if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {
     csave <- attr(dist, "call")
@@ -86,6 +87,7 @@ dist_digest <- function(dist) {
 #' @param ... will look for 'z = <stuff>' in the extra args of caller
 #' @return string a helpful error message
 #' @author Josh Buckner
+#' @keywords internal
 missing_x_msg <- function(x_str, data_str, ...) {
   if(data_str == "NULL")
     data_str <- "<data argument>"

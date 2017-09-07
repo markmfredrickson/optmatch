@@ -3,6 +3,7 @@ MAX_FEASIBLE <- 1e07
 
 #' (Internal) Sets up the default values for maximum feasible problems
 #'
+#' @keywords internal
 #' @return NULL
 setFeasibilityConstants <- function() {
   options("optmatch_warn_on_big_problem" = TRUE)
@@ -167,6 +168,7 @@ minExactMatch <- function(x, scores = NULL, width = NULL, maxarcs = 1e07, ...) {
 #' @param ... Arguments to be passed to model.frame (e.g. \code{data})
 #' @return data.frame containing two columns: \code{Z} is a treatment indicator,
 #' \code{B} is a blocking factor
+#' @keywords internal
 fmla2treatedblocking <- function(x, ...) {
 
   mf <- model.frame(x, ...)
@@ -195,6 +197,7 @@ fmla2treatedblocking <- function(x, ...) {
 #' @param width Width of caliper, must be positive
 #' @param structure Grouping factor to use in computation
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+#' @keywords internal
 caliperSize <- function(scores, z, width, structure = NULL) {
   if (width <= 0) {
     stop("Invalid caliper width. Width must be positive.")
@@ -266,6 +269,7 @@ caliperSize <- function(scores, z, width, structure = NULL) {
 #' calipers.
 #' @importFrom graphics hist
 #' @return numeric Total number of pairwise distances remaining after the caliper is placed.
+#' @keywords internal
 caliperUpperBound <- function(scores, z, width, structure = NULL) {
 
   if (width <= 0) {

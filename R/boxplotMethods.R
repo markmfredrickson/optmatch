@@ -1,5 +1,5 @@
 #' @importFrom graphics boxplot
-#' @export
+#' @export 
 boxplot.glm <- function(x, data=NULL, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE, horizontal=FALSE, ...)
 {
     #' NB: if default xlab or ylab is altered,

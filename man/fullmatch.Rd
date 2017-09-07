@@ -155,10 +155,12 @@ what was requested by setting a value of \code{mean.controls} or
 the minimum ratio of number of controls to number of treatments placed
 into matched sets.
 
-If the program detects a large problem as been requested that may exceed the
-computational power of the user's computer, a warning is issued. If you wish
-to disable this warning, set \code{options("optmatch_warn_on_big_problem" =
-FALSE)}.
+If the program detects that (what it thinks is) a large problem,
+a warning is issued. Unless you have an older computer, there's a good
+chance that you can handle larger problems (at the cost of increased
+computation time). To check the large problem threshold, use
+\code{\link{getMaxProblemSize}}; to re-set it, use
+\code{\link{setMaxProblemSize}}.
 }
 \examples{
 data(nuclearplants)

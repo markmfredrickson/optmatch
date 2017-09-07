@@ -17,6 +17,7 @@ matchfailed <- function(x) {
 #'
 #' @param x The result of \code{\link{fullmatch}} or \code{\link{pairmatch}}.
 #' @return A named logical vector indicating either success or failure for each subproblem.
+#' @keywords internal
 subproblemSuccess <- function(x) {
   grps <- attr(x, "subproblem")
   failed <- sapply(split(x, grps), function(x) { all(is.na(x)) })

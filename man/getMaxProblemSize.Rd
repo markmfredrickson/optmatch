@@ -20,5 +20,5 @@ the \code{optmatch} package.
 optmatch:::getMaxProblemSize() > 1 & optmatch:::getMaxProblemSize() < 1e100
 }
 \seealso{
-\code{\link{options}}
+\code{\link{options}}, \code{\link{setMaxProblemSize}}
 }

@@ -57,6 +57,7 @@ setOldClass(c("optmatch", "factor"))
 #' @return \code{optmatch} object
 #'
 #' @seealso \code{\link{summary.optmatch}}
+#' @keywords internal
 makeOptmatch <- function(distance,
                          solutions,
                          call,

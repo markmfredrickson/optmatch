@@ -19,3 +19,4 @@ This function lists the subproblems in a match and list whether at least on
 treated unit was matched in subproblem. Subproblems that have no matched
 treated units are said to have "failed."
 }
+\keyword{internal}

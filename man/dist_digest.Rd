@@ -21,3 +21,4 @@ Hash on the distance object with a null \code{call}
 like omitting caliper and calling caliper=NULL give the same digest
 #
 }
+\keyword{internal}
