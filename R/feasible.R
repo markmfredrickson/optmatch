@@ -53,14 +53,15 @@ getMaxProblemSize <- function() {
 ##' subproblem.  Apply \code{\link{findSubproblems}} to your distance,
 ##' creating a list, say \code{dlist}, of your distances; then do
 ##' \code{sapply(dlist, length)} to determine the sizes of the subproblems.
-##' 
+##'
 ##' @title Set the maximum problem size
 ##' @param size Positive integer, or \code{Inf}
 ##' @seealso \code{\link{getMaxProblemSize}}
 ##' @return NULL
 ##' @author Ben B. Hansen
+##' @export
 setMaxProblemSize <- function(size=Inf) {
-  
+
  stopifnot(is.numeric(size), length(size)==1,
            floor(size)==size, size>0)
 
