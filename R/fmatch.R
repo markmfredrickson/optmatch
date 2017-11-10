@@ -77,6 +77,11 @@ fmatch <- function(distance, max.row.units, max.col.units,
     warning("since min.col.units > 1, fmatch coerced max.row.units to 1")
   }
 
+  #warnings to prohibit use of names reserved for the two terminal nodes
+  if (any(control.units == '(_Sink_)' | control.units == '(_Sink_)' | treated.units == '(_End_)' | treated.units == '(_End_)'))
+  {
+    stop('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
   # set up the problem for the Fortran algorithm
   # each node has a integer ID number
   # startn indicates where each arc starts (using ID num)
@@ -145,10 +150,27 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   x <- feas * fop$x - (1 - feas)
 
-  ans <- x[1:narcs]
-  rcosts <- fop$rc[1:narcs]
+  ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
+  rcosts <- fop$rc
+  # want all the reduced costs and set solutions to end nodes to zero
 
-  if (identical(options()$use_fallback_optmatch_solver, FALSE)) {
-  cbind(distance, solution = ans, reduced.cost=rcosts)
-  } else cbind(distance, solution = ans)
+  #build the additional sink/end node arcs
+  #using notation -2 = sink, -1, end
+  #add error checks to make sure these names are not taken
+  end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
+  end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
+  sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+  distance <- rbind(distance, end.controls, end.treatments, sink.control)
+
+  if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
+    cbind(distance, solution = ans)
+  } else
+    {
+      obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
+      #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
+      #attr(obj, 'sink.node.price') <- sinkn.price
+      return(obj)
+      #cbind(distance, solution = ans, reduced.cost=rcosts)
+
+    }
 }

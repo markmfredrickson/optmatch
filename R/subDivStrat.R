@@ -28,7 +28,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   rfeas <- length(unique(dm$treated))
   cfeas <- length(unique(dm$control))
 
-  # If any controls were unmatchable, they were dropped by prepareMatching, and 
+  # If any controls were unmatchable, they were dropped by prepareMatching, and
   # positive `omit.fraction`'s need to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
       original_number_to_omit <- omit.fraction*length(colnames)
@@ -40,7 +40,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     }
   }
 
-  # ... and similarly in the case of negative `omit.fraction` if there were 
+  # ... and similarly in the case of negative `omit.fraction` if there were
   # treatments that couldn't be matched.
   if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
       original_number_to_omit <- -1*omit.fraction*length(rownames)
@@ -51,7 +51,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       omit.fraction <- NULL
     }
   }
-  
+
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
     ans <- rep("NA",length(rownames)+length(colnames))
@@ -105,6 +105,24 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     }
 
     temp <- .matcher(floor)
+    temp.extended <- temp
+
+    indx <- temp.extended$control %in% temp.extended$control[which(temp.extended$treated == '(_Sink_)')] & temp.extended$treated == '(_End_)'
+    sink.node.price.v <- temp.extended$reduced.cost[which(temp.extended$treated == '(_Sink_)')] - temp.extended$reduced.cost[indx]
+    if(all(sink.node.price.v == sink.node.price.v[1]))
+    {
+      sink.node.price <- sink.node.price.v[1]
+    }
+    else
+    {
+      quit('error in sink node price calculation')
+    }
+
+    temp <- temp[1:(dim(dm)[1]),]
+    c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))
+
+    node.prices.i <- c(-temp.extended$reduced.cost[c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))],0, sink.node.price)
+
 
     if (any(is.na(temp$solution))) {
       maxerr <- 0
@@ -133,25 +151,25 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     }
 
     ### NOTE: this if statment not yet updated to new fmatch data format.
-    if (matched.distances) {
-      if (all(!is.na(temp$solution))) {
-        dma <- max(dm[as.logical(temp$solution)])
-        dist <- c(apply(temp$solution * pmin(dm, dma), 1, sum),
-                  apply(temp$solution * pmin(dm, dma), 2, sum))
-
-        dist[c(rep(FALSE, dim(temp)[1]),
-               apply(temp * apply(temp, 1, sum), 2, sum) == 1)] <- NA
-
-        dist[c(apply(temp, 1, sum) > 1, apply(temp, 2, sum) > 1)] <- NA
-
-      } else{
-        dist <- rep(NA, sum(dim(temp)))
-        mode(dist) <- "numeric"
-        names(dist) <- unlist(dimnames(temp))
-      }
-    } else {
-      dist <- 0
-    }
+    # if (matched.distances) {
+    #   if (all(!is.na(temp$solution))) {
+    #     dma <- max(dm[as.logical(temp$solution)])
+    #     dist <- c(apply(temp$solution * pmin(dm, dma), 1, sum),
+    #               apply(temp$solution * pmin(dm, dma), 2, sum))
+    #
+    #     dist[c(rep(FALSE, dim(temp)[1]),
+    #            apply(temp * apply(temp, 1, sum), 2, sum) == 1)] <- NA
+    #
+    #     dist[c(apply(temp, 1, sum) > 1, apply(temp, 2, sum) > 1)] <- NA
+    #
+    #   } else{
+    #     dist <- rep(NA, sum(dim(temp)))
+    #     mode(dist) <- "numeric"
+    #     names(dist) <- unlist(dimnames(temp))
+    #   }
+    # } else {
+    #   dist <- 0
+    # }
   } else {
     temp <- 0 ; maxerr <- 0 ; dist <- 0
   }
@@ -162,7 +180,8 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-  return(list(cells = ans, err = maxerr))
+  node.prices.d <- node.prices.i / reso
+  return(list(cells = ans, err = maxerr, node.prices = node.prices.d))
 }
 
 # a small helper function to turn a solution data.frame into a factor of matches
