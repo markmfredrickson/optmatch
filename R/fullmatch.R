@@ -189,11 +189,11 @@ fullmatch <- function(x,
     if (is(x, "InfinitySparseMatrix") |
         is(x, "matrix") |
         is(x, "optmatch.dlist") )
-    warning("Without 'data' argument the order of the match is not guaranteed
-    to be the same as your original data.")
+      warning("Without 'data' argument the order of the match is not guaranteed
+              to be the same as your original data.")
   }
   UseMethod("fullmatch")
-}
+  }
 
 #' @export
 fullmatch.default <- function(x,
@@ -346,21 +346,21 @@ fullmatch.matrix <- function(x,
   np <- length(problems)
   if (length(min.controls) > 1 & np != length(min.controls)) {
     stop(paste("Length of \'min.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+               "as number of subproblems [", np, "]", sep = ""))
   }
   if (length(max.controls) > 1 & np != length(max.controls)) {
     stop(paste("Length of \'max.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+               "as number of subproblems [", np, "]", sep = ""))
   }
   if (!is.null(omit.fraction) & length(omit.fraction) > 1 & np !=
-    length(omit.fraction)) {
+      length(omit.fraction)) {
     stop(paste("Length of \'omit.fraction\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+               "as number of subproblems [", np, "]", sep = ""))
   }
   if (!is.null(mean.controls) & length(mean.controls) > 1 & np !=
-    length(mean.controls)) {
+      length(mean.controls)) {
     stop(paste("Length of \'mean.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+               "as number of subproblems [", np, "]", sep = ""))
   }
 
   # reset the arguments to be the right length if they are not
@@ -400,11 +400,11 @@ fullmatch.matrix <- function(x,
   }
 
   if (any(omit.fraction > 0 & max.controls <= .5, na.rm=TRUE)) {
-      stop("positive \'omit.fraction\' with \'max.controls\' <= 1/2 not permitted")
+    stop("positive \'omit.fraction\' with \'max.controls\' <= 1/2 not permitted")
   }
 
   if (any(omit.fraction < 0 & min.controls >= 2, na.rm=TRUE)) {
-      stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
+    stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
   }
 
   user.input.mean.controls <- FALSE
@@ -452,15 +452,22 @@ fullmatch.matrix <- function(x,
       d <- t(d)
     }
 
-    temp <- SubDivStrat(rownames = rownames(d),
+    #temp <- SubDivStrat(rownames = rownames(d),
+    #                    colnames = colnames(d),
+    #                    distspec = d,
+    #                    max.cpt = maxc,
+    #                    min.cpt = minc,
+    #                    tolerance = TOL * tol.frac,
+    #                    omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+
+    temp1 <- SolveMatches(rownames = rownames(d),
                         colnames = colnames(d),
                         distspec = d,
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
                         omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
-
-    return(temp)
+    return(temp1)
   }
 
   # a second helper function, that will attempt graceful recovery in situations where the match
