@@ -2,12 +2,13 @@
 # Tests for interaction with RItools
 ################################################################################
 
-if (require("RItools")) {
-  context("RItools interaction")
+## Disabling for now. See issue 104 for details on when to turn this test back on.
+## if (require("RItools")) {
+##   context("RItools interaction")
 
-  test_that("Summary function adds RItools info", {
+##   test_that("Summary function adds RItools info", {
 
-    ## Disabling for now. See issue 104 for details on when to turn this test back on.
+
 
     ## ### Testing ways to create glm objects and send them to RItools for balance tests
 
@@ -56,6 +57,6 @@ if (require("RItools")) {
     ## expect_true(identical(summary(match.nodata, test.fna), summary(match.nodata, test.fna, data=test.data.na)))
 
 
-  })
+##  })
 
-}
+## }

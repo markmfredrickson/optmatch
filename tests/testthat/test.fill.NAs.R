@@ -194,6 +194,7 @@ test_that("Checking for fix to factors in fill.nas, mentioned in #103", {
   data(nuclearplants)
   nuclearplants$t1[1] <- NA
   f <- fill.NAs(pr ~ cap + factor(t1), data=nuclearplants)
-  glm(f, family=binomial)
+  g <- glm(f, family=binomial)
+  expect_is(g, "glm")
 
 })

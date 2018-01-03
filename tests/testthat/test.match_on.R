@@ -488,6 +488,7 @@ test_that("numeric standardization scale", {
   test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
 
   result.glm <- match_on(test.glm, standardization.scale=1)
+  expect_is(result.glm, "matrix")
 })
 
 test_that("Building exactMatch from formula with strata", {
@@ -513,7 +514,7 @@ test_that("Building exactMatch from formula with strata", {
 
   nw1 <- makeWithinFromStrata(!!t ~ strata(z), d)
   expect_equivalent(nw1$within, nw$within)
-  
+
   nw2 <- makeWithinFromStrata(t ~ x + strata(z), d)
 
   expect_equivalent(em, nw2$within)
@@ -823,4 +824,3 @@ test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
   m2 <- match_on(mod, data = data)
   expect_equivalent(m, m2)
 })
-
