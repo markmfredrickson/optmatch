@@ -163,7 +163,7 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
   attr(x$matched.set.structures, "comparable.num.matched.pairs") <- NULL
   cat("Structure of matched sets:\n")
   print(x$matched.set.structures)
-  cat("Effective Sample Size: ", signif(x$effective.sample.size, digits), "\n")
+  cat("Effective Sample Size: ", round(x$effective.sample.size, 1), "\n")
   cat("(equivalent number of matched pairs).\n\n")
   if (!is.null(x$total.distance)) {
     cat("sum(matched.distances)=",
