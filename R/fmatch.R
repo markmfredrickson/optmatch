@@ -14,7 +14,7 @@
 ##' \code{solutions}, identifying matches with 1s vs non-matches with 0s.
 ##' @author Ben B Hansen, Mark M Fredrickson
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, stability.increment=1L)
+                   min.col.units = 1, f = 1, stability.increment=1L, node_prices = NULL)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a cannonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -54,23 +54,23 @@ fmatch <- function(distance, max.row.units, max.col.units,
   problem.size <- narcs + nt + nc
 
   if (problem.size > getMaxProblemSize()) {
-      stop(paste('Maximum matching problem may have only',
-                 signif(getMaxProblemSize(), 2), "- (nrows + ncols + 2) finite entries;",
-                 problem.size - getMaxProblemSize(), 'too many.',
-                 "Set 'options(\"optmatch_max_problem_size\" = Inf)' to disable this check."),
-           call. = FALSE)
+    stop(paste('Maximum matching problem may have only',
+               signif(getMaxProblemSize(), 2), "- (nrows + ncols + 2) finite entries;",
+               problem.size - getMaxProblemSize(), 'too many.',
+               "Set 'options(\"optmatch_max_problem_size\" = Inf)' to disable this check."),
+         call. = FALSE)
   }
 
 
   if (any(as.integer(distance$distance) != distance$distance |
-	    distance$distance < 0)) {
+          distance$distance < 0)) {
     stop("distance should be nonnegative integer")
   }
 
   # SHOULD PROBABLY DISABLE NEXT TWO WARNINGS
   if (mxc != max.col.units | mnc!=min.col.units |
-  	  (mxr == round(max.row.units) & mxr != max.row.units)) {
-      warning("fmatch coerced one or more constraints to integer")
+      (mxr == round(max.row.units) & mxr != max.row.units)) {
+    warning("fmatch coerced one or more constraints to integer")
   }
 
   if (mnc > 1 & round(max.row.units) > 1) {
@@ -78,10 +78,23 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
   #warnings to prohibit use of names reserved for the two terminal nodes
-  if (any(control.units == '(_Sink_)' | control.units == '(_Sink_)' | treated.units == '(_End_)' | treated.units == '(_End_)'))
+  if (any(control.units == '(_Sink_)'))
   {
-    stop('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
   }
+  if (any(control.units == '(_End_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+  if (any(treated.units == '(_Sink_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+  if (any(treated.units == '(_End_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+
   # set up the problem for the Fortran algorithm
   # each node has a integer ID number
   # startn indicates where each arc starts (using ID num)
@@ -105,7 +118,19 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   # supply
   b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
-
+  ###HAVE CODE FOR ADOPTING REDUCED COSTS HERE
+  if(!is.null(node_prices))
+  {
+    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
+    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    distance <- rbind(distance, end.controls, end.treatments, sink.control)
+    rcs <- prep.reduced.costs(distance, node_prices, narcs, nt, nc)
+  }
+  else
+  {
+    rcs <- as.integer(dists)
+  }
   # If the user specifies using the old version of the relax algorithm. The `if` will be
   # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
   # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
@@ -135,7 +160,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     as.integer(ucap),
                     as.integer(b),
                     x1=integer(length(startn)),
-                    rc1=as.integer(dists),
+                    rc1=rcs,
                     crash1=as.integer(0),
                     large1=as.integer(.Machine$integer.max/4),
                     feasible1=integer(1),
@@ -146,31 +171,51 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
 
   feas <- fop$feasible & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
-            (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
+                            (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
   x <- feas * fop$x - (1 - feas)
-
+  if( (length(fop$rc) - narcs) < 0) {browser()}
   ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
   rcosts <- fop$rc
   # want all the reduced costs and set solutions to end nodes to zero
 
   #build the additional sink/end node arcs
-  #using notation -2 = sink, -1, end
-  #add error checks to make sure these names are not taken
-  end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
-  end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
-  sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
-  distance <- rbind(distance, end.controls, end.treatments, sink.control)
+
+  if(is.null(node_prices))
+  {
+    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
+    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    distance <- rbind(distance, end.controls, end.treatments, sink.control)
+  }
+
 
   if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
     cbind(distance, solution = ans)
   } else
-    {
-      obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
-      #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
-      #attr(obj, 'sink.node.price') <- sinkn.price
-      return(obj)
-      #cbind(distance, solution = ans, reduced.cost=rcosts)
+  {
+    obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
+    #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
+    #attr(obj, 'sink.node.price') <- sinkn.price
+    return(obj)
+    #cbind(distance, solution = ans, reduced.cost=rcosts)
 
-    }
+  }
 }
+
+
+prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
+{
+  reduced.costs = numeric(nrow(df))
+  # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
+  reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
+  #for(i in 1:narcs.no.sink.or.end)
+  #{
+  #  reduced.costs[i] <- df$distance[i] + node.prices[as.character(df$control[i])] - node.prices[as.character(df$treated[i])]
+  #}
+
+  reduced.costs[(narcs.no.sink.or.end + 1):(nrow(df) - nc)] <- -c(node.prices[1:(nt + nc)])
+  reduced.costs[(nrow(df)-nc +1):nrow(df)] <- node.prices["(_Sink_)"] - node.prices[(nt+1):(nt + nc)]
+  return(as.integer(reduced.costs))
+}
+

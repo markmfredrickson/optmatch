@@ -1,5 +1,5 @@
 SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
-    max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE)
+                        max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE)
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -31,8 +31,8 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   # If any controls were unmatchable, they were dropped by prepareMatching, and
   # positive `omit.fraction`'s need to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
-      original_number_to_omit <- omit.fraction*length(colnames)
-      number_implicitly_omitted_already <- length(colnames) - cfeas
+    original_number_to_omit <- omit.fraction*length(colnames)
+    number_implicitly_omitted_already <- length(colnames) - cfeas
     omit.fraction <- (original_number_to_omit - number_implicitly_omitted_already)/cfeas
     # This can happen if the number to be omitted is less than the number of unmatchables
     if (omit.fraction <= 0) {
@@ -43,8 +43,8 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   # ... and similarly in the case of negative `omit.fraction` if there were
   # treatments that couldn't be matched.
   if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
-      original_number_to_omit <- -1*omit.fraction*length(rownames)
-      number_implicitly_omitted_already <- length(rownames) - rfeas
+    original_number_to_omit <- -1*omit.fraction*length(rownames)
+    number_implicitly_omitted_already <- length(rownames) - rfeas
     omit.fraction <- - (original_number_to_omit - number_implicitly_omitted_already)/rfeas
     # This can happen if the number to be omitted is less than the number of unmatchables
     if (omit.fraction >= 0) {
@@ -55,8 +55,8 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
     ans <- rep("NA",length(rownames)+length(colnames))
-      names(ans) <- c(rownames, colnames)
-      return(list(cells=ans, maxerr=NULL, distance=NULL))
+    names(ans) <- c(rownames, colnames)
+    return(list(cells=ans, maxerr=NULL, distance=NULL))
   }
 
   # the next block of code, the dm <- ... is commented out as
@@ -128,9 +128,9 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       maxerr <- 0
     } else {
       maxerr <- sum(temp$solution * dm$distance, na.rm = TRUE) -
-                sum(temp$solution * temp$distance, na.rm = TRUE) / reso +
-                (sum(rfeas) > 1 & sum(cfeas) > 1) *
-                (sum(rfeas) + sum(cfeas) - 2 - sum(temp$solution)) / reso
+        sum(temp$solution * temp$distance, na.rm = TRUE) / reso +
+        (sum(rfeas) > 1 & sum(cfeas) > 1) *
+        (sum(rfeas) + sum(cfeas) - 2 - sum(temp$solution)) / reso
     }
 
     if (maxerr > tolerance)
@@ -145,31 +145,12 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       }
 
       maxerr <- sum(temp$solution * dm$distance, na.rm = TRUE) -
-                sum(temp1$solution * temp$distance, na.rm = TRUE)/reso +
-                (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) -
-                  (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$solution)) / reso
+        sum(temp1$solution * temp$distance, na.rm = TRUE)/reso +
+        (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) -
+           (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$solution)) / reso
     }
 
-    ### NOTE: this if statment not yet updated to new fmatch data format.
-    # if (matched.distances) {
-    #   if (all(!is.na(temp$solution))) {
-    #     dma <- max(dm[as.logical(temp$solution)])
-    #     dist <- c(apply(temp$solution * pmin(dm, dma), 1, sum),
-    #               apply(temp$solution * pmin(dm, dma), 2, sum))
-    #
-    #     dist[c(rep(FALSE, dim(temp)[1]),
-    #            apply(temp * apply(temp, 1, sum), 2, sum) == 1)] <- NA
-    #
-    #     dist[c(apply(temp, 1, sum) > 1, apply(temp, 2, sum) > 1)] <- NA
-    #
-    #   } else{
-    #     dist <- rep(NA, sum(dim(temp)))
-    #     mode(dist) <- "numeric"
-    #     names(dist) <- unlist(dimnames(temp))
-    #   }
-    # } else {
-    #   dist <- 0
-    # }
+
   } else {
     temp <- 0 ; maxerr <- 0 ; dist <- 0
   }

@@ -124,7 +124,7 @@ makeOptmatch <- function(distance,
   attr(optmatch.obj, "contrast.group") <- as.logical(cg)
 
   attr(optmatch.obj, "subproblem") <- subproblems
-
+  attr(optmatch.obj, "node_prices") <- unlist(lapply(solutions, function(x) { x$node.prices }))
   return(optmatch.obj)
 }
 

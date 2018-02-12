@@ -176,6 +176,7 @@ fullmatch <- function(x,
                       mean.controls = NULL,
                       tol = .001,
                       data = NULL,
+                      node.prices = NULL,
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -270,6 +271,7 @@ fullmatch.matrix <- function(x,
                              tol = .001,
                              data = NULL,
                              within = NULL,
+                             node.prices = NULL,
                              ...) {
 
   ### Checking Input ###
@@ -459,6 +461,9 @@ fullmatch.matrix <- function(x,
     #                    min.cpt = minc,
     #                    tolerance = TOL * tol.frac,
     #                    omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+    if(is.null(node.prices))
+    {
+
 
     temp1 <- SolveMatches(rownames = rownames(d),
                         colnames = colnames(d),
@@ -467,6 +472,18 @@ fullmatch.matrix <- function(x,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
                         omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+    }
+    else
+    {
+      temp1 <- SolveMatches(rownames = rownames(d),
+                            colnames = colnames(d),
+                            distspec = d,
+                            max.cpt = maxc,
+                            min.cpt = minc,
+                            tolerance = TOL * tol.frac,
+                            omit.fraction = if(!is.na(omf)) { omf.calc },
+                            node.prices = node.prices) # passes NULL for NA
+    }
     return(temp1)
   }
 

@@ -1,5 +1,6 @@
+#' @export
 SolveMatches <- function(rownames, colnames, distspec, min.cpt,
-                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE)
+                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL)
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -83,13 +84,28 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
     options(old.o)
     if(all(dm$distance == floor(dm$distance)) & any(dm$distance > 0)) #checking if all distances are integer
     {
-      #integer version
-      temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls) #note the new structure of temp.with.nodes
+
+      if(is.null(node.prices))
+      {
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls)
+      }
+      else
+      {
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, node.prices)
+      }
 
     }
-    else #double precision
+    else
     {
-      temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls)
+      if(is.null(node.prices))
+      {
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls)
+      }
+      else
+      {
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, node.prices)
+      }
+
     }
 
 
@@ -106,13 +122,14 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-  #node.prices.d <- temp.with.nodes$node.price.ints / reso #check that reso = 1 when in integer case
-  return(list(cells = ans, err = temp.with.nodes$maxerr, node.prices = temp.with.nodes$node.prices)) #could probably just add back translation to double solver?
+  ret.obj <- list(cells = ans, err = temp.with.nodes$maxerr, node.prices = temp.with.nodes$node.prices)
+  #names(ret.obj$node.prices) <- c(rownames, colnames, "(_End_)", "(_Sink_)")
+  return(list(cells = ans, err = temp.with.nodes$maxerr, node.prices = temp.with.nodes$node.prices))
 }
 
 
 DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
-                        max.cpt, tolerance, reso, f.ctls)
+                        max.cpt, tolerance, reso, f.ctls, node.prices = NULL)
 {
   if (any(dm$distance > 0)) {
     reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
@@ -125,23 +142,36 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   }
 
   #options(old.o) don't think this line is super important
-  .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls) {
+  .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls, nodeprices = NULL) {
     tmp <- dm
     tmp$distance <- toIntFunction(dm$distance * reso)
-    # fmatch(tmp,
-    #        max.row.units = ceiling(1/min.cpt),
-    #        max.col.units = ceiling(max.cpt),
-    #        min.col.units = max(1, floor(min.cpt)), f=f.ctls)
 
-    obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls)
-    return(obj)
+    if(!is.null(nodeprices))
+    {
+      node.ints <- toIntFunction(nodeprices * reso)
+      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, node.ints)
+      return(obj)
+    }
+    else
+    {
+      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls)
+      return(obj)
+    }
+
   }
 
   # fmatch returns a matrix with columns `treatment`, `control`, and `solution`
   # it also has a column `distance` with toIntFuction(dm * reso)
 
-  temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls)
-  #temp <- temp.with.nodes$temp
+  if(is.null(node.prices))
+  {
+    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls)
+  }
+  else
+  {
+    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls, nodeprices = node.prices)
+  }
+
 
   if (any(is.na(temp.with.nodes$temp$solution))) {
     maxerr <- 0
@@ -155,7 +185,16 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   if (maxerr > tolerance)
   {
     temp1 <- temp.with.nodes
-    temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls)
+    if(is.null(node.prices))
+    {
+      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls)
+    }
+    else
+    {
+      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls, nodeprices = node.prices)
+    }
+
+
 
     if  (sum(temp1$temp$solution * dm$distance, na.rm = TRUE) <= sum(temp2$temp$solution * dm$distance, na.rm = TRUE)) {
       temp.with.nodes <- temp1
@@ -194,9 +233,17 @@ solution2factor <- function(s) {
 
 }
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls)
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL)
 {
-  temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls)
+  if(!is.null(int.node.prices))
+  {
+    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_prices =int.node.prices)
+  }
+  else
+  {
+    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls)
+  }
+
   temp.extended <- temp
 
   indx <- temp.extended$control %in% temp.extended$control[which(temp.extended$treated == '(_Sink_)')] & temp.extended$treated == '(_End_)'
@@ -211,12 +258,14 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls)
   }
 
   temp <- temp[1:(dim(dm)[1]),]
-  c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))
-
+  #c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))
+  nnodes <- c(as.character(temp.extended$treated[which(temp.extended$control == '(_End_)')]), as.character(temp.extended$control[which(temp.extended$treated == '(_End_)')]), "(_End_)", "(_Sink_)")
   node.prices.i <- c(-temp.extended$reduced.cost[c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))],0, sink.node.price)
   match.with.node.prices <- list()
-  match.with.node.prices$temp <- temp
-  match.with.node.prices$node.prices <- node.prices.i
+  match.with.node.prices[["temp"]] <- temp
+  match.with.node.prices[["node.prices"]] <- node.prices.i
+  names(match.with.node.prices[["node.prices"]]) <- nnodes
   return(match.with.node.prices)
 }
+
 
