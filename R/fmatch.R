@@ -174,7 +174,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                             (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
   x <- feas * fop$x - (1 - feas)
-  if( (length(fop$rc) - narcs) < 0) {browser()}
+  
   ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
   rcosts <- fop$rc
   # want all the reduced costs and set solutions to end nodes to zero
@@ -209,10 +209,7 @@ prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
   reduced.costs = numeric(nrow(df))
   # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
   reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
-  #for(i in 1:narcs.no.sink.or.end)
-  #{
-  #  reduced.costs[i] <- df$distance[i] + node.prices[as.character(df$control[i])] - node.prices[as.character(df$treated[i])]
-  #}
+
 
   reduced.costs[(narcs.no.sink.or.end + 1):(nrow(df) - nc)] <- -c(node.prices[1:(nt + nc)])
   reduced.costs[(nrow(df)-nc +1):nrow(df)] <- node.prices["(_Sink_)"] - node.prices[(nt+1):(nt + nc)]
