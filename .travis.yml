@@ -14,8 +14,7 @@ r_packages:
   - CBPS
 r_github_packages:
   - jimhester/covr
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libnlopt-dev
 after_success:
   - Rscript -e 'covr::coveralls()'
+apt_packages:
+  - libnlopt-dev
