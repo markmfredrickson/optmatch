@@ -172,6 +172,11 @@ test_that("Issue 87: NA's in data => unmatchable, but retained, units in distanc
   expect_equivalent(f("euclid"), expectedM)
   expect_equivalent(f("rank_mahal"), expectedM)
 
+  cal1 <- caliper(match_on(z~x1, data=d), width=1e3)
+  expect_equivalent(g(as.matrix(match_on(z ~ x1 + x2, data = d,
+                                         within=cal1, method = "mahalanobis"))),
+                    expectedM)
+  }
   ## now with numeric method:
   zz <- d$z
   x1 <- d$x1
