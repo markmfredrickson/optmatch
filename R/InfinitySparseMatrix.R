@@ -488,7 +488,8 @@ sort.InfinitySparseMatrix <- function(x,
                                       ...,
                                       byCol = FALSE) {
   byCol <- as.logical(byCol)
-  if (is.na(byCol)) {
+  testByCol <- length(byCol) > 1 | any(is.na(byCol))
+  if (testByCol) {
     stop("byCol must be TRUE or FALSE.")
   }
 

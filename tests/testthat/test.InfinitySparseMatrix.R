@@ -421,7 +421,7 @@ test_that("ISM sorting", {
   # Checking for bad input on byCol
   expect_silent(sort(X, byCol=1))
   expect_error(sort(X, byCol="a"))
-  expect_warning(expect_error(sort(X, byCol=c(1,1))))
+  expect_error(sort(X, byCol=c(1,1)))
 
   # Checking argument `decreasing`
   X.rows <- sort(X, byCol=FALSE, decreasing=TRUE)
@@ -502,7 +502,7 @@ test_that("BISM sorting", {
   # Checking for bad input on byCol
   expect_silent(sort(b, byCol=1))
   expect_error(sort(b, byCol="a"))
-  expect_warning(expect_error(sort(b, byCol=c(1,1))))
+  expect_error(sort(b, byCol=c(1,1)))
 
   data(nuclearplants)
 
