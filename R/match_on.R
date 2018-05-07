@@ -352,6 +352,22 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     methodname <- as.character(class(method))
   }
 
+  if(!is.null(within)) {
+    if(!is(within, "BlockedInfinitySparseMatrix")) {
+      within <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf)) #flagging this line
+    }
+    if(is(within, "BlockedInfinitySparseMatrix"))
+    {
+
+      tmpISM <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf))
+      tmpBISM <- as(tmpISM, "BlockedInfinitySparseMatrix")
+      newgroups <- within@groups[names(within@groups) %in% c(tmpBISM@rownames, tmpBISM@colnames)]
+      tmpBISM@groups <- newgroups
+      names(tmpBISM@groups) <- names(newgroups)
+      within <- tmpBISM
+    }
+  }
+
   which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 3)
   tmp <- switch(which.method,
 		makedist(z, data, compute_mahalanobis, within),
@@ -362,10 +378,14 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   rm(mf)
 
   if (length(dropped.t) > 0 || length(dropped.c)) {
-    tmp <- as.InfinitySparseMatrix(tmp)
+    if(!is(tmp, "BlockedInfinitySparseMatrix"))
+    {
+      tmp <- as.InfinitySparseMatrix(tmp)
+    }
     tmp@rownames <- c(tmp@rownames, dropped.t)
     tmp@colnames <- c(tmp@colnames, dropped.c)
     tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+
   }
 
   if (is.null(caliper)) {
