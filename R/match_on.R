@@ -352,21 +352,21 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     methodname <- as.character(class(method))
   }
 
-  if(!is.null(within)) {
-    if(!is(within, "BlockedInfinitySparseMatrix")) {
-      within <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf)) #flagging this line
-    }
-    if(is(within, "BlockedInfinitySparseMatrix"))
-    {
-
-      tmpISM <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf))
-      tmpBISM <- as(tmpISM, "BlockedInfinitySparseMatrix")
-      newgroups <- within@groups[names(within@groups) %in% c(tmpBISM@rownames, tmpBISM@colnames)]
-      tmpBISM@groups <- newgroups
-      names(tmpBISM@groups) <- names(newgroups)
-      within <- tmpBISM
-    }
-  }
+  # if(!is.null(within)) {
+  #   if(!is(within, "BlockedInfinitySparseMatrix")) {
+  #     within <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf))
+  #   }
+  #   if(is(within, "BlockedInfinitySparseMatrix"))
+  #   {
+  #
+  #     tmpISM <- subset(within, within@rownames %in% row.names(mf), within@colnames %in% row.names(mf))
+  #     tmpBISM <- as(tmpISM, "BlockedInfinitySparseMatrix")
+  #     newgroups <- within@groups[names(within@groups) %in% c(tmpBISM@rownames, tmpBISM@colnames)]
+  #     tmpBISM@groups <- newgroups
+  #     names(tmpBISM@groups) <- names(newgroups)
+  #     within <- tmpBISM
+  #   }
+  # }
 
   which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 3)
   tmp <- switch(which.method,
@@ -385,7 +385,11 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     tmp@rownames <- c(tmp@rownames, dropped.t)
     tmp@colnames <- c(tmp@colnames, dropped.c)
     tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
-
+    if(is(tmp, "BlockedInfinitySparseMatrix"))
+    {
+      tmp@groups <- unlist(list(tmp@groups, within@groups[!names(within@groups) %in% names(tmp@groups)]))
+    }
+  #add something adding back to groups if BISM
   }
 
   if (is.null(caliper)) {

@@ -4,23 +4,23 @@
 
 # an internal function to handle the heavy lifting
 # z is a treatment indicator for the data
-# 
+#
 makedist <- function(z, data, distancefn, within = NULL) {
   # conversion and error checking handled by toZ
   z <- toZ(z)
-  
+
   # next, data should be same length/size as z
   # I would have liked to have "duck typed" data by using
   # hasMethod(f = "dim", signature = class(data))
   # but "vector" has a dim method (though it returns null!), which causes this to fail
   if (inherits(data, "matrix") | inherits(data, "data.frame")) {
-    data.len <- dim(data)[1]  
+    data.len <- dim(data)[1]
   } else {
-    data.len <- length(data)  
+    data.len <- length(data)
   }
-   
+
   if (data.len != length(z)) {
-    stop("Treatment indicator and data must have the same length.")  
+    stop("Treatment indicator and data must have the same length.")
   }
 
   # data can be either a vector or a data.frame/matrix
@@ -36,53 +36,73 @@ makedist <- function(z, data, distancefn, within = NULL) {
   # cns <- namefn(subset(data, !as.logical(z)))
 
   if (length(cns) == 0 | length(rns) == 0) {
-    stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))  
+    stop(paste("Data must have ", ifelse(is.vector(data), "names", "rownames"), ".", sep = ""))
   }
 
   warning.requested <- getOption("optmatch_warn_on_big_problem", default = TRUE)
 
   if (is.null(within)) {
-    # without a within, make a dense matrix    
+    # without a within, make a dense matrix
     nc <- length(cns)
     nr <- length(rns)
     # matrices have column major order
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
-    
+
     if ((nc * nr > getMaxProblemSize()) && warning.requested) {
 
       warning("match_on has been asked to compute a large number of treatment-control
 distances.  You can reduce this number by providing an appropriate 'within'
 argument; see 'match_on', 'exactMatch' and 'caliper' documentation for
 details.  Alternatively you could increase the problem size limit; see
-documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")  
+documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")
 
     }
 
   } else {
     # with a within, make a copy and only fill in the finite entries of within
-    
-    if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
-        !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
-      stop("Row and column names of within must match those of the data.")  
+
+    if (!(all(rns %in% within@rownames)) | !(all(cns %in% within@colnames))) {
+      stop("Row and column names of within must match those of the data.")
+    }
+
+    if(!all(within@rownames %in% rns) | !all(within@colnames %in% cns))
+    {
+        if(!is(within, "BlockedInfinitySparseMatrix")) {
+          within <- subset(within, within@rownames %in% rns, within@colnames %in% cns)
+        }
+        if(is(within, "BlockedInfinitySparseMatrix"))
+        {
+          tmpISM <- subset(within, within@rownames %in% rns, within@colnames %in% cns)
+          tmpBISM <- as(tmpISM, "BlockedInfinitySparseMatrix")
+          newgroups <- within@groups[names(within@groups) %in% c(tmpBISM@rownames, tmpBISM@colnames)]
+          tmpBISM@groups <- newgroups
+          names(tmpBISM@groups) <- names(newgroups)
+          within <- tmpBISM
+          # treatmentids <- within@rownames[within@rows]
+          # controlids <- within@colnames[within@cols]
+        }
+
     }
 
     treatmentids <- within@rownames[within@rows]
     controlids <- within@colnames[within@cols]
 
+
+
     # TODO: check that the rownames, colnames of within match data
     subprobs <- findSubproblems(within)
-    issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail 
+    issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail
     for (s in subprobs) {
       issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
     }
-   
+
     if(issue.warning && warning.requested) {
-      warning("I've been asked to compute a large number of treatment-control distances. 
-Even with the provided 'within' argument, the result will present too large 
-an optimization problem for optimal matching. Please use a more restrictive 
+      warning("I've been asked to compute a large number of treatment-control distances.
+Even with the provided 'within' argument, the result will present too large
+an optimization problem for optimal matching. Please use a more restrictive
 'within' specification, either in a revision of this call or a follow-up
-elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")  
+elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
     }
   }
 
@@ -93,7 +113,7 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
   # z was copied <- toZ(z) so should be safe to rm
   # before massive matrix alloc
   rm(treatmentids, controlids, z)
-  
+
   if(is.null(within)) {
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
                                        list(treatment = rns, control = cns)))
@@ -111,7 +131,7 @@ makedistold <- function(structure.fmla, data,
                                 names(trtvar)[!trtvar]))},
                      ...)
   {
-  if (!attr(terms(structure.fmla), "response")>0) 
+  if (!attr(terms(structure.fmla), "response")>0)
     stop("structure.fmla must specify a treatment group variable")
   fn <- match.fun(fn)
 
@@ -121,9 +141,9 @@ makedistold <- function(structure.fmla, data,
   if (!is.null(attr(structure.fmla, "generation.increment")))
     pframe.generation <- pframe.generation +
       attr(structure.fmla, "generation.increment")
-  
+
   zpos <- attr(terms(structure.fmla), "response")
-  vars <- eval(attr(terms(structure.fmla), "variables"), data, 
+  vars <- eval(attr(terms(structure.fmla), "variables"), data,
              parent.frame(n=pframe.generation))
   zzz <- vars[[zpos]]
   if (!is.numeric(zzz) & !is.logical(zzz))
@@ -161,7 +181,7 @@ if (length(vars)>0)
         { stop("fn should always return matrices")}
       if (length(ans[[ii]])!=max(length(dn1), length(dn2)))
         { stop(paste("unuseable fn value for stratum", names(ans)[ii]))}
-      
+
       if (is.null(names(ans[[ii]])))
           {
            ans[[ii]] <-  matrix(ans[[ii]], length(dn1), length(dn2),
@@ -191,14 +211,14 @@ if (length(vars)>0)
                     "dimnames of fn value don't match unit names in stratum",
                          names(ans)[ii])) }
         }
-      
+
       }
   }
 
   if (NMFLG){
 warning("fn value not given dimnames; assuming they are list(names(trtvar)[trtvar], names(trtvar)[!trtvar])")}
 
-  
+
   attr(ans, 'row.names') <- names(zzz)
   class(ans) <- c('optmatch.dlist', 'list')
   ans
