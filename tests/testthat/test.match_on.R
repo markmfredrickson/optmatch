@@ -538,6 +538,12 @@ test_that("Using strata instead of within arguments", {
   m2b <- match_on(pr ~ cost, data=nuclearplants)
 
   expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  #testing with missing data
+  nuclearplants$cost[2] <- NA
+  m.missing <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                 data=nuclearplants)
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+  expect_true(is(m.missing, "BlockedInfinitySparseMatrix"))
   expect_true(is(m2, "BlockedInfinitySparseMatrix"))
   expect_true(all.equal(m1, m2, check.attributes=FALSE))
   expect_true(!isTRUE(all.equal(m2, m2b, check.attributes=FALSE)))
