@@ -64,7 +64,7 @@ documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")
     
     if (!all(within@rownames %in% rns) | !(all(rns %in% within@rownames)) |
         !all(within@colnames %in% cns) | !(all(cns %in% within@colnames))) {
-      stop("Row and column names of within must match those of the data.")  
+      stop("It a within argument is given, its row and column names must match those of the data.")  
     }
 
     treatmentids <- within@rownames[within@rows]
