@@ -79,8 +79,6 @@ documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")
           tmpBISM@groups <- newgroups
           names(tmpBISM@groups) <- names(newgroups)
           within <- tmpBISM
-          # treatmentids <- within@rownames[within@rows]
-          # controlids <- within@colnames[within@cols]
         }
 
     }
