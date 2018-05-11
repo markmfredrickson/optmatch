@@ -197,17 +197,6 @@ test_that("Reversion Test: Proper labeling of NAs", {
   expect_warning(res <- pairmatch(caliper(d, 2)))
 
   expect_equal(sum(is.na(res)), 9)
-
-  # repeat using an optmatch.dlist object, just in case...
-  od <- list(matrix(c(0,0,0,0, Inf,Inf,Inf,Inf, rep(0, 12)), nrow = 4, ncol = 5, dimnames = list(letters[1:4], letters[5:9])),
-             matrix(c(0,0,0,0, rep(Inf, 12)), byrow = T, nrow = 4, ncol = 4, dimnames = list(letters[10:13], letters[14:17])))
-
-  class(od) <- c("optmatch.dlist", "list")
-
-  expect_warning(expect_equal(sum(is.na(pairmatch(od))), 9))
-
-  # while we're at it, check that match failed only indicates that 1 level failed
-  expect_warning(expect_equal(sum(matchfailed(pairmatch(od))), 8))
 })
 
 test_that("Results are in 'data order'", {
@@ -271,26 +260,6 @@ test_that("Complete Inf matrices/ISMs => all NA optmatch object", {
   expect_warning(res.ism <- fullmatch(ism))
 
   expect_true(all(is.na(res.ism)))
-
-})
-
-test_that("Both mdist and match_on objects accepted", {
-  # this test depends on mdist and match_on tests passing
-  # it will probably fail if those fail
-
-  n <- 14
-  test.data <- data.frame(Z = c(rep(0, n/2), rep(1, n/2)),
-                          X1 = rnorm(n, mean = 5),
-                          X2 = rnorm(n, mean = -2, sd = 2),
-                          B = rep(c(0,1), n/2))
-
-  model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
-  tmp <- mdist(model)
-  names(tmp) <- c(1) # mdist adds an 'm' to the front by default
-  res.mdist <- fullmatch(tmp, data=test.data)
-  res.mon <- fullmatch(match_on(model), data=test.data)
-
-  expect_equivalent(res.mdist, res.mon)
 
 })
 
