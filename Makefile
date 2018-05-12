@@ -21,8 +21,8 @@ document: FUNC=document
 vignette: FUNC=build_vignettes
 clean-vignette: FUNC=clean_vignettes
 build: FUNC=build
-build_win: FUNC=build_win # Attempt a check & build on the win-builder server
-dependencies test check document vignette clean-vignette build build_win: .devtools
+check_win: FUNC=check_win # Attempt a check & build on the win-builder server
+dependencies test check document vignette clean-vignette build check_win: .devtools
 
 clean: clean-vignette
 	git clean -Xfd

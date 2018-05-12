@@ -140,7 +140,7 @@ test_that("Subsetting drops any matched.distances attributes", {
 
 test_that("Summary properly handles matched.distances #106", {
   data(nuclearplants)
-  dist <- mdist(glm(pr~.-(pr+cost), family=binomial(),
+  dist <- match_on(glm(pr~.-(pr+cost), family=binomial(),
                     data=nuclearplants))
 
   pm <- pairmatch(dist, data=nuclearplants)

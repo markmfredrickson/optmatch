@@ -6,7 +6,7 @@ NA
 #'
 #' Encodes calipers, or maximum allowable distances within which to
 #' match. The result of a call to \code{caliper} is itself a distance specification between
-#' treated and control units that can be used with 
+#' treated and control units that can be used with
 #' \code{pairmatch()} or \code{fullmatch()}. Calipers can also be combined with
 #' other distance specifications for richer matching problems.
 #'
@@ -28,8 +28,8 @@ NA
 #' Since \code{match_on} has access to the underlying univariate scores, for
 #' example for the GLM method, it can determine the caliper width in standard
 #' deviations.
-#' 
-#' If you wish to exclude specific units from the caliper requirements, pass the names of 
+#'
+#' If you wish to exclude specific units from the caliper requirements, pass the names of
 #' these units in the \code{exclude} argument. These units will be allowed to match any other
 #' unit.
 #'
@@ -45,7 +45,7 @@ NA
 #' @example inst/examples/caliper.R
 #'
 #' @keywords nonparametric
-#' 
+#'
 #' @param x A distance specification created with \code{\link{match_on}} or similar.
 #' @param width The width of the caliper: how wide of a margin to
 #' allow in matches. Be careful in setting the width. Vector valued
@@ -83,7 +83,7 @@ function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
   excluded.rows <- which(x@rownames %in% exclude)
   excluded.cols <- which(x@colnames %in% exclude)
 
-  y <- discardOthers(x, as.vector(compare(x, width)) | 
+  y <- discardOthers(x, as.vector(compare(x, width)) |
                      x@rows %in% excluded.rows |
                      x@cols %in% excluded.cols)
 
@@ -98,12 +98,16 @@ function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
 #' @aliases caliper,matrix-method
 setMethod("caliper", "matrix",
 function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
-  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, values = values)  
+  caliper(as.InfinitySparseMatrix(x), width = width, exclude = exclude, compare = compare, values = values)
 })
 
 #' @rdname caliper-methods
 #' @aliases caliper,optmatch.dlist-method
 setMethod("caliper", "optmatch.dlist",
 function(x, width, exclude = c(), compare = `<=`, values = FALSE) {
-  caliper(as.matrix(x), width = width, exclude = exclude, compare = compare, values = values)  
+  if (is(x, "optmatch.dlist")) {
+    warning("The use of 'optmatch.dlist' objects created by 'mdist()' is deprecated.\nPlease use 'match_on()' instead.")
+  }
+
+  caliper(as.matrix(x), width = width, exclude = exclude, compare = compare, values = values)
 })
