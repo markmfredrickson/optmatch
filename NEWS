@@ -1,6 +1,8 @@
 CHANGES IN OPTMATCH VERSION 0.9-9
 * Fixed a bug that caused the effective sample size to be rounded too aggresively
   in `summary.optmatch`.
+* Improved several error messages and warnings. (#138, #149, #142)
+* Fixed use of `if(vectorOfThings)` usage that will give an error in upcoming R release.
 
 CHANGES IN OPTMATCH VERSION 0.9-8
 * If pairmatch is asked to match within a stratum with fewer eligible controls
