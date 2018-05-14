@@ -95,7 +95,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   if (is.null(nms) & is.null(names(treatment))) {
     stop("Blocking or treatment factor must have names")
   } else {
-    if(is.null(nms)) {
+    if (is.null(nms)) {
       nms <- names(treatment)
     }
   }
@@ -111,6 +111,10 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   csForTs <- lapply(xT, function(t) {
     which(t == xC)
   })
+
+  if (all(sapply(csForTs, function(x) length(x) == 0))) {
+    stop("There is no overlap of value between treatment and control groups.")
+  }
 
   cols <- unlist(csForTs)
   tmp <- sapply(csForTs, length)

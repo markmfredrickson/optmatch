@@ -251,3 +251,15 @@ test_that("#123: exactmatch accepts NA treatment", {
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
 })
+
+test_that("#149: exactMatch fails on unique RHS values", {
+  t <- rep(0:1, each = 3)
+  x <- rnorm(6)
+  names(t) <- names(x) <- letters[1:6]
+
+  expect_error(exactMatch(x, t), "no overlap")
+
+  x <- c(1, 1, 2, 3, 4, 4)
+  names(t) <- names(x) <- letters[1:6]
+  expect_error(exactMatch(x, t), "no overlap")
+})
