@@ -217,6 +217,7 @@ test_that("optmatch_restrictions", {
   expect_true(all(names(o$max.controls) == c('a','b')))
   expect_true(all(names(o$mean.controls) == c('a','b')))
 
+  options("optmatch_verbose_messaging" = TRUE)
   expect_warning(f <- fullmatch(res.b, data=d, max.controls=1),
                  "infeasible")
   o <- optmatch_restrictions(f)
@@ -236,6 +237,8 @@ test_that("optmatch_same_distance", {
 
   f1 <- fullmatch(res.b, data=d)
   f2 <- fullmatch(res.b2, data=d)
+
+  options("optmatch_verbose_messaging" = TRUE)
   expect_warning(f3 <- fullmatch(res.b, data=d, max.controls=1),
                  "infeasible")
 
