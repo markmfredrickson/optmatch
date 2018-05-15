@@ -27,16 +27,12 @@ setClassUnion("OptionalCharacter", c("character", "NULL"))
 #' indicate possible matches, while infinite entries indicated non-allowed
 #' matches. This data type can be more space efficient for sparse matching
 #' problems.
+#'
 #' Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
-#' \code{\link{exactMatch}}. The ordering of units in an \code{InfinitySparseMatrix} is not guaranteed to be maintained after subsetting and/or other operations are performed.
-#' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
+#' \code{\link{exactMatch}}.
+#'
 #' @author Mark M. Fredrickson
-#'@slot colnames vector containing names for all control units. This will either be a character vector or NULL if units have no names
-#'@slot rownames vector containing names for all treated units. This will either be a character vector or NULL if units have no names
-#'@slot cols vector of integers corresponding to control units
-#'@slot rows vector of integers corresponding to treated units
-#'@slot dimension integer vector containing the number of treated and control units, in that order
-#'@slot call function call used to create the \code{InfinitySparseMatrix}
+#' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 setClass("InfinitySparseMatrix",
          slots = c(cols = "integer",
                    rows = "integer",
@@ -577,7 +573,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 #' @param x A distance specification to get the sub-dimensions of.
 #' @return A data frame listing the dimensions of each valid subproblem. Any subproblems with 0 controls
 #' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
-#' subproblems, if they exist.  There will be two rows, named "treatments" and "controls".
+#' subproblems, if they exist.  There will be two rows, named "treatments" and "controls". 
 #' @export
 #' @docType methods
 #' @rdname subdim-methods

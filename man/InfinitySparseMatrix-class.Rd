@@ -9,25 +9,11 @@
 indicate possible matches, while infinite entries indicated non-allowed
 matches. This data type can be more space efficient for sparse matching
 problems.
-Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
-\code{\link{exactMatch}}. The ordering of units in an \code{InfinitySparseMatrix} is not guaranteed to be maintained after subsetting and/or other operations are performed.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{colnames}}{vector containing names for all control units. This will either be a character vector or NULL if units have no names}
-
-\item{\code{rownames}}{vector containing names for all treated units. This will either be a character vector or NULL if units have no names}
-
-\item{\code{cols}}{vector of integers corresponding to control units}
-
-\item{\code{rows}}{vector of integers corresponding to treated units}
-
-\item{\code{dimension}}{integer vector containing the number of treated and control units, in that order}
-
-\item{\code{call}}{function call used to create the \code{InfinitySparseMatrix}}
-}}
-
+\details{
+Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
+\code{\link{exactMatch}}.
+}
 \seealso{
 \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 }
