@@ -10,7 +10,7 @@ Blocked Infinity Sparse Matrices are similar to Infinity Sparse Matrices, but th
 \section{Slots}{
 
 \describe{
-\item{\code{groups}}{factor vector containing groups, with units names as labels, when possible}
+\item{\code{groups}}{factor vector containing groups, with unit names as labels, when possible}
 
 \item{\code{colnames}}{vector containing names for all control units. This will either be a character vector or NULL if units have no names}
 
@@ -22,7 +22,7 @@ Blocked Infinity Sparse Matrices are similar to Infinity Sparse Matrices, but th
 
 \item{\code{dimension}}{integer vector containing the number of treated and control units, in that order}
 
-\item{\code{call}}{function call used to create the \code{BlockedInfinitySparseMatrix}}
+\item{\code{call}}{function call used to create the \code{InfinitySparseMatrix}}
 }}
 
 \seealso{

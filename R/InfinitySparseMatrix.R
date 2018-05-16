@@ -30,12 +30,7 @@ setClassUnion("OptionalCharacter", c("character", "NULL"))
 #' \code{\link{exactMatch}}. The ordering of units in an \code{InfinitySparseMatrix} is not guaranteed to be maintained after subsetting and/or other operations are performed.
 #' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
 #' @author Mark M. Fredrickson
-#'@slot colnames vector containing names for all control units. This will either be a character vector or NULL if units have no names
-#'@slot rownames vector containing names for all treated units. This will either be a character vector or NULL if units have no names
-#'@slot cols vector of integers corresponding to control units
-#'@slot rows vector of integers corresponding to treated units
-#'@slot dimension integer vector containing the number of treated and control units, in that order
-#'@slot call function call used to create the \code{InfinitySparseMatrix}
+#' @template ISMslotsTemplate
 setClass("InfinitySparseMatrix",
          slots = c(cols = "integer",
                    rows = "integer",
@@ -513,13 +508,9 @@ sort.InfinitySparseMatrix <- function(x,
 #' Blocked Infinity Sparse Matrix
 #'
 #' Blocked Infinity Sparse Matrices are similar to Infinity Sparse Matrices, but they also keep track of the groups of units via an additional slot, \code{groups}
-#' @slot groups factor vector containing groups, with units names as labels, when possible
-#' @slot colnames vector containing names for all control units. This will either be a character vector or NULL if units have no names
-#' @slot rownames vector containing names for all treated units. This will either be a character vector or NULL if units have no names
-#' @slot cols vector of integers corresponding to control units
-#' @slot rows vector of integers corresponding to treated units
-#' @slot dimension integer vector containing the number of treated and control units, in that order
-#' @slot call function call used to create the \code{BlockedInfinitySparseMatrix}
+#' @slot groups factor vector containing groups, with unit names as labels, when possible
+#' @template ISMslotsTemplate
+#'
 #' @seealso \code{\link{match_on}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{InfinitySparseMatrix-class}}
 #' @author Mark M. Fredrickson
 setClass("BlockedInfinitySparseMatrix",
