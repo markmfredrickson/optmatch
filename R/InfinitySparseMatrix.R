@@ -20,7 +20,6 @@ NA
 setOldClass(c("optmatch.dlist", "list"))
 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
-
 #' Objects for sparse matching problems.
 #'
 #' \code{InfinitySparseMatrix} is a special class of distance specifications. Finite entries
@@ -511,12 +510,18 @@ sort.InfinitySparseMatrix <- function(x,
 
 }
 
-
-################################################################################
-# Blocked Infinity Sparse Matrix
-# Just like an ISM, but keeps track of which group a unit is in
-################################################################################
-
+#' Blocked Infinity Sparse Matrix
+#'
+#' Blocked Infinity Sparse Matrices are similar to Infinity Sparse Matrices, but they also keep track of the groups of units via an additional slot, \code{groups}
+#' @slot groups factor vector containing groups, with units names as labels, when possible
+#' @slot colnames vector containing names for all control units. This will either be a character vector or NULL if units have no names
+#' @slot rownames vector containing names for all treated units. This will either be a character vector or NULL if units have no names
+#' @slot cols vector of integers corresponding to control units
+#' @slot rows vector of integers corresponding to treated units
+#' @slot dimension integer vector containing the number of treated and control units, in that order
+#' @slot call function call used to create the \code{BlockedInfinitySparseMatrix}
+#' @seealso \code{\link{match_on}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{InfinitySparseMatrix-class}}
+#' @author Mark M. Fredrickson
 setClass("BlockedInfinitySparseMatrix",
   slots = c(groups = "factor"),
   contains = "InfinitySparseMatrix")
