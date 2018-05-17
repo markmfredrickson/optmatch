@@ -228,6 +228,7 @@ optmatch_same_distance <- function(obj, newdist) {
 #' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
+  browser()
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
