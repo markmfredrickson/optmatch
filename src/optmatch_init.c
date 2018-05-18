@@ -22,7 +22,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 
 static const R_FortranMethodDef FortranEntries[] = {
-  {"relaxalg",    (DL_FUNC) &F77_NAME(relaxalg),    11},
+  {"relaxalg",    (DL_FUNC) &F77_NAME(relaxalg),    12},
   {"relaxalgold", (DL_FUNC) &F77_NAME(relaxalgold), 11},
   {NULL, NULL, 0}
 };
