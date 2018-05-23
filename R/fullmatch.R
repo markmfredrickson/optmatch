@@ -469,7 +469,7 @@ fullmatch.matrix <- function(x,
                             max.cpt = maxc,
                             min.cpt = minc,
                             tolerance = TOL * tol.frac,
-                            omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+                            omit.fraction = if(!is.na(omf)) { omf.calc })
     }
     else
     {
@@ -480,7 +480,7 @@ fullmatch.matrix <- function(x,
                             min.cpt = minc,
                             tolerance = TOL * tol.frac,
                             omit.fraction = if(!is.na(omf)) { omf.calc },
-                            node.prices = node.prices) # passes NULL for NA
+                            node.prices = node.prices)
     }
     return(temp1)
   }
