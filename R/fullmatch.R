@@ -177,6 +177,7 @@ fullmatch <- function(x,
                       mean.controls = NULL,
                       tol = .001,
                       data = NULL,
+                      node.prices = NULL,
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -275,6 +276,7 @@ fullmatch.matrix <- function(x,
                              tol = .001,
                              data = NULL,
                              within = NULL,
+                             node.prices = NULL,
                              ...) {
 
   ### Checking Input ###
@@ -563,7 +565,7 @@ fullmatch.matrix <- function(x,
 
   # save hash of distance
   attr(mout, "hashed.distance") <- dist_digest(x)
-
+  attr(mout, "dist_call") <- x@call
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
   return(mout)
