@@ -459,15 +459,30 @@ fullmatch.matrix <- function(x,
       d <- t(d)
     }
 
-    temp <- SubDivStrat(rownames = rownames(d),
-                        colnames = colnames(d),
-                        distspec = d,
-                        max.cpt = maxc,
-                        min.cpt = minc,
-                        tolerance = TOL * tol.frac,
-                        omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+    if(is.null(node.prices))
+    {
 
-    return(temp)
+
+      temp1 <- SolveMatches(rownames = rownames(d),
+                            colnames = colnames(d),
+                            distspec = d,
+                            max.cpt = maxc,
+                            min.cpt = minc,
+                            tolerance = TOL * tol.frac,
+                            omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+    }
+    else
+    {
+      temp1 <- SolveMatches(rownames = rownames(d),
+                            colnames = colnames(d),
+                            distspec = d,
+                            max.cpt = maxc,
+                            min.cpt = minc,
+                            tolerance = TOL * tol.frac,
+                            omit.fraction = if(!is.na(omf)) { omf.calc },
+                            node.prices = node.prices) # passes NULL for NA
+    }
+    return(temp1)
   }
 
   # a second helper function, that will attempt graceful recovery in situations where the match
