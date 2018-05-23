@@ -125,7 +125,7 @@ makeOptmatch <- function(distance,
   attr(optmatch.obj, "contrast.group") <- as.logical(cg)
 
   attr(optmatch.obj, "subproblem") <- subproblems
-
+  attr(optmatch.obj, "node_prices") <- unlist(lapply(solutions, function(x) { x$node.prices }))
   return(optmatch.obj)
 }
 
@@ -220,18 +220,80 @@ optmatch_same_distance <- function(obj, newdist) {
 #'
 #' NB: THIS CODE IS CURRENTLY VERY MUCH ALPHA AND SOMEWHAT UNTESTED, ESPECIALLY CALLING \code{update} ON AN
 #' OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
+#' Anticipating that \code{evaluate} parameter should almost always be set to \code{TRUE}
+#' Passing \code{data} argument is required. Otherwise, error will be thrown
 #'
-#' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
-#' \code{optmatch} object differs from the hash of the new \code{data}.
 #' @param optmatch \code{Optmatch} object to update.
 #' @param ... Additional arguments to the call, or arguments with changed values.
 #' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
-update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
+update.optmatch <- function(optmatch, ..., evaluate = TRUE, data = NULL) {
   browser()
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
+  data.mod <- FALSE
+  param.mod <- FALSE
+
+  if(is.null(data)) {
+    stop("no data argument")
+  }
+  if(digest:::digest(eval(call$data)) != digest:::digest(data))
+  {
+    #data matches exactly or not?
+    data.mod <- TRUE
+  }
+
+  dist.call <- attr(optmatch, "dist_call")
+
+  if(length(extras))
+  {
+    param.mod <- TRUE
+  }
+  if(param.mod)
+  {
+    if('within' %in% names(extras))
+    {
+      #network/included nodes might have changed in some capacity
+      node.prices.in <- attr(optmatch, "node_prices")
+      l <- lapply(call, eval)
+      l.names <- names(call)[names(call) != ""]
+      fullmatch(node.prices = node.prices.in, assign(l.names, l), within = extras$within)
+    }
+    else
+    {
+      # might not need this branch
+    }
+    #if tolerance is one of the altered arguments + the distances, kick off process with updated resolutions
+    if("tol" %in% names(extras))
+    {
+      #tol altered procedures here
+      node.prices.in <- attr(optmatch, "node_prices")
+      l <- lapply(call, eval)
+      l.names <- names(call)[names(call) != ""]
+      fullmatch(node.prices = node.prices.in, assign(l.names, l), tol = extras$tol)
+    }
+    else
+    {
+      #not sure if other arguments have nice calculations that can help improve the price generation
+    }
+
+    #check if new arguments have been passed in
+    #if calls appear to be the same
+    #evaluate the old call on new data to check to see if data has been updated?
+  }
+  if(data.mod)
+  {
+    # compare dimensions of the data
+    if(dim(data) != dim(eval(call$data)))
+    {
+      #set off new node processes
+    }
+    else
+    {
+      #values have been changed
+    }
+  }
 
   if (length(extras)) {
     existing <- !is.na(match(names(extras), names(call)))
