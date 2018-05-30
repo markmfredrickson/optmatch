@@ -86,6 +86,10 @@ pairmatch <- function(x,
       collapse = ", "))
   }
 
+  if (is(x, "optmatch.dlist")) {
+    warning("The use of 'optmatch.dlist' objects created by 'mdist()' is deprecated.\nPlease use 'match_on()' instead.")
+  }
+
   cl <- match.call()
   UseMethod("pairmatch")
 }
@@ -175,8 +179,8 @@ pairmatch.matrix <- function(x,
           # drop any rows that are entirely NA
           prob <- prob[apply(prob, 1, function(row) {
               any(is.finite(row)) }),, drop=FALSE]
-          # Now do the same for columns -- but only if 
-          # there are one or more rows left.  
+          # Now do the same for columns -- but only if
+          # there are one or more rows left.
           # (Otherwise subsequent `apply()` quits.)
           if (nrow(prob)) {
               prob <- prob[,apply(prob, 2, function(col) {
@@ -204,7 +208,7 @@ pairmatch.matrix <- function(x,
                     control_group_overage/control_group_n,
                     -1*treatment_group_overage/treatment_group_n))
   }
-    
+
   omf <- mapply(controls, subprobs, FUN = get_omf)
 
 

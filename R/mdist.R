@@ -85,6 +85,7 @@ setOldClass(c("optmatch.dlist", "list"))
 ##' @export
 ##' @rdname mdist
 mdist <- function(x, structure.fmla = NULL, ...) {
+  .Deprecated("match_on")
   cl <- match.call()
   UseMethod("mdist", x)
 }

@@ -538,6 +538,9 @@ test_that("Using strata instead of within arguments", {
   m2b <- match_on(pr ~ cost, data=nuclearplants)
 
   expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+
   expect_true(is(m2, "BlockedInfinitySparseMatrix"))
   expect_true(all.equal(m1, m2, check.attributes=FALSE))
   expect_true(!isTRUE(all.equal(m2, m2b, check.attributes=FALSE)))
@@ -828,4 +831,28 @@ test_that("#123: Supporting NA's in treatment, match_on.glm/bigglm", {
 
   m2 <- match_on(mod, data = data)
   expect_equivalent(m, m2)
+})
+
+test_that("147: within=caliper with NA's", {
+  data(nuclearplants)
+  #testing with missing data
+  nuclearplants$cost[2] <- NA
+  m.missing <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                        data=nuclearplants)
+  expect_true(is(m.missing, "BlockedInfinitySparseMatrix"))
+  m.drop <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants[-2, ]),
+                     data=nuclearplants[-2,])
+  expect_true(all.equal(m.drop@.Data, m.missing@.Data))
+
+  np <- nuclearplants[1:6,]
+  np$cost[2] <- NA
+  c <- caliper(match_on(pr ~ cost, data = np, method = "euclidean"), width = 100)
+  m.1 <- match_on(pr ~ cap, within = c, data = np)
+
+  m <- match_on(pr ~ cap, data = np)
+  m.2 <- m + c
+  expect_true(all.equal(dim(m.1),dim(m.2)))
+  expect_true(is(m.1, "InfinitySparseMatrix"))
+  expect_true(is(m.2, "InfinitySparseMatrix"))
+  expect_true(all.equal(sort(m.2@.Data), sort(m.1@.Data)))
 })

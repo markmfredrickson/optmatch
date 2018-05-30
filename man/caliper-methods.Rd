@@ -50,7 +50,7 @@ You can combine the results of \code{caliper} with other distances using the
 \description{
 Encodes calipers, or maximum allowable distances within which to
 match. The result of a call to \code{caliper} is itself a distance specification between
-treated and control units that can be used with 
+treated and control units that can be used with
 \code{pairmatch()} or \code{fullmatch()}. Calipers can also be combined with
 other distance specifications for richer matching problems.
 }
@@ -74,7 +74,7 @@ Since \code{match_on} has access to the underlying univariate scores, for
 example for the GLM method, it can determine the caliper width in standard
 deviations.
 
-If you wish to exclude specific units from the caliper requirements, pass the names of 
+If you wish to exclude specific units from the caliper requirements, pass the names of
 these units in the \code{exclude} argument. These units will be allowed to match any other
 unit.
 }

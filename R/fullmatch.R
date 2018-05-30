@@ -194,6 +194,9 @@ fullmatch <- function(x,
     warning("Without 'data' argument the order of the match is not guaranteed
     to be the same as your original data.")
   }
+  if (is(x, "optmatch.dlist")) {
+    warning("The use of 'optmatch.dlist' objects created by 'mdist()' is deprecated.\nPlease use 'match_on()' instead.")
+  }
   UseMethod("fullmatch")
 }
 

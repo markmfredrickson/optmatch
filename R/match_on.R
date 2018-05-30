@@ -362,10 +362,18 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
   rm(mf)
 
   if (length(dropped.t) > 0 || length(dropped.c)) {
-    tmp <- as.InfinitySparseMatrix(tmp)
+    if(!is(tmp, "BlockedInfinitySparseMatrix"))
+    {
+      tmp <- as.InfinitySparseMatrix(tmp)
+    }
     tmp@rownames <- c(tmp@rownames, dropped.t)
     tmp@colnames <- c(tmp@colnames, dropped.c)
     tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
+    if(is(tmp, "BlockedInfinitySparseMatrix"))
+    {
+      tmp@groups <- unlist(list(tmp@groups, within@groups[!names(within@groups) %in% names(tmp@groups)]))
+    }
+  
   }
 
   if (is.null(caliper)) {
