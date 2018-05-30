@@ -70,9 +70,7 @@ documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")
     {
         if(!is(within, "BlockedInfinitySparseMatrix")) {
           within <- subset(within, within@rownames %in% rns, within@colnames %in% cns)
-        }
-        if(is(within, "BlockedInfinitySparseMatrix"))
-        {
+        } else {
           tmpISM <- subset(within, within@rownames %in% rns, within@colnames %in% cns)
           tmpBISM <- as(tmpISM, "BlockedInfinitySparseMatrix")
           newgroups <- within@groups[names(within@groups) %in% c(tmpBISM@rownames, tmpBISM@colnames)]
