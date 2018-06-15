@@ -16,5 +16,6 @@ r_github_packages:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libnlopt-dev
+  - sudo apt-get install -qq ghostscript
 after_success:
   - Rscript -e 'covr::coveralls()'
