@@ -5,7 +5,23 @@
 
 context("compute_rank.mahalanobis function")
 
-if (requireNamespace("MASS")) {
+pseudoinv <- function(X) # dumbed-down `ginv` (from MASS package)
+{
+    tol <- sqrt(.Machine$double.eps)
+    if (length(dim(X)) > 2L || !is.numeric(X)) 
+        stop("'X' must be a numeric matrix")
+    if (!is.matrix(X)) 
+        X <- as.matrix(X)
+    Xsvd <- svd(X)
+    Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
+    if (all(Positive)) 
+        Xsvd$v %*% (1/Xsvd$d * t(Xsvd$u))
+    else if (!any(Positive)) stop("Nothing to psuedo-invert here, folks")
+    else Xsvd$v[, Positive, drop = FALSE] %*% ((1/Xsvd$d[Positive]) * 
+        t(Xsvd$u[, Positive, drop = FALSE]))
+}
+
+
 # Rosenbaum's original rank mahalanobis distance code
 # from Design of observational studies
 # http://www-stat.wharton.upenn.edu/~rosenbap/Rdospublic.RData
@@ -27,17 +43,16 @@ if (requireNamespace("MASS")) {
         Xt <- X[z == 1, , drop=FALSE]
         rownames(out) <- rownames(X)[z == 1]
         colnames(out) <- rownames(X)[z == 0]
-        icov <- MASS::ginv(cv)
+        icov <- pseudoinv(cv)
         for (i in 1:m) out[i, ] <- mahalanobis(Xc, Xt[i, ], icov,
                                                inverted = T)
         out
     }
 
-}
+
 
 test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
-  if (requireNamespace("MASS")) {
     nr <- 10L
     nc <- 5L
 
@@ -57,12 +72,11 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
     df <- data.frame(z = z, X)
     expect_equivalent(as.matrix(match_on(z ~ ., data = df, method = "rank")), reference_rankmahal)
-  }
+  
 })
 
 test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) holds", {
 
-      if (requireNamespace("MASS")) {
     nr <- 10L
     nc <- 5L
 
@@ -87,5 +101,5 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
                                                           X, as.logical(z)),
                       reference_rankmahal[-omitdists])
 
-      }
+      
 })
