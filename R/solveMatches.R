@@ -1,6 +1,6 @@
 #' @export
 SolveMatches <- function(rownames, colnames, distspec, min.cpt,
-                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL)
+                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL, warm.start = NULL, subproblemid)
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -85,25 +85,26 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
     if(all(dm$distance == floor(dm$distance)) & any(dm$distance > 0)) #checking if all distances are integer
     {
 
-      if(is.null(node.prices))
+      if(is.null(warm.start))
       {
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls)
+
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, groupid = subproblemid)
       }
       else
       {
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, node.prices)
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, node.prices, groupid = subproblemid)
       }
 
     }
     else
     {
-      if(is.null(node.prices))
+      if(is.null(warm.start))
       {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls)
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, groupid = subproblemid)
       }
       else
       {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, node.prices)
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
       }
 
     }
@@ -122,14 +123,12 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-  ret.obj <- list(cells = ans, err = temp.with.nodes$maxerr, node.prices = temp.with.nodes$node.prices)
-  #names(ret.obj$node.prices) <- c(rownames, colnames, "(_End_)", "(_Sink_)")
-  return(list(cells = ans, err = temp.with.nodes$maxerr, node.prices = temp.with.nodes$node.prices))
+  return(list(cells = ans, err = temp.with.nodes$maxerr, node.data = temp.with.nodes[["node.data"]], prob.data = temp.with.nodes[["prob.data"]]))
 }
 
 
 DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
-                        max.cpt, tolerance, reso, f.ctls, node.prices = NULL)
+                        max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
 {
   if (any(dm$distance > 0)) {
     reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
@@ -142,19 +141,20 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   }
 
   #options(old.o) don't think this line is super important
-  .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls, nodeprices = NULL) {
+
+  .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls, nodeprices = NULL, groupid) {
     tmp <- dm
     tmp$distance <- toIntFunction(dm$distance * reso)
 
     if(!is.null(nodeprices))
     {
       node.ints <- toIntFunction(nodeprices * reso)
-      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, node.ints)
+      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, node.ints, groupid = groupid)
       return(obj)
     }
     else
     {
-      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls)
+      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, groupid = groupid)
       return(obj)
     }
 
@@ -163,13 +163,13 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   # fmatch returns a matrix with columns `treatment`, `control`, and `solution`
   # it also has a column `distance` with toIntFuction(dm * reso)
 
-  if(is.null(node.prices))
+  if(is.null(warm.start))
   {
-    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls)
+    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls, groupid = groupid)
   }
   else
   {
-    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls, nodeprices = node.prices)
+    temp.with.nodes <- .matcher(dm, floor, reso, min.cpt, max.cpt, f.ctls, nodeprices = warm.start, groupid = groupid)
   }
 
 
@@ -207,8 +207,11 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
       (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) -
          (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$temp$solution)) / reso
   }
-  temp.with.nodes$node.prices <- temp.with.nodes$node.prices / reso
+  temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
   temp.with.nodes$maxerr <- maxerr
+  temp.with.nodes[["prob.data"]]$tol = tolerance
+  temp.with.nodes[["prob.data"]]$reso = reso
+  temp.with.nodes[["prob.data"]]$exceedance <- maxerr
   return(temp.with.nodes)
 
 }
@@ -233,8 +236,9 @@ solution2factor <- function(s) {
 
 }
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL)
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
 {
+
   if(!is.null(int.node.prices))
   {
     temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_prices =int.node.prices)
@@ -246,24 +250,14 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL)
 
   temp.extended <- temp
 
-  indx <- temp.extended$control %in% temp.extended$control[which(temp.extended$treated == '(_Sink_)')] & temp.extended$treated == '(_End_)'
-  sink.node.price.v <- temp.extended$reduced.cost[which(temp.extended$treated == '(_Sink_)')] - temp.extended$reduced.cost[indx]
-  if(all(sink.node.price.v == sink.node.price.v[1]))
-  {
-    sink.node.price <- sink.node.price.v[1]
-  }
-  else
-  {
-    stop('unexpected mismatch of bookkeeping node prices')
-  }
-
   temp <- temp[1:(dim(dm)[1]),]
-  #c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))
-  nnodes <- c(as.character(temp.extended$treated[which(temp.extended$control == '(_End_)')]), as.character(temp.extended$control[which(temp.extended$treated == '(_End_)')]), "(_End_)", "(_Sink_)")
-  node.prices.i <- c(-temp.extended$reduced.cost[c(which(temp.extended$control == '(_End_)'), which(temp.extended$treated == '(_End_)'))],0, sink.node.price)
+
   match.with.node.prices <- list()
   match.with.node.prices[["temp"]] <- temp
-  match.with.node.prices[["node.prices"]] <- node.prices.i
-  names(match.with.node.prices[["node.prices"]]) <- nnodes
+  match.with.node.prices[["node.data"]] <- build_node_data(temp.extended = temp.extended, subproblemid = groupid)
+  # not sure if following line should be one directly below this, or second option
+  match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)
+  #match.with.node.prices[["prob.data"]] <- data.frame(max.controls = NA, min.controls = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
+
   return(match.with.node.prices)
 }

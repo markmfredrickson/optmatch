@@ -1,5 +1,5 @@
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, stability.increment=1L)
+			min.col.units = 1, f = 1, stability.increment=1L, node_prices = NULL)
 {
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -61,6 +61,23 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (mnc > 1 & round(max.row.units) > 1) {
     warning("since min.col.units > 1, fmatch coerced max.row.units to 1")
   }
+  #warnings to prohibit use of names reserved for the two terminal nodes
+  if (any(control.units == '(_Sink_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+  if (any(control.units == '(_End_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+  if (any(treated.units == '(_Sink_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
+  if (any(treated.units == '(_End_)'))
+  {
+    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
+  }
 
   # set up the problem for the Fortran algorithm
   # each node has a integer ID number
@@ -86,6 +103,18 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # supply
   b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
 
+  if(!is.null(node_prices))
+  {
+    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
+    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    distance <- rbind(distance, end.controls, end.treatments, sink.control)
+    rcs <- prep.reduced.costs(distance, node_prices, narcs, nt, nc)
+  }
+  else
+  {
+    rcs <- as.integer(dists)
+  }
   # If the user specifies using the old version of the relax algorithm. The `if` will be
   # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
   # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
@@ -115,7 +144,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     as.integer(ucap),
                     as.integer(b),
                     x1=integer(length(startn)),
-                    rc1 = as.integer(dists),
+                    rc1 = rcs,
                     crash1=as.integer(0),
                     large1=as.integer(.Machine$integer.max/4),
                     feasible1=integer(1),
@@ -130,7 +159,39 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   x <- feas * fop$x1 - (1 - feas)
 
-  ans <- numeric(narcs)
-  ans <- x[1:narcs]
-  return(cbind(distance, solution = ans))
+  if(is.null(node_prices))
+  {
+    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
+    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    distance <- rbind(distance, end.controls, end.treatments, sink.control)
+  }
+
+  if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
+    ans <- x[1:narcs]
+    rcosts <- fop$rc[1:narcs]
+    cbind(distance, solution = ans)
+  } else
+  {
+    ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
+    rcosts <- fop$rc
+    obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
+    #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
+    #attr(obj, 'sink.node.price') <- sinkn.price
+    return(obj)
+    #cbind(distance, solution = ans, reduced.cost=rcosts)
+
+  }
+}
+
+prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
+{
+  reduced.costs = numeric(nrow(df))
+  # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
+  reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
+
+
+  reduced.costs[(narcs.no.sink.or.end + 1):(nrow(df) - nc)] <- -c(node.prices[1:(nt + nc)])
+  reduced.costs[(nrow(df)-nc +1):nrow(df)] <- node.prices["(_Sink_)"] - node.prices[(nt+1):(nt + nc)]
+  return(as.integer(reduced.costs))
 }
