@@ -44,7 +44,7 @@ environment:
     GCC_PATH: mingw_64
 
 build_script:
-  - travis-tool.sh install_cran CBPS
+  - travis-tool.sh install_r CBPS
   - travis-tool.sh install_deps
 
 test_script:
