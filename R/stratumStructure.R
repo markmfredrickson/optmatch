@@ -91,11 +91,14 @@
 ##' @rdname stratumStructure
 stratumStructure <- function(stratum, trtgrp=NULL, min.controls=0,max.controls=Inf) UseMethod("stratumStructure")
 
+
+
 ##' @export
 ##' @rdname stratumStructure
 stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.controls=Inf) {
   trtgrp.arg.provided <- !missing(trtgrp) && !is.null(trtgrp)
   ZZ <- try(getZfromMatch(stratum), silent=TRUE)
+  #browser()
   if (inherits(ZZ, "try-error") & !trtgrp.arg.provided)
     stop("stratum is of class optmatch but it has lost its contrast.group attribute; must specify trtgrp")
 
@@ -109,6 +112,9 @@ stratumStructure.optmatch <- function(stratum,trtgrp, min.controls=0,max.control
   stratumStructure.default(stratum,trtgrp=ZZ,min.controls=min.controls,max.controls=max.controls)
 }
 
+#' @export
+setMethod("stratumStructure", "Optmatch", stratumStructure.optmatch)
+
 ##' @export
 ##' @rdname stratumStructure
 stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=Inf) {
@@ -117,18 +123,19 @@ stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=
 
   if (!any(trtgrp<=0) | !any(trtgrp>0))
     warning("No variation in (trtgrp>0); was this intended?")
-
+  #browser()
   stopifnot(is.numeric(min.controls), is.numeric(max.controls))
 
   if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
   if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-
+  temp.t <- stratum@node.data[match(stratum@names, stratum@node.data$name),c("contrast.group")]
   stratum <- as.integer(as.factor(stratum))
   if (any(is.na(stratum)))
     stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
-  ttab <- table(stratum,as.logical(trtgrp))
+  #ttab <- table(stratum,as.logical(trtgrp))
+  ttab <- table(stratum@.Data,temp.t)
   comp.num.matched.pairs <- effectiveSampleSize(ttab)
 
   max.tx <- round(1/min.controls[1])
@@ -168,13 +175,14 @@ print.stratumStructure <- function(x, ...) {
 }
 
 getZfromMatch <- function(m) {
-  if (!is.null(attr(m, "contrast.group"))) {
+  #browser()
+  if(!all(is.na(attr(m, "node.data")$contrast.group))) {
     # NB: originally, the next line called toZ(attr(...))
     # but this caused problems when there NAs induced into the match
     # by, for example, needing to make the match as long as a data.frame
     # that had missingness that was kicked out by glm() or other row-wise
     # deleting functions. For now, we ignore that problem in this function.
-    return(attr(m, "contrast.group"))
+    return(as.logical(na.omit(attr(m, "node.data")$contrast.group)))
   }
 
   stop("Unable to find 'contrast.group' attribute (treatment indicator)")

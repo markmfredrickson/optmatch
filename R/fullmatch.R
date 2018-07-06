@@ -557,7 +557,7 @@ fullmatch.matrix <- function(x,
   {
     #TODO: CHANGE THIS WHEN ATTRIBUTE STRUCTURE HAS BEEN DEPRECATED
 
-    warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = attr(warm.start, "node.data"))
+    warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = attr(warm.start, "node.data"), old.prob.data = attr(warm.start, "prob.data"))
     if (options()$fullmatch_try_recovery) {
       solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, subproblemid = subproblemids, SIMPLIFY = FALSE, warm.start = warm.node.list)
     } else {
@@ -572,9 +572,9 @@ fullmatch.matrix <- function(x,
       solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, subproblemid = subproblemids, SIMPLIFY = FALSE)
     }
   }
-  browser()
+
   #TODO: NEED TO MAKE SURE MAKEOPTMATCHS4 CAN CONSTRUCT FROM MULTIPLE SUBPROBLEMS, or add assembling code here
-  mout <- makeOptmatchs4(x, solutions, match.call(), data)
+  mout <- makeOptmatch(x, solutions, match.call(), data)
   # temporary fix to get node.data below:
   attr(mout, "node.data") <- assemble_node.data(solutions)
   # temporary fix to get prob.data:
@@ -592,11 +592,13 @@ fullmatch.matrix <- function(x,
 
   names(out.mean.controls) <- names(problems)
   names(out.omit.fraction) <- names(problems)
-
+  #browser()
   if(user.input.mean.controls) {
-    attr(mout, "mean.controls") <- out.mean.controls
+    attr(mout, "prob.data")$mean.control <- out.mean.controls
+    out.omit.fraction <- NA
   } else {
-    attr(mout, "omit.fraction") <- out.omit.fraction
+    attr(mout, "prob.data")$omit.fraction <- out.omit.fraction
+    out.mean.controls <- NA
   }
 
   if(length(new.omit.fraction) > 0 & !identical(new.omit.fraction, omit.fraction) & !all(is.na(new.omit.fraction))) {

@@ -153,7 +153,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     PACKAGE = "optmatch")
   }
 
-
+  #browser()
   feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
             (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
@@ -170,7 +170,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
     ans <- x[1:narcs]
     rcosts <- fop$rc[1:narcs]
-    cbind(distance, solution = ans)
+    cbind(distance[1:length(ans), ], solution = ans)
   } else
   {
     ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))

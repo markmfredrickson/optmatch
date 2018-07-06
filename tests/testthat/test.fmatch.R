@@ -21,7 +21,7 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   res <- fmatch(pm, 2, 2)
 
-  expect_equal(dim(res), c(7,4)) # seven non-Inf entries
+  expect_equal(dim(res), c(16,5)) # seven non-Inf entries
 
   # check that A-D is a pair and A-B is not a match
   expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
@@ -75,6 +75,7 @@ test_that("Solutions -> factor helper", {
   expect_true(is.null(solution2factor(noMatches)))
 })
 
+
 test_that("Fallback version of optmatch solver", {
   data(nuclearplants)
 
@@ -100,9 +101,9 @@ test_that("Fallback version of optmatch solver", {
   f4 <- fullmatch(pr ~ cost, data=nuclearplants)
 
   # There should be no practical difference between these
-  expect_identical(f1,f2)
-  expect_identical(f1,f3)
-  expect_identical(f1,f4)
+  expect_identical(f1@.Data,f2@.Data)
+  expect_identical(f1@.Data,f3@.Data)
+  expect_identical(f1@.Data,f4@.Data)
 
   options("use_fallback_optmatch_solver" = NULL)
 })

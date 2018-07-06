@@ -157,7 +157,7 @@ test_that("Contains grouping information", {
   expect_true(all(1:16 %in% names(fm)))
 
   # the prefixes shoudl be used in the levels of the factor
-  expect_true(all(fm %in% apply(expand.grid(letters[1:4], 1:4), 1, function(r) { paste(r, collapse = ".") })))
+  expect_true(all(levels(fm) %in% apply(expand.grid(letters[1:4], 1:4), 1, function(r) { paste(r, collapse = ".") })))
 })
 
 test_that("t() maintains stratification", {

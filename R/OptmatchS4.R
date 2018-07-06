@@ -66,12 +66,13 @@ Optmatch <- setClass("Optmatch", representation(node.data = "data.frame", prob.d
 #'
 #' @seealso \code{\link{summary.optmatch}}
 #' @keywords internal
-makeOptmatchs4 <- function(distance,
+makeOptmatch <- function(distance,
                          solutions,
                          call,
                          data = NULL)
 {
   # pull out just the matching vectors
+
   matching <- lapply(solutions, function(x) { x$cells })
 
   treated <- rownames(distance)
@@ -118,7 +119,7 @@ makeOptmatchs4 <- function(distance,
     subproblems <- subproblems[optorder]
     names(optmatch.obj) <- names(subproblems) <- optorder
   }
-  class(optmatch.obj) <- c("optmatch", "factor")
+  #class(optmatch.obj) <- c("optmatch", "factor")
   s4.opt <- new("Optmatch", optmatch.obj)
 
   if(!is.null(call))
@@ -130,7 +131,8 @@ makeOptmatchs4 <- function(distance,
   cg[names(optmatch.obj) %in% treated] <- 1
   cg[names(optmatch.obj) %in% colnames(distance)] <- 0
 
-
+  s4.opt@node.data <- assemble_node.data(solutions)
+  s4.opt@prob.data <- assemble_prob.data(solutions)
 
   s4.opt@subproblem <- subproblems
   return(s4.opt)
@@ -141,9 +143,11 @@ makeOptmatchs4 <- function(distance,
 #' @export
 setMethod("[", "Optmatch",
           function(x, i, drop = "missing") {
-            sub.opt.data <- factor(x@.Data, labels = x@levels)[i]
-            names(sub.opt.data) <- x@names[i]
-            class(sub.opt.data) <- c("optmatch", "factor")
+
+            sub.opt.data <- factor(x@.Data, labels = x@levels)
+            names(sub.opt.data) <- x@names
+            sub.opt.data <- sub.opt.data[i]
+            #class(sub.opt.data) <- c("optmatch", "factor")
             sub.opt <- new("Optmatch", sub.opt.data)
             sub.opt@prob.data <- x@prob.data
             sub.opt@node.data <- x@node.data
@@ -153,7 +157,6 @@ setMethod("[", "Optmatch",
             return(sub.opt)
           })
 
-#' Returns the restrictions which were used to generate the match.
 #'
 #' If \code{mean.controls} was explicitly specified in the creation of the
 #' optmatch object, it is returned; otherwise \code{omit.fraction} is given.
@@ -167,7 +170,7 @@ setMethod("[", "Optmatch",
 #' @return A list of \code{min.controls}, \code{max.controls} and either
 #' \code{omit.fraction} or \code{mean.controls}.
 #' @export
-optmatch_restrictionss4 <- function(obj) {
+optmatch_restrictions <- function(obj) {
   if (!is(obj, "Optmatch")) {
     stop("Input must be an Optmatch object")
   }
@@ -207,7 +210,7 @@ optmatch_restrictionss4 <- function(obj) {
 #' @param newdist A distance
 #' @return Boolean whether the two distance specifications are identical.
 #' @export
-optmatch_same_distances4 <- function(obj, newdist) {
+optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "Optmatch")) {
     stop("obj must be an Optmatch object")
   }
@@ -233,7 +236,7 @@ optmatch_same_distances4 <- function(obj, newdist) {
 #' @param o2 Second optmatch object.
 #' @return TRUE if the two matches have the same memberships.
 #' @export
-compare_optmatchs4 <- function(o1, o2) {
+compare_optmatch <- function(o1, o2) {
 
   if (length(setdiff(names(o1[!is.na(o1)]), names(o2[!is.na(o2)]))) > 0) {
     return(FALSE)
@@ -245,4 +248,18 @@ compare_optmatchs4 <- function(o1, o2) {
 
   return(length(setdiff(l1,l2)) == 0)
 }
+#' @export
+setGeneric("table", useAsDefault = base:::table, signature = "...")
 
+#' @export
+setMethod("table", "Optmatch", function(..., exclude, useNA, dnn, deparse.level) {
+  browser()
+  fm <- eval(...)
+  tbl <- base:::table(factor(fm@.Data, labels = fm@levels))
+  return(tbl)
+})
+
+#' @export
+setGeneric("paste", signature = "...")
+#' @export
+setMethod("paste", "Optmatch", function(..., sep, collapse) 2)

@@ -2,6 +2,7 @@
 SolveMatches <- function(rownames, colnames, distspec, min.cpt,
                          max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL, warm.start = NULL, subproblemid)
 {
+
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
   }
@@ -40,7 +41,7 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
       omit.fraction <- NULL
     }
   }
-
+  #browser()
   # ... and similarly in the case of negative `omit.fraction` if there were
   # treatments that couldn't be matched.
   if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
@@ -185,13 +186,13 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   if (maxerr > tolerance)
   {
     temp1 <- temp.with.nodes
-    if(is.null(node.prices))
+    if(is.null(warm.start))
     {
-      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls)
+      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls, groupid = groupid)
     }
     else
     {
-      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls, nodeprices = node.prices)
+      temp2 <- .matcher(dm, round, reso, min.cpt, max.cpt, f.ctls, nodeprices = warm.start, groupid = groupid)
     }
 
 
@@ -207,7 +208,11 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
       (max(1, sum(rfeas) - 1) + max(1, sum(cfeas) - 1) -
          (sum(rfeas) == 1 & sum(cfeas) == 1) - sum(temp1$temp$solution)) / reso
   }
-  temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
+  if(!identical(options()$use_fallback_optmatch_solver, TRUE))
+  {
+    temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
+  }
+
   temp.with.nodes$maxerr <- maxerr
   temp.with.nodes[["prob.data"]]$tol = tolerance
   temp.with.nodes[["prob.data"]]$reso = reso
@@ -254,10 +259,18 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, group
 
   match.with.node.prices <- list()
   match.with.node.prices[["temp"]] <- temp
-  match.with.node.prices[["node.data"]] <- build_node_data(temp.extended = temp.extended, subproblemid = groupid)
+  if(identical(options()$use_fallback_optmatch_solver, TRUE))
+  {
+    match.with.node.prices[["node.data"]]
+  }
+  else
+  {
+    match.with.node.prices[["node.data"]] <-build_node_data(temp.extended = temp.extended, subproblemid = groupid)
+  }
+
   # not sure if following line should be one directly below this, or second option
   match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)
-  #match.with.node.prices[["prob.data"]] <- data.frame(max.controls = NA, min.controls = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
+  #match.with.node.prices[["prob.data"]] <- data.frame(max.control = NA, min.control = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
 
   return(match.with.node.prices)
 }

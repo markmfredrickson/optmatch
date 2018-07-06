@@ -1,18 +1,12 @@
-#' @export
-#' Assumes that new treatment and control nodes have already been found and categorized -- that is, of the 'new' nodes, we know whether they are treatment or control
-#' Ignoring some of the potential larger implications for now...not entirely sure what the context of 'new' means here.
-handle_new_nodes <- function(new.ts, new.cs, old.node.data)
-{
-
-}
 # assuming no new nodes have been added
 # want to return list of vectors node prices, named factor -- each vector should correspond to subproblem
 # nt + nc + 2 for each subproblem
 # can nodes appear in multiple subproblems?
 # handles preparation and extraction of nodes
 #' @export
-prep_warm_nodes <- function(problems, old.node.data)
+prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 {
+
   .create.node.vecs <- function(problem)
   {
     browser()
@@ -30,11 +24,124 @@ prep_warm_nodes <- function(problems, old.node.data)
       indx <- old.node.data$name %in% ns | (old.node.data$name == "(_End_)" & old.node.data$group == gs[1] | old.node.data$name == "(_Sink_)" & old.node.data$group == gs[1])
       nodes.to.pass <- old.node.data[indx, c("price")]
       names(nodes.to.pass) <- old.node.data[indx, "name"]
+      reso.m <- old.prob.data[old.prob.data$group == gs, "reso"]
     }
-    # detect new nodes, just putting in some placeholder stuff for now
-    # new.ts <- problem[!r%in% old.node.data$name,]
-    # new.cs <- problem[,!c%in% old.node.data$name]
-    # nodes.to.pass<- handle_new_nodes(new.ts, new.cs, old.node.data)
+
+    #consider case where the nodes in a subproblem might all be new, won't worry about it for now
+    new.ts <- rownames(problem)[!rownames(problem) %in% old.node.data$name]
+    new.cs <- colnames(problem)[!colnames(problem) %in% old.node.data$name]
+    if(length(new.ts) > 0 | length(new.cs) > 0)
+    {
+      prices.new <- numeric(length = (length(r) + length(c) + 2))
+      names(prices.new) <- c(r, c, "(_End_)", "(_Sink_)")
+      prices.new[names(nodes.to.pass)] <- nodes.to.pass
+      price.suggestions.c <- NULL
+      price.suggestions.t <- NULL
+      .handle.new.c <- function(new.c)
+      {
+        browser()
+        distvec <- as.vector(problem[,new.c]) #should return a subsetted df with just the info we want to examine
+        prices <- ifelse(is.na(nodes.to.pass[r]), NA, nodes.to.pass[r])
+        if(!is.na(reso.m))
+        {
+          distvec <- round(reso.m * distvec)
+        }
+        new.control <- function(dist.val, node.price)
+        {
+          browser()
+          if(is.infinite(dist.val))
+          {
+            #terminate and do something
+            return(-Inf)
+          }
+          else if(is.na(node.price))
+          {
+            return(NA)
+            #also terminate and do something
+          }
+          else
+          {
+            comp.val <- node.price - dist.val
+            return(comp.val)
+            #handle updating other metadata elsewhere
+          }
+        }
+        A <- mapply(new.control, dist.val = distvec, node.price = prices)
+        maxa <- max(A) #update the max value as other values are calculated? rather than having to go find a max
+        return(maxa - 1)
+      }
+
+      old.nas <- length(new.cs)
+      if(length(new.cs))
+      {
+        price.suggestions.c <- sapply(new.cs, .handle.new.c)
+        if(!is.na(reso.m))
+        {
+          price.suggestions.c <- price.suggestions.c / reso.m
+        }
+        prices.new[names(price.suggestions.c)] <- price.suggestions.c
+
+      }
+
+      .handle.new.t <- function(new.t)
+      {
+        distvec <- as.vector(problem[new.t,])
+        prices <- ifelse(is.na(nodes.to.pass[c]), NA, nodes.to.pass[c])
+        #distvec should be some multiple of length(prices)
+        if(!is.na(reso.m))
+        {
+          distvec <- round(reso.m * distvec)
+        }
+
+        new.treatment <- function(dist.val, node.price)
+        {
+          if(is.infinite(dist.val))
+          {
+            #terminate and do something
+            return(Inf)
+          }
+          else if(is.na(node.price))
+          {
+            return(NA)
+            #also terminate and do something
+          }
+          else
+          {
+            comp.val <- dist.val + node.price
+            return(comp.val)
+
+          }
+        }
+        A <- mapply(new.control, dist.val = distvec, node.price = prices)
+        mina <- min(A) #update the max value as other values are calculated? rather than having to go find a max
+        return(mina + 1)
+      }
+      old.nas.t <- length(new.ts)
+      if(length(new.ts))
+      {
+        price.suggestions.t <- sapply(new.ts, .handle.new.t)
+        if(!is.na(reso.m))
+        {
+          price.suggestions.t <- price.suggestions.t / reso.m
+        }
+        prices.new[names(price.suggestions.t)] <- price.suggestions.t
+      }
+
+      if(!is.null(price.suggestions.c) & (sum(is.na(price.suggestions.c)) < old.nas.c & sum(is.na(price.suggestions.c)) > 0))
+      {
+        new.cs <- new.cs[!is.na(price.suggestions.c)]
+        price.suggestions.c <- sapply(new.cs, .handle.new.c)
+        prices.new[names(price.suggestions.c)] <- price.suggestions.c
+      }
+      if(!is.null(price.suggestions.t) & (sum(is.na(price.suggestions.t)) < old.nas.t & sum(is.na(price.suggestions.t)) > 0))
+      {
+        new.ts <- new.ts[!is.na(price.suggestions.t)]
+        price.suggestions.t <- sapply(new.ts, .handle.new.t)
+        prices.new[names(price.suggestions.t)] <- price.suggestions.t
+      }
+      nodes.to.pass <- ifelse(is.infinite(prices.new) | is.na(prices.new), 0, prices.new)
+    }
+
     return(nodes.to.pass)
   }
 
@@ -102,7 +209,7 @@ assemble_node.data <- function(solutions)
 }
 
 #' @export
-assemble_prob.data <- function(solutions, subproblemids, min.controls, max.controls, out.mean.controls, out.omit.fraction)
+assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA, max.controls = NA, out.mean.controls = NA, out.omit.fraction = NA)
 {
   ff <- function(x){
     if(is.null(x$prob.data))
@@ -115,10 +222,15 @@ assemble_prob.data <- function(solutions, subproblemids, min.controls, max.contr
     }
   }
   new.df <- do.call(rbind, lapply(solutions, FUN = ff))
+
   if(nrow(new.df))
   {
     new.df$min.control[which(new.df$group == subproblemids)] <- min.controls
     new.df$max.control[which(new.df$group == subproblemids)] <- max.controls
+    if(is.null(new.df$mean.control))
+    {
+      new.df$mean.control <- NA
+    }
     new.df$mean.control[which(new.df$group == subproblemids)] <- out.mean.controls
     new.df$omit.fraction[which(new.df$group == subproblemids)] <- out.omit.fraction
   }
