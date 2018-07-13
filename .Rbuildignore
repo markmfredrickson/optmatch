@@ -10,3 +10,4 @@ vignettes/Sweave.sty
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^appveyor\.yml$
+tests/testthat/test.notforCRAN.R
