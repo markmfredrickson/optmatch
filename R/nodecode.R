@@ -192,8 +192,10 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
   node.data$group <- subproblemid
   return(node.data)
 }
+
+#compiles all node.data df's into one single df
 #' @export
-assemble_node.data <- function(solutions)
+assemble_node.data <- function(solutions, treated = NULL, control = NULL)
 {
   ff <- function(x){
     if(is.null(x$node.data))
@@ -205,9 +207,21 @@ assemble_node.data <- function(solutions)
       return(x$node.data)
     }
   }
-  return(do.call(rbind, lapply(solutions, FUN = ff)))
+  df <- do.call(rbind, lapply(solutions, FUN = ff))
+  #browser()
+  if(!is.null(treated) & !is.null(control))
+  {
+    dropped.t <- treated[!treated %in% df$name]
+    dropped.c <- control[!control %in% df$name]
+    df2 <- data.frame(name = c(dropped.t, dropped.c), price = NA, contrast.group = c(rep(TRUE, rep(length(dropped.t))), rep(FALSE, length(dropped.c))), group = NA)
+    df <- rbind(df, df2)
+  }
+
+  rownames(df) <-NULL
+  return(df)
 }
 
+#compiles all prob.data df's into single df
 #' @export
 assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA, max.controls = NA, out.mean.controls = NA, out.omit.fraction = NA)
 {

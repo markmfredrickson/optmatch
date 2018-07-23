@@ -45,7 +45,7 @@ NA
 
 Optmatch <- setClass("Optmatch", representation(node.data = "data.frame", prob.data = "data.frame"
 , names = "character"
-, call = "call", subproblem = "factor", hashed.distance = "character"), contains = "factor")
+, call = "call", subproblem = "factor", hashed.distance = "character", matched.distance = "array"), contains = "factor")
 
 ####### Object Creation #########
 
@@ -76,7 +76,7 @@ makeOptmatch <- function(distance,
   matching <- lapply(solutions, function(x) { x$cells })
 
   treated <- rownames(distance)
-
+  control <- colnames(distance)
   grpnames <- names(matching)
   if (is.null(grpnames)) {
     grpnames <- 1:(length(matching))
@@ -131,31 +131,89 @@ makeOptmatch <- function(distance,
   cg[names(optmatch.obj) %in% treated] <- 1
   cg[names(optmatch.obj) %in% colnames(distance)] <- 0
 
-  s4.opt@node.data <- assemble_node.data(solutions)
+  s4.opt@node.data <- assemble_node.data(solutions, treated, control)
   s4.opt@prob.data <- assemble_prob.data(solutions)
 
+  if( nrow(s4.opt@node.data) > 0 )
+  {
+    if(any(as.character(na.omit((s4.opt@node.data$name[s4.opt@node.data$contrast.group]))) %in% control))
+    {
+      s4.opt@node.data[match(treated, s4.opt@node.data$name), c('contrast.group')] <- TRUE
+      s4.opt@node.data[match(control, s4.opt@node.data$name), c('contrast.group')] <- FALSE
+      #not sure why we need this block of code-- fixes the reversal of t/c units that occurs in ~ 472 of fullmatch.R in some situations
+    }
+
+  }
   s4.opt@subproblem <- subproblems
   return(s4.opt)
 }
 
 ####### Subsetting and other manipulations #########
 
-#' @export
-setMethod("[", "Optmatch",
-          function(x, i, drop = "missing") {
+# I'm essentially deprecating the "drop" argument -- I think it makes these objects more complicated to work with, and I don't think keeping unused levels as part of the object is necessarily a desired feature.
+# Unused levels will always be dropped now
+# I think if someone does want to keep this functionality for whatever reason, just use
 
-            sub.opt.data <- factor(x@.Data, labels = x@levels)
-            names(sub.opt.data) <- x@names
-            sub.opt.data <- sub.opt.data[i]
-            #class(sub.opt.data) <- c("optmatch", "factor")
-            sub.opt <- new("Optmatch", sub.opt.data)
-            sub.opt@prob.data <- x@prob.data
-            sub.opt@node.data <- x@node.data
-            sub.opt@hashed.distance <- x@hashed.distance
-            sub.opt@call <- x@call
-            sub.opt@subproblem <- x@subproblem
-            return(sub.opt)
-          })
+subsetOptmatchIndexDrop <- function(x, i, j, drop)
+{
+  sub.opt.data <- factor(x@.Data, labels = x@levels)
+  names(sub.opt.data) <- x@names
+  sub.opt.data <- sub.opt.data[i]
+  #drop the unused levels, as dictated by DROP
+  sub.opt.data <- droplevels(sub.opt.data)
+  sub.opt <- new("Optmatch", sub.opt.data)
+  sub.opt@prob.data <- x@prob.data
+  sub.opt@node.data <- x@node.data
+  sub.opt@hashed.distance <- x@hashed.distance
+  sub.opt@call <- x@call
+  if(length(x@subproblem)) {
+    sub.opt@subproblem <- x@subproblem[i]
+  }
+  else
+  {
+    sub.opt@subproblem <- x@subproblem
+  }
+  return(sub.opt)
+}
+
+subsetOptmatchnoIndexDrop <- function(x, i, j, drop)
+{
+  sub.opt.data <- droplevels(factor(x@.Data, labels = x@levels))
+  names(sub.opt.data) <- x@names
+  sub.opt.data <- sub.opt.data
+  #drop the unused levels, as dictated by DROP
+  #sub.opt.data <- droplevels(sub.opt.data)
+  sub.opt <- new("Optmatch", sub.opt.data)
+  sub.opt@prob.data <- x@prob.data
+  sub.opt@node.data <- x@node.data
+  sub.opt@hashed.distance <- x@hashed.distance
+  sub.opt@call <- x@call
+  if(length(x@subproblem)) {
+    sub.opt@subproblem <- x@subproblem
+  }
+  else
+  {
+    sub.opt@subproblem <- x@subproblem
+  }
+  return(sub.opt)
+  #not quite sure what's happening here
+}
+
+subsetOptmatchnoIndexNoDrop <- function(x, i, j, drop)
+{
+  return(x)
+}
+#' @export
+setMethod("[", signature(x = "Optmatch", i = "ANY", drop = "missing", j = "missing"), definition = subsetOptmatchIndexDrop)
+
+#' @export
+setMethod("[", signature(x = "Optmatch", i = "ANY", drop = "logical", j = "missing"), definition = subsetOptmatchIndexDrop)
+
+#' @export
+setMethod("[", signature(x = "Optmatch", i = "missing", drop = "missing", j = "missing"), definition = subsetOptmatchnoIndexNoDrop)
+
+#' @export
+setMethod("[", signature(x = "Optmatch", i = "missing", drop = "logical", j = "missing"), definition = subsetOptmatchnoIndexNoDrop)
 
 #'
 #' If \code{mean.controls} was explicitly specified in the creation of the
@@ -179,18 +237,22 @@ optmatch_restrictions <- function(obj) {
     a <- slot(obj, "prob.data")$min.control
     b <- slot(obj, "prob.data")$max.control
     c <- slot(obj, "prob.data")$mean.control
-    names(a) <- slot(obj, "prob.data")$group
-    names(b) <- slot(obj, "prob.data")$group
-    names(c) <- slot(obj, "prob.data")$group
-    return(list("min.controls"=a, "max.controls"=b, "mean.controls"=c))
+    names(a) <- if(!is.null(a)) slot(obj, "prob.data")$group
+    names(b) <- if(!is.null(b)) slot(obj, "prob.data")$group
+    names(c) <- if(!is.null(c)) slot(obj, "prob.data")$group
+    d <- slot(obj, "prob.data")$omit.fraction
+    names(d) <- if(!is.null(d)) slot(obj, "prob.data")$group
+    return(list("min.controls"=a, "max.controls"=b, "mean.controls"=c, "omit.fraction" = d))
   } else {
     a <- slot(obj, "prob.data")$min.control
     b <- slot(obj, "prob.data")$max.control
     c <- slot(obj, "prob.data")$omit.fraction
-    names(a) <- slot(obj, "prob.data")$group
-    names(b) <- slot(obj, "prob.data")$group
-    names(c) <- slot(obj, "prob.data")$group
-    return(list("min.controls"=a, "max.controls"=b, "omit.fraction"=c))
+    names(a) <- if(!is.null(a)) slot(obj, "prob.data")$group
+    names(b) <- if(!is.null(b)) slot(obj, "prob.data")$group
+    names(c) <- if(!is.null(c)) slot(obj, "prob.data")$group
+    d <- slot(obj, "prob.data")$mean.controls
+    names(d) <- if(!is.null(d)) slot(obj, "prob.data")$group
+    return(list("min.controls"=a, "max.controls"=b, "omit.fraction"=c, "mean.controls" = d))
   }
 }
 
@@ -248,18 +310,49 @@ compare_optmatch <- function(o1, o2) {
 
   return(length(setdiff(l1,l2)) == 0)
 }
-#' @export
-setGeneric("table", useAsDefault = base:::table, signature = "...")
 
+#' Function converting an S4-style Optmatch object into an equivalent s3 optmatch object, if possible
 #' @export
-setMethod("table", "Optmatch", function(..., exclude, useNA, dnn, deparse.level) {
-  browser()
-  fm <- eval(...)
-  tbl <- base:::table(factor(fm@.Data, labels = fm@levels))
-  return(tbl)
-})
+as.optmatch <- function(Optmatch)
+{
+  if(!is(Optmatch, "Optmatch"))
+  {
+    stop("object is not an Optmatch object")
+  }
+  else
+  {
+    opt.obj <- droplevels(factor(Optmatch@.Data, labels = Optmatch@levels))
+    class(opt.obj) <- c("optmatch", "factor")
+    attr(opt.obj, "node.data") <- Optmatch@node.data
+    attr(opt.obj, "prob.data") <- Optmatch@prob.data
+    attr(opt.obj, "call") <- Optmatch@call
+    attr(opt.obj, "subproblem") <- Optmatch@subproblem
+    attr(opt.obj, "hashed.distance") <- Optmatch@hashed.distance
+    names(opt.obj) <- Optmatch@names
+    t <- Optmatch@node.data[match(Optmatch@names, Optmatch@node.data$name),c("contrast.group") ]
+    names(t) <- Optmatch@node.data[match(Optmatch@names, Optmatch@node.data$name),c("name") ]
+    attr(opt.obj, "contrast.group") <- t
 
-#' @export
-setGeneric("paste", signature = "...")
-#' @export
-setMethod("paste", "Optmatch", function(..., sep, collapse) 2)
+    return(opt.obj)
+  }
+}
+
+
+#' #' @export
+#' setGeneric("table", useAsDefault = base:::table, signature = "...")
+#'
+#' #' @export
+#' setMethod("table", "Optmatch", function(..., exclude, useNA, dnn, deparse.level) {
+#'   browser()
+#'   fm <- eval(...)
+#'   tbl <- base:::table(factor(fm@.Data, labels = fm@levels))
+#'   return(tbl)
+#' })
+#'
+#' #' @export
+#' setGeneric("paste", signature = "...")
+#' #' @export
+#' setMethod("paste", "Optmatch", function(..., sep, collapse) 2)
+
+
+

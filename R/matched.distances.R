@@ -32,7 +32,7 @@
 #' @export
 matched.distances <- function(matchobj, distance, preserve.unit.names = FALSE)
 {
-  stopifnot(inherits(matchobj,"optmatch"))
+  stopifnot(inherits(matchobj,"Optmatch"))
   validDistanceSpecification(distance) # this will stop() on invalid dist spec
 
   res <- tapply(names(matchobj), matchobj, FUN = function(x) {

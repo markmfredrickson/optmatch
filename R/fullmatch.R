@@ -573,11 +573,7 @@ fullmatch.matrix <- function(x,
     }
   }
 
-  #TODO: NEED TO MAKE SURE MAKEOPTMATCHS4 CAN CONSTRUCT FROM MULTIPLE SUBPROBLEMS, or add assembling code here
   mout <- makeOptmatch(x, solutions, match.call(), data)
-  # temporary fix to get node.data below:
-  attr(mout, "node.data") <- assemble_node.data(solutions)
-  # temporary fix to get prob.data:
 
   names(min.controls) <- names(problems)
   names(max.controls) <- names(problems)
@@ -592,13 +588,24 @@ fullmatch.matrix <- function(x,
 
   names(out.mean.controls) <- names(problems)
   names(out.omit.fraction) <- names(problems)
-  #browser()
-  if(user.input.mean.controls) {
-    attr(mout, "prob.data")$mean.control <- out.mean.controls
-    out.omit.fraction <- NA
-  } else {
-    attr(mout, "prob.data")$omit.fraction <- out.omit.fraction
-    out.mean.controls <- NA
+  #
+  if(user.input.mean.controls)
+  {
+    if(nrow(mout@prob.data))
+    {
+      attr(mout, "prob.data")$mean.control <- out.mean.controls
+      out.omit.fraction <- NA
+    }
+
+  }
+  else
+  {
+    if(nrow(mout@prob.data))
+    {
+      attr(mout, "prob.data")$omit.fraction <- out.omit.fraction
+      out.mean.controls <- NA
+    }
+
   }
 
   if(length(new.omit.fraction) > 0 & !identical(new.omit.fraction, omit.fraction) & !all(is.na(new.omit.fraction))) {

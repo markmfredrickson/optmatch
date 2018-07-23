@@ -22,6 +22,7 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
 
   # convert the distspec into a cannonical matching specification with columns
   # treated, control, distance
+
   dm <- prepareMatching(distspec)
 
   rownames <- as.character(rownames)
@@ -29,7 +30,7 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
 
   rfeas <- length(unique(dm$treated))
   cfeas <- length(unique(dm$control))
-
+  #browser()
   # If any controls were unmatchable, they were dropped by prepareMatching, and
   # positive `omit.fraction`'s need to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
@@ -41,7 +42,7 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
       omit.fraction <- NULL
     }
   }
-  #browser()
+
   # ... and similarly in the case of negative `omit.fraction` if there were
   # treatments that couldn't be matched.
   if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
@@ -243,7 +244,6 @@ solution2factor <- function(s) {
 
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
 {
-
   if(!is.null(int.node.prices))
   {
     temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_prices =int.node.prices)
