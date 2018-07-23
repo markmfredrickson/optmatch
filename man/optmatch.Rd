@@ -3,7 +3,7 @@
 \name{optmatch}
 \alias{optmatch}
 \alias{optmatch-class}
-\alias{summary.optmatch}
+\alias{summary.Optmatch}
 \title{Optmatch Class}
 \usage{
 \method{summary}{optmatch}(object, propensity.model = NULL, ...,
