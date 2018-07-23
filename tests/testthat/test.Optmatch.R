@@ -16,7 +16,7 @@ test_that("Object creation", {
 
   expect_equal(length(res.opt), 10)
   expect_is(res.opt, "factor")
-  expect_is(res.opt, "optmatch")
+  expect_is(res.opt, "Optmatch")
 
   # two levels of matches shouldn't be 1.NA, 2.NA, should just be NA
   ms2 <- list(
@@ -65,13 +65,14 @@ test_that("Subsetting preserves subproblem", {
   expect_true(all.equal(names(spssf),names(ssf)))
 
   # no subproblems
+  # Modifying this so that "no subproblems" does not mean that that slot is NULL, but rather a factor of length zero.
   f <- fullmatch(pr ~ cost, data=nuclearplants)
-  attr(f, "subproblem") <- NULL
+  attr(f, "subproblem") <- factor()
 
   ssf <- f[25:28]
   spssf <- attr(ssf, "subproblem")
 
-  expect_true(is.null(spssf))
+  expect_true(length(spssf) ==0)
 
 })
 
@@ -84,8 +85,8 @@ test_that("Matched distances", {
   dimnames(dist) <- list(letters[1:5], letters[6:10])
   dist.match <- as.factor(c(1.1,1.1,1.2,1.2,2.1,2.1,2.2,2.2,2.3,2.3))
   names(dist.match) <- c("a","f","b","g","c","h","d","i","e","j")
-  class(dist.match) <- c("optmatch", "factor")
-
+  #class(dist.match) <- c("optmatch", "factor")
+  dist.match <- new("Optmatch", dist.match)
   res.md <- matched.distances(dist.match, dist)
   expect_equivalent(as.vector(res.md), 1:5)
 
@@ -104,11 +105,11 @@ test_that("Matched distances", {
   # matches with more than one item in a strata
   match.multiple <- as.factor(c(1.1,1.1,NA,1.1,2.1,2.1,2.2,2.2,2.3,2.3))
   names(match.multiple) <- c("a","f","b","g","c","h","d","i","e","j")
-  class(match.multiple) <- c("optmatch", "factor")
+  #class(match.multiple) <- c("optmatch", "factor")
 
   dist.multiple <- dist
   dist.multiple["a", "g"] <- 99
-
+  match.multiple <- new("Optmatch", match.multiple)
   res.multiple <- matched.distances(match.multiple, dist.multiple, preserve.unit.names = T)
   expect_equal(length(res.multiple), 4) # 4 matches, four item list
   expect_equal(as.vector(unlist(res.multiple)), c(1, 99, 3, 4, 5))
@@ -197,20 +198,20 @@ test_that("optmatch_restrictions", {
   expect_true(all(o$min.controls == 0))
   expect_true(all(o$max.controls == Inf))
   expect_true(all(is.na(o$omit.fraction)))
-  expect_true(all(is.null(o$mean.controls)))
+  expect_true(all(is.na(o$mean.controls)))
 
   f <- fullmatch(res.b, data=d, mean.controls = 1)
   o <- optmatch_restrictions(f)
   expect_true(all(o$min.controls == 0))
   expect_true(all(o$max.controls == Inf))
-  expect_true(all(is.null(o$omit.fraction)))
+  expect_true(all(is.na(o$omit.fraction)))
   expect_true(all(o$mean.controls == 1))
 
   f <- fullmatch(res.b, data=d, mean.controls = 1, max.controls=c(1,2), min.controls=c(1, 1/2))
   o <- optmatch_restrictions(f)
   expect_true(all(o$min.controls == c(1, 1/2)))
   expect_true(all(o$max.controls == c(1,2)))
-  expect_true(all(is.null(o$omit.fraction)))
+  expect_true(all(is.na(o$omit.fraction)))
   expect_true(all(o$mean.controls == 1))
 
   expect_true(all(names(o$min.controls) == c('a','b')))
@@ -247,7 +248,7 @@ test_that("optmatch_same_distance", {
   expect_true(!optmatch_same_distance(f2, res.b))
   expect_true(!optmatch_same_distance(f3, res.b2))
 
-  expect_error(optmatch_same_distance(res.b, res.b), "obj must be an optmatch object")
+  expect_error(optmatch_same_distance(res.b, res.b), "obj must be an Optmatch object")
   expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "newdist must be a valid distance")
 })
 
@@ -488,7 +489,7 @@ test_that("equality of matches", {
 
   # The problem that motivated this function: Two matches are identical, except one has an extra NA
   f4b <- f4
-  f4b[1] <- NA
+  f4b@.Data[1] <- NA
 
   # This doesn't catch it!
   expect_true(all(f4 == f4b, na.rm=TRUE))

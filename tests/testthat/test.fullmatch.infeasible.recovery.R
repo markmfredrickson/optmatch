@@ -146,7 +146,7 @@ test_that("Correctly apply max.controls", {
   adist <- matrix(c(1:4, rep(Inf, 8)), 2, 6, dimnames=list(letters[1:2], letters[3:8]))
   expect_silent(fullmatch(adist, data=data.frame(1:8, row.names=letters[1:8])))
   expect_warning(fm <- fullmatch(adist, max.c=1, data=data.frame(1:8, row.names=letters[1:8])), "infeasible")
-
+  fm <- as.optmatch(fm)
   expect_true(all(table(fm)==2))
 })
 
@@ -279,14 +279,14 @@ test_that("attr saved after recovery", {
   expect_warning(f <- fullmatch(res.b, data=d, max.controls=2))
   a <- c(0,0)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "prob.data")$min.control, a)
-  expect_equal(attr(f, "prob.data")$mean.control, NA)
+  expect_true(all(attr(f, "prob.data")$min.control == a))
+  expect_true(all(is.na(attr(f, "prob.data")$mean.control)))
   a <- c(2,2)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "prob.data")$max.control, a)
+  expect_true(all(attr(f, "prob.data")$max.control == a))
   a <- c(1/2,NA)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "prob.data")$prob.data, a)
+  expect_true(all(attr(f, "prob.data")$prob.data == a))
 
 
 })
