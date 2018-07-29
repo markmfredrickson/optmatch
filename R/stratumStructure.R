@@ -129,13 +129,13 @@ stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=
   if (length(min.controls)>1) warning("Only first element of min.controls will be used.")
   if (length(max.controls)>1) warning("Only first element of max.controls will be used.")
 
-  temp.t <- stratum@node.data[match(stratum@names, stratum@node.data$name),c("contrast.group")]
+  #temp.t <- stratum@node.data[match(stratum@names, stratum@node.data$name),c("contrast.group")]
   stratum <- as.integer(as.factor(stratum))
   if (any(is.na(stratum)))
     stratum[is.na(stratum)] <- max(0, stratum, na.rm=TRUE) + 1:sum(is.na(stratum))
 
-  #ttab <- table(stratum,as.logical(trtgrp))
-  ttab <- table(stratum@.Data,temp.t)
+  ttab <- table(stratum,as.logical(trtgrp))
+  #ttab <- table(stratum@.Data,temp.t)
   comp.num.matched.pairs <- effectiveSampleSize(ttab)
 
   max.tx <- round(1/min.controls[1])
@@ -183,7 +183,18 @@ getZfromMatch <- function(m) {
     # that had missingness that was kicked out by glm() or other row-wise
     # deleting functions. For now, we ignore that problem in this function.
     t <- m@node.data[match(m@names, m@node.data$name),c("contrast.group")]
-    return(as.logical(na.omit(t)))
+
+    if(!is.null(t) && sum(is.na(t)) > 0)
+    {
+      tp <- attr(m@node.data, "dropped.nodes")
+      if(nrow(tp) > 0)
+      {
+        # these should line up
+        t[is.na(t)] <- na.omit(tp[match(m@names, tp$name),c("contrast.group")])
+      }
+    }
+
+    return(as.logical((t)))
   }
 
   stop("Unable to find 'contrast.group' attribute (treatment indicator)")

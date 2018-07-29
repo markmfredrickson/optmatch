@@ -213,8 +213,11 @@ assemble_node.data <- function(solutions, treated = NULL, control = NULL)
   {
     dropped.t <- treated[!treated %in% df$name]
     dropped.c <- control[!control %in% df$name]
-    df2 <- data.frame(name = c(dropped.t, dropped.c), price = NA, contrast.group = c(rep(TRUE, rep(length(dropped.t))), rep(FALSE, length(dropped.c))), group = NA)
-    df <- rbind(df, df2)
+    #df2 <- data.frame(name = c(dropped.t, dropped.c), price = NA, contrast.group = c(rep(TRUE, rep(length(dropped.t))), rep(FALSE, length(dropped.c))), group = NA)
+    df2 <- data.frame(name = c(dropped.t, dropped.c), price = rep(NA, length(c(dropped.t, dropped.c))))
+    df2$contrast.group <- c(rep(TRUE, rep(length(dropped.t))), rep(FALSE, length(dropped.c)))
+    df2$group <- rep(NA, length(c(dropped.t, dropped.c)))
+    attr(df, "dropped.nodes") <- df2
   }
 
   rownames(df) <-NULL
