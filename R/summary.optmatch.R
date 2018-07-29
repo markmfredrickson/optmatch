@@ -40,7 +40,6 @@ summary.Optmatch <- function(object,
 ## effective sample size -- stratumStructure
 ## outlying propensity-score distances -- matched.distances()
 ## overall balance -- xBalance()
-
   so <- list()
   so$thematch <- object
   mfd <- is.na(object)
@@ -53,15 +52,37 @@ summary.Optmatch <- function(object,
   if (all(mfd))
     {
       class(so) <- "summary.Optmatch"
-      so$matching.failed <- table(subprobs, object@node.data[match(object@names, object@node.data$name),c("contrast.group")])
+      t <- object@node.data[match(object@names, object@node.data$name),c("contrast.group")]
+
+      if(!is.null(t) && sum(is.na(t)) > 0)
+      {
+        tp <- attr(object@node.data, "dropped.nodes")
+        if(nrow(tp) > 0)
+        {
+          # these should line up
+          t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+        }
+      }
+      so$matching.failed <- table(subprobs, t)
       dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
       so$warnings <- c(so$warnings,
                        list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
                        )
       return(so)
+  }
+  t <- object@node.data[match(object@names, object@node.data$name),c("contrast.group")]
+
+  if(!is.null(t) && sum(is.na(t)) > 0)
+  {
+    tp <- attr(object@node.data, "dropped.nodes")
+    if(nrow(tp) > 0)
+    {
+      # these should line up
+      t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
     }
+  }
   match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
-  so$matching.failed <- table(subprobs, object@node.data[match(object@names, object@node.data$name),c("contrast.group")],
+  so$matching.failed <- table(subprobs, t,
                               exclude = names(match.succeed)[match.succeed],
                               useNA = 'no')
   if (prod(dim(so$matching.failed)) == 0) {
