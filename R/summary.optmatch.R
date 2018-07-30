@@ -40,6 +40,7 @@ summary.Optmatch <- function(object,
 ## effective sample size -- stratumStructure
 ## outlying propensity-score distances -- matched.distances()
 ## overall balance -- xBalance()
+
   so <- list()
   so$thematch <- object
   mfd <- is.na(object)
@@ -52,15 +53,22 @@ summary.Optmatch <- function(object,
   if (all(mfd))
     {
       class(so) <- "summary.Optmatch"
-      t <- object@node.data[match(object@names, object@node.data$name),c("contrast.group")]
+      t <- as.vector(object@node.data[match(object@names, object@node.data$name),c("contrast.group")])
 
-      if(!is.null(t) && sum(is.na(t)) > 0)
+      if( (!is.null(t) && sum(is.na(t)) > 0) || (!is.null(t) && length(t) == 0 && nrow(attr(object@node.data, "dropped.nodes")) > 0 ))
       {
         tp <- attr(object@node.data, "dropped.nodes")
         if(nrow(tp) > 0)
         {
           # these should line up
-          t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+          if(sum(is.na(t)))
+          {
+            t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+          }
+          else
+          {
+            t <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+          }
         }
       }
       so$matching.failed <- table(subprobs, t)

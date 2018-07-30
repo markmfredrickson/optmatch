@@ -182,19 +182,38 @@ getZfromMatch <- function(m) {
     # by, for example, needing to make the match as long as a data.frame
     # that had missingness that was kicked out by glm() or other row-wise
     # deleting functions. For now, we ignore that problem in this function.
-    t <- m@node.data[match(m@names, m@node.data$name),c("contrast.group")]
+    t <- as.vector(m@node.data[match(m@names, m@node.data$name),c("contrast.group")])
 
-    if(!is.null(t) && sum(is.na(t)) > 0)
+    if( (!is.null(t) && sum(is.na(t)) > 0) || (!is.null(t) && length(t) == 0 && nrow(attr(m@node.data, "dropped.nodes")) > 0 ))
     {
       tp <- attr(m@node.data, "dropped.nodes")
       if(nrow(tp) > 0)
       {
         # these should line up
-        t[is.na(t)] <- na.omit(tp[match(m@names, tp$name),c("contrast.group")])
+        if(sum(is.na(t)))
+        {
+          t[is.na(t)] <- na.omit(tp[match(m@names, tp$name),c("contrast.group")])
+        }
+        else
+        {
+          t <- na.omit(tp[match(m@names, tp$name),c("contrast.group")])
+        }
       }
     }
-
-    return(as.logical((t)))
+    return(as.logical(t))
+    # t <- m@node.data[match(m@names, m@node.data$name),c("contrast.group")]
+    #
+    # if(!is.null(t) && sum(is.na(t)) > 0)
+    # {
+    #   tp <- attr(m@node.data, "dropped.nodes")
+    #   if(nrow(tp) > 0)
+    #   {
+    #     # these should line up
+    #     t[is.na(t)] <- na.omit(tp[match(m@names, tp$name),c("contrast.group")])
+    #   }
+    # }
+    #
+    # return(as.logical((t)))
   }
 
   stop("Unable to find 'contrast.group' attribute (treatment indicator)")
