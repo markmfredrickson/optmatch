@@ -2,10 +2,12 @@
 % Please edit documentation in R/OptmatchS4.R
 \name{as.optmatch}
 \alias{as.optmatch}
-\title{Function converting an S4-style Optmatch object into an equivalent s3 optmatch object, if possible}
+\title{Function converting an S4-style Optmatch object into an equivalent s3 optmatch object, if possible
+THIS NEEDS TO BE UPDATED IN ACCORDANCE WITH CHANGES/UPDATES TO FUTURE NODE.DATA CHANGES.}
 \usage{
 as.optmatch(Optmatch)
 }
 \description{
 Function converting an S4-style Optmatch object into an equivalent s3 optmatch object, if possible
+THIS NEEDS TO BE UPDATED IN ACCORDANCE WITH CHANGES/UPDATES TO FUTURE NODE.DATA CHANGES.
 }

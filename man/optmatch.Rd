@@ -7,7 +7,8 @@
 \title{Optmatch Class}
 \usage{
 \method{summary}{optmatch}(object, propensity.model = NULL, ...,
-  min.controls = 0.2, max.controls = 5, quantiles = c(0, 0.5, 0.95, 1))
+  min.controls = 0.2, max.controls = 5, quantiles = c(0, 0.5, 0.95,
+  1))
 }
 \arguments{
 \item{object}{The \code{optmatch} object to summarize.}
@@ -40,17 +41,9 @@ between units will be displayed.}
 \code{optmatch.summary}
 }
 \description{
-The \code{optmatch} class describes the results of an optimal full matching
-(using either \code{\link{fullmatch}} or \code{\link{pairmatch}}). For the
-most part, these objects can be treated as \code{factors}.
-
-The summary function quantifies \code{optmatch} objects on the effective sample
-size, the distribution of distances between matched units, and how well the
-match reduces average differences.
-}
-\details{
-\code{optmatch} objects descend from \code{factor}.
-Elements of this vector correspond to members of the treatment and control
+The \code{Optmatch} class describes the results of an optimal full matching
+(using either \code{\link{fullmatch}} or \code{\link{pairmatch}}). Often, these objects can be treated as \code{factors}.
+Elements of the underlying factor vector correspond to members of the treatment and control
 groups in reference to which the matching problem was posed, and are named
 accordingly; the names are taken from the row and column names of
 \code{distance}.  Each element of the vector is either \code{NA}, indicating
@@ -64,18 +57,37 @@ to be infeasible.  The functions \code{\link{matched}},
 \code{\link{unmatched}}, and \code{\link{matchfailed}} distinguish these
 scenarios.
 
+The summary function quantifies \code{Optmatch} objects on the effective sample
+size, the distribution of distances between matched units, and how well the
+match reduces average differences.
+}
+\details{
 Secondarily, \code{fullmatch} returns various data about the matching
-process and its result, stored as attributes of the named vector which is
-its primary output.  In particular, the \code{exceedances} attribute gives
+process and its result, stored as slots:
+}
+\section{Slots}{
+
+\describe{
+\item{\code{node.data}}{Data frame containing various information about units involved in a particular match, including name, whether or not it was a treatment or control unit
+an identifier indicating to which subproblem each unit belonged, and a price, which can be used for computational efficiency benefits.}
+
+\item{\code{prob.data}}{Data frame containing information about subproblems. In particular, the \code{exceedances} column gives
 upper bounds, not necessarily sharp, for the amount by which the sum of
 distances between matched units in the result of \code{fullmatch} exceeds
 the least possible sum of distances between matched units in a feasible
-solution to the matching problem given to \code{fullmatch}.  (Such a bound
-is also printed by \code{print.optmatch} and \code{summary.optmatch}.)
-THIS CURRENTLY ACTS AS HYBRID OF OLD OPTMATCH OBJECT AND NEW S4 REFACTORING WHILE WARM START CHANGES ARE BEING IMPLEMENTED
-will also require some work in print.optmatch.r
-SHOULD ALSO ADD IN SOME VALIDITY/INTERNAL CHECKS FOR THESE, NOW THAT THAT IS POSSIBLE!
-}
+solution to the matching problem given to \code{fullmatch}. Other information details specified parameters about restrictions on control units.}
+
+\item{\code{names}}{Character vector indicating the names of treatment and control units}
+
+\item{\code{call}}{Formula that was used to generate the object.}
+
+\item{\code{subproblem}}{Vector indicating different subproblems}
+
+\item{\code{hashed.distance}}{See \code{hashed.distance} function}
+
+\item{\code{matched.distance}}{See \code{matched.distances} function}
+}}
+
 \seealso{
 \code{\link{print.optmatch}}
 }

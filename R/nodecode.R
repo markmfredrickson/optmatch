@@ -1,15 +1,12 @@
-# assuming no new nodes have been added
-# want to return list of vectors node prices, named factor -- each vector should correspond to subproblem
-# nt + nc + 2 for each subproblem
-# can nodes appear in multiple subproblems?
-# handles preparation and extraction of nodes
+#' Function to handle preparation and extraction of node data. If information about nodes from a previously solved problem exists,
+#' #' this function will extract that information and prepare it to be used in the following matching procedure. Currently is very much in development, not really ready for general use.
 #' @export
 prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 {
 
   .create.node.vecs <- function(problem)
   {
-    browser()
+
     r <- rownames(problem)
     c <- colnames(problem)
     ns <- c(r,c)
@@ -26,7 +23,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
       names(nodes.to.pass) <- old.node.data[indx, "name"]
       reso.m <- old.prob.data[old.prob.data$group == gs, "reso"]
     }
-
+    ###***** start of code that is not quite done: handling new nodes that have been introduced into a problem
     #consider case where the nodes in a subproblem might all be new, won't worry about it for now
     new.ts <- rownames(problem)[!rownames(problem) %in% old.node.data$name]
     new.cs <- colnames(problem)[!colnames(problem) %in% old.node.data$name]
@@ -37,9 +34,10 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
       prices.new[names(nodes.to.pass)] <- nodes.to.pass
       price.suggestions.c <- NULL
       price.suggestions.t <- NULL
+
       .handle.new.c <- function(new.c)
       {
-        browser()
+
         distvec <- as.vector(problem[,new.c]) #should return a subsetted df with just the info we want to examine
         prices <- ifelse(is.na(nodes.to.pass[r]), NA, nodes.to.pass[r])
         if(!is.na(reso.m))
@@ -48,7 +46,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
         }
         new.control <- function(dist.val, node.price)
         {
-          browser()
+
           if(is.infinite(dist.val))
           {
             #terminate and do something
@@ -140,7 +138,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
         prices.new[names(price.suggestions.t)] <- price.suggestions.t
       }
       nodes.to.pass <- ifelse(is.infinite(prices.new) | is.na(prices.new), 0, prices.new)
-    }
+    } ### *** end of 'new node handling code'
 
     return(nodes.to.pass)
   }
@@ -151,7 +149,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 
 }
 
-#builds node.data df from a solution
+#builds node.data (as defined in Optmatch class definition) data frame from a subproblem matching solution
 #' @export
 build_node_data <- function(temp.extended, subproblemid, treatment.names, control.names)
 {
@@ -193,7 +191,7 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
   return(node.data)
 }
 
-#compiles all node.data df's into one single df
+# Combines all information from node.data data frames across all subproblems into a single node.data frame for the entire original problem
 #' @export
 assemble_node.data <- function(solutions, treated = NULL, control = NULL)
 {
@@ -224,7 +222,7 @@ assemble_node.data <- function(solutions, treated = NULL, control = NULL)
   return(df)
 }
 
-#compiles all prob.data df's into single df
+#compiles all prob.data data frames across all subproblems into a single prob.data data frame for the entire original matching problem
 #' @export
 assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA, max.controls = NA, out.mean.controls = NA, out.omit.fraction = NA)
 {

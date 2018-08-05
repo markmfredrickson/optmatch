@@ -1,6 +1,6 @@
 #' Display matching related statistics
 #'
-#' The summary function quantifies \code{optmatch} objects on the effective sample
+#' The summary function quantifies \code{Optmatch} objects on the effective sample
 #' size, the distribution of distances between matched units, and how well the
 #' match reduces average differences.
 #'
@@ -54,7 +54,7 @@ summary.Optmatch <- function(object,
     {
       class(so) <- "summary.Optmatch"
       t <- as.vector(object@node.data[match(object@names, object@node.data$name),c("contrast.group")])
-
+      browser()
       if( (!is.null(t) && sum(is.na(t)) > 0) || (!is.null(t) && length(t) == 0 && nrow(attr(object@node.data, "dropped.nodes")) > 0 ))
       {
         tp <- attr(object@node.data, "dropped.nodes")

@@ -4,12 +4,10 @@
 
 #' Optmatch Class
 #'
-#' The \code{optmatch} class describes the results of an optimal full matching
-#' (using either \code{\link{fullmatch}} or \code{\link{pairmatch}}). For the
-#' most part, these objects can be treated as \code{factors}.
-#'
-#' \code{optmatch} objects descend from \code{factor}.
-#' Elements of this vector correspond to members of the treatment and control
+#' The \code{Optmatch} class describes the results of an optimal full matching
+#' (using either \code{\link{fullmatch}} or \code{\link{pairmatch}}). Often, these objects can be treated as \code{factors}.
+
+#' Elements of the underlying factor vector correspond to members of the treatment and control
 #' groups in reference to which the matching problem was posed, and are named
 #' accordingly; the names are taken from the row and column names of
 #' \code{distance}.  Each element of the vector is either \code{NA}, indicating
@@ -24,23 +22,23 @@
 #' scenarios.
 #'
 #' Secondarily, \code{fullmatch} returns various data about the matching
-#' process and its result, stored as attributes of the named vector which is
-#' its primary output.  In particular, the \code{exceedances} attribute gives
+#' process and its result, stored as slots:
+#' @slot node.data Data frame containing various information about units involved in a particular match, including name, whether or not it was a treatment or control unit
+#' an identifier indicating to which subproblem each unit belonged, and a price, which can be used for computational efficiency benefits.
+#' @slot prob.data Data frame containing information about subproblems. In particular, the \code{exceedances} column gives
 #' upper bounds, not necessarily sharp, for the amount by which the sum of
 #' distances between matched units in the result of \code{fullmatch} exceeds
 #' the least possible sum of distances between matched units in a feasible
-#' solution to the matching problem given to \code{fullmatch}.  (Such a bound
-#' is also printed by \code{print.optmatch} and \code{summary.optmatch}.)
-#' THIS CURRENTLY ACTS AS HYBRID OF OLD OPTMATCH OBJECT AND NEW S4 REFACTORING WHILE WARM START CHANGES ARE BEING IMPLEMENTED
-#' will also require some work in print.optmatch.r
-#' SHOULD ALSO ADD IN SOME VALIDITY/INTERNAL CHECKS FOR THESE, NOW THAT THAT IS POSSIBLE!
+#' solution to the matching problem given to \code{fullmatch}. Other information details specified parameters about restrictions on control units.
+#' @slot names Character vector indicating the names of treatment and control units
+#' @slot call Formula that was used to generate the object.
+#' @slot subproblem Vector indicating different subproblems
+#' @slot hashed.distance See \code{hashed.distance} function
+#' @slot matched.distance See \code{matched.distances} function
 #' @rdname optmatch
 #' @name optmatch
 #' @aliases optmatch-class
 NA
-
-#setClass("Optmatch", representation(.Data = "factor"))
-#node.data should have columns: nodes, prices, subproblem t/c/b
 
 
 Optmatch <- setClass("Optmatch", representation(node.data = "data.frame", prob.data = "data.frame"
@@ -53,8 +51,8 @@ Optmatch <- setClass("Optmatch", representation(node.data = "data.frame", prob.d
 #'
 #' This internal function is used to create the final output of the matching
 #' functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
-#' \code{optmatch} object descends from a \code{factor}, but contains additional
-#' information relating to the quality of the match.
+#' \code{Optmatch} object is an S4 object that inherits from a \code{factor}, but contains additional
+#' information relating to the quality of the match in various slots.
 #'
 #' @param distance A \code{DistanceSpecificaton} object used to create the
 #'  match.
@@ -62,8 +60,7 @@ Optmatch <- setClass("Optmatch", representation(node.data = "data.frame", prob.d
 #' @param call The call to \code{fullmatch} or \code{pairmatch} to be displayed later.
 #' @param data An object from which \code{names} or \code{row.names} will
 #'  provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.
-#' @return \code{optmatch} object
-#'
+#' @return \code{Optmatch} object with slots described in the class description.
 #' @seealso \code{\link{summary.optmatch}}
 #' @keywords internal
 makeOptmatch <- function(distance,
@@ -152,7 +149,6 @@ makeOptmatch <- function(distance,
 
 # I'm essentially deprecating the "drop" argument -- I think it makes these objects more complicated to work with, and I don't think keeping unused levels as part of the object is necessarily a desired feature.
 # Unused levels will always be dropped now
-# I think if someone does want to keep this functionality for whatever reason, just use
 
 subsetOptmatchIndexDrop <- function(x, i, j, drop)
 {
@@ -312,6 +308,7 @@ compare_optmatch <- function(o1, o2) {
 }
 
 #' Function converting an S4-style Optmatch object into an equivalent s3 optmatch object, if possible
+#' THIS NEEDS TO BE UPDATED IN ACCORDANCE WITH CHANGES/UPDATES TO FUTURE NODE.DATA CHANGES.
 #' @export
 as.optmatch <- function(Optmatch)
 {
@@ -337,22 +334,6 @@ as.optmatch <- function(Optmatch)
   }
 }
 
-
-#' #' @export
-#' setGeneric("table", useAsDefault = base:::table, signature = "...")
-#'
-#' #' @export
-#' setMethod("table", "Optmatch", function(..., exclude, useNA, dnn, deparse.level) {
-#'   browser()
-#'   fm <- eval(...)
-#'   tbl <- base:::table(factor(fm@.Data, labels = fm@levels))
-#'   return(tbl)
-#' })
-#'
-#' #' @export
-#' setGeneric("paste", signature = "...")
-#' #' @export
-#' setMethod("paste", "Optmatch", function(..., sep, collapse) 2)
 
 
 

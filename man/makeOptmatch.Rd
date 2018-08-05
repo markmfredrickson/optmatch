@@ -18,13 +18,13 @@ match.}
 provide the order of the items in the match. If no names are attached to this object, the contents will be used as names.}
 }
 \value{
-\code{optmatch} object
+\code{Optmatch} object with slots described in the class description.
 }
 \description{
 This internal function is used to create the final output of the matching
 functions (\code{\link{fullmatch}} and \code{\link{pairmatch}}). The
-\code{optmatch} object descends from a \code{factor}, but contains additional
-information relating to the quality of the match.
+\code{Optmatch} object is an S4 object that inherits from a \code{factor}, but contains additional
+information relating to the quality of the match in various slots.
 }
 \seealso{
 \code{\link{summary.optmatch}}
