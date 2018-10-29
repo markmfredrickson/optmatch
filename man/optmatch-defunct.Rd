@@ -16,17 +16,6 @@ mahal.dist(...)
 \description{
 Over the course of time, several functions in optmatch have been removed in
 favor of new interfaces and functions.
-
-All functionality of the \code{pscore.dist} function has been moved into to
-the \code{\link{mdist}} function. Additionally, this function will also act on
-other objects, such as formulas.
-The \code{\link{match_on}} function
-also provides similar functionality, though with a different syntax.
-
-All functionality of the \code{mahal.dist} function has been moved into to
-the \code{\link{mdist}} function. Additionally, this function will also act on
-other objects, such as \code{glm} objects. The \code{\link{match_on}} function
-also provides similar functionality, though with a different syntax.
 }
 \seealso{
 \code{\link{mdist}}, \code{\link{match_on}}
