@@ -17,23 +17,23 @@ match_on(x, within = NULL, caliper = NULL, data = NULL, ...)
 \method{match_on}{glm}(x, within = NULL, caliper = NULL, data = NULL,
   standardization.scale = mad, ...)
 
-\method{match_on}{bigglm}(x, within = NULL, caliper = NULL, data = NULL,
-  standardization.scale = mad, ...)
+\method{match_on}{bigglm}(x, within = NULL, caliper = NULL,
+  data = NULL, standardization.scale = mad, ...)
 
-\method{match_on}{formula}(x, within = NULL, caliper = NULL, data = NULL,
-  subset = NULL, method = "mahalanobis", ...)
+\method{match_on}{formula}(x, within = NULL, caliper = NULL,
+  data = NULL, subset = NULL, method = "mahalanobis", ...)
 
-\method{match_on}{function}(x, within = NULL, caliper = NULL, data = NULL,
-  z = NULL, ...)
+\method{match_on}{function}(x, within = NULL, caliper = NULL,
+  data = NULL, z = NULL, ...)
 
-\method{match_on}{numeric}(x, within = NULL, caliper = NULL, data = NULL,
-  z, ...)
+\method{match_on}{numeric}(x, within = NULL, caliper = NULL,
+  data = NULL, z, ...)
 
-\method{match_on}{InfinitySparseMatrix}(x, within = NULL, caliper = NULL,
+\method{match_on}{InfinitySparseMatrix}(x, within = NULL,
+  caliper = NULL, data = NULL, ...)
+
+\method{match_on}{matrix}(x, within = NULL, caliper = NULL,
   data = NULL, ...)
-
-\method{match_on}{matrix}(x, within = NULL, caliper = NULL, data = NULL,
-  ...)
 }
 \arguments{
 \item{x}{An object defining how to create the distances. All methods require

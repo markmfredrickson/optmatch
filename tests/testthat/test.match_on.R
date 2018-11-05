@@ -286,23 +286,9 @@ test_that("Errors for numeric vectors", {
 ###          )
 ###     )
 ###test(all.equal(unlist(result.combined), unlist(with(nuclearplants, match_on(pr ~ t1 + t2, structure.fmla=strat.fmla)))))
-test_that("Bigglm distances", {
-  if (require(biglm)) {
-    n <- 16
-    test.data <- data.frame(Z = rep(0:1, each = n/2),
-                            X1 = rnorm(n, mean = 5),
-                            X2 = rnorm(n, mean = -2, sd = 2),
-                            B = rep(c(0,1), times = n/2))
 
-
-    bgps <- bigglm(Z ~ X1 + X2, data = test.data, family = binomial())
-    res.bg <- match_on(bgps, data = test.data)
-
-  # compare to glm
-    res.glm <- match_on(glm(Z ~ X1 + X2, data = test.data, family = binomial()))
-    expect_equivalent(res.bg, res.glm)
-  }
-})
+# test_that("Bigglm distances", {
+# Moved to test.notforCRAN.R
 
 test_that("Numeric: simple differences of scores", {
   # note: the propensity score method depends on this method as well, so if
