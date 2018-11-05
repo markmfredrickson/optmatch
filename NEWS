@@ -1,3 +1,6 @@
+CHANGES IN OPTMATCH VERSION 0.9-10
+* Minor release to fix warnings during CRAN checks.
+
 CHANGES IN OPTMATCH VERSION 0.9-9
 * Fixed a bug that caused the effective sample size to be rounded too aggresively
   in `summary.optmatch`.
