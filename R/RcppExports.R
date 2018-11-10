@@ -5,6 +5,10 @@ mahalanobisHelper <- function(data, index, invScaleMat) {
     .Call(`_optmatch_mahalanobisHelper`, data, index, invScaleMat)
 }
 
+determineGroup <- function(names, compnames) {
+    .Call(`_optmatch_determineGroup`, names, compnames)
+}
+
 ismOps <- function(o, a, b) {
     .Call(`_optmatch_ismOps`, o, a, b)
 }

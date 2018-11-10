@@ -23,6 +23,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
       names(nodes.to.pass) <- old.node.data[indx, "name"]
       reso.m <- old.prob.data[old.prob.data$group == gs, "reso"]
     }
+    browser()
     ###***** start of code that is not quite done: handling new nodes that have been introduced into a problem
     #consider case where the nodes in a subproblem might all be new, won't worry about it for now
     new.ts <- rownames(problem)[!rownames(problem) %in% old.node.data$name]
@@ -32,8 +33,8 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
       prices.new <- numeric(length = (length(r) + length(c) + 2))
       names(prices.new) <- c(r, c, "(_End_)", "(_Sink_)")
       prices.new[names(nodes.to.pass)] <- nodes.to.pass
-      price.suggestions.c <- NULL
-      price.suggestions.t <- NULL
+      price.suggestions.c <- NA
+      price.suggestions.t <- NA
 
       .handle.new.c <- function(new.c)
       {
@@ -43,6 +44,10 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
         if(!is.na(reso.m))
         {
           distvec <- round(reso.m * distvec)
+        }
+        else
+        {
+          stop("resolution not available, something is wrong")
         }
         new.control <- function(dist.val, node.price)
         {
@@ -69,7 +74,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
         return(maxa - 1)
       }
 
-      old.nas <- length(new.cs)
+      old.nas.c <- length(new.cs)
       if(length(new.cs))
       {
         price.suggestions.c <- sapply(new.cs, .handle.new.c)
@@ -110,7 +115,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 
           }
         }
-        A <- mapply(new.control, dist.val = distvec, node.price = prices)
+        A <- mapply(new.treatment, dist.val = distvec, node.price = prices)
         mina <- min(A) #update the max value as other values are calculated? rather than having to go find a max
         return(mina + 1)
       }
@@ -122,16 +127,20 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
         {
           price.suggestions.t <- price.suggestions.t / reso.m
         }
+        else
+        {
+          stop("reso missing, something is wrong")
+        }
         prices.new[names(price.suggestions.t)] <- price.suggestions.t
       }
 
-      if(!is.null(price.suggestions.c) & (sum(is.na(price.suggestions.c)) < old.nas.c & sum(is.na(price.suggestions.c)) > 0))
+      if((sum(is.na(price.suggestions.c)) < old.nas.c & sum(is.na(price.suggestions.c)) > 0))
       {
         new.cs <- new.cs[!is.na(price.suggestions.c)]
         price.suggestions.c <- sapply(new.cs, .handle.new.c)
         prices.new[names(price.suggestions.c)] <- price.suggestions.c
       }
-      if(!is.null(price.suggestions.t) & (sum(is.na(price.suggestions.t)) < old.nas.t & sum(is.na(price.suggestions.t)) > 0))
+      if((sum(is.na(price.suggestions.t)) < old.nas.t & sum(is.na(price.suggestions.t)) > 0))
       {
         new.ts <- new.ts[!is.na(price.suggestions.t)]
         price.suggestions.t <- sapply(new.ts, .handle.new.t)
@@ -170,22 +179,24 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
 
   node.data <- data.frame(name = nnodes, price = node.prices.i)
 
-  .determine_group <- function(node.name)
-  {
-      if(node.name == "(_End_)" | node.name == "(_Sink_)")
-      {
-        return(NA) #bookkeeping
-      }
-      if(all(node.name %in% temp.extended$treated))
-      {
-        return(as.logical(TRUE)) #treatment
-      }
-      else
-      {
-        return(as.logical(FALSE)) #control
-      }
-  }
-  node.data$contrast.group <- sapply(nnodes, FUN = .determine_group)
+  # .determine_group <- function(node.name)
+  # {
+  #     if(node.name == "(_End_)" | node.name == "(_Sink_)")
+  #     {
+  #       return(NA) #bookkeeping
+  #     }
+  #     if(all(node.name %in% temp.extended$treated))
+  #     {
+  #       return(as.logical(TRUE)) #treatment
+  #     }
+  #     else
+  #     {
+  #       return(as.logical(FALSE)) #control
+  #     }
+  # }
+  # node.data$contrast.group <- sapply(nnodes, FUN = .determine_group)
+  # browser()
+  node.data$contrast.group <- determineGroup(nnodes, unique(as.character(temp.extended$treated)))
   # node.data <- data.frame(name = c(nnodes, msg.n), price = c(node.prices.i, msg.p), contrast.group = c(cg, msg.c), group <- c(rep(subproblemid, length(nnodes)), msg.s)
   node.data$group <- subproblemid
   return(node.data)

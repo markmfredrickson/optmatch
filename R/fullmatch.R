@@ -557,7 +557,7 @@ fullmatch.matrix <- function(x,
   {
     #TODO: CHANGE THIS WHEN ATTRIBUTE STRUCTURE HAS BEEN DEPRECATED
 
-    warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = attr(warm.start, "node.data"), old.prob.data = attr(warm.start, "prob.data"))
+    warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = slot(warm.start, "node.data"), old.prob.data = slot(warm.start, "prob.data"))
     if (options()$fullmatch_try_recovery) {
       solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, subproblemid = subproblemids, SIMPLIFY = FALSE, warm.start = warm.node.list)
     } else {
