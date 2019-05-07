@@ -7,10 +7,11 @@
 \usage{
 fullmatch(x, min.controls = 0, max.controls = Inf,
   omit.fraction = NULL, mean.controls = NULL, tol = 0.001,
-  data = NULL, ...)
+  data = NULL, warm.start = NULL, starting.solution = NULL, ...)
 
 full(x, min.controls = 0, max.controls = Inf, omit.fraction = NULL,
-  mean.controls = NULL, tol = 0.001, data = NULL, ...)
+  mean.controls = NULL, tol = 0.001, data = NULL,
+  warm.start = NULL, starting.solution = NULL, ...)
 }
 \arguments{
 \item{x}{Any valid input to \code{match_on}. \code{fullmatch} will use

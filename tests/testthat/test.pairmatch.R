@@ -30,7 +30,7 @@ test_that("No cross strata matches", {
 
   expect_warning(res <- pairmatch(distances))
   expect_false(any(is.na(res)))
-  expect_false(any(res[1:4] %in% res[5:8]))
+  expect_false(any(as.optmatch(res[1:4]) %in% as.optmatch(res[5:8])))
 
 })
 
@@ -275,10 +275,29 @@ NA_checker <- function(match, NAvals) {
   expect_true(all(!is.na(match[-NAvals])))
   for (attr in c("contrast.group", "subproblem")) {
     vals <- attr(match, attr)
-    expect_true(all(is.na(vals[NAvals])))
-    expect_true(all(!is.na(vals[-NAvals])))
+    if(attr == "contrast.group")
+    {
+      expect_false(all(NAvals %in% match@node.data$name))
+      expect_true(all(!match@node.data$name %in% NAvals))
+    }
+    else
+    {
+      expect_true(all(is.na(vals[NAvals])))
+      expect_true(all(!is.na(vals[-NAvals])))
+    }
+
   }
 }
+
+# NA_checker <- function(match, NAvals) {
+#   expect_true(all(is.na(match[NAvals])))
+#   expect_true(all(!is.na(match[-NAvals])))
+#   for (attr in c("contrast.group", "subproblem")) {
+#     vals <- attr(match, attr)
+#     expect_true(all(is.na(vals[NAvals])))
+#     expect_true(all(!is.na(vals[-NAvals])))
+#   }
+# }
 
 test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
   data <- data.frame(z = rep(0:1, each = 5),
@@ -312,7 +331,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
 
   data <- data.frame(z, x, fac)
   p2 <- pairmatch(x, z = z, data = data)
-  expect_equivalent(p[sort(names(p))], p2[sort(names(p2))])
+  expect_equivalent(as.optmatch(p)[sort(names(p))], as.optmatch(p2)[sort(names(p2))])
 
   em <- exactMatch(z~fac, data = data)
   p3 <- pairmatch(x, z = z, within=em, data=data)
@@ -326,8 +345,9 @@ test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   expect_equal(length(p), length(z) - 2)
   expect_false("1" %in% names(p))
   expect_false("6" %in% names(p))
-  cg <- attr(p, "contrast.group")
-  expect_equal(length(cg), length(z) - 2)
+  cg <- attr(p, "node.data")$contrast.group
+  #with updates, NA's are kept in
+  expect_equal(length(cg), length(z)) # - 2)
   expect_false("1" %in% names(cg))
   expect_false("6" %in% names(cg))
   sp <- attr(p, "subproblem")
@@ -377,7 +397,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
   expect_equal(length(p), nrow(data))
 
   p2 <- pairmatch(mod, data = data)
-  expect_equivalent(p, p2)
+  expect_equivalent(as.optmatch(p), as.optmatch(p2))
 
   data$z[c(1,6)] <- NA
 
@@ -388,7 +408,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.glm/bigglm", {
   NA_checker(p, c(1, 6))
 
   p2 <- pairmatch(mod, data = data)
-  expect_equivalent(p, p2)
+  expect_equivalent(p@.Data, p2@.Data)
 
 })
 

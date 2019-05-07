@@ -52,7 +52,7 @@ test_that("No cross strata matches", {
   distances <- 1 + exactMatch(Z ~ B, data=d)
 
   res <- fullmatch(distances, data=d)
-  expect_false(any(res[1:4] %in% res[5:8]))
+  expect_false(any(as.optmatch(res[1:4]) %in% as.optmatch(res[5:8])))
 })
 
 test_that("Basic Matches", {
@@ -63,16 +63,17 @@ test_that("Basic Matches", {
 
   res.mat <- fullmatch(dist, data=d)
   res.ism <- fullmatch(as.InfinitySparseMatrix(dist), data=d)
-  expect_equivalent(res.mat, res.ism)
+  expect_equivalent(as.optmatch(res.mat), as.optmatch(res.ism))
 
   allin <- exactMatch(rep(1, 16), structure(d$z, names=rownames(d)))
-  expect_equivalent(fullmatch(dist + allin, data=d), res.mat)
-  expect_equivalent(fullmatch(as.InfinitySparseMatrix(dist) + allin, data=d), res.mat)
+  expect_equivalent(as.optmatch(fullmatch(dist + allin, data=d)), as.optmatch(res.mat))
+  expect_equivalent(as.optmatch(fullmatch(as.InfinitySparseMatrix(dist) + allin, data=d)), as.optmatch(res.mat))
 
   # Now that we know they are all the same, check that we got what we
   # want.  While this is not explicitly blocked, the position vector
   # should completely determine who matches whom (though for the same
   # level, this test is agnostic about which pairs should be matched.
+  res.mat <- as.optmatch(res.mat)
   for (i in 1:4) {
     in.level <- rownames(d)[d$position == i] # possibly reorders factor
     not.in.level <- rownames(d)[d$position != i]
@@ -161,7 +162,7 @@ test_that("Reversion Test: Fullmatch handles omit.fraction for matrices", {
   res.a <- fullmatch(A, min.controls = 1, max.controls = 1, omit.fraction = 0.5, data=data.frame(1:7))
   res.ai <- fullmatch(Ai, min.controls = 1, max.controls = 1, omit.fraction = 0.5, data=data.frame(1:7))
 
-  expect_equivalent(res.a, res.ai)
+  expect_true(all(res.a == res.ai, na.rm = TRUE))
 
 })
 
@@ -273,10 +274,8 @@ test_that("full() and pair() are alises to _match functions", {
 
   model <- glm(Z ~ X1 + X2, data = test.data, family = binomial())
   dists <- match_on(model)
-  expect_equivalent(fullmatch(dists, data=test.data),
-                    full(dists, data=test.data))
-  expect_equivalent(pairmatch(dists, data=test.data),
-                    pair(dists, data=test.data))
+  expect_true(all(fullmatch(dists, data=test.data) == full(dists, data=test.data)))
+  expect_true(all(pairmatch(dists, data=test.data) == pair(dists, data=test.data)))
 })
 
 test_that("fullmatch UI cleanup", {
@@ -391,8 +390,8 @@ test_that("Using strata instead of within arguments", {
   f2 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants)
   f2b <- fullmatch(pr ~ cost, data=nuclearplants)
 
-  expect_true(is(f1, "optmatch"))
-  expect_true(is(f2, "optmatch"))
+  expect_true(is(f1, "Optmatch"))
+  expect_true(is(f2, "Optmatch"))
   expect_true(compare_optmatch(f1, f2))
   expect_false(compare_optmatch(f2, f2b))
 
@@ -427,8 +426,8 @@ test_that("strata in GLMs", {
                       data=nuclearplants, family=binomial),
                   data=nuclearplants)
 
-  expect_true(is(f1, "optmatch"))
-  expect_true(is(f2, "optmatch"))
+  expect_true(is(f1, "Optmatch"))
+  expect_true(is(f2, "Optmatch"))
   expect_true(compare_optmatch(f1, f2))
 
   f3 <- fullmatch(glm(pr ~ t1 + ne + interaction(ct,pt),
@@ -494,8 +493,17 @@ NA_checker <- function(match, NAvals) {
   expect_true(all(!is.na(match[-NAvals])))
   for (attr in c("contrast.group", "subproblem")) {
     vals <- attr(match, attr)
-    expect_true(all(is.na(vals[NAvals])))
-    expect_true(all(!is.na(vals[-NAvals])))
+    if(attr == "contrast.group")
+    {
+      expect_false(all(NAvals %in% match@node.data$name))
+      expect_true(all(!match@node.data$name %in% NAvals))
+    }
+    else
+    {
+      expect_true(all(is.na(vals[NAvals])))
+      expect_true(all(!is.na(vals[-NAvals])))
+    }
+
   }
 }
 
@@ -532,6 +540,8 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
 
   data <- data.frame(z, x)
   f2 <- fullmatch(x, z = z, data = data)
+  f2 <- as.optmatch(f2)
+  f <- as.optmatch(f)
   expect_equivalent(f[sort(names(f))], f2[sort(names(f2))])
 
   # Now add an NA
@@ -539,12 +549,12 @@ test_that("#123: Supporting NA's in treatment, fullmatch.numeric", {
   z[1] <- NA
   expect_warning(f <- fullmatch(x, z = z))
   expect_true(all(!is.na(f)))
-  expect_equal(length(f), length(z) - 1)
+  expect_equal(length(f@.Data), length(z) - 1)
   expect_false("1" %in% names(f))
 
   data <- data.frame(z, x)
   f <- fullmatch(x, z = z, data = data)
-  expect_equal(length(f), nrow(data))
+  expect_equal(length(f@.Data), nrow(data))
   NA_checker(f, 1)
 
 
@@ -594,32 +604,32 @@ test_that("#123: Supporting NA's in treatment, fullmatch.glm/bigglm", {
   mod <- glm(z ~ x, data = data, family = binomial)
 
   f <- fullmatch(mod)
-  expect_equal(length(f), nrow(data))
+  expect_equal(length(f@.Data), nrow(data))
 
   f2 <- fullmatch(mod, data = data)
-  expect_equivalent(f, f2)
+  expect_true(all(f == f2))
 
   data$z[1] <- NA
 
   mod <- glm(z ~ x, data = data, family = binomial)
 
   f <- fullmatch(mod)
-  expect_equal(length(f), nrow(data))
+  expect_equal(length(f@.Data), nrow(data))
   NA_checker(f, 1)
 
   f2 <- fullmatch(mod, data = data)
-  expect_equivalent(f, f2)
+  expect_true(all(f == f2, na.rm = TRUE))
 
   data$z[c(2,5,16,17)] <- NA
 
   mod <- glm(z ~ x, data = data, family = binomial)
 
   f <- fullmatch(mod)
-  expect_equal(length(f), nrow(data))
+  expect_equal(length(f@.Data), nrow(data))
   NA_checker(f, c(1, 2, 5, 16, 17))
 
   f2 <- fullmatch(mod, data = data)
-  expect_equivalent(f, f2)
+  expect_true(all(f == f2,  na.rm = T))
 })
 
 test_that("symmetry w.r.t. structural requirements (#132)",{
@@ -629,11 +639,11 @@ test_that("symmetry w.r.t. structural requirements (#132)",{
                      x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
     f0 <- fullmatch(z ~ x, min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x, min.c=.5, max.c=.5, data = data)
-    match_equivalent(f0, f1)
+    match_equivalent(as.optmatch(f0), as.optmatch(f1))
 
     f0 <- fullmatch(z ~ x + strata(fac), min.c=2, max.c=2, data = data)
     f1 <- fullmatch(!z ~ x + strata(fac), min.c=.5, max.c=.5, data = data)
-    match_equivalent(f0, f1)
+    match_equivalent(as.optmatch(f0), as.optmatch(f1))
 
 })
 
@@ -643,9 +653,9 @@ test_that("Problems w/ fewer controls than treatment don't break mean.controls",
                      x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
 
     f1 <- fullmatch(!z ~ x, min.c=.25, mean.c=.4, max.c=1, data = data)
-    expect_true(sum(is.na(f1)) <= 1)
+    expect_true(sum(is.na(f1@.Data)) <= 1)
     f2 <- fullmatch(!z ~ x, min.c=.25, max.c=1, omit.fraction=.2, data = data)
-    match_equivalent(f1, f2)
+    match_equivalent(as.optmatch(f1), as.optmatch(f2))
 
     f1 <- suppressWarnings(fullmatch(!z ~ x + strata(fac), min.c=.25,
                                      mean.c=c("a"=.25, "b"=(1/3)),
@@ -659,7 +669,7 @@ test_that("Problems w/ fewer controls than treatment don't break mean.controls",
                                      max.c=1, omit.fraction=c("a"=.5, "b"=(1/3)),
                                      data = data)
                            ) # Saw same funny warning here as just above.
-    match_equivalent(f1, f2)
+    match_equivalent(as.optmatch(f1), as.optmatch(f2))
 })
 
 test_that("accept negative omit.fraction", {
@@ -669,11 +679,11 @@ test_that("accept negative omit.fraction", {
 
     f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
     f2 <- fullmatch(!z ~ x, min.c=1, max.c=1, omit.fraction=-.5, data = data)
-    match_equivalent(f1, f2)
+    match_equivalent(as.optmatch(f1), as.optmatch(f2))
 
     f1 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
     f2 <- fullmatch(!z ~ x+strata(fac), min.c=1, max.c=1, omit.fraction=-.5, data = data)
-    match_equivalent(f1, f2)
+    match_equivalent(as.optmatch(f1), as.optmatch(f2))
 
 
 })
