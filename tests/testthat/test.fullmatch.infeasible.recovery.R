@@ -46,7 +46,7 @@ test_that("mean.controls should do the same as omit.fraction", {
   f <- fullmatch(m, data=nuclearplants, omit.fraction=1/2)
   g <- fullmatch(m, data=nuclearplants, mean.controls=11/10)
 
-  expect_true(all.equal(f, g, check.attributes=FALSE))
+  expect_true(all.equal(f@.Data, g@.Data, check.attributes=FALSE))
 
   set.seed(2)
   x <- runif(20)
@@ -59,17 +59,17 @@ test_that("mean.controls should do the same as omit.fraction", {
   f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, 1/2, 1/5))
   g <- fullmatch(mm,data=dd, mean.controls=c(2, 1/2, 1))
 
-  expect_true(all.equal(f, g, check.attributes=FALSE))
+  expect_true(all.equal(f@.Data, g@.Data, check.attributes=FALSE))
 
   f <- fullmatch(mm,data=dd, omit.fraction=c(1/5, NA, NA))
   g <- fullmatch(mm,data=dd, mean.controls=c(2, NA, NA))
 
-  expect_true(all.equal(f, g, check.attributes=FALSE))
+  expect_true(all.equal(f@.Data, g@.Data, check.attributes=FALSE))
 
   f <- fullmatch(mm,data=dd, omit.fraction=c(3/5, NA, 1/5))
   g <- fullmatch(mm,data=dd, mean.controls=1)
 
-  expect_true(all.equal(f, g, check.attributes=FALSE))
+  expect_true(all.equal(f@.Data, g@.Data, check.attributes=FALSE))
 
 })
 
@@ -126,7 +126,9 @@ test_that("Correctly apply max.controls", {
   # 3) 5 ctrl, 4 treat
 
   # no restrictions, everything should be matched.
-  s1 <- stratumStructure(f <- fullmatch(mm,data=dd))
+  f <- fullmatch(mm,data=dd)
+
+  s1 <- stratumStructure(f)
   expect_true(all(unlist(strsplit(names(s1), ":")) > 0))
 
   # max.controls = 2
@@ -146,7 +148,7 @@ test_that("Correctly apply max.controls", {
   adist <- matrix(c(1:4, rep(Inf, 8)), 2, 6, dimnames=list(letters[1:2], letters[3:8]))
   expect_silent(fullmatch(adist, data=data.frame(1:8, row.names=letters[1:8])))
   expect_warning(fm <- fullmatch(adist, max.c=1, data=data.frame(1:8, row.names=letters[1:8])), "infeasible")
-
+  fm <- as.optmatch(fm)
   expect_true(all(table(fm)==2))
 })
 
@@ -213,8 +215,8 @@ test_that("Suggested omit.fraction can be used", {
   expect_warning(s3 <- fullmatch(mm, data=nuclearplants, max.controls=1))
   s4 <- fullmatch(mm, data=nuclearplants, max.controls=1, omit.fraction=attr(s3, "omit.fraction"))
 
-  expect_true(all.equal(s1, s2, check.attributes=FALSE))
-  expect_true(all.equal(s3, s4, check.attributes=FALSE))
+  expect_true(all.equal(s1@.Data, s2@.Data, check.attributes=FALSE))
+  expect_true(all.equal(s3@.Data, s4@.Data, check.attributes=FALSE))
 })
 
 test_that("mean.controls as fraction", {
@@ -238,38 +240,38 @@ test_that("attr saved after recovery", {
 
   # not infeasible as given
   f <- fullmatch(mm, data=nuclearplants, max.controls=3)
-  expect_equal(attr(f, "min.controls"), 0)
-  expect_equal(attr(f, "mean.controls"), NULL)
-  expect_equal(attr(f, "max.controls"), 3)
-  expect_equal(attr(f, "omit.fraction"), as.numeric(NA))
+  expect_equal(attr(f, "prob.data")$min.control, 0)
+  expect_true(all(is.na(attr(f, "prob.data")$mean.control)))
+  expect_equal(attr(f, "prob.data")$max.control, 3)
+  expect_equal(attr(f, "prob.data")$omit.fraction, as.numeric(NA))
 
   # infeasible as given
   expect_warning(f <- fullmatch(mm, data=nuclearplants, max.controls=2))
   s <- stratumStructure(fullmatch(mm, data=nuclearplants))
-  expect_equal(attr(f, "min.controls"), 0)
-  expect_equal(attr(f, "mean.controls"), NULL)
-  expect_equal(attr(f, "max.controls"), 2)
+  expect_equal(attr(f, "prob.data")$min.control, 0)
+  expect_true(all(is.na(attr(f, "prob.data")$mean.control)))
+  expect_equal(attr(f, "prob.data")$max.control, 2)
   # how many SHOULD we omit?
   numomit <- sum(pmax(0,as.numeric(unlist(lapply(strsplit(names(s), "1:"), "[", 2)))-2))
-  expect_equal(attr(f, "omit.fraction"), numomit/22)
+  expect_equal(attr(f, "prob.data")$omit.fraction, numomit/22)
 
 
   # not infeasible as mean.controls provided
   f <- fullmatch(mm, data=nuclearplants, max.controls=2, mean.controls=2)
-  expect_equal(attr(f, "min.controls"), 0)
-  expect_equal(attr(f, "mean.controls"), 2)
-  expect_equal(attr(f, "max.controls"), 2)
-  expect_equal(attr(f, "omit.fraction"), NULL)
+  expect_equal(attr(f, "prob.data")$min.control, 0)
+  expect_equal(attr(f, "prob.data")$mean.control, 2)
+  expect_equal(attr(f, "prob.data")$max.control, 2)
+  expect_true(all(is.na(attr(f, "prob.data")$omit.fraction)))
 
 
   mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants, within=exactMatch(pr ~ pt, data=nuclearplants))
 
   # infeasible as given for subproblem 1, feasible for subproblem 2
   expect_warning(f <- fullmatch(mm, data=nuclearplants, max.controls=2))
-  expect_equal(attr(f, "min.controls"), c(0,0), check.attributes=FALSE)
-  expect_equal(attr(f, "mean.controls"), NULL)
-  expect_equal(attr(f, "max.controls"), c(2,2), check.attributes=FALSE)
-  expect_equal(attr(f, "omit.fraction"), c(9/19, NA), check.attributes=FALSE)
+  expect_equal(attr(f, "prob.data")$min.control, c(0,0), check.attributes=FALSE)
+  expect_true(all(is.na(attr(f, "prob.data")$mean.control)))
+  expect_equal(attr(f, "prob.data")$max.control, c(2,2), check.attributes=FALSE)
+  expect_equal(attr(f, "prob.data")$omit.fraction, c(9/19, NA), check.attributes=FALSE)
 
   Z <- c(1,0,0,0,0,1,0,0)
   B <- c(rep('a', 5), rep('b', 3))
@@ -280,14 +282,14 @@ test_that("attr saved after recovery", {
   expect_warning(f <- fullmatch(res.b, data=d, max.controls=2))
   a <- c(0,0)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "min.controls"), a)
-  expect_equal(attr(f, "mean.controls"), NULL)
+  expect_true(all(attr(f, "prob.data")$min.control == a))
+  expect_true(all(is.na(attr(f, "prob.data")$mean.control)))
   a <- c(2,2)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "max.controls"), a)
+  expect_true(all(attr(f, "prob.data")$max.control == a))
   a <- c(1/2,NA)
   names(a) <- c('a','b')
-  expect_equal(attr(f, "omit.fraction"), a)
+  expect_true(all(attr(f, "prob.data")$prob.data == a))
 
 
 })

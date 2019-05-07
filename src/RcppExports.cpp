@@ -18,6 +18,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// determineGroup
+LogicalVector determineGroup(CharacterVector names, CharacterVector compnames);
+RcppExport SEXP _optmatch_determineGroup(SEXP namesSEXP, SEXP compnamesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type names(namesSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type compnames(compnamesSEXP);
+    rcpp_result_gen = Rcpp::wrap(determineGroup(names, compnames));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ismOps
 SEXP ismOps(SEXP o, SEXP a, SEXP b);
 RcppExport SEXP _optmatch_ismOps(SEXP oSEXP, SEXP aSEXP, SEXP bSEXP) {

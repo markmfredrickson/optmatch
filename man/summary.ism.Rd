@@ -13,8 +13,7 @@
 \method{summary}{BlockedInfinitySparseMatrix}(object, ...,
   distanceSummary = TRUE, printAllBlocks = FALSE,
   blockStructure = TRUE)
-
-\method{summary}{DenseMatrix}(object, ..., distanceSummary = TRUE)
+summary.DenseMatrix(object, ..., distanceSummary = TRUE)
 }
 \arguments{
 \item{object}{A \code{InfinitySparseMatrix},

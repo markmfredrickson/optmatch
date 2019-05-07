@@ -38,12 +38,12 @@ Enhances:
     CBPS
 License: file LICENSE
 URL: https://www.r-project.org, https://github.com/markmfredrickson/optmatch
-Collate:
+Collate: 
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
     'Ops.optmatch.dlist.R'
     'Optmatch-package.R'
-    'Optmatch.R'
+    'OptmatchS4.R'
     'RcppExports.R'
     'abs.optmatch.dlist.R'
     'boxplotMethods.R'
@@ -64,11 +64,13 @@ Collate:
     'max.controls.cap.R'
     'mdist.R'
     'min.controls.cap.R'
+    'nodecode.R'
     'pairmatch.R'
     'print.optmatch.R'
     'print.optmatch.dlist.R'
     'relaxinfo.R'
     'scores.R'
+    'solveMatches.R'
     'stratumStructure.R'
     'subDivStrat.R'
     'summary.ism.R'

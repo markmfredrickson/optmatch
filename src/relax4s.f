@@ -10,7 +10,7 @@ C
 C---------------------------------------------------------------
 C
       SUBROUTINE RELAXALG(n1,na1,startn1,endn1,c1,u1,b1,
-     $x1, crash1, large1, feasible1)
+     $x1, rc1, crash1, large1, feasible1)
       IMPLICIT INTEGER (A-Z) 
 C
 C     MAXNN = DIMENSION OF NODE-LENGTH ARRAYS
@@ -100,9 +100,9 @@ C     make a common block for feasibility flag
       common /fs/feasible
 
 C     declare dimensions of input variables
-      INTEGER startn1(*), endn1(*), x1(*) 
-      INTEGER c1(*), u1(*)
-      INTEGER b1(*)
+      INTEGER startn1(*), endn1(*), c1(*) 
+      INTEGER u1(*), b1(*)
+      INTEGER x1(*), rc1(*)
 
 C     TRANSLATING INPUT VARIABLES TO GLOBAL VARIABLES
       N=n1
@@ -209,11 +209,10 @@ C
 C---------------------------------------------------------------
 C
 C     INITIALIZE DUAL PRICES 
-C     (DEFAULT: ALL DUAL PRICES = 0, SO REDUCED COST IS SET 
-C     EQUAL TO COST)
 C
+C SET REDUCED COSTS TO REDUCED COSTS PASSED IN FROM R
       DO I=1,NA
-         RC(I)=C(I)
+         RC(I)=rc1(I)
       END DO
 C
 C     SPECIFY THAT WE ARE SOLVING THE PROBLEM FROM SCRATCH 
@@ -319,11 +318,9 @@ C
       na1=NA
       feasible1=feasible
       DO 21 I=1,NA
-         startn1(I)=STARTN(I)
-         endn1(I)=ENDN(I)
-         c1(I)=C(I)
          u1(I)=U(I)
          x1(I)=X(I)
+         rc1(I)=RC(I)
 21    CONTINUE
 
       DO 31 I=1,N

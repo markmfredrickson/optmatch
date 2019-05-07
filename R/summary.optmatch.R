@@ -1,6 +1,6 @@
 #' Display matching related statistics
 #'
-#' The summary function quantifies \code{optmatch} objects on the effective sample
+#' The summary function quantifies \code{Optmatch} objects on the effective sample
 #' size, the distribution of distances between matched units, and how well the
 #' match reduces average differences.
 #'
@@ -29,8 +29,8 @@
 #' @method summary optmatch
 #' @rdname optmatch
 #' @importFrom RItools xBalance
-#' @export
-summary.optmatch <- function(object,
+
+summary.Optmatch <- function(object,
                              propensity.model = NULL, ...,
                              min.controls=.2, max.controls=5,
                              quantiles=c(0,.5, .95, 1)
@@ -40,6 +40,7 @@ summary.optmatch <- function(object,
 ## effective sample size -- stratumStructure
 ## outlying propensity-score distances -- matched.distances()
 ## overall balance -- xBalance()
+
   so <- list()
   so$thematch <- object
   mfd <- is.na(object)
@@ -51,16 +52,45 @@ summary.optmatch <- function(object,
   }
   if (all(mfd))
     {
-      class(so) <- "summary.optmatch"
-      so$matching.failed <- table(subprobs, attr(object, "contrast.group"))
+      class(so) <- "summary.Optmatch"
+      t <- as.vector(object@node.data[match(object@names, object@node.data$name),c("contrast.group")])
+      #browser()
+      if( (!is.null(t) && sum(is.na(t)) > 0) || (!is.null(t) && length(t) == 0 && nrow(attr(object@node.data, "dropped.nodes")) > 0 ))
+      {
+        tp <- attr(object@node.data, "dropped.nodes")
+        if(nrow(tp) > 0)
+        {
+          # these should line up
+          if(sum(is.na(t)))
+          {
+            t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+          }
+          else
+          {
+            t <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
+          }
+        }
+      }
+      so$matching.failed <- table(subprobs, t)
       dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
       so$warnings <- c(so$warnings,
                        list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
                        )
       return(so)
+  }
+  t <- object@node.data[match(object@names, object@node.data$name),c("contrast.group")]
+
+  if(!is.null(t) && sum(is.na(t)) > 0)
+  {
+    tp <- attr(object@node.data, "dropped.nodes")
+    if(nrow(tp) > 0)
+    {
+      # these should line up
+      t[is.na(t)] <- na.omit(tp[match(object@names, tp$name),c("contrast.group")])
     }
+  }
   match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
-  so$matching.failed <- table(subprobs, attr(object, "contrast.group"),
+  so$matching.failed <- table(subprobs, t,
                               exclude = names(match.succeed)[match.succeed],
                               useNA = 'no')
   if (prod(dim(so$matching.failed)) == 0) {
@@ -76,7 +106,7 @@ summary.optmatch <- function(object,
     matchdists <- attr(object, "matched.distances")[levels(object[!mfd, drop=TRUE])]
     matchdists <- unlist(matchdists)
     so$total.distance <- sum(matchdists)
-    so$total.tolerances <- sum(unlist(attr(object, "exceedances")))
+    so$total.tolerances <- sum((attr(object, "prob.data")$exceedance))
     so$matched.dist.quantiles <- quantile(matchdists, prob=quantiles)
   }
 
@@ -109,7 +139,7 @@ summary.optmatch <- function(object,
     }
 
     if (is.null(modelData)) {
-      stop("summary.optmatch does not know how to process this type of model. Please file a bug report at https://github.com/markmfredrickson/optmatch/issues showing how you created your glm model.")
+      stop("summary.Optmatch does not know how to process this type of model. Please file a bug report at https://github.com/markmfredrickson/optmatch/issues showing how you created your glm model.")
     }
 
     strata <- object[!mfd, drop=TRUE]
@@ -130,12 +160,12 @@ summary.optmatch <- function(object,
       list("For covariate balance information, load the RItools package and\npass a (glm) propensity model to summary() as a second argument.")
       )
 
-  class(so) <- "summary.optmatch"
+  class(so) <- "summary.Optmatch"
   so
 }
 
 #' @export
-print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...) {
+print.summary.Optmatch <- function(x,  digits= max(3, getOption("digits")-4),...) {
   if ('warnings' %in% names(x)) warns <- c(x$warnings, sep="\n")
 
 
@@ -190,3 +220,7 @@ print.summary.optmatch <- function(x,  digits= max(3, getOption("digits")-4),...
     }
   invisible(x)
 }
+
+#' @export
+setMethod("summary", "Optmatch", summary.Optmatch)
+
