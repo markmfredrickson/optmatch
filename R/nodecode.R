@@ -1,5 +1,8 @@
 #' Function to handle preparation and extraction of node data. If information about nodes from a previously solved problem exists,
 #' #' this function will extract that information and prepare it to be used in the following matching procedure. Currently is very much in development, not really ready for general use.
+#' @param problems
+#' @param old.node.data
+#' @param old.prob.data
 #' @export
 prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 {
@@ -23,7 +26,7 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
       names(nodes.to.pass) <- old.node.data[indx, "name"]
       reso.m <- old.prob.data[old.prob.data$group == gs, "reso"]
     }
-    browser()
+    #browser()
     ###***** start of code that is not quite done: handling new nodes that have been introduced into a problem
     #consider case where the nodes in a subproblem might all be new, won't worry about it for now
     new.ts <- rownames(problem)[!rownames(problem) %in% old.node.data$name]
@@ -41,6 +44,8 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 
         distvec <- as.vector(problem[,new.c]) #should return a subsetted df with just the info we want to examine
         prices <- ifelse(is.na(nodes.to.pass[r]), NA, nodes.to.pass[r])
+        prices <- round(reso.m * prices) #i think this should be in place
+        #print(prices)
         if(!is.na(reso.m))
         {
           distvec <- round(reso.m * distvec)
@@ -159,6 +164,10 @@ prep_warm_nodes <- function(problems, old.node.data, old.prob.data)
 }
 
 #builds node.data (as defined in Optmatch class definition) data frame from a subproblem matching solution
+#' @param temp.extended
+#' @param subproblemid
+#' @param treatment.names
+#' @param control.names
 #' @export
 build_node_data <- function(temp.extended, subproblemid, treatment.names, control.names)
 {
@@ -179,23 +188,6 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
 
   node.data <- data.frame(name = nnodes, price = node.prices.i)
 
-  # .determine_group <- function(node.name)
-  # {
-  #     if(node.name == "(_End_)" | node.name == "(_Sink_)")
-  #     {
-  #       return(NA) #bookkeeping
-  #     }
-  #     if(all(node.name %in% temp.extended$treated))
-  #     {
-  #       return(as.logical(TRUE)) #treatment
-  #     }
-  #     else
-  #     {
-  #       return(as.logical(FALSE)) #control
-  #     }
-  # }
-  # node.data$contrast.group <- sapply(nnodes, FUN = .determine_group)
-  # browser()
   node.data$contrast.group <- determineGroup(nnodes, unique(as.character(temp.extended$treated)))
   # node.data <- data.frame(name = c(nnodes, msg.n), price = c(node.prices.i, msg.p), contrast.group = c(cg, msg.c), group <- c(rep(subproblemid, length(nnodes)), msg.s)
   node.data$group <- subproblemid
@@ -203,6 +195,9 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
 }
 
 # Combines all information from node.data data frames across all subproblems into a single node.data frame for the entire original problem
+#' @param solutions
+#' @param treated
+#' @param control
 #' @export
 assemble_node.data <- function(solutions, treated = NULL, control = NULL)
 {
@@ -234,8 +229,15 @@ assemble_node.data <- function(solutions, treated = NULL, control = NULL)
 }
 
 #compiles all prob.data data frames across all subproblems into a single prob.data data frame for the entire original matching problem
+#' @param solutions
+#' @param subproblemids
+#' @param min.controls
+#' @param max.controls
+#' @param out.mean.controls
+#' @param out.omit.fraction
 #' @export
-assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA, max.controls = NA, out.mean.controls = NA, out.omit.fraction = NA)
+assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA,
+                               max.controls = NA, out.mean.controls = NA, out.omit.fraction = NA)
 {
   ff <- function(x){
     if(is.null(x$prob.data))
@@ -263,3 +265,90 @@ assemble_prob.data <- function(solutions, subproblemids = NA, min.controls = NA,
 
   return(new.df)
 }
+#same as prep_warm_nodes, but uses cpp for non-functional algorithm
+prep_warm_nodes2 <- function(problems, old.node.data, old.prob.data, experimental = TRUE)
+{
+  handle_subproblem <- function(problem)
+  {
+    r <- rownames(problem)
+    c <- colnames(problem)
+    ns <- c(r,c)
+    groups.of.nodes.to.pass <- old.node.data[old.node.data$name %in% ns, c("group")]
+    gs <- unique(groups.of.nodes.to.pass)
+    if(length(gs) > 1)
+    {
+      warning("groups/subproblems have changed")
+    }
+    else
+    {
+      indx <- old.node.data$name %in% ns | (old.node.data$name == "(_End_)" & old.node.data$group == gs[1] | old.node.data$name == "(_Sink_)" & old.node.data$group == gs[1])
+      nodes.to.pass <- old.node.data[indx, c("price")]
+      names(nodes.to.pass) <- old.node.data[indx, "name"]
+      reso.m <- old.prob.data[old.prob.data$group == gs, "reso"]
+    }
+
+    new.ts.index <- which(!rownames(problem) %in% old.node.data$name)
+    new.ts.names <- rownames(problem)[!rownames(problem) %in% old.node.data$name]
+    new.cs.index <- which(!colnames(problem) %in% old.node.data$name)
+    new.cs.name <- colnames(problem)[!colnames(problem) %in% old.node.data$name]
+    # need to add or substract 1 to get the rcpp index
+
+    if(length(new.ts.index) > 0 | length(new.cs.index) > 0)
+    {
+      prices.new <- numeric(length = (length(r) + length(c) + 2))
+      names(prices.new) <- c(r, c, "(_End_)", "(_Sink_)")
+      prices.new[names(nodes.to.pass)] <- nodes.to.pass
+      price.suggestions.c <- NA
+      price.suggestions.t <- NA
+
+      old.nas.c <- length(new.cs.index)
+      if(experimental)
+      {
+        if(length(new.cs.index))
+        {
+          prices <- ifelse(is.na(nodes.to.pass[r]), NA, nodes.to.pass[r])
+          probmat <- as.matrix(problem@.Data)
+          rcpp.index <- new.cs.index - 1
+          if(is.na(reso.m)) stop("missing resolution value")
+          prices <- round(prices * reso.m) ##verify that this should be scaled up?
+          price.suggestions.c <- handle_new_cs_cpp(problem = probmat,
+                                                   new_c_index = rcpp.index, reso = reso.m,
+                                                   prices = prices)
+          names(price.suggestions.c) <- new.cs.name
+          if(!is.na(reso.m))
+          {
+            price.suggestions.c <- price.suggestions.c / reso.m
+          }
+          prices.new[names(price.suggestions.c)] <- price.suggestions.c
+        }
+
+        if(length(new.ts.index))
+        {
+          prices <- ifelse(is.na(nodes.to.pass[c]), NA, nodes.to.pass[c])
+          probmat <- as.matrix(problem@.Data)
+          rcpp.index <- new.ts.index - 1
+          if(is.na(reso.m)) stop("missing resolution value")
+          prices <- round(prices * reso.m) ##verify that this should be scaled up?
+          price.suggestions.t <- handle_new_cs_cpp(problem = probmat,
+                                                   new_c_index = rcpp.index, reso = reso.m,
+                                                   prices = prices)
+          names(price.suggestions.t) <- new.ts.name
+          if(!is.na(reso.m))
+          {
+            price.suggestions.t <- price.suggestions.t / reso.m
+          }
+          prices.new[names(price.suggestions.t)] <- price.suggestions.t
+        }
+      }
+
+      nodes.to.pass <- ifelse(is.infinite(prices.new) | is.na(prices.new), 0, prices.new)
+    }
+    return(nodes.to.pass) ### *** end of 'new node handling code'
+  }
+  #node.list <- mapply(FUN = .create.node.vecs, problem = problems, SIMPLIFY = FALSE)
+  node.list <- mapply(FUN = handle_subproblem, problem = problems, SIMPLIFY = FALSE)
+  return(node.list)
+  #should return a list of vectors or data frames, with each entry being the warm start values for each subproblem
+
+}
+

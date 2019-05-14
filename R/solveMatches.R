@@ -1,6 +1,17 @@
+#' @param rownames
+#' @param colnames
+#' @param distspec
+#' @param min.cpt
+#' @param max.cpt
+#' @param tolerance
+#' @param omit.fraction
+#' @param matched.distances
+#' @param warm.start
+#' @param subproblemid
 #' @export
 SolveMatches <- function(rownames, colnames, distspec, min.cpt,
-                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL, warm.start = NULL, subproblemid)
+                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
+                         warm.start = NULL, subproblemid)
 {
 
   if (min.cpt <=0 | max.cpt<=0) {
@@ -94,7 +105,7 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
       }
       else
       {
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, node.prices, groupid = subproblemid)
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, warm.start, groupid = subproblemid)
       }
 
     }
@@ -102,11 +113,13 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
     {
       if(is.null(warm.start))
       {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, groupid = subproblemid)
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance,
+                                       reso, f.ctls, groupid = subproblemid)
       }
       else
       {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
+        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance,
+                                       reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
       }
 
     }
@@ -128,7 +141,16 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
   return(list(cells = ans, err = temp.with.nodes$maxerr, node.data = temp.with.nodes[["node.data"]], prob.data = temp.with.nodes[["prob.data"]]))
 }
 
-
+#' @param dm
+#' @param rfeas
+#' @param cfeas
+#' @param min.cpt
+#' @param max.cpt
+#' @param tolerance
+#' @param reso
+#' @param f.ctls
+#' @param warm.start
+#' @param groupid
 DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
                         max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
 {
@@ -241,7 +263,12 @@ solution2factor <- function(s) {
   return(c(treated.links, control.links))
 
 }
-
+#' @param dm
+#' @param min.cpt
+#' @param max.cpt
+#' @param f.ctls
+#' @param int.node.prices
+#' @param groupid
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
 {
   if(!is.null(int.node.prices))

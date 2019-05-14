@@ -115,7 +115,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
   {
     rcs <- as.integer(dists)
   }
-  browser()
   # If the user specifies using the old version of the relax algorithm. The `if` will be
   # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
   # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
@@ -184,7 +183,11 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   }
 }
-
+#' @param df
+#' @param node.prices
+#' @param narcs.no.sink.or.end
+#' @param nt
+#' @param nc
 prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
 {
   #browser()
