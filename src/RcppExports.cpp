@@ -30,6 +30,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// handle_new_cs_cpp
+NumericVector handle_new_cs_cpp(NumericMatrix problem, NumericVector prices, double reso, NumericVector new_c_index);
+RcppExport SEXP _optmatch_handle_new_cs_cpp(SEXP problemSEXP, SEXP pricesSEXP, SEXP resoSEXP, SEXP new_c_indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type problem(problemSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prices(pricesSEXP);
+    Rcpp::traits::input_parameter< double >::type reso(resoSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type new_c_index(new_c_indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(handle_new_cs_cpp(problem, prices, reso, new_c_index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// handle_new_ts_cpp
+NumericVector handle_new_ts_cpp(NumericMatrix problem, NumericVector prices, double reso, NumericVector new_t_index);
+RcppExport SEXP _optmatch_handle_new_ts_cpp(SEXP problemSEXP, SEXP pricesSEXP, SEXP resoSEXP, SEXP new_t_indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type problem(problemSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prices(pricesSEXP);
+    Rcpp::traits::input_parameter< double >::type reso(resoSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type new_t_index(new_t_indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(handle_new_ts_cpp(problem, prices, reso, new_t_index));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ismOps
 SEXP ismOps(SEXP o, SEXP a, SEXP b);
 RcppExport SEXP _optmatch_ismOps(SEXP oSEXP, SEXP aSEXP, SEXP bSEXP) {

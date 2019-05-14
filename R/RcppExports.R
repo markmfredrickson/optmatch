@@ -9,6 +9,14 @@ determineGroup <- function(names, compnames) {
     .Call(`_optmatch_determineGroup`, names, compnames)
 }
 
+handle_new_cs_cpp <- function(problem, prices, reso, new_c_index) {
+    .Call(`_optmatch_handle_new_cs_cpp`, problem, prices, reso, new_c_index)
+}
+
+handle_new_ts_cpp <- function(problem, prices, reso, new_t_index) {
+    .Call(`_optmatch_handle_new_ts_cpp`, problem, prices, reso, new_t_index)
+}
+
 ismOps <- function(o, a, b) {
     .Call(`_optmatch_ismOps`, o, a, b)
 }
