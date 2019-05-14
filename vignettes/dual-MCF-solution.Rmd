@@ -1,0 +1,153 @@
+---
+title: "Classes and methods for min-cost flow solutions"
+author: "Ben B. Hansen, Josh Errickson, Mark Fredrickson, Adam Rauh and Peter Solenberger"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Using Optmatch with Foreign Software}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
+```
+
+# Overview
+
+Optmatch finds optimal matches by translating them to min-cost flow problems (Rosenbaum, 1991, JRSS-B; Hansen and Klopfer, 2006, JCGS), relying on a min-cost flow solver that works by dual ascent.  Through 2018 (version 0.9*), no attempt was made to store the dual problem solution found by this solver; accordingly, it was not possible to use that solution as a starting value for related matching problems.  This document lays out a roadmap for "daylighting" the min-cost flow material, i.e. making it accessible to the R user, for warm starts and supplementary calculations.
+
+## Proximate goals
+
+1.  When solver saw a discretized version of the distance, check whether solution is optimal for matching problem w/ double precision distance (by checking whether primal solution and back-transformed dual solution stand in CS relation to one another). (Cf. issue 160.)
+2. Warm starts for MCF problems deriving from same double-precision distance but w/ a different discretization. (Cf. issue 76.)
+3. Use dual solution to one problem as warm start for another problem with same arcs, arc costs as in original problem but adding new arcs (between existing nodes).
+4. Use dual solution to one problem as warm start for another problem with same arcs, arc costs but adding new arcs and nodes.
+
+
+
+## Maybe-later goals
+
+- Flexibly combine subproblem solutions (e.g., distributing subproblems across different cores before combining).
+- Merge dual solutions of distinct subproblems, arriving at a possible starting value for a combined subproblem.
+- supercede optmatch s3 class, methods with an S4 class, methods.
+- Use the dual solution as a basis for computing maxErr / exceedance.
+
+# Classes
+
+## Subproblems / `SubProbInfo`
+
+An `SubProbInfo` is an S4-typed data frame bearing information about (sub)problems passed to the solver, and their translation to and from units acceptable to the solver. Columns:
+
+- `subproblem`, character (which subproblem?); 
+- `hashed.distance`, character (hashed ID for a double precision distance); 
+- `reso`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
+-  `exceedance`, double (estimate/upper bound for amount by which sum of matched distances may exceed true optimal value.); 
+-  `CS_after_backtransformation`, logical.
+
+Rules/conventions:
+
+- this is just a selective record of subproblem specs. 
+- ¿`exceedance==Inf`?:  When matching fails for a subproblem, node prices may still be useful as warm starts for a modified problem.  We can record this eventuality by placing an Inf here. 
+- `CS_after_backtransformation` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this. 
+
+### `NodeInfo` & subclasses
+
+A `NodeInfo` is an S4-typed data frame bearing the columns:
+
+- `name`, character;
+- `price`, double (node prices);
+- `kind`, character ("treatment", "control" or "bookkeeping");
+- `supply`, integer; 
+- `subproblem`, character (name of a subproblem); and
+- ... (hold open the possibility of additional columns for subclasses).
+
+Rules/conventions:
+
+-  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
+- No two rows can simultaneously have the same values of `name` and `subproblem`.
+- If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
+
+### `ArcInfo`
+
+An `ArcInfo` has 2 slots:
+
+- `@matches`, data frame with columns
+    + `subproblem`, character,
+    + `treatment`, character,
+    + `control`, character; 
+- `@bookkeeping`, data frame with columns
+    + `subproblem`, character,
+    + `startn`, character,
+    + `endn`, character,
+    + `flow`, integer (nonnegative). 
+
+Rules/conventions:
+
+- In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `treatment`/`startn` and `control`/`endn` nodes were matched, absence means not matched.)
+- Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
+- ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
+- Each (`subproblem`, `treatment`) or (`subproblem`, `startn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="treatment"`; each (`subproblem`, `control`) or (`subproblem`, `endn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="control"`. 
+
+
+
+## Primal-dual solution pairs (`MCFSolutions`)
+
+In practice, current plans call only for passing dual solutions
+(arrays of node prices), not also primal solutions (flow vectors),
+back to the solver.  But in principle the relax4f solver could
+accommodate dual-primal pairs as start values, at the cost of rejiggering our
+interactions; see comments to issue 162.  Also assessing CS requires the combo
+of a primal and dual solution.   So we'll save both of them, as an S4 object.
+
+Slots for class `MCFSolutions`:
+
+- `subprobs`, a "SubProbInfo" object (see above); 
+- `nodes`, a `NodeInfo` object (see above);
+- `arcs`, a `ArcInfo` object (see above);
+- `matchables`, a data frame with columns
+    + `name`,
+    + `subproblem`,
+    + `kind`.
+
+Rules/conventions:
+
+- The `@matchables` table associates nodes to matchable units.
+- Hold `@.Data`, `@names` and `@levels` slots for likely future use;
+  see below notes re future `Optmatch` S4 class.
+
+
+
+### Subtypes for specific matching problems
+
+Different kinds of matching problem have different bookkeeping nodes, implicit arc capacity constraints etc. Encode all this by declaring appropriate subclasses of `MCFSolutions()`. 
+
+For starters,  an `FullmatchMCFSolutions` type extending `MCFSolutions()`, w/ characteristics:
+
+- in `@nodes`, exactly 2 `names` values with  `kind=="bookkeeping"`, "`(_Sink_)`" and "`(_End_)`";
+- in `@nodes`, also each of those appears exactly once per subproblem;
+- in `@arcs`, each appears w/ own characteristic pattern.
+
+## Return value of `fullmatch` / `pairmatch` (*ptmatch)
+
+### Immediate plan
+
+Return an object bearing S3 class "optmatch", as we did before these changes.
+Embed an `MCFSolutions` into it as an attrfibute.
+
+### Final solution
+
+Return object of a new S4 class, `Optmatch`, inheriting from factor as well as from `MCFSolutions`. 
+
+# Methods & Functions
+
+- `as.optmatch()`/`as.factor()` for `MCFSolutions` objects
+- `names<-` for `MCFSolutions` objects
+
+(Rather than insisting on uniqueness of unit names across subproblems when `c()`-ing together `MCFSolutions` objects, check for non-uniqueness within the `as.optmatch`/`as.factor()` method, suggesting use of `getNamesTable()` and `names<-` to resolve.) 
+
+- `getNamesTable()`: extract `@matchables` table from an `MCFSolutions`.  (¿Also from an optmatch that has an MCFSolutions inside of it?)
+- `getMCFSolution()`: extractor for optmatch objects (& later for Optmatch objects)
+- `c()` for `MCFSolutions`: `rbind()`s the various consitutent data frames, enforcing req that subproblems have distinct names
+- `addArcs()` for `MCFSolutions` objects
+- `addNodes()` for `MCFSolutions` objects
