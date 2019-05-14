@@ -105,7 +105,7 @@ Slots for class `MCFSolutions`:
 - `subprobs`, a "SubProbInfo" object (see above); 
 - `nodes`, a `NodeInfo` object (see above);
 - `arcs`, a `ArcInfo` object (see above);
-- `matchables`, a data frame with columns
+- `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
     + `name`,
     + `subproblem`,
     + `kind`.
@@ -142,7 +142,7 @@ Return object of a new S4 class, `Optmatch`, inheriting from factor as well as f
 # Methods & Functions
 
 - `as.optmatch()`/`as.factor()` for `MCFSolutions` objects
-- `names<-` for `MCFSolutions` objects
+- `names()`,`names<-` for `MCFSolutions` objects (to pull /set `@matcheables$names)
 
 (Rather than insisting on uniqueness of unit names across subproblems when `c()`-ing together `MCFSolutions` objects, check for non-uniqueness within the `as.optmatch`/`as.factor()` method, suggesting use of `getNamesTable()` and `names<-` to resolve.) 
 
