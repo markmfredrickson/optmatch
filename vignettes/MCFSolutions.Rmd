@@ -40,16 +40,16 @@ Optmatch finds optimal matches by translating them to min-cost flow problems (Ro
 An `SubProbInfo` is an S4-typed data frame bearing information about (sub)problems passed to the solver, and their translation to and from units acceptable to the solver. Columns:
 
 - `subproblem`, character (which subproblem?); 
-- `hashed.distance`, character (hashed ID for a double precision distance); 
-- `reso`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
+- `hashed_dist`, character (hashed ID for a double precision distance); 
+- `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
 -  `exceedance`, double (estimate/upper bound for amount by which sum of matched distances may exceed true optimal value.); 
--  `CS_after_backtransformation`, logical.
+-  `CS_orig_dist`, logical.
 
 Rules/conventions:
 
 - this is just a selective record of subproblem specs. 
 - ¿`exceedance==Inf`?:  When matching fails for a subproblem, node prices may still be useful as warm starts for a modified problem.  We can record this eventuality by placing an Inf here. 
-- `CS_after_backtransformation` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this. 
+- `CS_orig_dist` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this. 
 
 ### `NodeInfo` & subclasses
 
@@ -78,8 +78,8 @@ An `ArcInfo` has 2 slots:
     + `control`, character; 
 - `@bookkeeping`, data frame with columns
     + `subproblem`, character,
-    + `startn`, character,
-    + `endn`, character,
+    + `startnode`, character,
+    + `endnode`, character,
     + `flow`, integer (nonnegative). 
 
 Rules/conventions:
@@ -107,8 +107,8 @@ Slots for class `MCFSolutions`:
 - `arcs`, a `ArcInfo` object (see above);
 - `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
     + `name`,
-    + `subproblem`,
-    + `kind`.
+    + `kind`,
+    + `subproblem`.
 
 Rules/conventions:
 
