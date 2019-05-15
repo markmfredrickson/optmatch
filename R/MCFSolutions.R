@@ -1,4 +1,8 @@
-### See vignette "dual-MCF-solution" for descriptions of these classes.
+####################################################################
+########  Classes for storing information about solutions of #######
+########  Min-Cost-Flow representations of matching problems #######
+#######  (See vignette "MCFSolutions" for class descriptions.) #####
+####################################################################
 setClass("SubProbInfo", contains="data.frame")
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
@@ -78,3 +82,71 @@ setValidity("MatchablesInfo", function(object){
 
 setClass("MCFSolutions", representation(subproblems='SubProbInfo',nodes='NodeInfo',
                                         arcs='ArcInfo',matchables="MatchablesInfo"))
+
+####################################################################
+##########                  Methods            #####################
+####################################################################
+
+#' rbind.data.frame w/ revised default arguments
+#'
+#' @param ... data frames
+#' @return data frame
+#' @keywords internal
+rbind_data_frame  <- function(...)
+    rbind.data.frame(..., make.row.names=FALSE, stringsAsFactors=FALSE)
+
+#' Generate combine (`c()`) functions for S4-typed data frames
+#' 
+#' @param thetype character, name of S4 type
+#' @return function to do combine (`c()`) on object of class thetype
+#' @keywords internal
+typed_dataframe_combiner  <- function(thetype)
+{
+    function(x, ...)
+    {
+        ans  <- rbind_data_frame(...)
+        if (!missing(x))
+            ans  <- rbind_data_frame(x, ans)
+        new(thetype, ans)
+    }
+}
+
+setMethod("c", signature(x="SubProbInfo"),
+          definition=typed_dataframe_combiner(thetype="SubProbInfo")
+          )
+setMethod("c", signature(x="NodeInfo"),
+          definition=typed_dataframe_combiner(thetype="NodeInfo")
+          )
+setMethod("c", signature(x="MatchablesInfo"),
+          definition=typed_dataframe_combiner(thetype="MatchablesInfo")
+          )
+setMethod("c", signature(x="ArcInfo"),
+          definition=function(x, ...) {
+              objs = list(...)
+              
+              mlist  <- lapply(objs, function(x) slot(x, "matches"))
+              ans_m  <- do.call(rbind_data_frame, mlist)
+                                
+              blist  <- lapply(objs, function(x) slot(x, "bookkeeping"))
+              ans_b  <- do.call(rbind_data_frame, blist)
+
+              if (!missing(x))
+              {
+                  ans_m  <- rbind_data_frame(slot(x, "matches"), ans_m)
+                  ans_b  <- rbind_data_frame(slot(x, "bookkeeping"), ans_b)
+              }
+              
+              new("ArcInfo", matches=ans_m, bookkeeping=ans_b)
+          })
+setMethod("c", signature(x="MCFSolutions"),
+          definition=function(x, ...) {
+              objs = list(...)
+              theslots  <- names(getSlots("MCFSolutions"))
+              combined_slotvalues  <-
+                  sapply(theslots, 
+                         function(theslot){
+                             as_list  <- lapply(objs, function(x) slot(x, theslot))
+                             do.call(c, as_list)
+                         }, USE.NAMES=TRUE)
+              do.call(new, c(list(Class="MCFSolutions"), combined_slotvalues))
+          })

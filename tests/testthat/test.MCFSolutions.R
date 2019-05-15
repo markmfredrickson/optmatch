@@ -4,7 +4,8 @@ test_that("Instantiation & validity", {
     expect_silent(spi1  <- new("SubProbInfo", data.frame(subproblem=c('a','b'), hashed_dist=c('a','b'),
                                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
                                            stringsAsFactors=F)
-                 ) )
+                               )
+                  )
     expect_true(validObject(spi1))
 
     spi2  <- spi1
@@ -57,4 +58,44 @@ test_that("Instantiation & validity", {
     expect_silent(new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls1))
     expect_silent(mcf2  <- new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls2))
     expect_error(validObject(mcf2, complete=TRUE), "Columns should be", fixed=TRUE)
+})
+
+test_that("c() methods", {
+
+    spi1  <- new("SubProbInfo",
+                 data.frame(subproblem=c('a','b'), hashed_dist=c('a','b'),
+                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
+                            stringsAsFactors=F)
+                 )
+    expect_silent(c(spi1, spi1))
+    expect_silent(c(spi1, spi1, spi1))
+    expect_silent(c(a=spi1, b=spi1)) # no confusion just b/c no `x=` arg!
+    
+    ni1  <- new("NodeInfo",
+               data.frame(name='a', price=0.5, kind='bookkeeping',
+                          supply=1L, subproblem='b',
+                          stringsAsFactors=F)
+               )
+    expect_silent(c(ni1, ni1))
+    expect_silent(c(ni1, ni1, ni1))
+    
+    mbls1  <- new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
+                             subproblem=rep("c",2), stringsAsFactors=F)
+                  )
+    expect_silent(c(mbls1, mbls1))
+
+    ai  <- new("ArcInfo",
+               matches=data.frame(subproblem='a', treatment='b',
+                                  control=c('c','d'),stringsAsFactors=F),
+               bookkeeping=data.frame(subproblem='a', startnode=c('c','d'),
+                                      endnode='(_Sink_)', flow=1L, stringsAsFactors=F)
+               )
+    expect_silent(c(ai, ai))
+    expect_silent(c(x=ai, y=ai, z=ai))
+
+    mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls1)
+    expect_silent(c(mcf1, mcf1))
+    expect_silent(c(y=mcf1, z=mcf1))
+    expect_silent(c(mcf1, mcf1, mcf1))
 })
