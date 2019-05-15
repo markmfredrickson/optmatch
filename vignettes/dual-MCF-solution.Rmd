@@ -102,7 +102,7 @@ of a primal and dual solution.   So we'll save both of them, as an S4 object.
 
 Slots for class `MCFSolutions`:
 
-- `subprobs`, a "SubProbInfo" object (see above); 
+- `subproblems`, a "SubProbInfo" object (see above); 
 - `nodes`, a `NodeInfo` object (see above);
 - `arcs`, a `ArcInfo` object (see above);
 - `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
@@ -124,6 +124,7 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 For starters,  an `FullmatchMCFSolutions` type extending `MCFSolutions()`, w/ characteristics:
 
+- in `@subproblems`, there may be an additional column, `stability.increment`, of type integer. If this column is not present then the stability increment is understood to be 1. 
 - in `@nodes`, exactly 2 `names` values with  `kind=="bookkeeping"`, "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@arcs`, each appears w/ own characteristic pattern.
