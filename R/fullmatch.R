@@ -179,6 +179,8 @@ fullmatch <- function(x,
                       data = NULL,
                       warm.start = NULL,
                       starting.solution = NULL,
+                      test.cpp = F,
+                      experimental = T,
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -279,6 +281,8 @@ fullmatch.matrix <- function(x,
                              within = NULL,
                              starting.solution = NULL,
                              warm.start = NULL,
+                             test.cpp = F,
+                             experimental = T,
                              ...) {
 
   ### Checking Input ###
@@ -555,9 +559,16 @@ fullmatch.matrix <- function(x,
 
   if(!is.null(warm.start))
   {
-    #TODO: CHANGE THIS WHEN ATTRIBUTE STRUCTURE HAS BEEN DEPRECATED
+    if(test.cpp)
+    {
+      warm.node.list <- prep_warm_nodes2(problems = problems, old.node.data = slot(warm.start, "node.data"), old.prob.data = slot(warm.start, "prob.data"), experimental = experimental)
+    }
+    else
+    {
+      warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = slot(warm.start, "node.data"), old.prob.data = slot(warm.start, "prob.data"))
+    }
 
-    warm.node.list <- prep_warm_nodes(problems = problems, old.node.data = slot(warm.start, "node.data"), old.prob.data = slot(warm.start, "prob.data"))
+
     if (options()$fullmatch_try_recovery) {
       solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, subproblemid = subproblemids, SIMPLIFY = FALSE, warm.start = warm.node.list)
     } else {
@@ -619,6 +630,7 @@ fullmatch.matrix <- function(x,
       warning("The problem is infeasible with the given constraints; some units were omitted to allow a match.")
     }
   }
+
   attr(mout, "prob.data") <- assemble_prob.data(solutions, subproblemids, min.controls, max.controls, out.mean.controls, out.omit.fraction)
   # save hash of distance
   attr(mout, "hashed.distance") <- dist_digest(x)

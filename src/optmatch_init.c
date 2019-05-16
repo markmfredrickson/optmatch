@@ -9,6 +9,8 @@ extern SEXP _optmatch_mahalanobisHelper(SEXP, SEXP, SEXP);
 extern SEXP _optmatch_r_smahal(SEXP, SEXP, SEXP);
 extern SEXP _optmatch_subsetInfSparseMatrix(SEXP, SEXP, SEXP);
 extern SEXP _optmatch_determineGroup(SEXP, SEXP);
+extern SEXP _optmatch_handle_new_cs_cpp(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _optmatch_handle_new_ts_cpp(SEXP, SEXP, SEXP, SEXP);
 
 /* .Fortran calls */
 extern void F77_NAME(relaxalg)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -20,6 +22,8 @@ static const R_CallMethodDef CallEntries[] = {
   {"_optmatch_r_smahal",              (DL_FUNC) &_optmatch_r_smahal,              3},
   {"_optmatch_subsetInfSparseMatrix", (DL_FUNC) &_optmatch_subsetInfSparseMatrix, 3},
   {"_optmatch_determineGroup", (DL_FUNC) &_optmatch_determineGroup, 2},
+  {"_optmatch_handle_new_cs_cpp", (DL_FUNC) &_optmatch_handle_new_cs_cpp, 4},
+  {"_optmatch_handle_new_ts_cpp", (DL_FUNC) &_optmatch_handle_new_ts_cpp, 4},
   {NULL, NULL, 0}
 };
 
