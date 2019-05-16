@@ -1,5 +1,3 @@
-#' Function to handle preparation and extraction of node data. If information about nodes from a previously solved problem exists,
-#' #' this function will extract that information and prepare it to be used in the following matching procedure. Currently is very much in development, not really ready for general use.
 #' @param problems matrix/matrices of distances between each treatment and control node. This should be the result of a match_on call
 #' @param old.node.data data.frame object extracted from an S4 Optmatch object of a previously solved problem. We'll modify the info here to pass to the solver for a warm start. It will have columns:  name, price, contrast.group (1 means treatment group, 0 means control group), group (an id associated with each subproblem). This parameter and "prob.data" should be coming from the same previously solved problem.
 #' @param old.prob.data data.frame object extracted from S4 Optmatch object from the "prob.data" slot. Upon review, I don't think this is currently being used in preparing warm start node prices for problems differing only by tolerance. It might have some use in the experimental code, as it is used, but I think that might be a mistake...nodes should be multiplied by new reso, not old.
@@ -197,7 +195,7 @@ build_node_data <- function(temp.extended, subproblemid, treatment.names, contro
 }
 
 #' @details Combines all information from node.data data frames across all subproblems into a single node.data data frame for the entire original problem. This is put into node.data slot on s4 Optmatch object. Has columns name, price, contrast.group (1 means treatment group, 0 means control group), group (an id associated with each subproblem created internally). Should have one row for each node in the problem
-#' @param solutions output from .fullmatch/.fullmatch.with.recovery
+#' @param solutions output from .fullmatch/.fullmatch.with.recovery mapply call
 #' @param treated character vector of treated unit names
 #' @param control chracter vector of control unit names
 #' @export
@@ -230,9 +228,9 @@ assemble_node.data <- function(solutions, treated = NULL, control = NULL)
   return(df)
 }
 
-#' @details compiles all prob.data data frames across all subproblems into a single prob.data data frame for the entire original matching problem
-#' @param solutions output from .fullmatch/.fullmatch.with.recovery
-#' @param subproblemids An internall generated index/id for identifying subproblem data
+#' @details compiles all prob.data data frames across all subproblems into a single prob.data data frame for the entire original matching problem to be added to the prob.data slot
+#' @param solutions output from .fullmatch/.fullmatch.with.recovery mapply call
+#' @param subproblemids An internal generated index/id for identifying subproblem data
 #' @param min.controls All other parameters are the same as their "fullmatch" counterparts by the same names
 #' @param max.controls
 #' @param out.mean.controls
