@@ -23,8 +23,8 @@
 #'
 #' Secondarily, \code{fullmatch} returns various data about the matching
 #' process and its result, stored as slots:
-#' @slot node.data Data frame containing various information about units involved in a particular match, including name, whether or not it was a treatment or control unit
-#' an identifier indicating to which subproblem each unit belonged, and a price, which can be used for computational efficiency benefits.
+#' @slot node.data Data frame containing various information about units involved in matches, including name, price, whether or not it was a treatment or control unit, and
+#' an identifier indicating to which subproblem each unit belonged. Column names are "name", "price", contrast.group (1 means treatment group, 0 means control group), and group (an id associated with each subproblem), respectively.
 #' @slot prob.data Data frame containing information about subproblems. In particular, the \code{exceedances} column gives
 #' upper bounds, not necessarily sharp, for the amount by which the sum of
 #' distances between matched units in the result of \code{fullmatch} exceeds

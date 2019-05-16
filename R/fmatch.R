@@ -188,7 +188,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 #' @param narcs.no.sink.or.end Number of arcs in the (sub)problem, excluding arcs connecting to sink or end nodes (?)
 #' @param nt int, number of treated units
 #' @param nc int, number of control units
-#' @details This function converts node price and arc information (from a previously solved problem via warm start arguments) and converts it into reduced cost data to be passed along to the solver for warm start/initialization purposes.
+#' @details This function converts node price and arc information (from a previously solved problem via warm start arguments) and converts it into reduced cost data to be passed along to the solver for warm start/initialization purposes. output is a vector of reduced costs, integer precision
 prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
 {
 
