@@ -2,33 +2,48 @@
 ########  Classes for storing information about solutions of #######
 ########  Min-Cost-Flow representations of matching problems #######
 #######  (See vignette "MCFSolutions" for class descriptions.) #####
-####################################################################
-setClass("SubProbInfo", contains="data.frame")
+####################################################################s
+setClass("SubProbInfo", contains="data.frame",
+         prototype=
+             prototype(data.frame(subproblem=character(0), hashed_dist=character(0),
+                              resolution=double(0), exceedance=double(0),
+                              CS_orig_dist=logical(0), stringsAsFactors=FALSE)
+                  )
+         )
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:5]==
              c("subproblem","hashed_dist","resolution","exceedance","CS_orig_dist")))
         errors  <- c(errors,
                      'Cols 1-5 should be:\n\t c("subproblem","hashed_dist","resolution","exceedance","CS_orig_dist")')
-    if (!all(sapply(object[1:2], is.character)==TRUE))
+    if (!all(vapply(object[1:2], is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'Cols 1,2 should have type character.')
-    if (!all(sapply(object[3:4], is.numeric)==TRUE))
+    if (!all(vapply(object[3:4], is.double, logical(1))==TRUE))
         errors  <- c(errors,
-                     'Cols 3,4 should have type numeric.')
+                     'Cols 3,4 should have type double.')
     if (!is.logical(object[[5]]))
         errors  <- c(errors,
                      'Col 5 should have type logical.')
+    if (anyDuplicated(object[['subproblem']]))
+        errors  <- c(errors,
+                     'Duplicates in "subproblem", or subproblems with same name.')
     if (length(errors)==0) TRUE else errors  
 })
-setClass("NodeInfo", contains="data.frame")
+setClass("NodeInfo", contains="data.frame",
+         prototype=
+             prototype(data.frame(name=character(0), price=double(0),
+                                  kind=character(0), supply=integer(0),
+                                  subproblem=character(0), stringsAsFactors=FALSE)
+                       )
+         )
 setValidity("NodeInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:5]==
              c("name", "price", "kind", "supply", "subproblem")))
         errors  <- c(errors,
                      'Cols 1-5 should be:\n\t c("name", "price", "kind", "supply", "subproblem")')
-    if (!all(sapply(object[c(1,3,5)], is.character)==TRUE))
+    if (!all(vapply(object[c(1,3,5)], is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'Cols 1,3,5 should have type character.')
     if (!is.double(object[['price']]))
@@ -43,34 +58,51 @@ setValidity("NodeInfo", function(object){
     if (length(errors)==0) TRUE else errors      
 })
 
-setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"))
+setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
+         prototype=
+             prototype(matches=data.frame(subproblem=character(0), treatment=character(0), 
+                                          control=character(0), stringsAsFactors=FALSE),
+                       bookkeeping=data.frame(subproblem=character(0), treatment=character(0), 
+                                              control=character(0), flow=integer(0),
+                                              stringsAsFactors=FALSE)
+                       )
+         )
 setValidity("ArcInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object@matches)[1:3]==
              c("subproblem", "treatment",  "control")))
         errors  <- c(errors,
                      '@matches cols 1-3 should be:\n\t c("subproblem", "treatment",  "control")')
-### <ADD COLUMN TYPE CHECKS HERE>
-    
+    if (!all(vapply(object@matches, is.character, logical(1))==TRUE))
+        errors  <- c(errors,
+                     'All columns of @matches should have type character.')
     if (!all(colnames(object@bookkeeping)[1:4]==
              c("subproblem", "startnode",  "endnode",  "flow")))
         errors  <- c(errors,
                      '@bookkeeping cols 1-4 should be:\n\t c("subproblem", "startnode",  "endnode",  "flow")')
+    if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))==TRUE))
+        errors  <- c(errors,
+                     '@bookkeeping cols 1-3 should have type character.')
     if (!is.integer(object@bookkeeping[['flow']]))
         errors  <- c(errors,
                      '@bookkeeping col "flow" should have type integer.')
-### <ADD FURTHER COLUMN TYPE CHECKS HERE>
     if (length(errors)==0) TRUE else errors      
 })
 
-setClass("MatchablesInfo", contains="data.frame")
+setClass("MatchablesInfo", contains="data.frame",
+         prototype=
+             prototype(data.frame(name=character(0), 
+                                  kind=character(0), 
+                                  subproblem=character(0), stringsAsFactors=FALSE)
+                       )
+         )
 setValidity("MatchablesInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)==
              c("name", "kind", "subproblem") ) )
         errors  <- c(errors,
                      'Columns should be:\n\t c("name", "kind", "subproblem")')
-    if (!all(sapply(object, is.character)==TRUE))
+    if (!all(vapply(object, is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns should have type character.')
     if ( !all(object[['kind']] %in% c("treatment", "control")) )
@@ -84,28 +116,6 @@ setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
                                         arcs='ArcInfo',matchables="MatchablesInfo"))
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
-    if (any(duplicated(object@subproblems[['subproblem']])))
-        errors  <- c(errors,
-                     "@subproblems lists duplicates or subproblems with same name.")    
-    if (length(errors)==0) TRUE else errors      
-})
-
-##' Check cross-compatibility of slots constituting
-##' an MCFSolutions object. 
-##'
-##' These checks are potentially time-consuming, so they're
-##' parked here instead of in officialy validity-checker
-##' in order to avoid replicating them when (previously checked)
-##' MDFSolutions objects are being combined with `c()`. 
-##' @title Additional validity check for MCFSolutions
-##' @param object MCFSolutions
-##' @return TRUE if valid, or character vector of errors otherwise
-##' @keywords internal
-validMCFSolutions  <- function(object) {
-    stopifnot("MCFSolutions" %in% is(object))
-    errors  <- validObject(object)
-    if (isTRUE(errors)) errors  <- character(0)
-    
     subprobs  <- unique(object@subproblems[['subproblem']])
     if (!all(unique(object@nodes[['subproblem']]) %in% subprobs ))
         errors  <- c(errors,
@@ -119,9 +129,9 @@ validMCFSolutions  <- function(object) {
     if (!all(unique(object@matchables[['subproblem']]) %in% subprobs ))
         errors  <- c(errors,
                      "Detected subproblems in @matchables that aren't in @subproblems.")
+    if (length(errors)==0) TRUE else errors      
+})
 
-    if (length(errors)==0) TRUE else paste(errors, "\n")
-    }
 ####################################################################
 ##########                  Methods            #####################
 ####################################################################
@@ -187,6 +197,6 @@ setMethod("c", signature(x="MCFSolutions"),
                          function(theslot){
                              as_list  <- lapply(objs, function(x) slot(x, theslot))
                              do.call(c, as_list)
-                         }, USE.NAMES=TRUE)
+                         }, simplify=FALSE, USE.NAMES=TRUE)
               do.call(new, c(list(Class="MCFSolutions"), combined_slotvalues))
           })

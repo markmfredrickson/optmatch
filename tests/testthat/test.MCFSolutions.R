@@ -43,7 +43,7 @@ test_that("Instantiation & validity", {
     
     expect_silent(mbls1  <- new("MatchablesInfo",
                                 data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
-                                           subproblem=rep("c",2), stringsAsFactors=F)
+                                           subproblem=rep("a",2), stringsAsFactors=F)
                                 )
                   )
 
@@ -66,9 +66,20 @@ test_that("c() methods", {
                             resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
                             stringsAsFactors=F)
                  )
-    expect_silent(c(spi1, spi1))
-    expect_silent(c(spi1, spi1, spi1))
-    expect_silent(c(a=spi1, b=spi1)) # no confusion just b/c no `x=` arg!
+    spi2  <- new("SubProbInfo",
+                 data.frame(subproblem=c('c'), hashed_dist=c('a'),
+                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
+                            stringsAsFactors=F)
+                 )
+    spi3  <- new("SubProbInfo",
+                 data.frame(subproblem=c('d'), hashed_dist=c('a'),
+                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
+                            stringsAsFactors=F)
+                 )
+    
+    expect_silent(c(spi1, spi2))
+    expect_silent(c(spi1, spi2, spi3))
+    expect_silent(c(a=spi1, b=spi2)) # no confusion just b/c no `x=` arg!
     
     ni1  <- new("NodeInfo",
                data.frame(name='a', price=0.5, kind='bookkeeping',
@@ -77,32 +88,42 @@ test_that("c() methods", {
                )
     expect_silent(c(ni1, ni1))
     expect_silent(c(ni1, ni1, ni1))
+    ni2  <- new("NodeInfo",
+               data.frame(name='a', price=0.5, kind='bookkeeping',
+                          supply=1L, subproblem='c',
+                          stringsAsFactors=F)
+               )
     
     mbls1  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
-                             subproblem=rep("c",2), stringsAsFactors=F)
+                             subproblem=rep("a",2), stringsAsFactors=F)
                   )
     expect_silent(c(mbls1, mbls1))
+    mbls2  <- new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
+                             subproblem=rep("c",2), stringsAsFactors=F)
+                  )
 
-    ai  <- new("ArcInfo",
+    ai1  <- new("ArcInfo",
                matches=data.frame(subproblem='a', treatment='b',
                                   control=c('c','d'),stringsAsFactors=F),
                bookkeeping=data.frame(subproblem='a', startnode=c('c','d'),
                                       endnode='(_Sink_)', flow=1L, stringsAsFactors=F)
                )
-    expect_silent(c(ai, ai))
-    expect_silent(c(x=ai, y=ai, z=ai))
+    expect_silent(c(ai1, ai1))
+    expect_silent(c(x=ai1, y=ai1, z=ai1))
+    ai2  <- new("ArcInfo",
+               matches=data.frame(subproblem='c', treatment='b',
+                                  control=c('c','d'),stringsAsFactors=F),
+               bookkeeping=data.frame(subproblem='c', startnode=c('c','d'),
+                                      endnode='(_Sink_)', flow=1L, stringsAsFactors=F)
+               )
 
-    mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls1)
-    expect_error(c(mcf1, mcf1), "duplicates")
+    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
+    expect_error(c(mcf1, mcf1), "uplicates")
 
-    spi2  <- new("SubProbInfo",
-                 data.frame(subproblem=c('c'), hashed_dist=c('a'),
-                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
-                            stringsAsFactors=F)
-                 )
 
-    mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni1,arcs=ai,matchables=mbls1)
+    mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2,matchables=mbls2)
     
     expect_silent(c(mcf1, mcf2))
     expect_silent(c(y=mcf1, z=mcf2))
