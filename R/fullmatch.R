@@ -630,6 +630,7 @@ fullmatch.matrix <- function(x,
       warning("The problem is infeasible with the given constraints; some units were omitted to allow a match.")
     }
   }
+
   attr(mout, "prob.data") <- assemble_prob.data(solutions, subproblemids, min.controls, max.controls, out.mean.controls, out.omit.fraction)
   # save hash of distance
   attr(mout, "hashed.distance") <- dist_digest(x)

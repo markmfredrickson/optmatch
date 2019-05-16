@@ -1,4 +1,4 @@
-#' @param rownames
+#' @param rownames All of these arguments up through matched.distances are the same as the SubDivStrat arguments.
 #' @param colnames
 #' @param distspec
 #' @param min.cpt
@@ -6,9 +6,9 @@
 #' @param tolerance
 #' @param omit.fraction
 #' @param matched.distances
-#' @param warm.start
-#' @param subproblemid
-#' @export
+#' @param warm.start Vector of node prices from a previously solved problem
+#' @param subproblemid internally created id/index for subproblems.
+#' @details Essentially accepts some information about a subproblem (at either double or integer precision) and returns a list, containing information about the solution, as well as "prob.data" and "node.data" information. Structured so that DoubleSolve calls IntSolve after problem has been converted to integer resolution, and then IntSolve does most of the heavy lifting and calls fmatch. This is just a wrapper function for that process. Function should have the same signature and arguments as SubDivStrat, but with added optional "warm.start" and (not optional) "problemid" arguments. Is intended to take the place of SubDivStrat.
 SolveMatches <- function(rownames, colnames, distspec, min.cpt,
                          max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
                          warm.start = NULL, subproblemid)
@@ -149,8 +149,10 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
 #' @param tolerance
 #' @param reso
 #' @param f.ctls
-#' @param warm.start
-#' @param groupid
+#' @param warm.start vector of node prices to be used for warm starts, passed down from SolveMatches
+#' @param groupid internal subproblem identifier
+#' @details Wrapper function for IntSolve (which calls fmatch) that handles a double precision problem by adjusting distances and prices to integer resolution before handing off the problem.
+#' Returns a list -- what ultimately is the results of fmatch, plus some additional info (like prob.data, node.data) attached. Also adjusts node price data back to double precision after solving.
 DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
                         max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
 {
@@ -267,8 +269,9 @@ solution2factor <- function(s) {
 #' @param min.cpt
 #' @param max.cpt
 #' @param f.ctls
-#' @param int.node.prices
-#' @param groupid
+#' @param int.node.prices vector of node prices to be used for warm start purposes, adjusted to appropriate integer resolution
+#' @param groupid subproblem identifier
+#' @details A wrapper function calling fmatch that also assembles and attaches relevant subproblem parameters and node data to the results of that particular subproblem solution. Returns a list
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
 {
   if(!is.null(int.node.prices))
