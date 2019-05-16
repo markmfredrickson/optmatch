@@ -52,7 +52,7 @@ setValidity("NodeInfo", function(object){
     if (!is.integer(object[['supply']]))
         errors  <- c(errors,
                      'Col "supply" should have type integer.')    
-    if ( !all(object[['kind']] %in% c("treatment", "control", "bookkeeping")) )
+    if ( !all(unique(object[['kind']]) %in% c("treatment", "control", "bookkeeping")) )
         errors  <- c(errors,
                      "'kind' values other than 'treatment', 'control' or 'bookkeeping'.")
     if (length(errors)==0) TRUE else errors      
@@ -105,7 +105,7 @@ setValidity("MatchablesInfo", function(object){
     if (!all(vapply(object, is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns should have type character.')
-    if ( !all(object[['kind']] %in% c("treatment", "control")) )
+    if ( !all(unique(object[['kind']]) %in% c("treatment", "control")) )
         errors  <- c(errors,
                      "'kind' values other than 'treatment' or 'control'.")
     
