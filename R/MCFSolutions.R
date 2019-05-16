@@ -43,7 +43,7 @@ setValidity("NodeInfo", function(object){
     if (length(errors)==0) TRUE else errors      
 })
 
-setClass("ArcInfo", representation(matches="data.frame", bookkeeping="data.frame"))
+setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"))
 setValidity("ArcInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object@matches)[1:3]==
@@ -80,7 +80,7 @@ setValidity("MatchablesInfo", function(object){
     if (length(errors)==0) TRUE else errors  
 })
 
-setClass("MCFSolutions", representation(subproblems='SubProbInfo',nodes='NodeInfo',
+setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
                                         arcs='ArcInfo',matchables="MatchablesInfo"))
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
@@ -100,7 +100,7 @@ setValidity("MCFSolutions", function(object){
 ##' @title Additional validity check for MCFSolutions
 ##' @param object MCFSolutions
 ##' @return TRUE if valid, or character vector of errors otherwise
-##' @keyword internal
+##' @keywords internal
 validMCFSolutions  <- function(object) {
     stopifnot("MCFSolutions" %in% is(object))
     errors  <- validObject(object)

@@ -41,9 +41,9 @@ URL: https://www.r-project.org, https://github.com/markmfredrickson/optmatch
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
+    'MCFSolutions.R'
     'Ops.optmatch.dlist.R'
     'Optmatch-package.R'
-    'Optmatch.R'
     'RcppExports.R'
     'abs.optmatch.dlist.R'
     'boxplotMethods.R'
@@ -64,6 +64,7 @@ Collate:
     'max.controls.cap.R'
     'mdist.R'
     'min.controls.cap.R'
+    'optmatchS3.R'
     'pairmatch.R'
     'print.optmatch.R'
     'print.optmatch.dlist.R'
@@ -77,5 +78,5 @@ Collate:
     'zzz.R'
     'zzzDistanceSpecification.R'
 VignetteBuilder: knitr
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Encoding: UTF-8
