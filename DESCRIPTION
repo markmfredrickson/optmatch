@@ -70,6 +70,7 @@ Collate:
     'print.optmatch.dlist.R'
     'relaxinfo.R'
     'scores.R'
+    'solveMatches.R'
     'stratumStructure.R'
     'subDivStrat.R'
     'summary.ism.R'

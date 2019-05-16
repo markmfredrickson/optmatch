@@ -21,7 +21,7 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   res <- fmatch(pm, 2, 2)
 
-  expect_equal(dim(res), c(7,4)) # seven non-Inf entries
+  expect_equal(dim(res), c(16,5)) # seven non-Inf entries
 
   # check that A-D is a pair and A-B is not a match
   expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
