@@ -183,14 +183,15 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   }
 }
-#' @param df
-#' @param node.prices
-#' @param narcs.no.sink.or.end
-#' @param nt
-#' @param nc
+#' @param df data.frame object containing all combinations of control:treated pairs and distances between them
+#' @param node.prices Vector of node prices from a previously solved problem. At this point, these should be integer and adjusted to the current problems resolution
+#' @param narcs.no.sink.or.end Number of arcs in the (sub)problem, excluding arcs connecting to sink or end nodes (?)
+#' @param nt int, number of treated units
+#' @param nc int, number of control units
+#' @details This function converts node price and arc information (from a previously solved problem via warm start arguments) and converts it into reduced cost data to be passed along to the solver for warm start/initialization purposes.
 prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
 {
-  #browser()
+
   reduced.costs = numeric(nrow(df))
   # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
   reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
