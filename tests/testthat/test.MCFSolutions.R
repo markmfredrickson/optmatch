@@ -61,7 +61,6 @@ test_that("Instantiation & validity", {
 })
 
 test_that("c() methods", {
-
     spi1  <- new("SubProbInfo",
                  data.frame(subproblem=c('a','b'), hashed_dist=c('a','b'),
                             resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
@@ -95,7 +94,16 @@ test_that("c() methods", {
     expect_silent(c(x=ai, y=ai, z=ai))
 
     mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls1)
-    expect_silent(c(mcf1, mcf1))
-    expect_silent(c(y=mcf1, z=mcf1))
-    expect_silent(c(mcf1, mcf1, mcf1))
+    expect_error(c(mcf1, mcf1), "duplicates")
+
+    spi2  <- new("SubProbInfo",
+                 data.frame(subproblem=c('c'), hashed_dist=c('a'),
+                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
+                            stringsAsFactors=F)
+                 )
+
+    mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni1,arcs=ai,matchables=mbls1)
+    
+    expect_silent(c(mcf1, mcf2))
+    expect_silent(c(y=mcf1, z=mcf2))
 })

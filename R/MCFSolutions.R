@@ -82,7 +82,46 @@ setValidity("MatchablesInfo", function(object){
 
 setClass("MCFSolutions", representation(subproblems='SubProbInfo',nodes='NodeInfo',
                                         arcs='ArcInfo',matchables="MatchablesInfo"))
+setValidity("MCFSolutions", function(object){
+    errors  <- character(0)
+    if (any(duplicated(object@subproblems[['subproblem']])))
+        errors  <- c(errors,
+                     "@subproblems lists duplicates or subproblems with same name.")    
+    if (length(errors)==0) TRUE else errors      
+})
 
+##' Check cross-compatibility of slots constituting
+##' an MCFSolutions object. 
+##'
+##' These checks are potentially time-consuming, so they're
+##' parked here instead of in officialy validity-checker
+##' in order to avoid replicating them when (previously checked)
+##' MDFSolutions objects are being combined with `c()`. 
+##' @title Additional validity check for MCFSolutions
+##' @param object MCFSolutions
+##' @return TRUE if valid, or character vector of errors otherwise
+##' @keyword internal
+validMCFSolutions  <- function(object) {
+    stopifnot("MCFSolutions" %in% is(object))
+    errors  <- validObject(object)
+    if (isTRUE(errors)) errors  <- character(0)
+    
+    subprobs  <- unique(object@subproblems[['subproblem']])
+    if (!all(unique(object@nodes[['subproblem']]) %in% subprobs ))
+        errors  <- c(errors,
+                     "Detected subproblems in @nodes that aren't in @subproblems.")
+    if (!all(unique(object@arcs@matches[['subproblem']]) %in% subprobs ))
+        errors  <- c(errors,
+                     "Detected subproblems in @arcs@matches that aren't in @subproblems.")
+    if (!all(unique(object@arcs@bookkeeping[['subproblem']]) %in% subprobs ))
+        errors  <- c(errors,
+                     "Detected subproblems in @arcs@bookkeeping that aren't in @subproblems.")
+    if (!all(unique(object@matchables[['subproblem']]) %in% subprobs ))
+        errors  <- c(errors,
+                     "Detected subproblems in @matchables that aren't in @subproblems.")
+
+    if (length(errors)==0) TRUE else paste(errors, "\n")
+    }
 ####################################################################
 ##########                  Methods            #####################
 ####################################################################
@@ -140,7 +179,8 @@ setMethod("c", signature(x="ArcInfo"),
           })
 setMethod("c", signature(x="MCFSolutions"),
           definition=function(x, ...) {
-              objs = list(...)
+              objs  <-  list(...)
+              if (!missing(x)) objs  <- c(list(x), objs)
               theslots  <- names(getSlots("MCFSolutions"))
               combined_slotvalues  <-
                   sapply(theslots, 
