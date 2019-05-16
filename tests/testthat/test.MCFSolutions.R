@@ -55,9 +55,17 @@ test_that("Instantiation & validity", {
     mbls3@.Data[[2]][1]  <- "Exposed"
     expect_error(validObject(mbls3), "values other than 'treatment' or 'control'", fixed=TRUE)
 
-    expect_silent(new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls1))
+    expect_silent(mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls1))
     expect_silent(mcf2  <- new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls2))
     expect_error(validObject(mcf2, complete=TRUE), "Columns should be", fixed=TRUE)
+    mbls4  <- new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
+                             subproblem=rep("d",2), stringsAsFactors=F)
+                  )
+    mcf3  <- mcf1
+    mcf3@matchables  <- mbls4 #mismatch between subproblems here vs elswhere in object
+    expect_error(validObject(mcf3), "etected subproblems")
+
 })
 
 test_that("c() methods", {
@@ -127,4 +135,16 @@ test_that("c() methods", {
     
     expect_silent(c(mcf1, mcf2))
     expect_silent(c(y=mcf1, z=mcf2))
+
+    mcf3  <- mcf2
+    mcf3@matchables  <-
+        new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'kind'=c('treatment', 'control'),
+                             subproblem=rep("d",2), stringsAsFactors=F)
+            )
+    ## this `mcf3` is now corrupted:
+    expect_error(validObject(mcf3))
+    ## however, to save time c() just assumes each 
+    ## of the MCFSolutions objects it's combining is individually valid. 
+    expect_silent(c(mcf1, mcf3))
 })

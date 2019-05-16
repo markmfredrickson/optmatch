@@ -2,7 +2,7 @@
 ########  Classes for storing information about solutions of #######
 ########  Min-Cost-Flow representations of matching problems #######
 #######  (See vignette "MCFSolutions" for class descriptions.) #####
-####################################################################s
+####################################################################
 setClass("SubProbInfo", contains="data.frame",
          prototype=
              prototype(data.frame(subproblem=character(0), hashed_dist=character(0),
@@ -113,7 +113,10 @@ setValidity("MatchablesInfo", function(object){
 })
 
 setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
-                                        arcs='ArcInfo',matchables="MatchablesInfo"))
+                                 arcs='ArcInfo',matchables="MatchablesInfo"),
+         prototype = prototype(subproblems=new('SubProbInfo'), nodes=new('NodeInfo'),
+                               arcs=new('ArcInfo'),matchables=new("MatchablesInfo"))
+         )
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
     subprobs  <- unique(object@subproblems[['subproblem']])
@@ -191,6 +194,7 @@ setMethod("c", signature(x="MCFSolutions"),
           definition=function(x, ...) {
               objs  <-  list(...)
               if (!missing(x)) objs  <- c(list(x), objs)
+              ans  <- new("MCFSolutions")
               theslots  <- names(getSlots("MCFSolutions"))
               combined_slotvalues  <-
                   sapply(theslots, 
@@ -198,5 +202,7 @@ setMethod("c", signature(x="MCFSolutions"),
                              as_list  <- lapply(objs, function(x) slot(x, theslot))
                              do.call(c, as_list)
                          }, simplify=FALSE, USE.NAMES=TRUE)
-              do.call(new, c(list(Class="MCFSolutions"), combined_slotvalues))
+              for (theslot in theslots)
+                  slot(ans, theslot)  <- combined_slotvalues[[theslot]]
+              ans
           })

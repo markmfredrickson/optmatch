@@ -47,7 +47,8 @@ An `SubProbInfo` is an S4-typed data frame bearing information about (sub)proble
 
 Rules/conventions:
 
-- this is just a selective record of subproblem specs. 
+- this is just a selective record of subproblem specs.
+- This type's validity checker should be fast, eschewing expensive operations.
 - ¿`exceedance==Inf`?:  When matching fails for a subproblem, node prices may still be useful as warm starts for a modified problem.  We can record this eventuality by placing an Inf here. 
 - `CS_orig_dist` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this. 
 
@@ -66,6 +67,7 @@ Rules/conventions:
 
 -  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
 - No two rows can simultaneously have the same values of `name` and `subproblem`.
+- This type's validity checker should be fast, eschewing expensive operations.
 - If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
 
 ### `ArcInfo`
@@ -86,6 +88,7 @@ Rules/conventions:
 
 - In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `treatment`/`startn` and `control`/`endn` nodes were matched, absence means not matched.)
 - Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
+- This type's validity checker should be fast, eschewing expensive operations.
 - ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
 - Each (`subproblem`, `treatment`) or (`subproblem`, `startn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="treatment"`; each (`subproblem`, `control`) or (`subproblem`, `endn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="control"`. 
 
@@ -113,8 +116,13 @@ Slots for class `MCFSolutions`:
 Rules/conventions:
 
 - The `@matchables` table associates nodes to matchable units.
+- Checking validity for such an object may be moderately expensive
+  when the object is large, as it calls for cross-comparison of
+  constituent objects. So e.g. `c()` should not routinely check validity
+  on its result; rather the check should be applied to smaller objects. 
 - Hold `@.Data`, `@names` and `@levels` slots for likely future use;
   see below notes re future `Optmatch` S4 class.
+  
 
 
 
