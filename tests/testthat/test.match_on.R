@@ -104,7 +104,7 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
-  tol <- 100 * sqrt(.Machine$double.eps)
+  tol <- 1e6 * sqrt(.Machine$double.eps)
   
   # euclidean distances
   # first, compute what the distances should be for the data.
