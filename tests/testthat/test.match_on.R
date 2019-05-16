@@ -104,20 +104,21 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
+  tol <- 100 * sqrt(.Machine$double.eps)
+  
   # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "euclidean") - euclid) <
-                      .00001)) # there is some rounding error, but it is small
+                      tol)) # there is some rounding error, but it is small
 
   # factor-related
   f0 <- as.factor(rep(1:4, each=n/4))
   f1 <- as.factor(rep(rep(1:2, each=2),n/4))
   f2 <- as.factor(rep(3:4, each=n/2))
 
-  tol <- 100 * sqrt(.Machine$double.eps)
   # Euclidean distances on a single factor should be 1 or 0
   tmp <- match_on(Z~f1, method="euclidean")
   expect_true(all(abs(tmp) < tol | abs(tmp - 1) < tol))
