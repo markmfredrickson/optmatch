@@ -23,9 +23,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
   }
   stopifnot(is.numeric(f))
-  # NB: ORDER OF ARGUMENTS SWITCHED FROM PREV VERSION!
-  mxc <- round(max.col.units) #  (formerly kt)
-  mnc <- round(min.col.units) #  (formerly ktl)
+  mxc <- round(max.col.units)
+  mnc <- round(min.col.units)
   mxr <- round(max.row.units)
 
   if (mnc > 1) {
@@ -75,12 +74,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
            call. = FALSE)
   }
   
-  # SHOULD PROBABLY DISABLE NEXT TWO WARNINGS
-  if (mxc != max.col.units | mnc!=min.col.units |
-  	  (mxr == round(max.row.units) & mxr != max.row.units)) {
-      warning("fmatch coerced one or more constraints to integer")
-  }
-
   if (mnc > 1 & round(max.row.units) > 1) {
     warning("since min.col.units > 1, fmatch coerced max.row.units to 1")
   }
@@ -176,7 +169,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     PACKAGE = "optmatch")
   }
 
-  #browser()
   feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
             (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
@@ -200,16 +192,12 @@ fmatch <- function(distance, max.row.units, max.col.units,
     rcosts <- fop$rc
     obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
     #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
-    #attr(obj, 'sink.node.price') <- sinkn.price
     return(obj)
-    #cbind(distance, solution = ans, reduced.cost=rcosts)
-
   }
 }
 
 prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
 {
-  #browser()
   reduced.costs = numeric(nrow(df))
   # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
   reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
