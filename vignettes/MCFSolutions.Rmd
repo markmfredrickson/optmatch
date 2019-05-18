@@ -15,7 +15,11 @@ knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
 
 # Overview
 
-Optmatch finds optimal matches by translating them to min-cost flow problems (Rosenbaum, 1991, JRSS-B; Hansen and Klopfer, 2006, JCGS), relying on a min-cost flow solver that works by dual ascent.  Through 2018 (version 0.9*), no attempt was made to store the dual problem solution found by this solver; accordingly, it was not possible to use that solution as a starting value for related matching problems.  This document lays out a roadmap for "daylighting" the min-cost flow material, i.e. making it accessible to the R user, for warm starts and supplementary calculations.
+Optmatch finds optimal matches by translating them to min-cost flow problems (Rosenbaum, 1991, JRSS-B; Hansen and Klopfer, 2006, JCGS), relying on a min-cost flow solver that works by dual ascent.
+Through 2018 (version 0.9*), no attempt was made to store the dual problem solution found by this solver; accordingly, it was not possible to use that solution as a starting value for related matching problems.  This document lays out a roadmap for "daylighting" the min-cost flow material, i.e. making it accessible to the R user, for warm starts and supplementary calculations.
+
+
+
 
 ## Proximate goals
 
@@ -39,7 +43,8 @@ Optmatch finds optimal matches by translating them to min-cost flow problems (Ro
 
 An `SubProbInfo` is an S4-typed data frame bearing information about (sub)problems passed to the solver, and their translation to and from units acceptable to the solver. Columns:
 
-- `subproblem`, character (which subproblem?); 
+- `subproblem`, character (which subproblem?);
+- `upstream_eq_rows`, logical (do upstream nodes of MCF representation correspond to rows of match distance matrix?);
 - `hashed_dist`, character (hashed ID for a double precision distance); 
 - `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
 -  `exceedance`, double (estimate/upper bound for amount by which sum of matched distances may exceed true optimal value.); 
@@ -50,7 +55,11 @@ Rules/conventions:
 - this is just a selective record of subproblem specs.
 - This type's validity checker should be fast, eschewing expensive operations.
 - ¿`exceedance==Inf`?:  When matching fails for a subproblem, node prices may still be useful as warm starts for a modified problem.  We can record this eventuality by placing an Inf here. 
-- `CS_orig_dist` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this. 
+- `CS_orig_dist` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this.
+- "Upstream" nodes are those to the left in the below diagram (Fig. 2 of Hansen & Klopfer, 2006).  Ordinarily they'll correspond to "the treatment group", i.e. the group indexed by rows of the distance matrix helping to determine the matching problem, but in some situations rows and columns are flipped before being passed to the solver, so that upstream nodes would correspond to columns and downstream nodes to rows. 
+
+![Fig. 2 of Hansen & Klopfer, 2006, JCGS](hansenKlopfer2006JCGSfig2.png)   
+
 
 ### `NodeInfo` & subclasses
 
@@ -58,7 +67,7 @@ A `NodeInfo` is an S4-typed data frame bearing the columns:
 
 - `name`, character;
 - `price`, double (node prices);
-- `kind`, character ("treatment", "control" or "bookkeeping");
+- `kind`, character ("upstream", "downstream" or other, e.g. "bookkeeping");
 - `supply`, integer; 
 - `subproblem`, character (name of a subproblem); and
 - ... (hold open the possibility of additional columns for subclasses).
@@ -76,8 +85,8 @@ An `ArcInfo` has 2 slots:
 
 - `@matches`, data frame with columns
     + `subproblem`, character,
-    + `treatment`, character,
-    + `control`, character; 
+    + `upstreamnode`, character,
+    + `downstreamnode`, character; 
 - `@bookkeeping`, data frame with columns
     + `subproblem`, character,
     + `startnode`, character,
@@ -86,11 +95,11 @@ An `ArcInfo` has 2 slots:
 
 Rules/conventions:
 
-- In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `treatment`/`startn` and `control`/`endn` nodes were matched, absence means not matched.)
+- In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `upstreamnode`/`startnode` and `downstreamnode`/`endnode` nodes were matched, absence means not matched.)
 - Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
 - This type's validity checker should be fast, eschewing expensive operations.
 - ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
-- Each (`subproblem`, `treatment`) or (`subproblem`, `startn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="treatment"`; each (`subproblem`, `control`) or (`subproblem`, `endn`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="control"`. 
+- Each (`subproblem`, `upstreamnode`) or (`subproblem`, `startnode`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="upstream"`; each (`subproblem`, `downstreamnode`) or (`subproblem`, `endnode`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="downstream"`. 
 
 
 
