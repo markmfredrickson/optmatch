@@ -139,19 +139,19 @@ setValidity("MCFSolutions", function(object){
 ##########                  Methods            #####################
 ####################################################################
 
-#' rbind.data.frame w/ revised default arguments
-#'
-#' @param ... data frames
-#' @return data frame
-#' @keywords internal
+##* rbind.data.frame w/ revised default arguments
+##*
+##* @param ... data frames
+##* @return data frame
+##* @keywords internal
 rbind_data_frame  <- function(...)
     rbind.data.frame(..., make.row.names=FALSE, stringsAsFactors=FALSE)
 
-#' Generate combine (`c()`) functions for S4-typed data frames
-#' 
-#' @param thetype character, name of S4 type
-#' @return function to do combine (`c()`) on object of class thetype
-#' @keywords internal
+##* Generate combine (`c()`) functions for S4-typed data frames
+##* 
+##* @param thetype character, name of S4 type
+##* @return function to do combine (`c()`) on object of class thetype
+##* @keywords internal
 typed_dataframe_combiner  <- function(thetype)
 {
     function(x, ...)

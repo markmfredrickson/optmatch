@@ -1,5 +1,23 @@
-#' @keywords internal
-SolveMatches <- function(rownames, colnames, distspec, min.cpt,
+##* Solves full matching problems that are regular,
+##* in the sense that all row units are to be matched
+##* but potentially some of the column units may be
+##* left out.  Handles discretization of distances.
+##* 
+##* @param rownames character
+##* @param colnames character
+##* @param distspec InfinitySparseMatrix, matrix, etc (must have a `prepareMatching()` method)
+##* @param min.cpt double, minimum permissible ratio of controls per treatment
+##* @param max.cpt double, maximum permissible ratio of controls per treatment
+##* @param tolerance 
+##* @param omit.fraction 
+##* @param matched.distances 
+##* @param node.prices 
+##* @param warm.start 
+##* @param subproblemid 
+##* @return 
+##* @keywords internal
+
+solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
                          max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL, warm.start = NULL, subproblemid)
 {
 
@@ -78,12 +96,23 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
     #              dimnames=list(rownames[rfeas], colnames))
   }
 
+  old.o <- options(warn=-1)
+  if (any(dm$distance > 0)) {
+    reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
+  } else {
+    reso <- min(.Machine$integer.max/64 -2, (sum(rfeas)+sum(cfeas))/tolerance)
+  }
+
+  if (tolerance>0 & sum(rfeas)>1 & sum(cfeas)>1) {
+    reso <- min(reso, (sum(rfeas) + sum(cfeas) - 2)/tolerance)
+  }
+    options(old.o)
+
+
 
   if (any(rfeas) & any(cfeas))
   {
-    old.o <- options(warn=-1)
-    options(old.o)
-    if(all(dm$distance == floor(dm$distance)) & any(dm$distance > 0)) #checking if all distances are integer
+    if(is.integer(dm[['distance']]) & any(dm$distance > 0)) #checking if all distances are integer
     {
 
       if(is.null(warm.start))
@@ -124,24 +153,17 @@ SolveMatches <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-  return(list(cells = ans, err = temp.with.nodes$maxerr, node.data = temp.with.nodes[["node.data"]], prob.data = temp.with.nodes[["prob.data"]]))
+    return(list(cells = ans, err = temp.with.nodes$maxerr#,
+###                node.data = temp.with.nodes[["node.data"]],
+###                prob.data = temp.with.nodes[["prob.data"]]
+                )
+           )
 }
 
 
 DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
                         max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
 {
-  if (any(dm$distance > 0)) {
-    reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
-  } else {
-    reso <- min(.Machine$integer.max/64 -2, (sum(rfeas)+sum(cfeas))/tolerance)
-  }
-
-  if (tolerance>0 & sum(rfeas)>1 & sum(cfeas)>1) {
-    reso <- min(reso, (sum(rfeas) + sum(cfeas) - 2)/tolerance)
-  }
-
-  #options(old.o) don't think this line is super important
 
   .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls, nodeprices = NULL, groupid) {
     tmp <- dm
@@ -183,15 +205,15 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
       (sum(rfeas) + sum(cfeas) - 2 - sum(temp.with.nodes$temp$solution)) / reso
   }
 
-  if(!identical(options()$use_fallback_optmatch_solver, TRUE))
-  {
-    temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
-  }
+##  if(!identical(options()$use_fallback_optmatch_solver, TRUE))
+##  {
+##    temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
+##  }
 
   temp.with.nodes$maxerr <- maxerr
-  temp.with.nodes[["prob.data"]]$tol = tolerance
-  temp.with.nodes[["prob.data"]]$reso = reso
-  temp.with.nodes[["prob.data"]]$exceedance <- maxerr
+##  temp.with.nodes[["prob.data"]]$tol = tolerance
+##  temp.with.nodes[["prob.data"]]$reso = reso
+##  temp.with.nodes[["prob.data"]]$exceedance <- maxerr
   return(temp.with.nodes)
 
 }
@@ -208,24 +230,24 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, group
     temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls)
   }
 
-  temp.extended <- temp
+###  temp.extended <- temp
 
-  temp <- temp[1:(dim(dm)[1]),]
+  temp <- temp[1L:nrow(dm),] # Just the arcs representing potential matches
 
   match.with.node.prices <- list()
   match.with.node.prices[["temp"]] <- temp
-  if(identical(options()$use_fallback_optmatch_solver, TRUE))
-  {
-    match.with.node.prices[["node.data"]]
-  }
-  else
-  {
-    match.with.node.prices[["node.data"]] <-build_node_data(temp.extended = temp.extended, subproblemid = groupid)
-  }
+###  if(identical(options()$use_fallback_optmatch_solver, TRUE))
+###  {
+###    match.with.node.prices[["node.data"]]
+###  }
+###  else
+###  {
+###    match.with.node.prices[["node.data"]] <-build_node_data(temp.extended = temp.extended, subproblemid = groupid)
+###  }
 
   # not sure if following line should be one directly below this, or second option
-  match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)
-  #match.with.node.prices[["prob.data"]] <- data.frame(max.control = NA, min.control = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
+###  match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)
+###  #match.with.node.prices[["prob.data"]] <- data.frame(max.control = NA, min.control = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
 
   return(match.with.node.prices)
 }
@@ -237,7 +259,7 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, group
 ##' to _positive_ integers, as required by fmatch.
 ##'
 ##' The default tolerance value aims to steer well clear of inadvertently
-##' passing a 0L as a result of a 0 in x being represented as a small negative
+##' passing 0L as where a 0 in x was being represented as a small negative
 ##' number, due to computer arithmetic. 
 ##' @title Right-continuous variant of base `ceiling()` function
 ##' @param x numeric
@@ -248,8 +270,8 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, group
 cadlag_ceiling  <- function(x, tol=.Machine$double.neg.eps^0.5) {1L + floor(x + tol)}
 
 
-##' Small helper function to turn a solution data.frame into a factor of matches
-##' @keywords internal
+##* Small helper function to turn a solution data.frame into a factor of matches
+##* @keywords internal
 solution2factor <- function(s) {
   s2 <- s[s$solution == 1,]
 

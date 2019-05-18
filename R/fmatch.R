@@ -1,20 +1,20 @@
-##' This is the function that calls the solver
-##'
-##' Also handles pair matching, 1:k matching and matching
-##' with between k>1 and l>k controls.  (If you want matching
-##' with between k>1 and l>k members of the treatment group
-##' per matched set, then you have to transpose the (virtual)
-##' distance matrix before feeding the problem to this function.)
-##' @title Full matching via RELAX-IV min cost flow solver
-##' @param distance data frame w/ integer columns distance, treated, control
-##' @param max.row.units numeric, upper limit on num treated units per matched set
-##' @param max.col.units numeric, upper limit on num control units per matched set
-##' @param min.col.units numeric, lower limit on num control units per matched set
-##' @param f double, fraction of all row units to be matched
-##' @param node_prices 
-##' @return 
-##' @author Ben Hansen, Mark Fredrickson, Adam Rauh
-##' @keywords internal
+##* This is the function that calls the solver
+##*
+##* Also handles pair matching, 1:k matching and matching
+##* with between k>1 and l>k controls.  (If you want matching
+##* with between k>1 and l>k members of the treatment group
+##* per matched set, then you have to transpose the (virtual)
+##* distance matrix before feeding the problem to this function.)
+##* @title Full matching via RELAX-IV min cost flow solver
+##* @param distance data frame w/ integer columns distance, treated, control
+##* @param max.row.units numeric, upper limit on num treated units per matched set
+##* @param max.col.units numeric, upper limit on num control units per matched set
+##* @param min.col.units numeric, lower limit on num control units per matched set
+##* @param f double, fraction of all row units to be matched
+##* @param node_prices 
+##* @return 
+##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
+##* @keywords internal
 
 fmatch <- function(distance, max.row.units, max.col.units,
 			min.col.units = 1, f = 1, node_prices = NULL)
