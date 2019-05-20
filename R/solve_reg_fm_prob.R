@@ -76,6 +76,7 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 
     if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt) |
         !rfeas |  !cfeas )
+
   {
     ans <- rep("NA",length(rownames)+length(colnames))
     names(ans) <- c(rownames, colnames)
@@ -91,22 +92,19 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     f.ctls <- 1-omit.fraction
   }
 
-  old.o <- options(warn=-1)
-  if (any(dm$distance > 0)) {
-    reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
-  } else {
-    reso <- min(.Machine$integer.max/64 -2, (rfeas+cfeas)/tolerance)
-  }
 
-  if (tolerance>0 & rfeas>1 & cfeas>1) {
-    reso <- min(reso, (rfeas + cfeas - 2)/tolerance)
-  }
-  options(old.o)
+    old.o <- options(warn=-1)
+    reso_upper_lim  <- (.Machine$integer.max/64 -2)/max(dm$distance)
+    reso <- if (tolerance>0 & rfeas>1 & cfeas>1) {
+                min(reso_upper_lim, (rfeas + cfeas - 2)/tolerance)
+            } else reso_upper_lim
+    options(old.o)
 
-
+    if (isTRUE(all.equal(dm[['distance']], 0)))
+        dm[['distance']]  <- rep(1L, length(dm[['distance']])) # so we'll be routed to intSolve()
 
     temp.with.nodes <-
-        if (is.integer(dm[['distance']]) & any(dm$distance > 0)) #checking if all distances are integer
+        if (is.integer(dm[['distance']]))
         {
             intSolve(dm, min.cpt, max.cpt, f.ctls, int.node.prices=warm.start, groupid = subproblemid)
         } else

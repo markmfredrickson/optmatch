@@ -5,8 +5,13 @@
 ##* with between k>1 and l>k members of the treatment group
 ##* per matched set, then you have to transpose the (virtual)
 ##* distance matrix before feeding the problem to this function.)
+##*
+##* Distances should be integer and **positive** (no 0s).  There
+##* can be NAs: these will be converted to the minimum of provided
+##* distances, unless all provided distances are NA, in which case
+##* they'll be interpreted as 1L's. 
 ##* @title Full matching via RELAX-IV min cost flow solver
-##* @param distance data frame w/ integer columns distance, treated, control
+##* @param distance data frame w/ integer columns distance, treated, control; see Details
 ##* @param max.row.units numeric, upper limit on num treated units per matched set
 ##* @param max.col.units numeric, upper limit on num control units per matched set
 ##* @param min.col.units numeric, lower limit on num control units per matched set
@@ -43,9 +48,19 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if (!is.integer(distance[['distance']])) {
       tdist  <- as.integer(distance[['distance']])
-      if (!all(distance[['distance']]==tdist)) stop("distance should be integer")
+      if (isFALSE(all.equal(distance[['distance']],tdist))) stop("distance should be integer")
       distance[['distance']]  <- tdist
-      }
+  }
+  if (any(nadists  <-  is.na(distance[['distance']])))
+  {
+      replacement  <- if (all(nadists)) { #occurs if
+                          1L              #user passed ISM 
+                      } else {            #produced by exactMatch()`
+                          min(distance[['distance']], na.rm=TRUE)
+                          }
+      distance[['distance']][nadists]  <- replacement
+  }
+  
   if (mxr > 1) # i.e. many-one matches permissible
   {
       if (any(distance[['distance']] <= 0))
