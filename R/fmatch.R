@@ -12,7 +12,8 @@
 ##* @param min.col.units numeric, lower limit on num control units per matched set
 ##* @param f double, fraction of all row units to be matched
 ##* @param node_prices 
-##* @return 
+##* @return data frame with columns `treatment`, `control`, `solution`, `distance`. 
+##*         The `distance` column holds values of the integer distance that `intSolve()` saw. 
 ##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
 ##* @keywords internal
 

@@ -3,13 +3,14 @@
 ##* but potentially some of the column units may be
 ##* left out.
 ##*
-##* Structured so that DoubleSolve calls IntSolve after
+##* Structured so that doubleSolve calls IntSolve after
 ##* problem has been converted to integer resolution, and
 ##* then IntSolve calls fmatch.
 ##* This function handles:
 ##* \itemize{
 ##* \item discretization of distances, as needed, along
-##*       with apportioning of regret budget;
+##*       with conversion of allocated regret budget into
+##8       a resolution for the discretization;
 ##* \item reconciliation of omit.fraction w/ necessary
 ##*       exclusions due to unit-wise unmatchability;
 ##* \item flagging of problems with constraints that
@@ -73,7 +74,8 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     }
   }
 
-  if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
+    if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt) |
+        !rfeas |  !cfeas )
   {
     ans <- rep("NA",length(rownames)+length(colnames))
     names(ans) <- c(rownames, colnames)
@@ -93,50 +95,24 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
   if (any(dm$distance > 0)) {
     reso <- (.Machine$integer.max/64 -2)/max(dm$distance)
   } else {
-    reso <- min(.Machine$integer.max/64 -2, (sum(rfeas)+sum(cfeas))/tolerance)
+    reso <- min(.Machine$integer.max/64 -2, (rfeas+cfeas)/tolerance)
   }
 
-  if (tolerance>0 & sum(rfeas)>1 & sum(cfeas)>1) {
-    reso <- min(reso, (sum(rfeas) + sum(cfeas) - 2)/tolerance)
+  if (tolerance>0 & rfeas>1 & cfeas>1) {
+    reso <- min(reso, (rfeas + cfeas - 2)/tolerance)
   }
-    options(old.o)
+  options(old.o)
 
 
 
-  if (any(rfeas) & any(cfeas))
-  {
-    if(is.integer(dm[['distance']]) & any(dm$distance > 0)) #checking if all distances are integer
-    {
-
-      if(is.null(warm.start))
-      {
-
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, groupid = subproblemid)
-      }
-      else
-      {
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, warm.start, groupid = subproblemid)
-      }
-
-    }
-    else
-    {
-      if(is.null(warm.start))
-      {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, groupid = subproblemid)
-      }
-      else
-      {
-        temp.with.nodes <- DoubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
-      }
-
-    }
-
-
-
-  } else {
-    temp <- 0 ; maxerr <- 0 ; dist <- 0
-  }
+    temp.with.nodes <-
+        if (is.integer(dm[['distance']]) & any(dm$distance > 0)) #checking if all distances are integer
+        {
+            intSolve(dm, min.cpt, max.cpt, f.ctls, int.node.prices=warm.start, groupid = subproblemid)
+        } else
+        {
+            doubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
+        }
   temp <- temp.with.nodes$temp
   temp$treated <- factor(temp$treated)
   temp$control <- factor(temp$control)
@@ -154,42 +130,18 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 }
 
 
-DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
+doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
                         max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
 {
 
-  .matcher <- function(dm, toIntFunction, reso, min.cpt, max.cpt, f.ctls, nodeprices = NULL, groupid) {
-    tmp <- dm
-    tmp$distance <- toIntFunction(dm$distance * reso)
-
-    if(!is.null(nodeprices))
-    {
-      node.ints <- toIntFunction(nodeprices * reso)
-      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, node.ints, groupid = groupid)
-      return(obj)
-    }
-    else
-    {
-      obj <- intSolve(tmp, min.cpt, max.cpt, f.ctls, groupid = groupid)
-      return(obj)
-    }
-
-  }
-
-  # fmatch returns a matrix with columns `treatment`, `control`, and `solution`
-  # it also has a column `distance` with toIntFuction(dm * reso)
-
-  if(is.null(warm.start))
-  {
-    temp.with.nodes <- .matcher(dm, cadlag_ceiling, reso, min.cpt, max.cpt, f.ctls, groupid = groupid)
-  }
-  else
-  {
-    temp.with.nodes <- .matcher(dm, cadlag_ceiling, reso, min.cpt, max.cpt, f.ctls, nodeprices = warm.start, groupid = groupid)
-  }
+    dm$distance  <- cadlag_ceiling(dm$distance * reso)
+    node.ints  <- if (is.null(warm.start)) NULL else cadlag_ceiling(warm.start * reso)
+    
+    temp.with.nodes <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
+                                int.node.prices = node.ints, groupid = groupid)
 
 
-  if (any(is.na(temp.with.nodes$temp$solution))) {
+  if (any(is.na(temp.with.nodes$temp$solution))) { # i.e., problem was found infeasible.
     maxerr <- 0
   } else {
     maxerr <- sum(temp.with.nodes$temp$solution * dm$distance, na.rm = TRUE) -
@@ -214,14 +166,7 @@ DoubleSolve <- function(dm, rfeas, cfeas, min.cpt,
 
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
 {
-  if(!is.null(int.node.prices))
-  {
     temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_prices =int.node.prices)
-  }
-  else
-  {
-    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls)
-  }
 
 ###  temp.extended <- temp
 
