@@ -1,8 +1,21 @@
 ##* Solves full matching problems that are regular,
 ##* in the sense that all row units are to be matched
 ##* but potentially some of the column units may be
-##* left out.  Handles discretization of distances.
-##* 
+##* left out.
+##*
+##* Structured so that DoubleSolve calls IntSolve after
+##* problem has been converted to integer resolution, and
+##* then IntSolve calls fmatch.
+##* This function handles:
+##* \itemize{
+##* \item discretization of distances, as needed, along
+##*       with apportioning of regret budget;
+##* \item reconciliation of omit.fraction w/ necessary
+##*       exclusions due to unit-wise unmatchability;
+##* \item flagging of problems with constraints that
+##*       can be seen to be infeasible even w/o calling
+##*       the solver.
+##* }
 ##* @param rownames character
 ##* @param colnames character
 ##* @param distspec InfinitySparseMatrix, matrix, etc (must have a `prepareMatching()` method)
@@ -11,14 +24,14 @@
 ##* @param tolerance 
 ##* @param omit.fraction 
 ##* @param matched.distances 
-##* @param node.prices 
-##* @param warm.start 
+##* @param warm.start Numeric vector of node prices
 ##* @param subproblemid 
 ##* @return 
 ##* @keywords internal
 
 solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
-                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE, node.prices = NULL, warm.start = NULL, subproblemid)
+                              max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
+                              warm.start = NULL, subproblemid)
 {
 
   if (min.cpt <=0 | max.cpt<=0) {
@@ -122,7 +135,7 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
       }
       else
       {
-        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, node.prices, groupid = subproblemid)
+        temp.with.nodes <- intSolve(dm, min.cpt, max.cpt, f.ctls, warm.start, groupid = subproblemid)
       }
 
     }
