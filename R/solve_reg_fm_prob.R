@@ -73,18 +73,6 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     }
   }
 
-  # ... and similarly in the case of negative `omit.fraction` if there were
-  # treatments that couldn't be matched.
-  if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
-    original_number_to_omit <- -1*omit.fraction*length(rownames)
-    number_implicitly_omitted_already <- length(rownames) - rfeas
-    omit.fraction <- - (original_number_to_omit - number_implicitly_omitted_already)/rfeas
-    # This can happen if the number to be omitted is less than the number of unmatchables
-    if (omit.fraction >= 0) {
-      omit.fraction <- NULL
-    }
-  }
-
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
     ans <- rep("NA",length(rownames)+length(colnames))
@@ -92,21 +80,13 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     return(list(cells=ans, maxerr=NULL, distance=NULL))
   }
 
-  # the next block of code, the dm <- ... is commented out as
-  # dm is no longer a matrix. Completely unreachable entries may be a
-  # problem later, but
   if (is.null(omit.fraction)) {
     f.ctls <- 1
-    # dm <- matrix(dm[rfeas, cfeas], sum(rfeas), sum(cfeas),
-    # dimnames=list(rownames[rfeas], colnames[cfeas]))
   } else {
     if (!is.numeric(omit.fraction) | omit.fraction <0 | omit.fraction > 1) {
       stop("omit.fraction must be null or between 0 and 1")
     }
-
     f.ctls <- 1-omit.fraction
-    # dm <- matrix(dm[rfeas,], sum(rfeas), length(colnames),
-    #              dimnames=list(rownames[rfeas], colnames))
   }
 
   old.o <- options(warn=-1)
