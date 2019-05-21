@@ -92,14 +92,15 @@ An `ArcInfo` has 2 slots:
     + `subproblem`, character,
     + `start`, character,
     + `end`, character,
-    + `flow`, integer (nonnegative). 
+    + `flow`, integer (nonnegative),
+    + `capacity`, integer (nonnegative). 
 
 Rules/conventions:
 
 - In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `upstream`/`start` node and `downstream`/`end` nodes were matched, absence means not matched.)
-- Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
+- Arcs involving bookkeeping nodes have lower capacity 0, upper capacity `capacity`. Their `flow` values must fall in this range (inclusive of endpoints).
 - This type's validity checker should be fast, eschewing expensive operations.
-- ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
+- The `@bookkeeping` d.f. must have a row for each of the bookkeeping arcs of the problem.
 - Each (`subproblem`, `upstream`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `upstream_not_down==TRUE`; each (`subproblem`, `downstream`) pair must appear as a (`subproblem`, `name`) NodeInfo  pair, with `upstream_not_down==FALSE`.
 - Similarly a (`subproblem`, `start`) or (`subproblem`, `end`) pair carried in this table must have in the NodeInfo table a corresponding (`subproblem`, `name`) entry.   
 

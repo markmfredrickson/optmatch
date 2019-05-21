@@ -36,16 +36,34 @@ test_that("Instantiation & validity", {
                              matches=data.frame(subproblem='a', upstream='b',
                                                 downstream=c('c','d'),stringsAsFactors=F),
                              bookkeeping=data.frame(subproblem='a', start=c('c','d'),
-                                                    end='(_Sink_)', flow=1L, stringsAsFactors=F)
+                                                    end='(_Sink_)', flow=1L,
+                                                    capacity=1L, stringsAsFactors=F)
                              )
                   )
     expect_error(new("ArcInfo",
                      matches=data.frame(subproblem='a', upstream='b',
                                         downstream=c('c','d'),stringsAsFactors=F),
                      bookkeeping=data.frame(subproblem='a', start=c('c','d'),
-                                            end='(_Sink_)', flow=1.5, stringsAsFactors=F)
+                                            end='(_Sink_)', flow=1.5,
+                                            capacity=1L, stringsAsFactors=F)
                      ), "should have type integer" # Not sure it's necessary, but insisting 
                   )                                # that 'flow' be integer not double
+    expect_error(new("ArcInfo",
+                     matches=data.frame(subproblem='a', upstream='b',
+                                        downstream=c('c','d'),stringsAsFactors=F),
+                     bookkeeping=data.frame(subproblem='a', start=c('c','d'),
+                                            end='(_Sink_)', flow=-1L,
+                                            capacity=1L, stringsAsFactors=F)
+                     ), "should be nonnegative" 
+                  )                                
+    expect_error(new("ArcInfo",
+                     matches=data.frame(subproblem='a', upstream='b',
+                                        downstream=c('c','d'),stringsAsFactors=F),
+                     bookkeeping=data.frame(subproblem='a', start=c('c','d'),
+                                            end='(_Sink_)', flow=2L,
+                                            capacity=1L, stringsAsFactors=F)
+                     ), "flow can be now greater than capacity" 
+                  )                                
     
     expect_silent(mbls1  <- new("MatchablesInfo",
                                 data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
@@ -121,7 +139,8 @@ test_that("c() methods", {
                matches=data.frame(subproblem='a', upstream='b',
                                   downstream=c('c','d'),stringsAsFactors=F),
                bookkeeping=data.frame(subproblem='a', start=c('c','d'),
-                                      end='(_Sink_)', flow=1L, stringsAsFactors=F)
+                                      end='(_Sink_)', flow=1L,
+                                      capacity=1L, stringsAsFactors=F)
                )
     expect_silent(c(ai1, ai1))
     expect_silent(c(x=ai1, y=ai1, z=ai1))
@@ -129,7 +148,8 @@ test_that("c() methods", {
                matches=data.frame(subproblem='c', upstream='b',
                                   downstream=c('c','d'),stringsAsFactors=F),
                bookkeeping=data.frame(subproblem='c', start=c('c','d'),
-                                      end='(_Sink_)', flow=1L, stringsAsFactors=F)
+                                      end='(_Sink_)', flow=1L,
+                                      capacity=1L, stringsAsFactors=F)
                )
 
     mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)

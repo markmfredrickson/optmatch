@@ -64,7 +64,7 @@ setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
                                           control=character(0), stringsAsFactors=FALSE),
                        bookkeeping=data.frame(subproblem=character(0), treatment=character(0), 
                                               control=character(0), flow=integer(0),
-                                              stringsAsFactors=FALSE)
+                                              capacity=integer(0), stringsAsFactors=FALSE)
                        )
          )
 setValidity("ArcInfo", function(object){
@@ -76,16 +76,22 @@ setValidity("ArcInfo", function(object){
     if (!all(vapply(object@matches, is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns of @matches should have type character.')
-    if (!all(colnames(object@bookkeeping)[1:4]==
-             c("subproblem", "start",  "end",  "flow")))
+    if (!all(colnames(object@bookkeeping)[1:5]==
+             c("subproblem", "start",  "end",  "flow", "capacity")))
         errors  <- c(errors,
-                     '@bookkeeping cols 1-4 should be:\n\t c("subproblem", "start",  "end",  "flow")')
-    if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))==TRUE))
+                     '@bookkeeping cols 1-5 should be:\n\t c("subproblem", "start",  "end",  "flow", "capacity")')
+    if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))))
         errors  <- c(errors,
                      '@bookkeeping cols 1-3 should have type character.')
-    if (!is.integer(object@bookkeeping[['flow']]))
+    if (!all(vapply(object@bookkeeping[c('flow', "capacity")], is.integer, logical(1))))
         errors  <- c(errors,
-                     '@bookkeeping col "flow" should have type integer.')
+                     '@bookkeeping cols "flow", "capacity" should have type integer.')
+    if (!all(object@bookkeeping[['flow']]>=0L))
+        errors  <- c(errors,
+                     '@bookkeeping "flow" values should be nonnegative.')
+    if (!all(object@bookkeeping[['flow']]<=object@bookkeeping[['capacity']]))
+        errors  <- c(errors,
+                     'in @bookkeeping, flow can be now greater than capacity.')
     if (length(errors)==0) TRUE else errors      
 })
 
