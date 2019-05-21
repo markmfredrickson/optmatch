@@ -135,6 +135,22 @@ setValidity("MCFSolutions", function(object){
     if (length(errors)==0) TRUE else errors      
 })
 
+setClass("FullmatchMCFSolutions",
+         contains="MCFSolutions",
+         prototype = prototype(subproblems=new('SubProbInfo'), nodes=new('NodeInfo'),
+                               arcs=new('ArcInfo'),matchables=new("MatchablesInfo"))
+         )
+setValidity("FullmatchMCFSolutions", function(object){
+    errors  <- character(0)
+    if ( nrow(object@nodes) &
+         !setequal(object@nodes[['names']][is.na(object@nodes[['upstream_not_down']])] ,
+                  c("(_Sink_)", "(_End_)") )
+        )
+        errors  <- c(errors,
+                     "Need '(_Sink_)', '(_End_)' nodes.")
+    ## (Could probably do more checking here...)
+    if (length(errors)==0) TRUE else errors    
+})
 ####################################################################
 ##########                  Methods            #####################
 ####################################################################
@@ -206,3 +222,10 @@ setMethod("c", signature(x="MCFSolutions"),
                   slot(ans, theslot)  <- combined_slotvalues[[theslot]]
               ans
           })
+
+setMethod("c", signature(x="FullmatchMCFSolutions"),
+          definition=function(x, ...) {
+              ans  <- callNextMethod()
+              ans  <- as(ans, "FullmatchMCFSolutions")
+              ans
+              } )

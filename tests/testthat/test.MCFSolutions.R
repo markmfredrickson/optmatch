@@ -12,11 +12,18 @@ test_that("Instantiation & validity", {
     colnames(spi2)[1]  <- "Subprob"
     expect_error(validObject(spi2), "Cols 1-6 should be")
 
-    expect_silent(ni  <- new("NodeInfo",
+    expect_silent(ni1  <- new("NodeInfo",
                              data.frame(name='a', price=0.5, upstream_not_down=TRUE,
                                         supply=1L, subproblem='b',
                                         stringsAsFactors=F)
                              )
+                  )
+    expect_silent(ni1f  <- new("NodeInfo",
+                              data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
+                                         upstream_not_down=c(FALSE, NA, NA),
+                                         supply=c(0L,-1L,-2L), subproblem='b',
+                                         stringsAsFactors=F)
+                              )
                   )
     expect_error(new("NodeInfo",
                       data.frame(name='a', price=5L, upstream_not_down=FALSE,
@@ -48,10 +55,10 @@ test_that("Instantiation & validity", {
 
     mbls2  <- mbls1
     colnames(mbls2)[3]  <- "Kind"
-    expect_error(validObject(mbls2), "Columns should be", fixed=TRUE)
-
-    expect_silent(mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls1))
-    expect_silent(mcf2  <- new("MCFSolutions", subproblems=spi1,nodes=ni,arcs=ai,matchables=mbls2))
+    expect_error(validObject(mbls2), "Columns should be", fixed=TRUE)    
+    
+    expect_silent(mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls1))
+    expect_silent(mcf2  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls2))
     expect_error(validObject(mcf2, complete=TRUE), "Columns should be", fixed=TRUE)
     mbls3  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
@@ -61,6 +68,8 @@ test_that("Instantiation & validity", {
     mcf3@matchables  <- mbls3 #mismatch between subproblems here vs elswhere in object
     expect_error(validObject(mcf3), "etected subproblems")
 
+    expect_silent(mcf1f  <- new("MCFSolutions", subproblems=spi1,nodes=ni1f,arcs=ai,matchables=mbls1))
+    expect_silent(as(mcf1f, "FullmatchMCFSolutions"))
 })
 
 test_that("c() methods", {
@@ -92,8 +101,9 @@ test_that("c() methods", {
     expect_silent(c(ni1, ni1))
     expect_silent(c(ni1, ni1, ni1))
     ni2  <- new("NodeInfo",
-               data.frame(name='a', price=0.5, upstream_not_down=FALSE,
-                          supply=1L, subproblem='c',
+                data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
+                           upstream_not_down=c(FALSE, NA, NA),
+                          supply=c(0L,-1L,-2L), subproblem='c',
                           stringsAsFactors=F)
                )
     
@@ -142,4 +152,8 @@ test_that("c() methods", {
     ## however, to save time c() just assumes each 
     ## of the MCFSolutions objects it's combining is individually valid. 
     expect_silent(c(mcf1, mcf3))
+
+    mcf2f  <- as(mcf2, "FullmatchMCFSolutions")
+    expect_is(c(mcf2f, mcf1), "FullmatchMCFSolutions")
+    expect_is(c(mcf1, mcf2f), "MCFSolutions")
 })

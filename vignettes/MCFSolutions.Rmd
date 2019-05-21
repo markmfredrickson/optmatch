@@ -153,11 +153,17 @@ they were excluded prior to matching or their subproblem was found to be infeasi
 
 Different kinds of matching problem have different bookkeeping nodes, implicit arc capacity constraints etc. Encode all this by declaring appropriate subclasses of `MCFSolutions()`. 
 
-For starters,  an `FullmatchMCFSolutions` type extending `MCFSolutions()`, w/ characteristics:
+#### `FullmatchMCFSolutions`
+
+A type extending `MCFSolutions()`, w/ characteristics:
 
 - in `@nodes`, exactly 2 `names` values s.t. `is.na(upstream_not_down)`, namely "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
-- in `@arcs`, each appears w/ own characteristic pattern.
+- in `@nodes`, each node with `upstream_not_down == TRUE` has positive `supply`;
+- in `@nodes`, each node with `upstream_not_down == FALSE` has `supply==0`;
+- in `@nodes`, each node with `is.na(upstream_not_down)` has nonpositive `supply`;
+- in `@arcs@bookkeeping`, each node with `!is.na(upstream_not_down)` appears as the `start` of an arc that has end node `(_End_)`;
+- in `@arcs@bookkeeping`, each node with `upstream_not_down == FALSE` appears as the `start` of an arc that has end node `(_Sink_)`.
 
 ## Return value of `fullmatch` / `pairmatch` (*ptmatch)
 
