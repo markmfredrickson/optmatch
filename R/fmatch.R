@@ -29,9 +29,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
   }
   stopifnot(is.numeric(f))
-  mxc <- round(max.col.units)
-  mnc <- round(min.col.units)
-  mxr <- round(max.row.units)
+  mxc <- as.integer(round(max.col.units))
+  mnc <- as.integer(round(min.col.units))
+  mxr <- as.integer(round(max.row.units))
 
   if (mnc > 1) {
     mxr <- 1L
@@ -81,6 +81,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   nc <- length(control.units)
   narcs <- nrow(distance)
   problem.size <- narcs + nt + nc
+  n.mc  <- as.integer(round(nc * f)) # number of matched controls
 
   if (problem.size > getMaxProblemSize()) {
       stop(paste('Maximum matching problem may have only',
@@ -91,7 +92,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
   
-  if (mnc > 1 & round(max.row.units) > 1) {
+  if (mnc > 1 & mxr > 1) {
     stop("since min.col.units > 1, max.row.units can be at most 1.")
   }
   #prohibit use of names reserved for the two terminal nodes
@@ -101,9 +102,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
-  if ( (mxr >1 & nt/mxr > nc * f) | #max.row.units too low
-       (mxr==1L & nt * mnc > round(nc * f)) |# min.col.units too high  
-       (nt * mxc < round(nc * f)) #max.col.units too low
+  if ( (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
+       (mxr==1L & nt * mnc > n.mc) |# min.col.units too high  
+       (nt * mxc < n.mc) #max.col.units too low
       )
   {
     return(cbind(distance[1:narcs, ], solution = rep(-1L, narcs)))
@@ -131,7 +132,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ucap <- c(ucap, rep(mxc - mnc, nt), rep(mxr - 1, nc), rep(1, nc))
 
   # supply
-  b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
+  b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - n.mc), -n.mc)
 
   if(!is.null(node_prices))
   {
