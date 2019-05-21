@@ -55,9 +55,6 @@ setValidity("NodeInfo", function(object){
     if (!is.integer(object[['supply']]))
         errors  <- c(errors,
                      'Col "supply" should have type integer.')    
-    if ( nrow(object) & isTRUE(all.equal(object[['upstream_not_down']],NA)) )
-        errors  <- c(errors,
-                     "No matchable ('upstream' or 'downstream') nodes.")
     if (length(errors)==0) TRUE else errors      
 })
 

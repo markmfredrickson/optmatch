@@ -25,14 +25,6 @@ test_that("Instantiation & validity", {
                      ),
                  "should have type double" # Not sure it's necessary, but insisting
                   )                        # that 'price' be double not integer
-    expect_error(new("NodeInfo",
-                      data.frame(name='a', price=5L, upstream_not_down=NA,
-                                 supply=1L, subproblem='b',
-                                 stringsAsFactors=F)
-                     ),
-                 "No matchable" # Not sure it's necessary, but insisting
-                  )                        # on at least 1 "matchable" node
-
     expect_silent(ai  <- new("ArcInfo",
                              matches=data.frame(subproblem='a', upstream='b',
                                                 downstream=c('c','d'),stringsAsFactors=F),
