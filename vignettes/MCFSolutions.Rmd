@@ -44,7 +44,7 @@ Through 2018 (version 0.9*), no attempt was made to store the dual problem solut
 An `SubProbInfo` is an S4-typed data frame bearing information about (sub)problems passed to the solver, and their translation to and from units acceptable to the solver. Columns:
 
 - `subproblem`, character (which subproblem?);
-- `upstream_eq_rows`, logical (do upstream nodes of MCF representation correspond to rows of match distance matrix?);
+- `flipped`, logical (do upstream nodes of MCF representation correspond to _columns_ of match distance matrix, as opposed to rows, the default?);
 - `hashed_dist`, character (hashed ID for a double precision distance); 
 - `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
 -  `exceedance`, double (estimate/upper bound for amount by which sum of matched distances may exceed true optimal value.); 
@@ -85,17 +85,17 @@ An `ArcInfo` has 2 slots:
 
 - `@matches`, data frame with columns
     + `subproblem`, character,
-    + `upstreamnode`, character,
-    + `downstreamnode`, character; 
+    + `upstream`, character,
+    + `downstream`, character; 
 - `@bookkeeping`, data frame with columns
     + `subproblem`, character,
-    + `startnode`, character,
-    + `endnode`, character,
+    + `start`, character,
+    + `end`, character,
     + `flow`, integer (nonnegative). 
 
 Rules/conventions:
 
-- In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `upstreamnode`/`startnode` and `downstreamnode`/`endnode` nodes were matched, absence means not matched.)
+- In terms of the network flow solution, presence of a row in `@matches` encodes a corresponding flow of 1; absence encodes flow 0.  (So having the row means its `upstream`/`start` node and `downstream`/`end` nodes were matched, absence means not matched.)
 - Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
 - This type's validity checker should be fast, eschewing expensive operations.
 - ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
@@ -141,7 +141,6 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 For starters,  an `FullmatchMCFSolutions` type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@subproblems`, there may be an additional column, `stability.increment`, of type integer. If this column is not present then the stability increment is understood to be 1. 
 - in `@nodes`, exactly 2 `names` values with  `kind=="bookkeeping"`, "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@arcs`, each appears w/ own characteristic pattern.

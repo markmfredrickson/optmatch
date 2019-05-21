@@ -12,19 +12,19 @@ setClass("SubProbInfo", contains="data.frame",
          )
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
-    if (!all(colnames(object)[1:5]==
-             c("subproblem","hashed_dist","resolution","exceedance","CS_orig_dist")))
+    if (!all(colnames(object)[1:6]==
+             c("subproblem","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")))
         errors  <- c(errors,
-                     'Cols 1-5 should be:\n\t c("subproblem","hashed_dist","resolution","exceedance","CS_orig_dist")')
-    if (!all(vapply(object[1:2], is.character, logical(1))==TRUE))
+                     'Cols 1-6 should be:\n\t c("subproblem","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")')
+    if (!all(vapply(object[c(1,3)], is.character, logical(1))))
         errors  <- c(errors,
-                     'Cols 1,2 should have type character.')
-    if (!all(vapply(object[3:4], is.double, logical(1))==TRUE))
+                     'Cols 1,3 should have type character.')
+    if (!all(vapply(object[4:5], is.double, logical(1))))
         errors  <- c(errors,
-                     'Cols 3,4 should have type double.')
-    if (!is.logical(object[[5]]))
+                     'Cols 4,5 should have type double.')
+    if (!all(vapply(object[c(2,6)], is.logical, logical(1))))
         errors  <- c(errors,
-                     'Col 5 should have type logical.')
+                     'Cols 2,6 should have type logical.')
     if (anyDuplicated(object[['subproblem']]))
         errors  <- c(errors,
                      'Duplicates in "subproblem", or subproblems with same name.')
@@ -52,9 +52,9 @@ setValidity("NodeInfo", function(object){
     if (!is.integer(object[['supply']]))
         errors  <- c(errors,
                      'Col "supply" should have type integer.')    
-    if ( !all(unique(object[['kind']]) %in% c("treatment", "control", "bookkeeping")) )
+    if ( nrow(object) & !any(unique(object[['kind']]) %in% c("upstream", "downstream")) )
         errors  <- c(errors,
-                     "'kind' values other than 'treatment', 'control' or 'bookkeeping'.")
+                     "no matchable nodes, i.e. nodes w/ kind=='upstream' or 'downstream'.")
     if (length(errors)==0) TRUE else errors      
 })
 
@@ -70,16 +70,16 @@ setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
 setValidity("ArcInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object@matches)[1:3]==
-             c("subproblem", "treatment",  "control")))
+             c("subproblem", "upstream",  "downstream")))
         errors  <- c(errors,
-                     '@matches cols 1-3 should be:\n\t c("subproblem", "treatment",  "control")')
+                     '@matches cols 1-3 should be:\n\t c("subproblem", "upstream",  "downstream")')
     if (!all(vapply(object@matches, is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns of @matches should have type character.')
     if (!all(colnames(object@bookkeeping)[1:4]==
-             c("subproblem", "startnode",  "endnode",  "flow")))
+             c("subproblem", "start",  "end",  "flow")))
         errors  <- c(errors,
-                     '@bookkeeping cols 1-4 should be:\n\t c("subproblem", "startnode",  "endnode",  "flow")')
+                     '@bookkeeping cols 1-4 should be:\n\t c("subproblem", "start",  "end",  "flow")')
     if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      '@bookkeeping cols 1-3 should have type character.')
