@@ -34,7 +34,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   mxr <- round(max.row.units)
 
   if (mnc > 1) {
-    mxr <- 1
+    mxr <- 1L
   }
 
   # Check that matching problem is well-specified
@@ -79,7 +79,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   control.units <- levels(distance$control)
   nt <- length(treated.units)
   nc <- length(control.units)
-  narcs <- dim(distance)[1]
+  narcs <- nrow(distance)
   problem.size <- narcs + nt + nc
 
   if (problem.size > getMaxProblemSize()) {
@@ -89,28 +89,26 @@ fmatch <- function(distance, max.row.units, max.col.units,
                  "Set 'options(\"optmatch_max_problem_size\" = Inf)' to disable this check."),
            call. = FALSE)
   }
+
   
   if (mnc > 1 & round(max.row.units) > 1) {
-    warning("since min.col.units > 1, fmatch coerced max.row.units to 1")
+    stop("since min.col.units > 1, max.row.units can be at most 1.")
   }
-  #warnings to prohibit use of names reserved for the two terminal nodes
-  if (any(control.units == '(_Sink_)'))
-  {
-    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
-  }
-  if (any(control.units == '(_End_)'))
-  {
-    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
-  }
-  if (any(treated.units == '(_Sink_)'))
-  {
-    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
-  }
-  if (any(treated.units == '(_End_)'))
-  {
-    warning('Cannot chose "(_Sink_)" or "(_End_)" as unit name')
-  }
+  #prohibit use of names reserved for the two terminal nodes
+  if (any(c(treated.units, control.units) == '(_Sink_)'))
+    stop('Cannot choose "(_Sink_)" as unit name.')
+  if (any(c(treated.units, control.units) == '(_End_)'))
+    stop('Cannot choose "(_End_)" as unit name')
 
+  ## Bypass solver if problem is recognizably infeasible
+  if ( (mxr >1 & nt/mxr > nc * f) | #max.row.units too low
+       (mxr==1L & nt * mnc > round(nc * f)) |# min.col.units too high  
+       (nt * mxc < round(nc * f)) #max.col.units too low
+      )
+  {
+    return(cbind(distance[1:narcs, ], solution = rep(-1L, narcs)))
+      }
+  
   # set up the problem for the Fortran algorithm
   # each node has a integer ID number
   # startn indicates where each arc starts (using ID num)
@@ -185,8 +183,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     PACKAGE = "optmatch")
   }
 
-  feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
-            (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
+  feas <- fop$feasible1
 
   x <- feas * fop$x1 - (1 - feas)
 

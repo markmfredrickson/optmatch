@@ -34,6 +34,29 @@ test_that("fmatch accepts DistanceSpecifications", {
   expect_identical(res$solution, res.ism$solution)
 })
 
+test_that("Stop on unacceptable input", {
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")  
+  rownames(m) <- c("D", "E", "F")  
+  
+  m1  <- m
+  colnames(m1) <- c("(_Sink_)", "B", "C")  
+  pm1  <- prepareMatching(m1)
+  expect_error(fmatch(pm1,2,2), "(_Sink_)")
+
+  m2  <- m1
+  colnames(m2) <- c("A", "B", "C")
+  rownames(m2) <- c("(_End_)", "E", "F")
+
+  pm2  <- prepareMatching(m2)
+  expect_error(fmatch(pm2,2,2), "(_End_)")
+
+})
+
 test_that("Solutions -> factor helper", {
   v <- c(1, Inf, 2,
          2, 1, Inf,
@@ -73,7 +96,7 @@ test_that("Solutions -> factor helper", {
   noMatches <- cbind(skeleton, solution = -1)
 
   expect_true(is.null(solution2factor(noMatches)))
-})
+})  
 
 test_that("Fallback version of optmatch solver", {
   data(nuclearplants)

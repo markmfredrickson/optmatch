@@ -74,15 +74,6 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     }
   }
 
-    if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt) |
-        !rfeas |  !cfeas )
-
-  {
-    ans <- rep("NA",length(rownames)+length(colnames))
-    names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, maxerr=NULL, distance=NULL))
-  }
-
   if (is.null(omit.fraction)) {
     f.ctls <- 1
   } else {
@@ -92,6 +83,16 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     f.ctls <- 1-omit.fraction
   }
 
+    if (floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
+        ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
+        !rfeas |  !cfeas  # either no controls or no treatments
+        )
+  {
+    ans <- rep(NA_integer_,length(rownames)+length(colnames))
+    names(ans) <- c(rownames, colnames)
+    return(list(cells=ans, maxerr=NULL, distance=NULL))
+  }
+    
 
     old.o <- options(warn=-1)
     reso_upper_lim  <- (.Machine$integer.max/64 -2)/max(dm$distance)
