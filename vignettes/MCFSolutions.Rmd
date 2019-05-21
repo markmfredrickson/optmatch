@@ -67,13 +67,14 @@ A `NodeInfo` is an S4-typed data frame bearing the columns:
 
 - `name`, character;
 - `price`, double (node prices);
-- `kind`, character ("upstream", "downstream" or other, e.g. "bookkeeping");
+- `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
 - `subproblem`, character (name of a subproblem); and
 - ... (hold open the possibility of additional columns for subclasses).
 
 Rules/conventions:
 
+-  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e. "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)" nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink" in H.&K. '06 Fig. 2.
 -  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
 - No two rows can simultaneously have the same values of `name` and `subproblem`.
 - This type's validity checker should be fast, eschewing expensive operations.
@@ -99,7 +100,8 @@ Rules/conventions:
 - Some arcs involving bookkeeping nodes can have flow greater than 1. Thus the `@bookkeeping` slot's `flow` column.
 - This type's validity checker should be fast, eschewing expensive operations.
 - ¿Should the `@bookkeeping` d.f. have a row for each of the bookkeeping arcs of the problem, to limit ambiguity and/or special casing in code?
-- Each (`subproblem`, `upstreamnode`) or (`subproblem`, `startnode`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="upstream"`; each (`subproblem`, `downstreamnode`) or (`subproblem`, `endnode`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `kind=="downstream"`. 
+- Each (`subproblem`, `upstream`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `upstream_not_down==TRUE`; each (`subproblem`, `downstream`) pair must appear as a (`subproblem`, `name`) NodeInfo  pair, with `upstream_not_down==FALSE`.
+- Similarly a (`subproblem`, `start`) or (`subproblem`, `end`) pair carried in this table must have in the NodeInfo table a corresponding (`subproblem`, `name`) entry.   
 
 
 
@@ -119,12 +121,24 @@ Slots for class `MCFSolutions`:
 - `arcs`, a `ArcInfo` object (see above);
 - `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
     + `name`,
-    + `kind`,
+    + `row_unit`,
     + `subproblem`.
 
 Rules/conventions:
 
 - The `@matchables` table associates nodes to matchable units.
+- `row_unit` is `TRUE` for a unit from the rows of a matching distance,
+   `FALSE` for a unit from the match distance's columns.  I.e., for
+   matchables that appear in the nodes table,
+```r
+object@subproblems %>%
+with(flipped[match(object@nodes$subproblem,subproblem)]) %>%
+ifelse(!object@nodes$upstream_not_down, object@nodes$upstream_not_down)
+```
+- There can be matchable units that don't appear in a nodes table, if e.g.
+they were excluded prior to matching or their subproblem was found to be infeasible prior to being sent to the solver. 
+- `is.na(object@matchables$row_unit)` indicates a unit that's being kept track of but didn't
+   have a value for the treatment variable. 
 - Checking validity for such an object may be moderately expensive
   when the object is large, as it calls for cross-comparison of
   constituent objects. So e.g. `c()` should not routinely check validity
@@ -141,7 +155,7 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 For starters,  an `FullmatchMCFSolutions` type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@nodes`, exactly 2 `names` values with  `kind=="bookkeeping"`, "`(_Sink_)`" and "`(_End_)`";
+- in `@nodes`, exactly 2 `names` values s.t. `is.na(upstream_not_down)`, namely "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@arcs`, each appears w/ own characteristic pattern.
 

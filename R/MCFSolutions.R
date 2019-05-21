@@ -33,28 +33,31 @@ setValidity("SubProbInfo", function(object){
 setClass("NodeInfo", contains="data.frame",
          prototype=
              prototype(data.frame(name=character(0), price=double(0),
-                                  kind=character(0), supply=integer(0),
+                                  upstream_not_down=logical(0), supply=integer(0),
                                   subproblem=character(0), stringsAsFactors=FALSE)
                        )
          )
 setValidity("NodeInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:5]==
-             c("name", "price", "kind", "supply", "subproblem")))
+             c("name", "price", "upstream_not_down", "supply", "subproblem")))
         errors  <- c(errors,
-                     'Cols 1-5 should be:\n\t c("name", "price", "kind", "supply", "subproblem")')
-    if (!all(vapply(object[c(1,3,5)], is.character, logical(1))==TRUE))
+                     'Cols 1-5 should be:\n\t c("name", "price", "upstream_not_down", "supply", "subproblem")')
+    if (!all(vapply(object[c(1,5)], is.character, logical(1))==TRUE))
         errors  <- c(errors,
-                     'Cols 1,3,5 should have type character.')
+                     'Cols 1,5 should have type character.')
     if (!is.double(object[['price']]))
         errors  <- c(errors,
                      'Col "price" should have type double.')
+    if (!is.logical(object[['upstream_not_down']]))
+        errors  <- c(errors,
+                     'Col "upstream_not_down" should have type logical.')
     if (!is.integer(object[['supply']]))
         errors  <- c(errors,
                      'Col "supply" should have type integer.')    
-    if ( nrow(object) & !any(unique(object[['kind']]) %in% c("upstream", "downstream")) )
+    if ( nrow(object) & isTRUE(all.equal(object[['upstream_not_down']],NA)) )
         errors  <- c(errors,
-                     "no matchable nodes, i.e. nodes w/ kind=='upstream' or 'downstream'.")
+                     "No matchable ('upstream' or 'downstream') nodes.")
     if (length(errors)==0) TRUE else errors      
 })
 
@@ -92,22 +95,22 @@ setValidity("ArcInfo", function(object){
 setClass("MatchablesInfo", contains="data.frame",
          prototype=
              prototype(data.frame(name=character(0), 
-                                  kind=character(0), 
+                                  row_unit=character(0), 
                                   subproblem=character(0), stringsAsFactors=FALSE)
                        )
          )
 setValidity("MatchablesInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)==
-             c("name", "kind", "subproblem") ) )
+             c("name", "row_unit", "subproblem") ) )
         errors  <- c(errors,
-                     'Columns should be:\n\t c("name", "kind", "subproblem")')
-    if (!all(vapply(object, is.character, logical(1))==TRUE))
+                     'Columns should be:\n\t c("name", "row_unit", "subproblem")')
+    if (!all(vapply(object[c(1,3)], is.character, logical(1))==TRUE))
         errors  <- c(errors,
-                     'All columns should have type character.')
-    if ( !all(unique(object[['kind']]) %in% c("treatment", "control")) )
+                     'Cols 1,3 should have type character.')
+    if ( !is.logical(object[['row_unit']]) )
         errors  <- c(errors,
-                     "'kind' values other than 'treatment' or 'control'.")
+                     "'row_unit' col should have type logical.")
     
     if (length(errors)==0) TRUE else errors  
 })
