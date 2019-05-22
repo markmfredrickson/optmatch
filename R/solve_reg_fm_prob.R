@@ -149,10 +149,8 @@ doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
       (sum(rfeas) + sum(cfeas) - 2 - sum(temp.with.nodes$temp$solution)) / reso
   }
 
-##  if(!identical(options()$use_fallback_optmatch_solver, TRUE))
-##  {
+
 ##    temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
-##  }
 
   temp.with.nodes$maxerr <- maxerr
 ##  temp.with.nodes[["prob.data"]]$tol = tolerance
@@ -173,14 +171,7 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, group
 
   match.with.node.prices <- list()
   match.with.node.prices[["temp"]] <- temp
-###  if(identical(options()$use_fallback_optmatch_solver, TRUE))
-###  {
-###    match.with.node.prices[["node.data"]]
-###  }
-###  else
-###  {
 ###    match.with.node.prices[["node.data"]] <-build_node_data(temp.extended = temp.extended, subproblemid = groupid)
-###  }
 
   # not sure if following line should be one directly below this, or second option
 ###  match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)

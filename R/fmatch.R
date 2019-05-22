@@ -25,6 +25,8 @@
 fmatch <- function(distance, max.row.units, max.col.units,
 			min.col.units = 1, f = 1, node_prices = NULL)
 {
+    if (identical(options()$use_fallback_optmatch_solver, TRUE))
+       warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")
     if (!inherits(distance, "data.frame") ||
         !setequal(colnames(distance), c("control", "treated", "distance"))
         ) 
@@ -174,26 +176,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (!is.integer(nodes$supply)) nodes$supply  <- as.integer(nodes$supply)
   if (!is.integer(rcs)) rcs  <- as.integer(rcs)  
   
-  # If the user specifies using the old version of the relax algorithm. The `if` will be
-  # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
-  # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
-  if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
-    fop <- .Fortran("relaxalgold",
-                    n1=(nc + nt + 2L),
-                    na1=problem.size,
-                    startn1=startn,
-                    endn1=endn,
-                    c1=dists,
-                    u1=ucap,
-                    b1=nodes$supply,
-                    x1=integer(problem.size),
-                    crash1=0L,
-                    large1=as.integer(.Machine$integer.max/4),
-                    feasible1=integer(1),
-                    NAOK = FALSE,
-                    DUP = TRUE,
-                    PACKAGE = "optmatch")
-  } else {
     fop <- .Fortran("relaxalg",
                     n1=as.integer(nc + nt + 2L),
                     na1=problem.size,
@@ -210,7 +192,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     NAOK = FALSE,
                     DUP = TRUE,
                     PACKAGE = "optmatch")
-  }
 
   feas <- fop$feasible1
 
@@ -224,18 +205,11 @@ fmatch <- function(distance, max.row.units, max.col.units,
     distance <- rbind(distance, end.controls, end.treatments, sink.control)
   }
 
-  if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
-    ans <- x[1:narcs]
-    rcosts <- fop$rc[1:narcs]
-    cbind(distance[1:length(ans), ], solution = ans)
-  } else
-  {
     ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
     rcosts <- fop$rc
     obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
     #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
     return(obj)
-  }
 }
 
 prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
