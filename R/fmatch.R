@@ -75,10 +75,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # this returns a "canonical" matching: a data.frame with
   # three columns: treated, control, distance. Where the first two
   # are factors and the last is numeric.
-  treated.units <- levels(distance$treated)
-  control.units <- levels(distance$control)
-  nt <- length(treated.units)
-  nc <- length(control.units)
+  row.units <- levels(distance$treated)
+  col.units <- levels(distance$control)
+  nt <- length(row.units)
+  nc <- length(col.units)
   narcs <- nrow(distance)
   problem.size <- narcs + nt + nc
   n.mc  <- as.integer(round(nc * f)) # number of matched controls
@@ -96,9 +96,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
     stop("since min.col.units > 1, max.row.units can be at most 1.")
   }
   #prohibit use of names reserved for the two terminal nodes
-  if (any(c(treated.units, control.units) == '(_Sink_)'))
+  if (any(c(row.units, col.units) == '(_Sink_)'))
     stop('Cannot choose "(_Sink_)" as unit name.')
-  if (any(c(treated.units, control.units) == '(_End_)'))
+  if (any(c(row.units, col.units) == '(_End_)'))
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
@@ -136,9 +136,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if(!is.null(node_prices))
   {
-    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
-    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
-    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    end.controls <- data.frame(control = "(_End_)", treated = row.units, distance = 0)
+    end.treatments <- data.frame(control = col.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = col.units, treated = "(_Sink_)", distance = 0)
     distance <- rbind(distance, end.controls, end.treatments, sink.control)
     rcs <- prep.reduced.costs(distance, node_prices, narcs, nt, nc)
   }
@@ -190,9 +190,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if(is.null(node_prices))
   {
-    end.controls <- data.frame(control = "(_End_)", treated = treated.units, distance = 0)
-    end.treatments <- data.frame(control = control.units, treated = "(_End_)", distance = 0)
-    sink.control <- data.frame(control = control.units, treated = "(_Sink_)", distance = 0)
+    end.controls <- data.frame(control = "(_End_)", treated = row.units, distance = 0)
+    end.treatments <- data.frame(control = col.units, treated = "(_End_)", distance = 0)
+    sink.control <- data.frame(control = col.units, treated = "(_Sink_)", distance = 0)
     distance <- rbind(distance, end.controls, end.treatments, sink.control)
   }
 
