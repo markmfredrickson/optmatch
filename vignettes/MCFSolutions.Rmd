@@ -43,7 +43,7 @@ Through 2018 (version 0.9*), no attempt was made to store the dual problem solut
 
 An `SubProbInfo` is an S4-typed data frame bearing information about (sub)problems passed to the solver, and their translation to and from units acceptable to the solver. Columns:
 
-- `subproblem`, character (which subproblem?);
+- `groups`, character (which subproblem?);
 - `flipped`, logical (do upstream nodes of MCF representation correspond to _columns_ of match distance matrix, as opposed to rows, the default?);
 - `hashed_dist`, character (hashed ID for a double precision distance); 
 - `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
@@ -69,14 +69,14 @@ A `NodeInfo` is an S4-typed data frame bearing the columns:
 - `price`, double (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
-- `subproblem`, character (name of a subproblem); and
+- `groups`, character (name of a subproblem); and
 - ... (hold open the possibility of additional columns for subclasses).
 
 Rules/conventions:
 
 -  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e. "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)" nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink" in H.&K. '06 Fig. 2.
 -  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
-- No two rows can simultaneously have the same values of `name` and `subproblem`.
+- No two rows can simultaneously have the same values of `name` and `groups`.
 - This type's validity checker should be fast, eschewing expensive operations.
 - If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
 
@@ -85,11 +85,11 @@ Rules/conventions:
 An `ArcInfo` has 2 slots:
 
 - `@matches`, data frame with columns
-    + `subproblem`, character,
+    + `groups`, character,
     + `upstream`, character,
     + `downstream`, character; 
 - `@bookkeeping`, data frame with columns
-    + `subproblem`, character,
+    + `groups`, character,
     + `start`, character,
     + `end`, character,
     + `flow`, integer (nonnegative),
@@ -101,8 +101,8 @@ Rules/conventions:
 - Arcs involving bookkeeping nodes have lower capacity 0, upper capacity `capacity`. Their `flow` values must fall in this range (inclusive of endpoints).
 - This type's validity checker should be fast, eschewing expensive operations.
 - The `@bookkeeping` d.f. must have a row for each of the bookkeeping arcs of the problem.
-- Each (`subproblem`, `upstream`) pair must appear as a (`subproblem`, `name`) pair in the NodeInfo table, with `upstream_not_down==TRUE`; each (`subproblem`, `downstream`) pair must appear as a (`subproblem`, `name`) NodeInfo  pair, with `upstream_not_down==FALSE`.
-- Similarly a (`subproblem`, `start`) or (`subproblem`, `end`) pair carried in this table must have in the NodeInfo table a corresponding (`subproblem`, `name`) entry.   
+- Each (`groups`, `upstream`) pair must appear as a (`groups`, `name`) pair in the NodeInfo table, with `upstream_not_down==TRUE`; each (`groups`, `downstream`) pair must appear as a (`groups`, `name`) NodeInfo  pair, with `upstream_not_down==FALSE`.
+- Similarly a (`groups`, `start`) or (`groups`, `end`) pair carried in this table must have in the NodeInfo table a corresponding (`groups`, `name`) entry.   
 
 
 
@@ -123,7 +123,7 @@ Slots for class `MCFSolutions`:
 - `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
     + `name`,
     + `row_unit`,
-    + `subproblem`.
+    + `groups`.
 
 Rules/conventions:
 
@@ -133,7 +133,7 @@ Rules/conventions:
    matchables that appear in the nodes table,
 ```r
 object@subproblems %>%
-with(flipped[match(object@nodes$subproblem,subproblem)]) %>%
+with(flipped[match(object@nodes$groups,groups)]) %>%
 ifelse(!object@nodes$upstream_not_down, object@nodes$upstream_not_down)
 ```
 - There can be matchable units that don't appear in a nodes table, if e.g.

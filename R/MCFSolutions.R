@@ -5,7 +5,7 @@
 ####################################################################
 setClass("SubProbInfo", contains="data.frame",
          prototype=
-             prototype(data.frame(subproblem=character(0), hashed_dist=character(0),
+             prototype(data.frame(groups=character(0), hashed_dist=character(0),
                               resolution=double(0), exceedance=double(0),
                               CS_orig_dist=logical(0), stringsAsFactors=FALSE)
                   )
@@ -13,9 +13,9 @@ setClass("SubProbInfo", contains="data.frame",
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:6]==
-             c("subproblem","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")))
+             c("groups","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")))
         errors  <- c(errors,
-                     'Cols 1-6 should be:\n\t c("subproblem","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")')
+                     'Cols 1-6 should be:\n\t c("groups","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")')
     if (!all(vapply(object[c(1,3)], is.character, logical(1))))
         errors  <- c(errors,
                      'Cols 1,3 should have type character.')
@@ -25,24 +25,24 @@ setValidity("SubProbInfo", function(object){
     if (!all(vapply(object[c(2,6)], is.logical, logical(1))))
         errors  <- c(errors,
                      'Cols 2,6 should have type logical.')
-    if (anyDuplicated(object[['subproblem']]))
+    if (anyDuplicated(object[['groups']]))
         errors  <- c(errors,
-                     'Duplicates in "subproblem", or subproblems with same name.')
+                     'Duplicates in "groups", or subproblems with same name.')
     if (length(errors)==0) TRUE else errors  
 })
 setClass("NodeInfo", contains="data.frame",
          prototype=
              prototype(data.frame(name=character(0), price=double(0),
                                   upstream_not_down=logical(0), supply=integer(0),
-                                  subproblem=character(0), stringsAsFactors=FALSE)
+                                  groups=character(0), stringsAsFactors=FALSE)
                        )
          )
 setValidity("NodeInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:5]==
-             c("name", "price", "upstream_not_down", "supply", "subproblem")))
+             c("name", "price", "upstream_not_down", "supply", "groups")))
         errors  <- c(errors,
-                     'Cols 1-5 should be:\n\t c("name", "price", "upstream_not_down", "supply", "subproblem")')
+                     'Cols 1-5 should be:\n\t c("name", "price", "upstream_not_down", "supply", "groups")')
     if (!all(vapply(object[c(1,5)], is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'Cols 1,5 should have type character.')
@@ -60,9 +60,9 @@ setValidity("NodeInfo", function(object){
 
 setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
          prototype=
-             prototype(matches=data.frame(subproblem=character(0), treatment=character(0), 
+             prototype(matches=data.frame(groups=character(0), treatment=character(0), 
                                           control=character(0), stringsAsFactors=FALSE),
-                       bookkeeping=data.frame(subproblem=character(0), treatment=character(0), 
+                       bookkeeping=data.frame(groups=character(0), treatment=character(0), 
                                               control=character(0), flow=integer(0),
                                               capacity=integer(0), stringsAsFactors=FALSE)
                        )
@@ -70,16 +70,16 @@ setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
 setValidity("ArcInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object@matches)[1:3]==
-             c("subproblem", "upstream",  "downstream")))
+             c("groups", "upstream",  "downstream")))
         errors  <- c(errors,
-                     '@matches cols 1-3 should be:\n\t c("subproblem", "upstream",  "downstream")')
+                     '@matches cols 1-3 should be:\n\t c("groups", "upstream",  "downstream")')
     if (!all(vapply(object@matches, is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns of @matches should have type character.')
     if (!all(colnames(object@bookkeeping)[1:5]==
-             c("subproblem", "start",  "end",  "flow", "capacity")))
+             c("groups", "start",  "end",  "flow", "capacity")))
         errors  <- c(errors,
-                     '@bookkeeping cols 1-5 should be:\n\t c("subproblem", "start",  "end",  "flow", "capacity")')
+                     '@bookkeeping cols 1-5 should be:\n\t c("groups", "start",  "end",  "flow", "capacity")')
     if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))))
         errors  <- c(errors,
                      '@bookkeeping cols 1-3 should have type character.')
@@ -99,15 +99,15 @@ setClass("MatchablesInfo", contains="data.frame",
          prototype=
              prototype(data.frame(name=character(0), 
                                   row_unit=character(0), 
-                                  subproblem=character(0), stringsAsFactors=FALSE)
+                                  groups=character(0), stringsAsFactors=FALSE)
                        )
          )
 setValidity("MatchablesInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)==
-             c("name", "row_unit", "subproblem") ) )
+             c("name", "row_unit", "groups") ) )
         errors  <- c(errors,
-                     'Columns should be:\n\t c("name", "row_unit", "subproblem")')
+                     'Columns should be:\n\t c("name", "row_unit", "groups")')
     if (!all(vapply(object[c(1,3)], is.character, logical(1))==TRUE))
         errors  <- c(errors,
                      'Cols 1,3 should have type character.')
@@ -125,19 +125,19 @@ setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
          )
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
-    subprobs  <- unique(object@subproblems[['subproblem']])
-    if (!all(unique(object@nodes[['subproblem']]) %in% subprobs ))
+    subprobs  <- unique(object@subproblems[['groups']])
+    if (!all(unique(object@nodes[['groups']]) %in% subprobs ))
         errors  <- c(errors,
-                     "Detected subproblems in @nodes that aren't in @subproblems.")
-    if (!all(unique(object@arcs@matches[['subproblem']]) %in% subprobs ))
+                     "Detected subproblems ('groups') in @nodes that aren't in @subproblems.")
+    if (!all(unique(object@arcs@matches[['groups']]) %in% subprobs ))
         errors  <- c(errors,
-                     "Detected subproblems in @arcs@matches that aren't in @subproblems.")
-    if (!all(unique(object@arcs@bookkeeping[['subproblem']]) %in% subprobs ))
+                     "Detected subproblems ('groups') in @arcs@matches that aren't in @subproblems.")
+    if (!all(unique(object@arcs@bookkeeping[['groups']]) %in% subprobs ))
         errors  <- c(errors,
-                     "Detected subproblems in @arcs@bookkeeping that aren't in @subproblems.")
-    if (!all(unique(object@matchables[['subproblem']]) %in% subprobs ))
+                     "Detected subproblems ('groups') in @arcs@bookkeeping that aren't in @subproblems.")
+    if (!all(unique(object@matchables[['groups']]) %in% subprobs ))
         errors  <- c(errors,
-                     "Detected subproblems in @matchables that aren't in @subproblems.")
+                     "Detected subproblems ('groups') in @matchables that aren't in @subproblems.")
     if (length(errors)==0) TRUE else errors      
 })
 
