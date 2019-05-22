@@ -15,7 +15,7 @@ test_that("Problems bigger than the max are not feasible", {
   options('optmatch_max_problem_size' = 256)
   maxprob <- getMaxProblemSize()
 
-  feasible.n <- floor(sqrt(maxprob)) - 1
+  feasible.n <- floor(sqrt(maxprob)) - 2
 
   largeButFeasible <- matrix(0, nrow = feasible.n, ncol = feasible.n,
     dimnames = list(1:feasible.n, (feasible.n + 1):(2 * feasible.n)))
