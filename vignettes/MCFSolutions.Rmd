@@ -69,7 +69,7 @@ A `NodeInfo` is an S4-typed data frame bearing the columns:
 - `price`, double (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
-- `groups`, character (name of a subproblem); and
+- `groups`, factor (name of a subproblem); and
 - ... (hold open the possibility of additional columns for subclasses).
 
 Rules/conventions:
@@ -85,13 +85,13 @@ Rules/conventions:
 An `ArcInfo` has 2 slots:
 
 - `@matches`, data frame with columns
-    + `groups`, character,
-    + `upstream`, character,
-    + `downstream`, character; 
+    + `groups`, factor,
+    + `upstream`, factor,
+    + `downstream`, factor; 
 - `@bookkeeping`, data frame with columns
-    + `groups`, character,
-    + `start`, character,
-    + `end`, character,
+    + `groups`, factor,
+    + `start`, factor,
+    + `end`, factor,
     + `flow`, integer (nonnegative),
     + `capacity`, integer (nonnegative). 
 
@@ -121,9 +121,9 @@ Slots for class `MCFSolutions`:
 - `nodes`, a `NodeInfo` object (see above);
 - `arcs`, a `ArcInfo` object (see above);
 - `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
-    + `name`,
-    + `row_unit`,
-    + `groups`.
+    + `name` (character),
+    + `row_unit` (logical),
+    + `groups` (factor).
 
 Rules/conventions:
 
