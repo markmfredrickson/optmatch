@@ -108,7 +108,8 @@ test_that("Fallback version of optmatch solver", {
   # turn fallback on
 
   options("use_fallback_optmatch_solver" = TRUE)
-  f2 <- fullmatch(pr ~ cost, data=nuclearplants)
+  expect_warning(f2 <- fullmatch(pr ~ cost, data=nuclearplants),
+                 "using current")
 
   expect_true(!is.null(options()$use_fallback_optmatch_solver))
 
