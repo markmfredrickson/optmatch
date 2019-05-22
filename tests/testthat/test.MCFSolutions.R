@@ -14,50 +14,50 @@ test_that("Instantiation & validity", {
 
     expect_silent(ni1  <- new("NodeInfo",
                              data.frame(name='a', price=0.5, upstream_not_down=TRUE,
-                                        supply=1L, groups='b',
+                                        supply=1L, groups = as.factor('b'),
                                         stringsAsFactors=F)
                              )
                   )
     expect_silent(ni1f  <- new("NodeInfo",
                               data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
                                          upstream_not_down=c(FALSE, NA, NA),
-                                         supply=c(0L,-1L,-2L), groups='b',
+                                         supply=c(0L,-1L,-2L), groups = as.factor('b'),
                                          stringsAsFactors=F)
                               )
                   )
     expect_error(new("NodeInfo",
                       data.frame(name='a', price=5L, upstream_not_down=FALSE,
-                                 supply=1L, groups='b',
+                                 supply=1L, groups = as.factor('b'),
                                  stringsAsFactors=F)
                      ),
                  "should have type double" # Not sure it's necessary, but insisting
                   )                        # that 'price' be double not integer
     expect_silent(ai  <- new("ArcInfo",
-                             matches=data.frame(groups='a', upstream='b',
-                                                downstream=c('c','d'),stringsAsFactors=F),
-                             bookkeeping=data.frame(groups='a', start=c('c','d'),
-                                                    end='(_Sink_)', flow=1L,
+                             matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
+                                                downstream = as.factor(c('c','d')), stringsAsFactors=F),
+                             bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
+                                                    end = as.factor('(_Sink_)'), flow=1L,
                                                     capacity=1L, stringsAsFactors=F)
                              )
                   )
     expect_error(new("ArcInfo",
-                     matches=data.frame(groups='a', upstream='b',
-                                        downstream=c('c','d'),stringsAsFactors=F),
-                     bookkeeping=data.frame(groups='a', start=c('c','d'),
-                                            end='(_Sink_)', flow=1.5,
+                     matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
+                                        downstream = as.factor(c('c','d')),stringsAsFactors=F),
+                     bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
+                                            end = as.factor('(_Sink_)'), flow=1.5,
                                             capacity=1L, stringsAsFactors=F)
                      ), "should have type integer" # Not sure it's necessary, but insisting 
                   )                                # that 'flow' be integer not double
     expect_error(new("ArcInfo",
-                     matches=data.frame(groups='a', upstream='b',
-                                        downstream=c('c','d'),stringsAsFactors=F),
-                     bookkeeping=data.frame(groups='a', start=c('c','d'),
-                                            end='(_Sink_)', flow=-1L,
+                     matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
+                                        downstream = as.factor(c('c','d')),stringsAsFactors=F),
+                     bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
+                                            end = as.factor('(_Sink_)'), flow=-1L,
                                             capacity=1L, stringsAsFactors=F)
                      ), "should be nonnegative" 
                   )                                
     expect_error(new("ArcInfo",
-                     matches=data.frame(groups='a', upstream='b',
+                     matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
                                         downstream=c('c','d'),stringsAsFactors=F),
                      bookkeeping=data.frame(groups='a', start=c('c','d'),
                                             end='(_Sink_)', flow=2L,
@@ -67,7 +67,7 @@ test_that("Instantiation & validity", {
     
     expect_silent(mbls1  <- new("MatchablesInfo",
                                 data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                                           groups=rep("a",2), stringsAsFactors=F)
+                                           groups = as.factor(rep("a",2)), stringsAsFactors=F)
                                 )
                   )
 
@@ -80,7 +80,7 @@ test_that("Instantiation & validity", {
     expect_error(validObject(mcf2, complete=TRUE), "Columns should be", fixed=TRUE)
     mbls3  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups=rep("d",2), stringsAsFactors=F)
+                             groups = as.factor(rep("d",2)), stringsAsFactors=F)
                   )
     mcf3  <- mcf1
     mcf3@matchables  <- mbls3 #mismatch between subproblems here vs elswhere in object
@@ -113,7 +113,7 @@ test_that("c() methods", {
     
     ni1  <- new("NodeInfo",
                data.frame(name='a', price=0.5, upstream_not_down=TRUE,
-                          supply=1L, groups='b',
+                          supply=1L, groups= as.factor('b'),
                           stringsAsFactors=F)
                )
     expect_silent(c(ni1, ni1))
@@ -121,36 +121,51 @@ test_that("c() methods", {
     ni2  <- new("NodeInfo",
                 data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
                            upstream_not_down=c(FALSE, NA, NA),
-                          supply=c(0L,-1L,-2L), groups='c',
+                          supply=c(0L,-1L,-2L), groups=as.factor('c'),
                           stringsAsFactors=F)
                )
-    
+    ni1ni2 <- c(ni1, ni2)
+    expect_equal(ni1ni2$name, c("a", "a", "(_Sink_)", "(_End_)"))
+    expect_equal(levels(ni1ni2$groups), c("b", "c"))
+
     mbls1  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups=rep("a",2), stringsAsFactors=F)
+                             groups = as.factor(rep("a",2)), stringsAsFactors=F)
                   )
     expect_silent(c(mbls1, mbls1))
     mbls2  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups=rep("c",2), stringsAsFactors=F)
+                             groups = as.factor(rep("c",2)), stringsAsFactors=F)
                   )
 
+    mb1mb2 <- c(mbls1, mbls2)
+    expect_equal(mb1mb2$name,  c('a', 'b', 'a', 'b'))
+    expect_equal(levels(mb1mb2$groups), c('a', 'c'))
+
+
     ai1  <- new("ArcInfo",
-               matches=data.frame(groups='a', upstream='b',
-                                  downstream=c('c','d'),stringsAsFactors=F),
-               bookkeeping=data.frame(groups='a', start=c('c','d'),
-                                      end='(_Sink_)', flow=1L,
+               matches=data.frame(groups = factor('a'), upstream = factor('b'),
+                                  downstream = factor(c('c','d')), stringsAsFactors=F),
+               bookkeeping=data.frame(groups= factor('a'), start = factor(c('c','d')),
+                                      end= factor('(_Sink_)'), flow=1L,
                                       capacity=1L, stringsAsFactors=F)
                )
     expect_silent(c(ai1, ai1))
     expect_silent(c(x=ai1, y=ai1, z=ai1))
     ai2  <- new("ArcInfo",
-               matches=data.frame(groups='c', upstream='b',
-                                  downstream=c('c','d'),stringsAsFactors=F),
-               bookkeeping=data.frame(groups='c', start=c('c','d'),
-                                      end='(_Sink_)', flow=1L,
+               matches=data.frame(groups = factor('c'), upstream = factor('b'),
+                                  downstream = factor(c('c','d', 'e')), stringsAsFactors=F),
+               bookkeeping=data.frame(groups = factor('c'), start = factor(c('c','d')),
+                                      end = factor('(_Sink_)'), flow=1L,
                                       capacity=1L, stringsAsFactors=F)
                )
+
+    ai1ai2 <- c(ai1, ai2)
+    expect_equal(levels(ai1ai2@matches$groups), c("a", "c"))
+    expect_equal(levels(ai1ai2@matches$upstream), "b")
+    expect_equal(levels(ai1ai2@matches$downstream), c("c", "d", "e"))
+    expect_equal(levels(ai1ai2@bookkeeping$end), "(_Sink_)")
+
 
     mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
     expect_error(c(mcf1, mcf1), "uplicates")
@@ -165,7 +180,7 @@ test_that("c() methods", {
     mcf3@matchables  <-
         new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups=rep("d",2), stringsAsFactors=F)
+                             groups = as.factor(rep("d",2)), stringsAsFactors=F)
             )
     ## this `mcf3` is now corrupted:
     expect_error(validObject(mcf3))

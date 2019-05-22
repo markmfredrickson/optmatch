@@ -32,9 +32,9 @@ setValidity("SubProbInfo", function(object){
 })
 setClass("NodeInfo", contains="data.frame",
          prototype=
-             prototype(data.frame(name=character(0), price=double(0),
+             prototype(data.frame(name = character(0), price=double(0),
                                   upstream_not_down=logical(0), supply=integer(0),
-                                  groups=character(0), stringsAsFactors=FALSE)
+                                  groups=factor(), stringsAsFactors=FALSE)
                        )
          )
 setValidity("NodeInfo", function(object){
@@ -43,9 +43,12 @@ setValidity("NodeInfo", function(object){
              c("name", "price", "upstream_not_down", "supply", "groups")))
         errors  <- c(errors,
                      'Cols 1-5 should be:\n\t c("name", "price", "upstream_not_down", "supply", "groups")')
-    if (!all(vapply(object[c(1,5)], is.character, logical(1))==TRUE))
+    if (!is.character(object[['name']]))
         errors  <- c(errors,
-                     'Cols 1,5 should have type character.')
+                     'Col "name" should have type character.')
+    if (!is.factor(object[['groups']]))
+        errors  <- c(errors,
+                     'Col "groups" should have type factor.')
     if (!is.double(object[['price']]))
         errors  <- c(errors,
                      'Col "price" should have type double.')
@@ -60,10 +63,10 @@ setValidity("NodeInfo", function(object){
 
 setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
          prototype=
-             prototype(matches=data.frame(groups=character(0), treatment=character(0), 
-                                          control=character(0), stringsAsFactors=FALSE),
-                       bookkeeping=data.frame(groups=character(0), treatment=character(0), 
-                                              control=character(0), flow=integer(0),
+             prototype(matches=data.frame(groups = factor(), upstream = factor(), 
+                                          downstream = factor(), stringsAsFactors=FALSE),
+                       bookkeeping=data.frame(groups = factor(), start = factor(), 
+                                              end = factor(), flow=integer(0),
                                               capacity=integer(0), stringsAsFactors=FALSE)
                        )
          )
@@ -73,16 +76,16 @@ setValidity("ArcInfo", function(object){
              c("groups", "upstream",  "downstream")))
         errors  <- c(errors,
                      '@matches cols 1-3 should be:\n\t c("groups", "upstream",  "downstream")')
-    if (!all(vapply(object@matches, is.character, logical(1))==TRUE))
+    if (!all(vapply(object@matches, is.factor, logical(1))==TRUE))
         errors  <- c(errors,
-                     'All columns of @matches should have type character.')
+                     'All columns of @matches should have type factor.')
     if (!all(colnames(object@bookkeeping)[1:5]==
              c("groups", "start",  "end",  "flow", "capacity")))
         errors  <- c(errors,
                      '@bookkeeping cols 1-5 should be:\n\t c("groups", "start",  "end",  "flow", "capacity")')
-    if (!all(vapply(object@bookkeeping[1:3], is.character, logical(1))))
+    if (!all(vapply(object@bookkeeping[1:3], is.factor, logical(1))))
         errors  <- c(errors,
-                     '@bookkeeping cols 1-3 should have type character.')
+                     '@bookkeeping cols 1-3 should have type factor.')
     if (!all(vapply(object@bookkeeping[c('flow', "capacity")], is.integer, logical(1))))
         errors  <- c(errors,
                      '@bookkeeping cols "flow", "capacity" should have type integer.')
@@ -97,9 +100,9 @@ setValidity("ArcInfo", function(object){
 
 setClass("MatchablesInfo", contains="data.frame",
          prototype=
-             prototype(data.frame(name=character(0), 
-                                  row_unit=character(0), 
-                                  groups=character(0), stringsAsFactors=FALSE)
+             prototype(data.frame(name = character(0),
+                                  row_unit = logical(0),
+                                  groups = factor(), stringsAsFactors=FALSE)
                        )
          )
 setValidity("MatchablesInfo", function(object){
@@ -108,9 +111,12 @@ setValidity("MatchablesInfo", function(object){
              c("name", "row_unit", "groups") ) )
         errors  <- c(errors,
                      'Columns should be:\n\t c("name", "row_unit", "groups")')
-    if (!all(vapply(object[c(1,3)], is.character, logical(1))==TRUE))
+    if (!is.character(object[['name']]))
         errors  <- c(errors,
-                     'Cols 1,3 should have type character.')
+                     'Cols "name" should have type character.')
+    if (!is.factor(object[['groups']]))
+        errors  <- c(errors,
+                     'Cols "groups" should have type factor.')
     if ( !is.logical(object[['row_unit']]) )
         errors  <- c(errors,
                      "'row_unit' col should have type logical.")
