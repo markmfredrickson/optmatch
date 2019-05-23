@@ -16,14 +16,14 @@
 ##* @param max.col.units numeric, upper limit on num control units per matched set
 ##* @param min.col.units numeric, lower limit on num control units per matched set
 ##* @param f double, fraction of all row units to be matched
-##* @param node_prices 
+##* @param node_info NodeInfo object for this subproblem, or `NULL` 
 ##* @return data frame with columns `treatment`, `control`, `solution`, `distance`. 
 ##*         The `distance` column holds values of the integer distance that `intSolve()` saw. 
 ##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
 ##* @keywords internal
 
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, node_prices = NULL)
+			min.col.units = 1, f = 1, node_info = NULL)
 {
     if (identical(options()$use_fallback_optmatch_solver, TRUE))
        warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")
@@ -128,41 +128,55 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## to corresponding row of this data frame.
   ## nodes 1:nt are the upstream matchable units in the flow diagram
   ## nodes (nt + 1):nc are the downstream matchable units, etc.
-  nodes  <- data.frame(name=c(row.units, col.units,
+  nodes  <- if (is.null(node_info)) {
+        new("NodeInfo",
+            data.frame(name=c(row.units, col.units,
                               "(_End_)", "(_Sink_)"),# note that `factor()` would put these at start not end of levels
+                       price=0L, #if we're here, no warm start values were provided.
+                       upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA), 
                        supply=c(rep(mxc, nt), rep(0L, nc),
-                                -(mxc * nt - n.mc), -n.mc)
+                                -(mxc * nt - n.mc), -n.mc),
+                       groups=factor(rep(NA_character_, nt+nc+2L)),
+                       stringsAsFactors=FALSE
                        )
-  # startn indicates where each arc starts (using ID num)
-  # endn indicates where each arc ends (using ID num)
-  # "End"/"Overflow" is node nt+nc+1; "Sink" is node nt+nc+2
-  # ID numbers implicitly point to corresp. levels of the upstream and downstream factors
+            )
+            } else
+            {
+                stopifnot(is(node_info, "NodeInfo"),
+                          is.integer(node_info$price),
+                          all(row.units %in% node_info[['name']]),
+                          all(col.units %in% node_info[['name']]),
+                          sum(node_info[['name']]=="(_End_)")==1,
+                          sum(node_info[['name']]=="(_Sink_)")==1)
+                new("NodeInfo",
+                    node_info[match(c(row.units, col.units,
+                                      "(_End_)", "(_Sink_)"),
+                                    node_info$name),]
+                    )
+            }
+  # ID numbers implicitly point to corresp. row of nodes
   ####    Arcs involving End or Sink nodes   ####
   bookkeeping  <-
-      data.frame(start=c(1L:(nt + nc), nt + 1L:nc),
-                 end=c(rep(nt + nc + 1L, nc + nt), rep(nt + nc + 2L, nc)),
-                 capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
+      data.frame(groups=factor(rep(NA_character_, nt +2L*nc)),
+                 start=c(1L:(nt + nc), # ~ c(row.units, col.units)
+                         nt + 1L:nc), # ~ col.units
+                 end=c(rep(nt + nc + 1L, nc + nt), # nt + nc+ 1L ~ '(_End_)'
+                       rep(nt + nc + 2L, nc) ), # nt + nc + 2L ~ '(_Sink_)'   
+          flow=0L,
+          capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
                  )
   ## set up the problem for the Fortran algorithm ##
+  ## startn indicates where each arc starts (using ID num)
+  ## endn indicates where each arc ends (using ID num)
+  ## "End"/"Overflow" is node nt+nc+1; "Sink" is node nt+nc+2
   #################### All arcs  ###################
   ###         Arcs rep'ing potential matches    Arcs involving End or Sink
-  dists <-  c(distance$distance,                rep(0L, nrow(bookkeeping)))
-  startn <- c(as.integer(distance$treated),     bookkeeping$start)
-  endn <-   c(nt + as.integer(distance$control),bookkeeping$end)
-  ucap <-   c(rep(1L, narcs),                   bookkeeping$capacity)
-
-  if(!is.null(node_prices))
-  {
-    end.controls <- data.frame(control = "(_End_)", treated = row.units, distance = 0)
-    end.treatments <- data.frame(control = col.units, treated = "(_End_)", distance = 0)
-    sink.control <- data.frame(control = col.units, treated = "(_Sink_)", distance = 0)
-    distance <- rbind(distance, end.controls, end.treatments, sink.control)
-    rcs <- prep.reduced.costs(distance, node_prices, narcs, nt, nc)
-  }
-  else
-  {
-    rcs <- as.integer(dists)
-  }
+  startn<- c(as.integer(distance$treated),     bookkeeping$start )
+  endn <-  c(nt + as.integer(distance$control),bookkeeping$end )
+  ucap <-  c(rep(1L, narcs),                   bookkeeping$capacity )
+  redcost<-c(distance$distance,                rep(0L, nrow(bookkeeping)) ) +
+        nodes[endn, "price"] - nodes[startn, "price"]
+    
   ## Everything headed for the solver ought currently to be cast as integer,
   ## but I couldn't immediately find documentation of rules for preserving integer
   ## cast in arithmetic ops, and it's hard to be sure those won't change.  Since
@@ -171,21 +185,20 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (!is.integer(problem.size)) problem.size  <- as.integer(problem.size)    
   if (!is.integer(startn)) startn  <- as.integer(startn)    
   if (!is.integer(endn)) endn  <- as.integer(endn)
-  if (!is.integer(dists)) dists  <- as.integer(dists)    
   if (!is.integer(ucap)) ucap  <- as.integer(ucap)
   if (!is.integer(nodes$supply)) nodes$supply  <- as.integer(nodes$supply)
-  if (!is.integer(rcs)) rcs  <- as.integer(rcs)  
+  if (!is.integer(redcost)) redcost  <- as.integer(redcost)  
   
     fop <- .Fortran("relaxalg",
                     n1=as.integer(nc + nt + 2L),
                     na1=problem.size,
                     startn1=startn,
                     endn1=endn,
-                    c1=dists,
+                    c1=c(distance$distance, rep(0L, nrow(bookkeeping))),
                     u1=ucap,
                     b1=nodes$supply,
                     x1=integer(problem.size),
-                    rc1 = rcs,
+                    rc1 = redcost,
                     crash1=as.integer(0),
                     large1=as.integer(.Machine$integer.max/4),
                     feasible1=integer(1),
@@ -193,33 +206,57 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     DUP = TRUE,
                     PACKAGE = "optmatch")
 
+  ## Material used to create s3 optmatch object:
   feas <- fop$feasible1
-
   x <- feas * fop$x1 - (1 - feas)
+  obj <-cbind(distance, solution = x[1:narcs])
 
-  if(is.null(node_prices))
-  {
-    end.controls <- data.frame(control = "(_End_)", treated = row.units, distance = 0)
-    end.treatments <- data.frame(control = col.units, treated = "(_End_)", distance = 0)
-    sink.control <- data.frame(control = col.units, treated = "(_Sink_)", distance = 0)
-    distance <- rbind(distance, end.controls, end.treatments, sink.control)
-  }
+  #### Recover node prices, store in nodes table ##
+  ## In full matching, each upstream (row) or downstream (column) node starts
+  ## an arc ending at End, and these are also the only arcs 
+  ## ending there. End being at the bottom of the canonical diagram, 
+  ## call these "downarcs". Downarcs' costs are 0, so their reduced
+  ## costs are simply the price of the End node minus the price  
+  ## of the upstream or downstream node they started from. Imposing 
+  ## a convention that the price of End is 0, the prices of these upstream
+  ## and downstream nodes are just the opposites of the reduced
+  ## costs of the arcs they begin.   
+  End_rownum_in_nodes_table  <- which(nodes$name=="(_End_)")
+  stopifnot(length(End_rownum_in_nodes_table)==1)
+  is_downarc  <-  ( bookkeeping[['end']] == End_rownum_in_nodes_table )
+  downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]  
+  nodes[ bookkeeping[['start']][ is_downarc ] ,
+                                      "price" ]  <-
+      -1L * downarc_redcosts 
+  ## It remains to recover the price of the Sink node.  There 
+  ## are arcs to it from every downstream (column) node, and these
+  ## are the only arcs involving it.  First we extract these arcs'  
+  ## reduced costs.
+  Sink_rownum_in_nodes_table  <- which(nodes$name=="(_Sink_)")
+  stopifnot(length(Sink_rownum_in_nodes_table)==1)
+  is_arctosink  <-  ( bookkeeping[['end']] == Sink_rownum_in_nodes_table )
+  arctosink_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_arctosink )]
+  sinkprice  <- arctosink_redcosts +
+      nodes[ bookkeeping[['start']][ is_arctosink ] ,
+                                            "price" ]
+  if (!all(sinkprice==sinkprice[1])) stop("Mutually inconsistent inferred sink prices.")
+  nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]  
 
-    ans <- c(x[1:narcs], integer(length(fop$rc) - narcs))
-    rcosts <- fop$rc
-    obj <-cbind(distance, solution = ans, reduced.cost=rcosts)
-    #sinkn.price <- fop$rc[which(startn == nt + 1 & endn == nt + nc + 2)] - fop$rc[which(startn == nt + 1 & endn == nt + nc + 1)]
+  ### Recover arc flow info, store in `arcs` ###
+  ## info extracted from problem solution:
+  matches  <- distance[as.logical(fop$x1[1L:narcs]), c("treated", "control")]
+  bookkeeping[1L:(problem.size-narcs), "flow"]  <- fop$x1[(narcs+1L):problem.size]
+  ## reshape `matches`, `bookkeeping` to match ArcInfo object spec:
+  colnames(matches)  <- c("upstream", "downstream")
+  matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
+                         matches)  
+  bookkeeping[['start']]  <- factor(nodes$name[ bookkeeping[['start']] ])
+  bookkeeping[['end']]  <- factor(nodes$name[ bookkeeping[['end']] ])
+  arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
+
+
+  fmcfs  <- new("FullmatchMCFSolutions", subproblems=new("SubProbInfo"),
+                nodes=nodes, arcs=arcs, matchables=new("MatchablesInfo"))
+    attr(obj, "MCFSolution")  <- fmcfs # or MCFSolutons
     return(obj)
-}
-
-prep.reduced.costs <- function(df, node.prices, narcs.no.sink.or.end, nt, nc)
-{
-  reduced.costs = numeric(nrow(df))
-  # reduced.costs <- df$distance + node.prices[df$control] - node.prices[df$treated]
-  reduced.costs[1:narcs.no.sink.or.end] <- df$distance[1:narcs.no.sink.or.end] + node.prices[as.character(df$control[1:narcs.no.sink.or.end])] - node.prices[as.character(df$treated[1:narcs.no.sink.or.end])]
-
-
-  reduced.costs[(narcs.no.sink.or.end + 1):(nrow(df) - nc)] <- -c(node.prices[1:(nt + nc)])
-  reduced.costs[(nrow(df)-nc +1):nrow(df)] <- node.prices["(_Sink_)"] - node.prices[(nt+1):(nt + nc)]
-  return(as.integer(reduced.costs))
 }

@@ -469,8 +469,7 @@ fullmatch.matrix <- function(x,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
                         omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
-                        warm.start = warm.start,
-                        subproblemid = subproblemid)
+                        node_info = warm.start) 
 
     return(temp)
   }

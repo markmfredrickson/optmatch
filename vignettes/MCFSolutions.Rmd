@@ -66,7 +66,7 @@ Rules/conventions:
 A `NodeInfo` is an S4-typed data frame bearing the columns:
 
 - `name`, character;
-- `price`, double (node prices);
+- `price`, double or integer (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
 - `groups`, factor (name of a subproblem); and

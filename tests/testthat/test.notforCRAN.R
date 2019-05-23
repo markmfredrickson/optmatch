@@ -58,3 +58,19 @@ test_that("match_on with bigglm distances", {
     expect_equivalent(res.bg, res.glm)
   }
 })
+
+test_that("Hinting decreases runtimes",{
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+  # the clear match to make: 
+  # A:D, B:E, C:F
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+  pm <- prepareMatching(m)
+
+  t0  <- system.time(res <- fmatch(pm, 2, 2))
+  t1  <- system.time(fmatch(pm, 2, 2, node_info=n0))
+  expect_gt(t0['elapsed'], t1['elapsed']) 
+})

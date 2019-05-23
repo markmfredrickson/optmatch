@@ -49,7 +49,7 @@ test_that("No Warnings", {
   expect_silent(
     res <- solve_reg_fm_prob(rownames = rownames(d), colnames = colnames(d),
                        distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                       tolerance = tolerance, omit.fraction = NULL, subproblemid="")
+                       tolerance = tolerance, omit.fraction = NULL)
   )
 })
 
@@ -61,7 +61,7 @@ test_that("NA for unmatched items", {
 
   res <- solve_reg_fm_prob(rownames = rownames(d), colnames = colnames(d),
                      distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                     tolerance = tolerance, omit.fraction = NULL, subproblemid="")
+                     tolerance = tolerance, omit.fraction = NULL)
 
   expect_equal(length(res$cells), 5)
 

@@ -26,11 +26,11 @@ test_that("Instantiation & validity", {
                               )
                   )
     expect_error(new("NodeInfo",
-                      data.frame(name='a', price=5L, upstream_not_down=FALSE,
+                      data.frame(name='a', price='foo', upstream_not_down=FALSE,
                                  supply=1L, groups = as.factor('b'),
                                  stringsAsFactors=F)
                      ),
-                 "should have type double" # Not sure it's necessary, but insisting
+                 "should be a numeric" # Not sure it's necessary, but insisting
                   )                        # that 'price' be double not integer
     expect_silent(ai  <- new("ArcInfo",
                              matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),

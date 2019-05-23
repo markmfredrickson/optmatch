@@ -25,14 +25,13 @@
 ##* @param tolerance 
 ##* @param omit.fraction 
 ##* @param matched.distances 
-##* @param warm.start Numeric vector of node prices
-##* @param subproblemid 
+##* @param node_info NodeInfo specific to subproblem, or `NULL`
 ##* @return 
 ##* @keywords internal
 
 solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
                               max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
-                              warm.start = NULL, subproblemid)
+                              node_info = NULL)
 {
 
   if (min.cpt <=0 | max.cpt<=0) {
@@ -107,10 +106,10 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     temp.with.nodes <-
         if (is.integer(dm[['distance']]))
         {
-            intSolve(dm, min.cpt, max.cpt, f.ctls, int.node.prices=warm.start, groupid = subproblemid)
+            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info=node_info)
         } else
         {
-            doubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, warm.start = warm.start, groupid = subproblemid)
+            doubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, node_info=node_info)
         }
   temp <- temp.with.nodes$temp
   temp$treated <- factor(temp$treated)
@@ -130,15 +129,16 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 
 
 doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
-                        max.cpt, tolerance, reso, f.ctls, warm.start = NULL, groupid = NULL) #warm.start should be a node.data data frame
+                        max.cpt, tolerance, reso, f.ctls, node_info) 
 {
-
     dm$distance  <- cadlag_ceiling(dm$distance * reso)
-    node.ints  <- if (is.null(warm.start)) NULL else cadlag_ceiling(warm.start * reso)
+    if (!is.null(node_info))
+        node_info$price  <- cadlag_ceiling(node_info$price * reso)
     
     temp.with.nodes <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                                int.node.prices = node.ints, groupid = groupid)
-
+                                node_info = node_info)
+    ## NOW RESCALE NODE PRICES!  AS IN
+    ## temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
 
   if (any(is.na(temp.with.nodes$temp$solution))) { # i.e., problem was found infeasible.
     maxerr <- 0
@@ -150,8 +150,6 @@ doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
   }
 
 
-##    temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
-
   temp.with.nodes$maxerr <- maxerr
 ##  temp.with.nodes[["prob.data"]]$tol = tolerance
 ##  temp.with.nodes[["prob.data"]]$reso = reso
@@ -161,23 +159,11 @@ doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, int.node.prices = NULL, groupid)
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
 {
-    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_prices =int.node.prices)
+    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_info =node_info)
 
-###  temp.extended <- temp
-
-  temp <- temp[1L:nrow(dm),] # Just the arcs representing potential matches
-
-  match.with.node.prices <- list()
-  match.with.node.prices[["temp"]] <- temp
-###    match.with.node.prices[["node.data"]] <-build_node_data(temp.extended = temp.extended, subproblemid = groupid)
-
-  # not sure if following line should be one directly below this, or second option
-###  match.with.node.prices[["prob.data"]] <- data.frame(max.control = max.cpt, min.control = min.cpt, omit.fraction = f.ctls, reso = NA, tol = NA, exceedance= 0, mean.control = NA, group = groupid)
-###  #match.with.node.prices[["prob.data"]] <- data.frame(max.control = NA, min.control = NA, omit.fraction = NA, reso = NA, tol = NA, exceedance= 0, group = groupid)
-
-  return(match.with.node.prices)
+  return(list(temp=temp))
 }
 
 

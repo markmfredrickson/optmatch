@@ -21,7 +21,7 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   res <- fmatch(pm, 2, 2)
 
-  expect_equal(dim(res), c(16,5)) # seven non-Inf entries
+  expect_equal(dim(res), c(7,4)) # seven non-Inf entries
 
   # check that A-D is a pair and A-B is not a match
   expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
@@ -129,4 +129,24 @@ test_that("Fallback version of optmatch solver", {
   expect_identical(f1,f4)
 
   options("use_fallback_optmatch_solver" = NULL)
+})
+
+test_that("Passing and receiving node information",{
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+  # the clear match to make: 
+  # A:D, B:E, C:F
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+  pm <- prepareMatching(m)
+
+  res <- fmatch(pm, 2, 2)
+  expect_false(is.null(mcfs0  <- attr(res, "MCFSolution")))
+  n0  <-  mcfs0@nodes
+  expect_silent(fmatch(pm, 2, 2, node_info=n0))
+  n0_madebad  <- n0
+  n0_madebad$price  <- n0_madebad$price + .5 # no longer integer
+  expect_error(fmatch(pm, 2, 2, node_info=n0_madebad))
 })

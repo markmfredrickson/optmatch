@@ -49,9 +49,9 @@ setValidity("NodeInfo", function(object){
     if (!is.factor(object[['groups']]))
         errors  <- c(errors,
                      'Col "groups" should have type factor.')
-    if (!is.double(object[['price']]))
+    if (!is.numeric(object[['price']]))
         errors  <- c(errors,
-                     'Col "price" should have type double.')
+                     'Col "price" should be a numeric.')
     if (!is.logical(object[['upstream_not_down']]))
         errors  <- c(errors,
                      'Col "upstream_not_down" should have type logical.')
@@ -132,18 +132,21 @@ setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
     subprobs  <- unique(object@subproblems[['groups']])
-    if (!all(unique(object@nodes[['groups']]) %in% subprobs ))
-        errors  <- c(errors,
-                     "Detected subproblems ('groups') in @nodes that aren't in @subproblems.")
-    if (!all(unique(object@arcs@matches[['groups']]) %in% subprobs ))
-        errors  <- c(errors,
-                     "Detected subproblems ('groups') in @arcs@matches that aren't in @subproblems.")
-    if (!all(unique(object@arcs@bookkeeping[['groups']]) %in% subprobs ))
-        errors  <- c(errors,
-                     "Detected subproblems ('groups') in @arcs@bookkeeping that aren't in @subproblems.")
-    if (!all(unique(object@matchables[['groups']]) %in% subprobs ))
-        errors  <- c(errors,
-                     "Detected subproblems ('groups') in @matchables that aren't in @subproblems.")
+    if (length(subprobs))
+        {
+            if (!all(unique(object@nodes[['groups']]) %in% subprobs ))
+                errors  <- c(errors,
+                             "Detected subproblems ('groups') in @nodes that aren't in @subproblems.")
+            if (!all(unique(object@arcs@matches[['groups']]) %in% subprobs ))
+                errors  <- c(errors,
+                             "Detected subproblems ('groups') in @arcs@matches that aren't in @subproblems.")
+            if (!all(unique(object@arcs@bookkeeping[['groups']]) %in% subprobs ))
+                errors  <- c(errors,
+                             "Detected subproblems ('groups') in @arcs@bookkeeping that aren't in @subproblems.")
+            if (!all(unique(object@matchables[['groups']]) %in% subprobs ))
+                errors  <- c(errors,
+                             "Detected subproblems ('groups') in @matchables that aren't in @subproblems.")
+    }
     if (length(errors)==0) TRUE else errors      
 })
 
@@ -155,7 +158,7 @@ setClass("FullmatchMCFSolutions",
 setValidity("FullmatchMCFSolutions", function(object){
     errors  <- character(0)
     if ( nrow(object@nodes) &
-         !setequal(object@nodes[['names']][is.na(object@nodes[['upstream_not_down']])] ,
+         !setequal(object@nodes[['name']][is.na(object@nodes[['upstream_not_down']])] ,
                   c("(_Sink_)", "(_End_)") )
         )
         errors  <- c(errors,
