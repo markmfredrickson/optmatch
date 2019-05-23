@@ -574,10 +574,25 @@ fullmatch.matrix <- function(x,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- dist_digest(x)
+  attr(mout, "hashed.distance") <- disthash  <- dist_digest(x)
 
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
+
+  ## assemble MCF material
+    for (ii in 1L:length(problems))
+        if (!is.null(solutions[[ii]]$MCFSolution))
+        {
+            solutions[[ii]]$MCFSolution@subproblems[1L,"hashed_dist"]  <- disthash
+            thesubprob  <- subproblemids[ii]
+            solutions[[ii]]$MCFSolution@subproblems[1L,"groups"]  <- thesubprob
+            solutions[[ii]]$MCFSolution@nodes[,"groups"]  <- factor(thesubprob)
+            solutions[[ii]]$MCFSolution@arcs@matches[,"groups"]  <- factor(thesubprob)
+            solutions[[ii]]$MCFSolution@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
+            if (nrow(solutions[[ii]]$MCFSolution@matchables))
+                solutions[[ii]]$MCFSolution@matchables[,"groups"]  <- factor(thesubprob)
+            }
+  attr(mout, "MCFSolutions")  <- do.call("c", lapply(solutions, function(x) x$MCFSolution ))  
   return(mout)
 }
 
