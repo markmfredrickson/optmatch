@@ -71,6 +71,8 @@ test_that("Hinting decreases runtimes",{
   pm <- prepareMatching(m)
 
   t0  <- system.time(res <- fmatch(pm, 2, 2))
+  expect_false(is.null(mcfs0  <-  res$MCFSolution))
+  n0  <-  mcfs0@nodes
   t1  <- system.time(fmatch(pm, 2, 2, node_info=n0))
   expect_gt(t0['elapsed'], t1['elapsed']) 
 })

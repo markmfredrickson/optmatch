@@ -5,9 +5,9 @@
 ####################################################################
 setClass("SubProbInfo", contains="data.frame",
          prototype=
-             prototype(data.frame(groups=character(0), hashed_dist=character(0),
-                              resolution=double(0), exceedance=double(0),
-                              CS_orig_dist=logical(0), stringsAsFactors=FALSE)
+             prototype(data.frame(groups=character(1), flipped=NA, hashed_dist=NA_character_,
+                              resolution=1, exceedance=NA_real_,
+                              CS_orig_dist=NA, stringsAsFactors=FALSE)
                   )
          )
 setValidity("SubProbInfo", function(object){
@@ -132,7 +132,7 @@ setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
     subprobs  <- unique(object@subproblems[['groups']])
-    if (length(subprobs))
+    if (length(subprobs) && (length(subprobs)>1 || subprobs!=character(1)))
         {
             if (!all(unique(object@nodes[['groups']]) %in% subprobs ))
                 errors  <- c(errors,

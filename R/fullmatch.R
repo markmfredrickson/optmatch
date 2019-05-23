@@ -454,12 +454,13 @@ fullmatch.matrix <- function(x,
       maxc <- min(mxctl, ncol)
       minc <- max(mnctl, 1/nrow)
       omf.calc <- omf
-
+      flipped  <- FALSE
     } else {
       maxc <- min(1/mnctl, ncol)
       minc <- max(1/mxctl, 1/nrow)
       omf.calc <- -1 * omf
       d <- t(d)
+      flipped  <- TRUE
     }
 
     temp <- solve_reg_fm_prob(rownames = rownames(d),
@@ -469,7 +470,9 @@ fullmatch.matrix <- function(x,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
                         omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
-                        node_info = warm.start) 
+                        node_info = warm.start) # UPDATE ME! if using provided node info, might warn if problem was flipped but no longer is,etc
+      if (!is.null(temp$MCFSolution))
+          temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped 
 
     return(temp)
   }

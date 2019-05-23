@@ -103,15 +103,15 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     if (isTRUE(all.equal(dm[['distance']], 0)))
         dm[['distance']]  <- rep(1L, length(dm[['distance']])) # so we'll be routed to intSolve()
 
-    temp.with.nodes <-
+    temp <-
         if (is.integer(dm[['distance']]))
         {
-            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info=node_info)
+            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info)
         } else
         {
-            doubleSolve(dm, rfeas, cfeas, min.cpt, max.cpt, tolerance, reso, f.ctls, node_info=node_info)
+            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, reso)
         }
-  temp <- temp.with.nodes$temp
+
   temp$treated <- factor(temp$treated)
   temp$control <- factor(temp$control)
   ans <- rep(NA,length(rownames)+length(colnames))
@@ -120,51 +120,50 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
-    return(list(cells = ans, err = temp.with.nodes$maxerr#,
-###                node.data = temp.with.nodes[["node.data"]],
-###                prob.data = temp.with.nodes[["prob.data"]]
+    return(list(cells = ans, err = temp$maxerr,
+                MCFSolution=temp[["MCFSolution"]]
                 )
            )
 }
 
 
-doubleSolve <- function(dm, rfeas, cfeas, min.cpt,
-                        max.cpt, tolerance, reso, f.ctls, node_info) 
+doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
+                        rfeas, cfeas, reso) 
 {
     dm$distance  <- cadlag_ceiling(dm$distance * reso)
     if (!is.null(node_info))
         node_info$price  <- cadlag_ceiling(node_info$price * reso)
     
-    temp.with.nodes <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                                node_info = node_info)
-    ## NOW RESCALE NODE PRICES!  AS IN
-    ## temp.with.nodes[["node.data"]]$price <- temp.with.nodes[["node.data"]]$price / reso
-
-  if (any(is.na(temp.with.nodes$temp$solution))) { # i.e., problem was found infeasible.
-    maxerr <- 0
-  } else {
-    maxerr <- sum(temp.with.nodes$temp$solution * dm$distance, na.rm = TRUE) -
-      sum(temp.with.nodes$temp$solution * temp.with.nodes$temp$distance, na.rm = TRUE) / reso +
-      (sum(rfeas) > 1 & sum(cfeas) > 1) *
-      (sum(rfeas) + sum(cfeas) - 2 - sum(temp.with.nodes$temp$solution)) / reso
-  }
-
-
-  temp.with.nodes$maxerr <- maxerr
-##  temp.with.nodes[["prob.data"]]$tol = tolerance
-##  temp.with.nodes[["prob.data"]]$reso = reso
-##  temp.with.nodes[["prob.data"]]$exceedance <- maxerr
-  return(temp.with.nodes)
+    intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
+                       node_info = node_info)
+    
+    if (!is.null(intsol$MCFSolution))
+    {
+        intsol$MCFSolution@subproblems[1L,"resolution"]  <- reso
+        
+        intsol$MCFSolution@nodes[,'price']  <-
+            intsol$MCFSolution@nodes[['price']] / reso
+    }
+    
+    intsol$maxerr  <-
+        if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
+            0 } else {
+                  sum(intsol$solution * dm$distance, na.rm = TRUE) -
+                      sum(intsol$solution * intsol$distance, na.rm = TRUE) / reso +
+                      (sum(rfeas) > 1 & sum(cfeas) > 1) *
+                      (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) / reso
+              }
+    
+  return(intsol)
 
 }
 
 
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
-{
-    temp <- fmatch(dm, max.row.units = ceiling(1/min.cpt), max.col.units = ceiling(max.cpt), min.col.units = max(1, floor(min.cpt)), f=f.ctls, node_info =node_info)
-
-  return(list(temp=temp))
-}
+    fmatch(dm, max.row.units = ceiling(1/min.cpt),
+           max.col.units = ceiling(max.cpt),
+           min.col.units = max(1, floor(min.cpt)),
+           f=f.ctls, node_info =node_info)
 
 
 ##' Rounding function like ceiling -- except at the integers themselves,
@@ -187,7 +186,8 @@ cadlag_ceiling  <- function(x, tol=.Machine$double.neg.eps^0.5) {1L + floor(x + 
 ##* Small helper function to turn a solution data.frame into a factor of matches
 ##* @keywords internal
 solution2factor <- function(s) {
-  s2 <- s[s$solution == 1,]
+    s2  <- as.data.frame(s[c("control","treated","solution")])
+  s2 <- s2[s2$solution == 1,]
 
   if (dim(s2)[1] == 0) {
     return(NULL)
