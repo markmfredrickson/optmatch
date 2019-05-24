@@ -1,3 +1,4 @@
+setOldClass("data.frame")
 ####################################################################
 ########  Classes for storing information about solutions of #######
 ########  Min-Cost-Flow representations of matching problems #######
@@ -243,4 +244,16 @@ setMethod("c", signature(x="FullmatchMCFSolutions"),
               ans  <- callNextMethod()
               ans  <- as(ans, "FullmatchMCFSolutions")
               ans
-              } )
+          } )
+
+### node information getter:
+setGeneric("nodeinfo", function(x) standardGeneric("nodeinfo"))
+### (not sure yet that setter will be needed)
+###setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
+setMethod("nodeinfo", "NodeInfo", function(x) x)
+setMethod("nodeinfo", "MCFSolutions", function(x) x@nodes)
+setMethod("nodeinfo", "optmatch", function(x) {
+    mcfs  <- attr(x, "MCFSolutions")
+    if (is.null(mcfs)) NULL else nodeinfo(mcfs)
+})
+setMethod("nodeinfo", "ANY", function(x) NULL)

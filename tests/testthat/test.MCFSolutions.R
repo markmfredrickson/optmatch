@@ -1,6 +1,7 @@
 context("MCFSolutions & co: S4 classes to encode min-cost-flow solutions")
 
 test_that("Instantiation & validity", {
+    expect_true(validObject(new("SubProbInfo"))) # test the prototype
     expect_silent(spi1  <- new("SubProbInfo", data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
                                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
                                            stringsAsFactors=F)
@@ -12,6 +13,7 @@ test_that("Instantiation & validity", {
     colnames(spi2)[1]  <- "Subprob"
     expect_error(validObject(spi2), "Cols 1-6 should be")
 
+    expect_true(validObject(new("NodeInfo"))) # test the prototype    
     expect_silent(ni1  <- new("NodeInfo",
                              data.frame(name='a', price=0.5, upstream_not_down=TRUE,
                                         supply=1L, groups = as.factor('b'),
@@ -32,6 +34,7 @@ test_that("Instantiation & validity", {
                      ),
                  "should be a numeric" # Not sure it's necessary, but insisting
                   )                        # that 'price' be double not integer
+    expect_true(validObject(new("ArcInfo"))) # test the prototype
     expect_silent(ai  <- new("ArcInfo",
                              matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
                                                 downstream = as.factor(c('c','d')), stringsAsFactors=F),
@@ -64,7 +67,8 @@ test_that("Instantiation & validity", {
                                             capacity=1L, stringsAsFactors=F)
                      ), "flow can be now greater than capacity" 
                   )                                
-    
+
+    expect_true(validObject(new("MatchablesInfo"))) # test the prototype    
     expect_silent(mbls1  <- new("MatchablesInfo",
                                 data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
                                            groups = as.factor(rep("a",2)), stringsAsFactors=F)
@@ -191,4 +195,19 @@ test_that("c() methods", {
     mcf2f  <- as(mcf2, "FullmatchMCFSolutions")
     expect_is(c(mcf2f, mcf1), "FullmatchMCFSolutions")
     expect_is(c(mcf1, mcf2f), "MCFSolutions")
+})
+test_that("nodeinfo getter",{
+    expect_silent(mcf  <-  new("MCFSolutions")) #prelim-
+    expect_true(validObject(mcf, complete=TRUE))#inaries
+
+    expect_is(nodeinfo(mcf@nodes), "NodeInfo")
+    expect_is(nodeinfo(mcf), "NodeInfo")
+
+    data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                       x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_is(f1, "optmatch")
+    expect_false(is.null(attr(f1, "MCFSolutions")))
+    expect_is(nodeinfo(f1), "NodeInfo")
+    expect_null(nodeinfo(10))
 })
