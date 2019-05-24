@@ -4,6 +4,7 @@
 ## @param nodes A NodeInfo object (a data.frame with specific columns)
 ## @param arcs A ArcInfo object (two data frames that hold the matches and the booking arcs)
 ## @return The value of the Lagrangian.
+#' @importFrom dplyr left_join
 evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
     ## according to Bertsekas *Network Optimization*, page 155, the Lagrangian is given by:
     ## L(x, p) = \sum_{i,j} x_{ij} (a_ij - (p_i - p_j)) + \sum_i s_i p_i
