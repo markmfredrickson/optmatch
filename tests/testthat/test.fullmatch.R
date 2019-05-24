@@ -677,3 +677,15 @@ test_that("accept negative omit.fraction", {
 
 
 })
+
+test_that("returns min-cost flow solution info", {
+
+        data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_false(is.null(attr(f1, "MCFSolutions")))
+    f2 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_false(is.null(attr(f2, "MCFSolutions")))
+
+})

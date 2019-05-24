@@ -257,6 +257,5 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=new("SubProbInfo"),
                 nodes=nodes, arcs=arcs, matchables=new("MatchablesInfo"))
-    attr(obj, "MCFSolution")  <- fmcfs # or MCFSolutons
-    return(obj)
+    c(obj, list(MCFSolution=fmcfs) )
 }

@@ -20,13 +20,15 @@ test_that("fmatch accepts DistanceSpecifications", {
   pm <- prepareMatching(m)
 
   res <- fmatch(pm, 2, 2)
-
-  expect_equal(dim(res), c(7,4)) # seven non-Inf entries
+  expect_true(all(c("control","treated",
+                    "distance", # used in `doubleSolve()`'s "maxerr" calc
+                    "solution") %in% names(res)))
+  expect_equal(length(res$solution), 7) # seven non-Inf entries
 
   # check that A-D is a pair and A-B is not a match
-  expect_equal(res[res$control == "A" & res$treated == "D", "solution"], 1)
-  expect_equal(res[res$control == "A" & res$treated == "B",
-    "solution"], numeric(0))
+  expect_equal(res$solution[res$control == "A" & res$treated == "D"], 1)
+  expect_equal(res$solution[res$control == "A" & res$treated == "B"],
+               numeric(0))
 
   M <- as.InfinitySparseMatrix(m)
   pM <- prepareMatching(M)
@@ -143,7 +145,7 @@ test_that("Passing and receiving node information",{
   pm <- prepareMatching(m)
 
   res <- fmatch(pm, 2, 2)
-  expect_false(is.null(mcfs0  <- attr(res, "MCFSolution")))
+  expect_false(is.null(mcfs0  <-  res$MCFSolution))
   n0  <-  mcfs0@nodes
   expect_silent(fmatch(pm, 2, 2, node_info=n0))
   n0_madebad  <- n0
