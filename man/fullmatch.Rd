@@ -103,7 +103,8 @@ is considered to be a character vector of names. Useful to pass if you want to
 combine a match (using, e.g., \code{cbind}) with the data that were used to
 generate it (for example, in a propensity score matching).}
 
-\item{...}{Additional arguments, including \code{within}, which may be passed to \code{match_on}.}
+\item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within}) 
+or to specific methods.}
 }
 \value{
 A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.

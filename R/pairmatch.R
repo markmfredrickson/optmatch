@@ -50,8 +50,9 @@
 #' @param data Optional data set.
 #' @param remove.unmatchables Should treatment group members for which there are
 #' no eligible controls be removed prior to matching?
-#' @param ... Additional arguments to pass to \code{\link{match_on}} or
-#' \code{\link{fullmatch}}.  It is an error to pass \code{min.controls},
+#' @param ... Additional arguments to pass to \code{\link{match_on}} 
+#' (e.g. \code{within})) or to \code{\link{fullmatch}} (e.g. \code{tol}).  
+#' It is an error to pass \code{min.controls},
 #' \code{max.controls}, \code{mean.controls} or \code{omit.fraction} as
 #' \code{pairmatch} must set these values.
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
