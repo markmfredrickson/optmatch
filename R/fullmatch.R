@@ -151,7 +151,8 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param ... Additional arguments, including \code{within}, which may be passed to \code{match_on}.
+#' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within}) 
+#' or to specific methods.
 #'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
