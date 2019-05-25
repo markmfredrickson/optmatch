@@ -275,11 +275,8 @@ fullmatch.matrix <- function(x,
                              tol = .001,
                              data = NULL,
                              within = NULL,
-                             hint,
                              ...) {
 
-  hint  <- if (missing(hint)) NULL else nodeinfo(hint)
-    
   ### Checking Input ###
 
   # this will throw an error if not valid
@@ -297,9 +294,6 @@ fullmatch.matrix <- function(x,
 
   if (!is.null(within)) warning("Ignoring non-null 'within' argument.  When using 'fullmatch' with\n pre-formed distances, please combine them using '+'.")
 
-  
-  disthash  <- dist_digest(x)
-    
   nmtrt <- dnms[[1]]
   nmctl <- dnms[[2]]
 
@@ -360,9 +354,6 @@ fullmatch.matrix <- function(x,
   subproblemids  <- names(problems)
   if (is.null(subproblemids)) subproblemids  <- character(1L)
 
-  hints  <- rep(list(NULL), np) # REPLACE ME W/ ACTUAL HINTS WHEN GIVEN!
-  names(hints)  <- subproblemids
-    
   if (length(min.controls) > 1 & np != length(min.controls)) {
     stop(paste("Length of \'min.controls\' arg must be same ",
               "as number of subproblems [", np, "]", sep = ""))
@@ -439,7 +430,7 @@ fullmatch.matrix <- function(x,
 
   # a helper to handle a single matching problem. all args required.
   # input error checking happens in the public fullmatch function.
-  .fullmatch <- function(d, mnctl, mxctl, omf, disthash, hint = NULL) {
+  .fullmatch <- function(d, mnctl, mxctl, omf, subproblemid, warm.start = NULL) {
 
     # if the subproblem is completely empty, short circuit
     if (length(d) == 0 || all(is.infinite(d))) {
@@ -479,8 +470,7 @@ fullmatch.matrix <- function(x,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
                         omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
-                        disthash =disthash,
-                        node_info = hint) 
+                        node_info = warm.start) # UPDATE ME! if using provided node info, might warn if problem was flipped but no longer is,etc
       if (!is.null(temp$MCFSolution))
           temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped 
 
@@ -489,11 +479,11 @@ fullmatch.matrix <- function(x,
 
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
-  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, disthash.r, hint.r = NULL) {
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, subproblemid.r, warm.start.r = NULL) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
     if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, disthash.r, hint.r)
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, subproblemid.r, warm.start.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -503,7 +493,7 @@ fullmatch.matrix <- function(x,
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control
-      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, disthash.r, hint.r))
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, subproblemid.r, warm.start.r))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
       trial.ss <- stratumStructure(tmp2.optmatch)
       treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
@@ -512,7 +502,7 @@ fullmatch.matrix <- function(x,
       if(num.controls == 0) {
         # infeasible anyways
         if (!exists("tmp")) {
-          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, disthash.r, hint.r)
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, subproblemid.r, warm.start.r)
         }
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
         return(tmp)
@@ -521,11 +511,11 @@ fullmatch.matrix <- function(x,
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, disthash.r, hint.r))
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, subproblemid.r, warm.start.r))
     } else {
       # subproblem is infeasible, but we can't try to fix because no max.controls
       if (!exists("tmp")) {
-        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, disthash.r, hint.r)
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, subproblemid.r, warm.start.r)
       }
 
       new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -542,9 +532,9 @@ fullmatch.matrix <- function(x,
   }
 
   if (options()$fullmatch_try_recovery) {
-    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, disthash, hints, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, subproblemids, SIMPLIFY = FALSE)
   } else {
-    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, disthash, hints, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, subproblemids, SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
@@ -584,7 +574,7 @@ fullmatch.matrix <- function(x,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- disthash
+  attr(mout, "hashed.distance") <- disthash  <- dist_digest(x)
 
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl

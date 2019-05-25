@@ -16,15 +16,14 @@
 ##* @param max.col.units numeric, upper limit on num control units per matched set
 ##* @param min.col.units numeric, lower limit on num control units per matched set
 ##* @param f double, fraction of all row units to be matched
-##* @param node_info NodeInfo object for this subproblem, or `NULL`
-##* @param disthash identifier for distance used for hint problem
+##* @param node_info NodeInfo object for this subproblem, or `NULL` 
 ##* @return data frame with columns `treatment`, `control`, `solution`, `distance`. 
 ##*         The `distance` column holds values of the integer distance that `intSolve()` saw. 
 ##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
 ##* @keywords internal
 
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, node_info = NULL, disthash=NULL)
+			min.col.units = 1, f = 1, node_info = NULL)
 {
     if (identical(options()$use_fallback_optmatch_solver, TRUE))
        warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")

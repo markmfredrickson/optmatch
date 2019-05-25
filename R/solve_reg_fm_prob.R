@@ -24,13 +24,13 @@
 ##* @param max.cpt double, maximum permissible ratio of controls per treatment
 ##* @param tolerance 
 ##* @param omit.fraction 
-##* @param disthash 
+##* @param matched.distances 
 ##* @param node_info NodeInfo specific to subproblem, or `NULL`
 ##* @return 
 ##* @keywords internal
 
 solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
-                              max.cpt, tolerance, omit.fraction=NULL, disthash,
+                              max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
                               node_info = NULL)
 {
 
@@ -106,10 +106,10 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     temp <-
         if (is.integer(dm[['distance']]))
         {
-            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info, disthash)
+            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info)
         } else
         {
-            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, disthash, rfeas, cfeas, reso)
+            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, reso)
         }
 
   temp$treated <- factor(temp$treated)
@@ -127,7 +127,7 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 }
 
 
-doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, disthash,
+doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, reso) 
 {
     dm$distance  <- cadlag_ceiling(dm$distance * reso)
@@ -135,7 +135,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, disthash,
         node_info$price  <- cadlag_ceiling(node_info$price * reso)
     
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                       node_info = node_info, disthash)
+                       node_info = node_info)
     
     if (!is.null(intsol$MCFSolution))
     {
@@ -159,11 +159,11 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, disthash,
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL, disthash)
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
     fmatch(dm, max.row.units = ceiling(1/min.cpt),
            max.col.units = ceiling(max.cpt),
            min.col.units = max(1, floor(min.cpt)),
-           f=f.ctls, node_info =node_info, disthash)
+           f=f.ctls, node_info =node_info)
 
 
 ##' Rounding function like ceiling -- except at the integers themselves,
