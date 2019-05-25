@@ -179,7 +179,7 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
 ##' @return upwardly rounded version of x
 ##' @author Ben Hansen
 ##' @keywords internal
-cadlag_ceiling  <- function(x, tol=.Machine$double.neg.eps^0.5) {1L + floor(x + tol)}
+cadlag_ceiling  <- function(x, tol=.Machine$double.neg.eps^0.5) {1L + as.integer(floor(x + tol))}
 
 
 ##* Small helper function to turn a solution data.frame into a factor of matches

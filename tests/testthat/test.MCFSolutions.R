@@ -211,3 +211,60 @@ test_that("nodeinfo getter",{
     expect_is(nodeinfo(f1), "NodeInfo")
     expect_null(nodeinfo(10))
 })
+
+test_that("filtering on groups/subproblem field", {
+
+    spi1  <- new("SubProbInfo",
+                 data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
+                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
+                            stringsAsFactors=F)
+                 )
+    expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
+
+    ni1  <- new("NodeInfo",
+               data.frame(name='a', price=0.5, upstream_not_down=TRUE,
+                          supply=1L, groups= as.factor('b'),
+                          stringsAsFactors=F)
+               )
+    expect_silent(ni1a  <- filter_by_subproblem(ni1, groups="b"))
+    expect_identical(ni1, ni1a)
+    expect_silent(ni10  <- filter_by_subproblem(ni1, groups="a"))
+    expect_is(ni10, "NodeInfo")
+    expect_equal(nrow(ni10), 0L)
+
+    ni2  <- new("NodeInfo",
+                data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
+                           upstream_not_down=c(FALSE, NA, NA),
+                          supply=c(0L,-1L,-2L), groups=as.factor('c'),
+                          stringsAsFactors=F)
+               )
+    ni12  <- c(ni1, ni2)
+    expect_silent(ni1b  <- filter_by_subproblem(ni12, groups="b"))
+    expect_is(ni1b, "NodeInfo")
+    expect_equal(nrow(ni1b), 1L)
+    expect_silent(ni12a  <- filter_by_subproblem(ni12, groups=c("b","c")))
+    expect_is(ni12a, "NodeInfo")
+    expect_equal(nrow(ni12a), 4L)
+    
+    mbls1  <- new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
+                             groups = as.factor(rep("a",2)), stringsAsFactors=F)
+                  )
+    mbls2  <- new("MatchablesInfo",
+                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
+                             groups = as.factor(rep("c",2)), stringsAsFactors=F)
+                  )
+    mb1mb2 <- c(mbls1, mbls2)
+    expect_error(filter_by_subproblem(mb1mb2, groups="a"), "implemented")
+    ai1  <- new("ArcInfo",
+               matches=data.frame(groups = factor('a'), upstream = factor('b'),
+                                  downstream = factor(c('c','d')), stringsAsFactors=F),
+               bookkeeping=data.frame(groups= factor('a'), start = factor(c('c','d')),
+                                      end= factor('(_Sink_)'), flow=1L,
+                                      capacity=1L, stringsAsFactors=F)
+               )
+    expect_error(filter_by_subproblem(ai1, groups="a"), "implemented")
+
+    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
+    expect_error(filter_by_subproblem(mcf1, groups="a"), "implemented")
+})

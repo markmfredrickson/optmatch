@@ -252,8 +252,30 @@ setGeneric("nodeinfo", function(x) standardGeneric("nodeinfo"))
 ###setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
 setMethod("nodeinfo", "NodeInfo", function(x) x)
 setMethod("nodeinfo", "MCFSolutions", function(x) x@nodes)
+setOldClass(c("optmatch", "factor")) # redundant given similar declaration
+                                     # elsewhere; removes spurious warning.
 setMethod("nodeinfo", "optmatch", function(x) {
     mcfs  <- attr(x, "MCFSolutions")
     if (is.null(mcfs)) NULL else nodeinfo(mcfs)
 })
 setMethod("nodeinfo", "ANY", function(x) NULL)
+
+
+##'
+##' This implementation does *not* drop levels of factor
+##' variables (such as `groups`), in order to facilitate interpretation
+##' and re-stitching together.
+##' @title Filter min-cost flow information table(s) by subproblem ID
+##' @param x (currently only implemented for NodeInfo objects)
+##' @param ... additional parameters, including `groups`
+##' @return NodeInfo
+##' @author Ben Hansen
+##' @keywords internal
+setGeneric("filter_by_subproblem", function(x, ...) standardGeneric("filter_by_subproblem"))
+setMethod("filter_by_subproblem", "NodeInfo", function(x, groups) {
+    ans  <-  if (length(groups)<=1) {
+                 x[x[['groups']]==groups, , drop=FALSE]
+                 } else x[x[['groups']] %in% groups, , drop=FALSE]
+    new("NodeInfo", ans)
+    })
+setMethod("filter_by_subproblem", "ANY", function(x, groups) stop("currently just implemented for NodeInfo objects"))

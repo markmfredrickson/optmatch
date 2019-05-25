@@ -357,8 +357,11 @@ fullmatch.matrix <- function(x,
   subproblemids  <- names(problems)
   if (is.null(subproblemids)) subproblemids  <- character(1L)
 
-  hints  <- rep(list(NULL), np) # REPLACE ME W/ ACTUAL HINTS WHEN GIVEN!
-  names(hints)  <- subproblemids
+  hints  <- if (is.null(hint)) rep(list(NULL), np) else {
+                lapply(X=subproblemids,
+                       FUN=function(id) filter_by_subproblem(hint, groups=id)
+                       )
+            }
 
   if (length(min.controls) > 1 & np != length(min.controls)) {
     stop(paste("Length of \'min.controls\' arg must be same ",
@@ -538,9 +541,9 @@ fullmatch.matrix <- function(x,
   }
 
   if (options()$fullmatch_try_recovery) {
-    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
   } else {
-    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
