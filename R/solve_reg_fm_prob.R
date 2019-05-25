@@ -24,13 +24,12 @@
 ##* @param max.cpt double, maximum permissible ratio of controls per treatment
 ##* @param tolerance 
 ##* @param omit.fraction 
-##* @param matched.distances 
 ##* @param node_info NodeInfo specific to subproblem, or `NULL`
 ##* @return 
 ##* @keywords internal
 
 solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
-                              max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
+                              max.cpt, tolerance, omit.fraction=NULL,
                               node_info = NULL)
 {
 
