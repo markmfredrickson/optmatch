@@ -18,9 +18,9 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
     main_ij <- left_join(arcs@matches,
-                         nodes,
+                         as.data.frame(unclass(nodes)),
                          by = c("upstream" = "name")) %>%
-               left_join(y = nodes,
+               left_join(y = as.data.frame(unclass(nodes)),
                          by = c("downstream" = "name"),
                          suffix = c(x = ".i", y = ".j"))
 
@@ -38,9 +38,9 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
     }
 
     bookkeeping_ij <- left_join(arcs@bookkeeping,
-                                nodes,
+                                as.data.frame(unclass(nodes)),
                                 by = c("start" = "name")) %>%
-                      left_join(y = nodes,
+                      left_join(y = as.data.frame(unclass(nodes)),
                                 by = c("end" = "name"),
                                 suffix = c(x = ".i", y = ".j"))
 
