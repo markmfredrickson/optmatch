@@ -128,11 +128,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## to corresponding row of this data frame.
   ## nodes 1:nt are the upstream matchable units in the flow diagram
   ## nodes (nt + 1):nc are the downstream matchable units, etc.
-  nodes  <- if (is.null(node_info)) {
-        new("NodeInfo",
+  nodes  <- new("NodeInfo",
             data.frame(name=c(row.units, col.units,
                               "(_End_)", "(_Sink_)"),# note that `factor()` would put these at start not end of levels
-                       price=0L, #if we're here, no warm start values were provided.
+                       price=0L, 
                        upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA), 
                        supply=c(rep(mxc, nt), rep(0L, nc),
                                 -(mxc * nt - n.mc), -n.mc),
@@ -140,19 +139,17 @@ fmatch <- function(distance, max.row.units, max.col.units,
                        stringsAsFactors=FALSE
                        )
             )
-            } else
-            {
-                stopifnot(is(node_info, "NodeInfo"),
-                          is.integer(node_info$price),
-                          all(row.units %in% node_info[['name']]),
-                          all(col.units %in% node_info[['name']]),
-                          sum(node_info[['name']]=="(_End_)")==1,
-                          sum(node_info[['name']]=="(_Sink_)")==1)
-                new("NodeInfo",
-                    node_info[match(c(row.units, col.units,
-                                      "(_End_)", "(_Sink_)"),
-                                    node_info$name),]
-                    )
+    if (!is.null(node_info))
+        {
+            stopifnot(is(node_info, "NodeInfo"),
+                      is.integer(node_info$price),
+                      all(row.units %in% node_info[['name']]),
+                      all(col.units %in% node_info[['name']]),
+                      sum(node_info[['name']]=="(_End_)")==1,
+                      sum(node_info[['name']]=="(_Sink_)")==1)
+            nodes[,'price']  <- node_info[match(c(row.units, col.units,
+                                                  "(_End_)", "(_Sink_)"),
+                                                node_info$name),'price']
             }
   # ID numbers implicitly point to corresp. row of nodes
   ####    Arcs involving End or Sink nodes   ####

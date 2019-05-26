@@ -358,10 +358,22 @@ fullmatch.matrix <- function(x,
   subproblemids  <- names(problems)
   if (is.null(subproblemids)) subproblemids  <- character(1L)
 
-  hints  <- if (is.null(hint)) rep(list(NULL), np) else {
-                lapply(X=subproblemids,
-                       FUN=function(id) filter_by_subproblem(hint, groups=id)
-                       )
+    if (is.null(hint)) { hints  <- rep(list(NULL), np)
+    } else {
+        hints  <- split(hint, hint[['groups']],
+                        drop=TRUE # drops levels of hint$groups that aren't represented in hint
+                        )
+        nohint  <- setdiff(subproblemids, names(hints))
+        hints  <- hints[match(subproblemids, names(hints), 0L)]
+        if (length(hints)>0) for (ii in 1L:length(hints)) hints[[ii]]  <- new("NodeInfo", hints[[ii]])
+        if (length(nohint))
+        {
+            nullhint  <- rep(list(NULL), length(nohint))
+            names(nullhint)  <- nohint
+            hints  <- c(hints, nullhint)
+            if (length(nohint)==np) warning("Hint lacks information about subproblems of this problem; ignoring.")
+            }
+        hints  <- hints[match(subproblemids, names(hints))]
             }
 
   if (length(min.controls) > 1 & np != length(min.controls)) {
@@ -589,20 +601,30 @@ fullmatch.matrix <- function(x,
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
 
-  ## assemble MCF material
-    for (ii in 1L:length(problems))
+    ## assemble MCF material
+    mcfsolutions  <- rep(list(NULL), np)
+    names(mcfsolutions)  <- subproblemids
+    for (ii in 1L:np)
         if (!is.null(solutions[[ii]]$MCFSolution))
         {
-            solutions[[ii]]$MCFSolution@subproblems[1L,"hashed_dist"]  <- disthash
+            mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
+            mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
             thesubprob  <- subproblemids[ii]
-            solutions[[ii]]$MCFSolution@subproblems[1L,"groups"]  <- thesubprob
-            solutions[[ii]]$MCFSolution@nodes[,"groups"]  <- factor(thesubprob)
-            solutions[[ii]]$MCFSolution@arcs@matches[,"groups"]  <- factor(thesubprob)
-            solutions[[ii]]$MCFSolution@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
-            if (nrow(solutions[[ii]]$MCFSolution@matchables))
-                solutions[[ii]]$MCFSolution@matchables[,"groups"]  <- factor(thesubprob)
-            }
-  attr(mout, "MCFSolutions")  <- do.call("c", lapply(solutions, function(x) x$MCFSolution ))  
+            mcfsolutions[[ii]]@subproblems[1L,"groups"]  <- thesubprob
+            mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
+            mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
+            mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
+            if (nrow(mcfsolutions[[ii]]@matchables))
+                mcfsolutions[[ii]]@matchables[,"groups"]  <- factor(thesubprob)
+        }
+    mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
+
+    attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { NULL
+                                   } else {
+                                       names(mcfsolutions)[1]  <- "x"
+    ##b/c in next line `c()` needs to dispatch on an `x` argument
+                                       do.call("c", mcfsolutions)
+                                       }
   return(mout)
 }
 
