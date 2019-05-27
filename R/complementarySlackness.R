@@ -19,14 +19,17 @@ evaluate_lagrangian <- function(distances, solution) {
 
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
+    suppressWarnings(# re factor conversion
     main_ij <- left_join(solution@arcs@matches,
                          subset(solution@nodes, upstream_not_down),
                          by = c("upstream" = "name")) %>%
                left_join(y = subset(solution@nodes, !upstream_not_down),
                          by = c("downstream" = "name"),
                          suffix = c(x = ".i", y = ".j"))
+    )
 
     eld <- edgelist(distances)
+    suppressWarnings(
     if (!flipped) {
         main_ij <- left_join(main_ij,
                              eld,
@@ -38,7 +41,9 @@ evaluate_lagrangian <- function(distances, solution) {
                              by = c("upstream" = "j", "downstream"= "i"),
                              suffix = c(x = "", y = ".dist"))
     }
+    )
 
+    suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
                                 as.data.frame(unclass(solution@nodes)),
                                 by = c("start" = "name")) %>%
@@ -46,7 +51,7 @@ evaluate_lagrangian <- function(distances, solution) {
                              is.na(upstream_not_down)),#assumes bookkeeping arcs...
                   by = c("end" = "name"),#...terminate only in bookkeeping nodes
                   suffix = c(x = ".i", y = ".j"))
-
+    )
 
     sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
 
@@ -92,6 +97,7 @@ evaluate_dual <- function(distances, solution) {
 
     ## calculate costs from bookkeeping edges
     ##
+    suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
                                 as.data.frame(unclass(solution@nodes)),
                                 by = c("start" = "name")) %>%
@@ -99,6 +105,7 @@ evaluate_dual <- function(distances, solution) {
                              is.na(upstream_not_down)), #assumes bookkeeping arcs...
                              by = c("end" = "name"), #... terminate only in bookkeeping nodes
                              suffix = c(x = ".i", y = ".j"))
+    )
 
     nonpositive_flowcosts_bookkeeping  <-
         pmin(0,
@@ -112,12 +119,14 @@ evaluate_dual <- function(distances, solution) {
     ##
     suffices  <-
         if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
+    suppressWarnings(
     matchable_ij <- left_join(eld,
                          subset(solution@nodes, upstream_not_down),
                          by = c("i" = "name")) %>%
                left_join(y = subset(solution@nodes, !upstream_not_down),
                          by = c("j" = "name"),
                          suffix = suffices) # if nec., flip right at end.
+    )
 
     nonpositive_flowcosts_matchables <-
         pmin(0,
