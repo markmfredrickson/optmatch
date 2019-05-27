@@ -52,3 +52,71 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
 
     return(sum_flow_cost + sum_supply_price)
 }
+
+
+## Compute dual functional from distance, MCF problem description
+##
+##
+## @param distances An InfinitySparseMatrix giving distances
+## @param nodes A NodeInfo object
+## @param arcs A ArcInfo object (needed for upper cap of booking arcs)
+## @param flipped logical (was subproblem flipped before delivery to MCF solver?)
+## @return Value of the dual functional, a numeric of length 1.
+#' @importFrom dplyr left_join
+evaluate_dual <- function(distances, nodes, arcs, flipped = FALSE) {
+    ## according to Bertsekas *Network Optimization*, page 156-7,
+    ## the dual functional is given by:
+    ##
+    ## The dual functional, defined on pp. 155-6 of same ref., is
+    ## Q(p)   = \sum_{i,j} q(a_ij, c_ij; p_i, p_j) + \sum_i s_i p_i
+    ##  where
+    ##  - p_i is the price/potential of node ni
+    ##  - s_i is the amount of flow entering or leaving the system at i
+    ##  - u_ij is the upper capacity of edge ij
+    ##  - each edge ij is taken to have lower capacity 0
+    ##  - a_ij is the cost of the edge ij
+    ##   - q(a_ij, c_ij; p_i, p_j) =
+    ##       case_when(p_i  > a_ij + p_j ~ (a_ij + p_j - p_i)*u_ij),
+    ##                 p_i <= a_ij + p_j ~ 0)
+    ## This Q(p) being what you get if minimize the Lagrangian over x's
+    ##  respecting capacity but not conservation of flow constraints.
+    ##
+    sum_supply_price <- sum(nodes$supply * nodes$price)
+
+    ## calculate costs from bookkeeping edges
+    ##
+    bookkeeping_ij <- left_join(arcs@bookkeeping,
+                                as.data.frame(unclass(nodes)),
+                                by = c("start" = "name")) %>%
+                      left_join(y = as.data.frame(unclass(nodes)),
+                                by = c("end" = "name"),
+                                suffix = c(x = ".i", y = ".j"))
+
+    nonpositive_flowcosts_bookkeeping  <-
+        pmin(0,
+             bookkeeping_ij$price.j - bookkeeping_ij$price.i
+             ) * bookkeeping_ij$capacity
+
+    ## now do edges corresponding to potential matches
+    ##
+    eld <- edgelist(distances)
+    ## this time we have to pay attn to whether problem was flipped
+    ##
+    suffices  <-
+        if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
+    matchable_ij <- left_join(eld,
+                         as.data.frame(unclass(nodes)),
+                         by = c("i" = "name")) %>%
+               left_join(y = as.data.frame(unclass(nodes)),
+                         by = c("j" = "name"),
+                         suffix = suffices) # if nec., flip right at end.
+
+    nonpositive_flowcosts_matchables <-
+        pmin(0,
+             matchable_ij$dist - (matchable_ij$price.i - matchable_ij$price.j)
+             )
+
+    return(sum_supply_price +
+           sum(nonpositive_flowcosts_bookkeeping) +
+           sum(nonpositive_flowcosts_matchables))
+}
