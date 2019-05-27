@@ -3,8 +3,8 @@ context("MCFSolutions & co: S4 classes to encode min-cost-flow solutions")
 test_that("Instantiation & validity", {
     expect_true(validObject(new("SubProbInfo"))) # test the prototype
     expect_silent(spi1  <- new("SubProbInfo", data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                                           resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
-                                           stringsAsFactors=F)
+                                           resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                                           feasible=c(TRUE, FALSE), stringsAsFactors=F)
                                )
                   )
     expect_true(validObject(spi1))
@@ -97,18 +97,18 @@ test_that("Instantiation & validity", {
 test_that("c() methods", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
-                            stringsAsFactors=F)
+                            resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                            feasible=c(TRUE, FALSE), stringsAsFactors=F)
                  )
     spi2  <- new("SubProbInfo",
                  data.frame(groups=c('c'), flipped=logical(1), hashed_dist=c('a'),
-                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
-                            stringsAsFactors=F)
+                            resolution=c(1), lagrangian_value=c(.5), dual_value=c(0),
+                            feasible=c(TRUE), stringsAsFactors=F)
                  )
     spi3  <- new("SubProbInfo",
                  data.frame(groups=c('d'), flipped=logical(1), hashed_dist=c('a'),
-                            resolution=c(1), exceedance=c(.5), CS_orig_dist=c(TRUE),
-                            stringsAsFactors=F)
+                            resolution=c(1), lagrangian_value=c(.5), dual_value=c(0),
+                            feasible=c(TRUE), stringsAsFactors=F)
                  )
     
     expect_silent(c(spi1, spi2))
@@ -216,8 +216,8 @@ test_that("filtering on groups/subproblem field", {
 
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), exceedance=c(.5, 2), CS_orig_dist=c(TRUE,FALSE),
-                            stringsAsFactors=F)
+                            resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                            feasible=c(TRUE, FALSE), stringsAsFactors=F)
                  )
     expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
 

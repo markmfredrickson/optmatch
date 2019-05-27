@@ -7,25 +7,25 @@ setOldClass("data.frame")
 setClass("SubProbInfo", contains="data.frame",
          prototype=
              prototype(data.frame(groups=character(1), flipped=NA, hashed_dist=NA_character_,
-                              resolution=1, exceedance=NA_real_,
-                              CS_orig_dist=NA, stringsAsFactors=FALSE)
+                              resolution=1, lagrangian_value=NA_real_,
+                              dual_value=NA_real_, feasible=NA, stringsAsFactors=FALSE)
                   )
          )
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
-    if (!all(colnames(object)[1:6]==
-             c("groups","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")))
+    if (!all(colnames(object)[1:7]==
+             c("groups","flipped", "hashed_dist","resolution","lagrangian_value","dual_value", "feasible")))
         errors  <- c(errors,
-                     'Cols 1-6 should be:\n\t c("groups","flipped", "hashed_dist","resolution","exceedance","CS_orig_dist")')
+                     'Cols 1-7 should be:\n\t c("groups","flipped", "hashed_dist","resolution","lagrangian_value","dual_value", "feasible")')
     if (!all(vapply(object[c(1,3)], is.character, logical(1))))
         errors  <- c(errors,
                      'Cols 1,3 should have type character.')
-    if (!all(vapply(object[4:5], is.double, logical(1))))
+    if (!all(vapply(object[4:6], is.double, logical(1))))
         errors  <- c(errors,
-                     'Cols 4,5 should have type double.')
-    if (!all(vapply(object[c(2,6)], is.logical, logical(1))))
+                     'Cols 4-6 should have type double.')
+    if (!all(vapply(object[c(2,7)], is.logical, logical(1))))
         errors  <- c(errors,
-                     'Cols 2,6 should have type logical.')
+                     'Col 2,7 should have type logical.')
     if (anyDuplicated(object[['groups']]))
         errors  <- c(errors,
                      'Duplicates in "groups", or subproblems with same name.')

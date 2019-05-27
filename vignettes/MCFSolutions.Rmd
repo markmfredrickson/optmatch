@@ -47,15 +47,15 @@ An `SubProbInfo` is an S4-typed data frame bearing information about (sub)proble
 - `flipped`, logical (do upstream nodes of MCF representation correspond to _columns_ of match distance matrix, as opposed to rows, the default?);
 - `hashed_dist`, character (hashed ID for a double precision distance); 
 - `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
--  `exceedance`, double (estimate/upper bound for amount by which sum of matched distances may exceed true optimal value.); 
--  `CS_orig_dist`, logical.
+-  `lagrangian_value`, numeric (as determined by back-transformed node prices, arc costs and arc flows);
+-  `dual_value`, numeric (as determined by back-transformed node prices and arc costs);
+- `feasible`, logical.
 
 Rules/conventions:
 
 - this is just a selective record of subproblem specs.
 - This type's validity checker should be fast, eschewing expensive operations.
-- ¿`exceedance==Inf`?:  When matching fails for a subproblem, node prices may still be useful as warm starts for a modified problem.  We can record this eventuality by placing an Inf here. 
-- `CS_orig_dist` encodes whether the flow-price pair was found to be complementary slackness relationship even after backtransformation.  `FALSE` means either that the answer was no or that it hasn't been checked for this.
+- `feasible` encodes whether the flow-price pair was found to be in a complementary slackness relationship, prior to backtransformation of distances & prices (if applicable).  In other words, `feasible==FALSE` indicates that the subproblem imposed infeasible matching constraints.
 - "Upstream" nodes are those to the left in the below diagram (Fig. 2 of Hansen & Klopfer, 2006).  Ordinarily they'll correspond to "the treatment group", i.e. the group indexed by rows of the distance matrix helping to determine the matching problem, but in some situations rows and columns are flipped before being passed to the solver, so that upstream nodes would correspond to columns and downstream nodes to rows. 
 
 ![Fig. 2 of Hansen & Klopfer, 2006, JCGS](hansenKlopfer2006JCGSfig2.png)   
