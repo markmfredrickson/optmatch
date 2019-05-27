@@ -1,11 +1,13 @@
 ## Computing the Lagrangian given a mathc and a set of node prices 
 ##
 ## @param distances An InfinitySparseMatrix giving distances
-## @param nodes A NodeInfo object (a data.frame with specific columns)
-## @param arcs A ArcInfo object (two data frames that hold the matches and the booking arcs)
+## @param solution A MCFSolutions object
 ## @return The value of the Lagrangian.
 #' @importFrom dplyr left_join
-evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
+evaluate_lagrangian <- function(distances, solution) {
+    stopifnot(is(solution, "MCFSolutions"),
+              nrow(solution@subproblems)==1)
+    flipped  <- solution@subproblems[1L, "flipped"]
     ## according to Bertsekas *Network Optimization*, page 155, the Lagrangian is given by:
     ## L(x, p) = \sum_{i,j} x_{ij} (a_ij - (p_i - p_j)) + \sum_i s_i p_i
     ## where
@@ -17,10 +19,10 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
 
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
-    main_ij <- left_join(arcs@matches,
-                         as.data.frame(unclass(nodes)),
+    main_ij <- left_join(solution@arcs@matches,
+                         as.data.frame(unclass(solution@nodes)),
                          by = c("upstream" = "name")) %>%
-               left_join(y = as.data.frame(unclass(nodes)),
+               left_join(y = as.data.frame(unclass(solution@nodes)),
                          by = c("downstream" = "name"),
                          suffix = c(x = ".i", y = ".j"))
 
@@ -37,15 +39,15 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
                              suffix = c(x = "", y = ".dist"))
     }
 
-    bookkeeping_ij <- left_join(arcs@bookkeeping,
-                                as.data.frame(unclass(nodes)),
+    bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
+                                as.data.frame(unclass(solution@nodes)),
                                 by = c("start" = "name")) %>%
-                      left_join(y = as.data.frame(unclass(nodes)),
+                      left_join(y = as.data.frame(unclass(solution@nodes)),
                                 by = c("end" = "name"),
                                 suffix = c(x = ".i", y = ".j"))
 
 
-    sum_supply_price <- sum(nodes$supply * nodes$price)
+    sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
 
     sum_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j)) +
         sum(bookkeeping_ij$flow * (0 - (bookkeeping_ij$price.i - bookkeeping_ij$price.j)))
@@ -56,14 +58,18 @@ evaluate_lagrangian <- function(distances, nodes, arcs, flipped = FALSE) {
 
 ## Compute dual functional from distance, MCF problem description
 ##
+## Both `solution@nodes` and `solution@arcs` are used, the former
+## for node prices and the latter for upper capacities of bookkeeping
+## arcs.
 ##
 ## @param distances An InfinitySparseMatrix giving distances
-## @param nodes A NodeInfo object
-## @param arcs A ArcInfo object (needed for upper cap of booking arcs)
-## @param flipped logical (was subproblem flipped before delivery to MCF solver?)
+## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
-evaluate_dual <- function(distances, nodes, arcs, flipped = FALSE) {
+evaluate_dual <- function(distances, solution) {
+    stopifnot(is(solution, "MCFSolutions"),
+              nrow(solution@subproblems)==1)
+    flipped  <- solution@subproblems[1L, "flipped"]
     ## according to Bertsekas *Network Optimization*, page 156-7,
     ## the dual functional is given by:
     ##
@@ -81,14 +87,14 @@ evaluate_dual <- function(distances, nodes, arcs, flipped = FALSE) {
     ## This Q(p) being what you get if minimize the Lagrangian over x's
     ##  respecting capacity but not conservation of flow constraints.
     ##
-    sum_supply_price <- sum(nodes$supply * nodes$price)
+    sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
 
     ## calculate costs from bookkeeping edges
     ##
-    bookkeeping_ij <- left_join(arcs@bookkeeping,
-                                as.data.frame(unclass(nodes)),
+    bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
+                                as.data.frame(unclass(solution@nodes)),
                                 by = c("start" = "name")) %>%
-                      left_join(y = as.data.frame(unclass(nodes)),
+                      left_join(y = as.data.frame(unclass(solution@nodes)),
                                 by = c("end" = "name"),
                                 suffix = c(x = ".i", y = ".j"))
 
@@ -105,9 +111,9 @@ evaluate_dual <- function(distances, nodes, arcs, flipped = FALSE) {
     suffices  <-
         if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
     matchable_ij <- left_join(eld,
-                         as.data.frame(unclass(nodes)),
+                         as.data.frame(unclass(solution@nodes)),
                          by = c("i" = "name")) %>%
-               left_join(y = as.data.frame(unclass(nodes)),
+               left_join(y = as.data.frame(unclass(solution@nodes)),
                          by = c("j" = "name"),
                          suffix = suffices) # if nec., flip right at end.
 

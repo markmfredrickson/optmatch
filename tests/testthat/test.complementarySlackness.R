@@ -28,13 +28,20 @@ test_that("Compute Lagrangian", {
                     flow = c(0L, 1L, 1L),
                     capacity = rep(1L, 3)
                 ))
+    subprob  <- new("SubProbInfo",
+                    data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
+                               resolution=NA_real_,exceedance=NA_real_, CS_orig_dist=NA,
+                               stringsAsFactors=FALSE)
+                    )
+    mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs,
+                         matchables=new("MatchablesInfo"))
 
     ## since the above arcs represents the optimal, the lagrangian at this point should be equal to the
     ## primal objective function (ie., the sum of matched distances).
-    expect_equal(evaluate_lagrangian(m, nodes, arcs), 4)
+    expect_equal(evaluate_lagrangian(m, mcf_solution), 4)
 
     ## repeat with a dense density matrix
-    expect_equal(evaluate_lagrangian(as.matrix(m), nodes, arcs), 4)
+    expect_equal(evaluate_lagrangian(as.matrix(m), mcf_solution), 4)
 })
 
 
@@ -62,11 +69,18 @@ test_that("Compute dual functional", {
                     flow = c(0L, 1L, 1L),
                     capacity = rep(1L, 3)
                 ))
+    subprob  <- new("SubProbInfo",
+                    data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
+                               resolution=NA_real_,exceedance=NA_real_, CS_orig_dist=NA,
+                               stringsAsFactors=FALSE)
+                    )
+    mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs,
+                         matchables=new("MatchablesInfo"))
  
     ## since the above arcs represent the optimum, the dual functional at this point should be equal to the
     ## primal objective function (ie., the sum of matched distances).
-    expect_equal(evaluate_dual(m, nodes, arcs), 4)
+    expect_equal(evaluate_dual(m, mcf_solution), 4)
 
     ## repeat with a dense density matrix
-    expect_equal(evaluate_dual(as.matrix(m), nodes, arcs), 4)
+    expect_equal(evaluate_dual(as.matrix(m), mcf_solution), 4)
 })
