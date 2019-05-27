@@ -31,7 +31,7 @@ test_that("Compute Lagrangian", {
     subprob  <- new("SubProbInfo",
                     data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
-                               feasible=NA, stringsAsFactors=FALSE)
+                               feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
     mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs,
                          matchables=new("MatchablesInfo"))
@@ -72,7 +72,7 @@ test_that("Compute dual functional", {
     subprob  <- new("SubProbInfo",
                     data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
-                               feasible=NA, stringsAsFactors=FALSE)
+                               feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
     mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs,
                          matchables=new("MatchablesInfo"))

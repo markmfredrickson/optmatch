@@ -49,7 +49,8 @@ An `SubProbInfo` is an S4-typed data frame bearing information about (sub)proble
 - `resolution`, double  (multiplier applied to double-precision distance before rounding and handing off to solver); 
 -  `lagrangian_value`, numeric (as determined by back-transformed node prices, arc costs and arc flows);
 -  `dual_value`, numeric (as determined by back-transformed node prices and arc costs);
-- `feasible`, logical.
+- `feasible`, logical;
+- `exceedance`, double (the legacy criterion regret calculation). 
 
 Rules/conventions:
 
