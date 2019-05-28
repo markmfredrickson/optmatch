@@ -144,12 +144,19 @@ fmatch <- function(distance, max.row.units, max.col.units,
             stopifnot(is(node_info, "NodeInfo"),
                       is.integer(node_info$price),
                       all(row.units %in% node_info[['name']]),
-                      all(col.units %in% node_info[['name']]),
                       sum(node_info[['name']]=="(_End_)")==1,
                       sum(node_info[['name']]=="(_Sink_)")==1)
             nodes[,'price']  <- node_info[match(c(row.units, col.units,
                                                   "(_End_)", "(_Sink_)"),
                                                 node_info$name),'price']
+            ## if a col unit doesn't have a match w/in node_info$name, then
+            ## if nodes now has an NA for its price. Replace that w/ min of
+            ## bookkeeping node prices, so that CS has a chance of being preserved.
+            if (length(col.noprice  <- setdiff(col.units, node_info[['name']])))
+                nodes[nodes[['name']] %in% col.noprice, 'price']  <-
+                    min(node_info[match(c("(_End_)", "(_Sink_)"), node_info$name),
+                                  'price', drop=TRUE]
+                        )
             }
   # ID numbers implicitly point to corresp. row of nodes
   ####    Arcs involving End or Sink nodes   ####

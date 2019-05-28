@@ -149,6 +149,12 @@ test_that("Passing and receiving node information",{
   n0  <-  mcfs0@nodes
   expect_silent(fmatch(pm, 2, 2, node_info=n0))
   n0_madebad  <- n0
-  n0_madebad$price  <- n0_madebad$price + .5 # no longer integer
+  expect_is(n0_madebad$price, "integer")
+  n0_madebad[n0_madebad$name=="A", 'price']  <- .5 # no longer integer
   expect_error(fmatch(pm, 2, 2, node_info=n0_madebad))
+
+  expect_false(n0[n0$name=="A",'upstream_not_down']) # 'A' is downstream,
+  n1  <- new("NodeInfo", n0[n0$name!="A",])#  so we can pass a
+  expect_gt(nrow(n0), nrow(n1)) # NodeInfo that doesn't mention it.
+  expect_silent(fmatch(pm, 2, 2, node_info=n1))
 })
