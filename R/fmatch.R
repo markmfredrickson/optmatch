@@ -254,5 +254,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=new("SubProbInfo"),
                 nodes=nodes, arcs=arcs, matchables=new("MatchablesInfo"))
-    c(obj, list(MCFSolution=fmcfs) )
+    c(obj,
+      list(maxerr=0), # if we were called from doubleSolve(), this will be re-set there
+      list(MCFSolution=fmcfs) )
 }

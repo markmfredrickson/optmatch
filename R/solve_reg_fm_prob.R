@@ -119,6 +119,25 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
   matches <- solution2factor(temp)
   ans[names(matches)] <- matches
 
+    if (!is.null(temp[["MCFSolution"]]))
+        {
+            temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
+            temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solutions==1L)
+
+            ## Presently we can treat this subproblem as non-flipped even if it was,
+            ## since `dm` will have been transposed in the event of flipping.  Doing
+            ## so will prevent the evaluate_* routines below from getting confused.
+            ## Of course we have to remember to set it based on actual information as
+            ## the MCFsolutions object passes up through the point in the call stack
+            ## where that transposition was made.
+            temp[["MCFSolution"]]@subproblems[1L, "flipped"]  <- FALSE
+            ## ... and now we can proceed with:
+            evaluate_lagrangian(dm, temp[["MCFSolution"]]) ->
+                temp[["MCFSolution"]]@subproblems[1L, "lagrangian_value"]
+            evaluate_dual(dm, temp[["MCFSolution"]]) ->
+                temp[["MCFSolution"]]@subproblems[1L,   "dual_value"    ]
+            }
+
     return(list(cells = ans, err = temp$maxerr,
                 MCFSolution=temp[["MCFSolution"]]
                 )
