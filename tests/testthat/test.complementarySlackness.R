@@ -39,6 +39,25 @@ make_known_optimal <- function() {
     list(x = x, m = m, mcf = mcf_solution)
 }
 
+make_caliper_example <- function() {
+    opt <- make_known_optimal()
+    opt$cal <- caliper(opt$m, 3, values = TRUE)
+    opt$mcf@nodes <- new("NodeInfo", opt$mcf@nodes[c(1:4, 6), ])
+    ## TODO: need valid prices
+    opt$arcs <- new("ArcInfo",
+                    matches = data.frame(
+                        groups = rep("a", 2),
+                        upstream   = factor(c("A", "B" )),
+                        downstream = factor(c("C", "D"))),
+                    bookkeeping = data.frame(
+                        groups = rep("a", 2),
+                        start = factor(c("C", "D")),
+                        end = factor(c("(_End_)", "(_End_)")),
+                        flow = c(1L, 1L),
+                        capacity = rep(1L, 2)))
+    return(opt)
+}
+
 test_that("Compute Lagrangian", {
     opt <- make_known_optimal()
     ## since the above arcs represents the optimal, the lagrangian at this point should be equal to the
@@ -59,4 +78,8 @@ test_that("Compute dual functional", {
 
     ## repeat with a dense density matrix
     expect_equal(evaluate_dual(as.matrix(opt$m), opt$mcf), 4)
+
+    ## now do it with a calipered version of the problem.
+    cal <- make_caliper_example()
+    expect_equal(evaluate_dual(cal$cal, cal$mcf), 5)
 })
