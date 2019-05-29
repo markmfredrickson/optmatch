@@ -121,12 +121,15 @@ evaluate_dual <- function(distances, solution) {
 
     ## for usual problems, we can add treated units (rownames) because we can infer a node price
     if (!flipped) {
-        cantadd <- rownames(distances)
-        canadd <- colnames(distances)
+        cantadd <- unique(eld$i)
+        canadd <- unique(eld$j)
     } else {
-        cantadd <- colnames(distances)
-        canadd <- rownames(distances)
+        cantadd <- unique(eld$j)
+        canadd <- unique(eld$i)
     }
+
+    cantadd <- as.character(cantadd)
+    canadd <- as.character(canadd)
 
     upstream <- split(solution@nodes, solution@nodes$upstream_not_down)
 
