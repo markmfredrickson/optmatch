@@ -258,8 +258,9 @@ fmatch <- function(distance, max.row.units, max.col.units,
   bookkeeping[['end']]  <- factor(nodes$name[ bookkeeping[['end']] ])
   arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
 
-
-  fmcfs  <- new("FullmatchMCFSolutions", subproblems=new("SubProbInfo"),
+  sp  <- new("SubProbInfo")
+  sp[1L, "feasible"]  <- TRUE
+  fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs, matchables=new("MatchablesInfo"))
     c(obj,
       list(maxerr=0), # if we were called from doubleSolve(), this will be re-set there
