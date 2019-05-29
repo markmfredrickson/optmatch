@@ -113,20 +113,55 @@ evaluate_dual <- function(distances, solution) {
              ) * bookkeeping_ij$capacity
 
     ## now do edges corresponding to potential matches
-    ##
     eld <- edgelist(distances)
+
+    ## TODO: need to check if any treated/upstream nodes are being added and bail if solution
+    ## need to use the minimum of the price of (_Sink_) and (_End_) to get price of any missing control nodes
+    ## append these to the nodes table.
+
+    ## for usual problems, we can add treated units (rownames) because we can infer a node price
+    if (!flipped) {
+        cantadd <- rownames(distances)
+        canadd <- colnames(distances)
+    } else {
+        cantadd <- colnames(distances)
+        canadd <- rownames(distances)
+    }
+
+    upstream <- split(solution@nodes, solution@nodes$upstream_not_down)
+
+    ## can't impute a node price for these missing node prices
+    if (any(!(cantadd %in% upstream[["TRUE"]]$name))) {
+        stop("Cannot impute node price for upstream nodes (usually treatment) that were not included in original matching problem.")
+    }
+    
+    ## if we've gotten this far, a missing node price means that it is a down stream node
+    ## and the missing price is the lesser of the sink and the overflow bookkeeping nodes
+    ## TODO: Should this be the minimum of *any* bookkeeping node's price?
+    impute_price <- min(solution@nodes$price[is.na(solution@nodes$upstream_not_down)])
+
+    newnames <- canadd[!(canadd %in% solution@nodes$name)]
+    k <- length(newnames)
+    upstream[['FALSE']] <- rbind(upstream[['FALSE']],
+                                 new("NodeInfo", data.frame(stringsAsFactors = FALSE,
+                                     name = newnames,
+                                     price = rep(impute_price, k),
+                                     upstream_not_down = rep(FALSE, k),
+                                     supply = rep(0L, k),
+                                     groups = as.factor(rep(NA, k))))) # TODO: get any group labels from the distance?
+
     ## this time we have to pay attn to whether problem was flipped
-    ##
     suffices  <-
         if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
     suppressWarnings(
     matchable_ij <- left_join(eld,
-                         subset(solution@nodes, upstream_not_down),
+                         upstream[['TRUE']],
                          by = c("i" = "name")) %>%
-               left_join(y = subset(solution@nodes, !upstream_not_down),
+               left_join(y = upstream[["FALSE"]],
                          by = c("j" = "name"),
                          suffix = suffices) # if nec., flip right at end.
     )
+
 
     nonpositive_flowcosts_matchables <-
         pmin(0,
