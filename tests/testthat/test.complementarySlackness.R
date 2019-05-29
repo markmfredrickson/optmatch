@@ -42,9 +42,11 @@ make_known_optimal <- function() {
 make_caliper_example <- function() {
     opt <- make_known_optimal()
     opt$cal <- caliper(opt$m, 3, values = TRUE)
-    opt$mcf@nodes <- new("NodeInfo", opt$mcf@nodes[c(1:4, 6), ])
-    ## TODO: need valid prices
-    opt$arcs <- new("ArcInfo",
+    tmp <- opt$mcf@nodes[c(1:4, 6), ]
+    tmp$price <- c(3.25, 5.75, 0.25, 3.25, 0)
+    opt$mcf@nodes <- new("NodeInfo", tmp)
+
+    opt$mcf@arcs <- new("ArcInfo",
                     matches = data.frame(
                         groups = rep("a", 2),
                         upstream   = factor(c("A", "B" )),
@@ -66,6 +68,13 @@ test_that("Compute Lagrangian", {
 
     ## repeat with a dense density matrix
     expect_equal(evaluate_lagrangian(as.matrix(opt$m), opt$mcf), 4)
+
+    ## now do it with a calipered version of the problem.
+    cal <- make_caliper_example()
+    expect_equal(evaluate_lagrangian(cal$cal, cal$mcf), 5)
+
+    ## this shouldn't change when we use the full version, since none of those edges contribute flow or capacity
+    expect_equal(evaluate_lagrangian(cal$m, cal$mcf), 5)
 })
 
 
@@ -82,4 +91,7 @@ test_that("Compute dual functional", {
     ## now do it with a calipered version of the problem.
     cal <- make_caliper_example()
     expect_equal(evaluate_dual(cal$cal, cal$mcf), 5)
+
+    ## the caliper isn't optimal for the full problem, so the dual decreases using the full distance matrix
+    expect_equal(evaluate_dual(cal$m, cal$mcf), 2.75)
 })
