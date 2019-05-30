@@ -148,9 +148,9 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, epsilon) 
 {
-    dm$distance  <- cadlag_ceiling(dm$distance / epsilon)
+    dm$distance  <- as.integer(ceiling(.5 + dm$distance / epsilon))
     if (!is.null(node_info))
-        node_info$price  <- cadlag_ceiling(node_info$price / epsilon)
+        node_info$price  <- as.integer(ceiling(node_info$price / epsilon))
     
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
                        node_info = node_info)
@@ -167,7 +167,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
         if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
             0 } else {
                   sum(intsol$solution * dm$distance, na.rm = TRUE) -
-                      sum(intsol$solution * intsol$distance, na.rm = TRUE) * epsilon +
+                      sum(intsol$solution * (intsol$distance - 1/2), na.rm = TRUE) * epsilon +
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
                       (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
               }
@@ -182,24 +182,6 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
            max.col.units = ceiling(max.cpt),
            min.col.units = max(1, floor(min.cpt)),
            f=f.ctls, node_info =node_info)
-
-
-##' Rounding function like ceiling -- except at the integers themselves,
-##' where it's always one ahead.  (Right instead of left continuous;
-##' thus "cadlag".)  Point being to map nonnegative doubles
-##' to _positive_ integers, as required by fmatch.
-##'
-##' The default tolerance value aims to steer well clear of inadvertently
-##' passing 0L as where a 0 in x was being represented as a small negative
-##' number, due to computer arithmetic. 
-##' @title Right-continuous variant of base `ceiling()` function
-##' @param x numeric
-##' @param tol 
-##' @return upwardly rounded version of x
-##' @author Ben Hansen
-##' @keywords internal
-cadlag_ceiling  <- function(x, tol=.Machine$double.neg.eps^0.5) {1L + as.integer(floor(x + tol))}
-
 
 ##* Small helper function to turn a solution data.frame into a factor of matches
 ##* @keywords internal
