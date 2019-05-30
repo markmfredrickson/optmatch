@@ -93,10 +93,10 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
     
 
     old.o <- options(warn=-1)
-    reso_upper_lim  <- (.Machine$integer.max/64 -2)/max(dm$distance)
-    reso <- if (tolerance>0 & rfeas>1 & cfeas>1) {
-                min(reso_upper_lim, (rfeas + cfeas - 2)/tolerance)
-            } else reso_upper_lim
+    epsilon_lower_lim  <- max(dm$distance)/(.Machine$integer.max/64 -2)
+    epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
+                min(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
+            } else epsilon_lower_lim
     options(old.o)
 
     if (isTRUE(all.equal(dm[['distance']], 0)))
@@ -108,7 +108,7 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
             intSolve(dm, min.cpt, max.cpt, f.ctls, node_info)
         } else
         {
-            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, reso)
+            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, epsilon)
         }
 
   temp$treated <- factor(temp$treated)
@@ -146,30 +146,30 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 
 
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
-                        rfeas, cfeas, reso) 
+                        rfeas, cfeas, epsilon) 
 {
-    dm$distance  <- cadlag_ceiling(dm$distance * reso)
+    dm$distance  <- cadlag_ceiling(dm$distance / epsilon)
     if (!is.null(node_info))
-        node_info$price  <- cadlag_ceiling(node_info$price * reso)
+        node_info$price  <- cadlag_ceiling(node_info$price / epsilon)
     
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
                        node_info = node_info)
     
     if (!is.null(intsol$MCFSolution))
     {
-        intsol$MCFSolution@subproblems[1L,"resolution"]  <- reso
+        intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
         
         intsol$MCFSolution@nodes[,'price']  <-
-            intsol$MCFSolution@nodes[['price']] / reso
+            intsol$MCFSolution@nodes[['price']] * epsilon
     }
     
     intsol$maxerr  <-
         if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
             0 } else {
                   sum(intsol$solution * dm$distance, na.rm = TRUE) -
-                      sum(intsol$solution * intsol$distance, na.rm = TRUE) / reso +
+                      sum(intsol$solution * intsol$distance, na.rm = TRUE) * epsilon +
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
-                      (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) / reso
+                      (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
               }
     
   return(intsol)
