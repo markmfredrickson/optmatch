@@ -66,7 +66,7 @@ Rules/conventions:
 
 A `NodeInfo` is an S4-typed data frame bearing the columns:
 
-- `name`, character;
+- `name`, factor;
 - `price`, double or integer (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
@@ -77,7 +77,6 @@ Rules/conventions:
 
 -  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e. "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)" nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink" in H.&K. '06 Fig. 2.
 -  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
-- No two rows can simultaneously have the same values of `name` and `groups`.
 - This type's validity checker should be fast, eschewing expensive operations.
 - If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
 
@@ -121,26 +120,27 @@ Slots for class `MCFSolutions`:
 - `subproblems`, a "SubProbInfo" object (see above); 
 - `nodes`, a `NodeInfo` object (see above);
 - `arcs`, a `ArcInfo` object (see above);
-- `matchables`, `MatchablesInfo` object, i.e. an S4-typed data frame with columns
-    + `name` (character),
-    + `row_unit` (logical),
-    + `groups` (factor).
+- `nodenames`, character.
 
 Rules/conventions:
 
-- The `@matchables` table associates nodes to matchable units.
-- `row_unit` is `TRUE` for a unit from the rows of a matching distance,
-   `FALSE` for a unit from the match distance's columns.  I.e., for
-   matchables that appear in the nodes table,
+- `nodenames` is simultaneously the level set for `@nodes$name`, `@arcs@matches@upstream`,
+  `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and `@arcs@bookkeeping$end`.
+- For subjects not appearing in a subproblem that was sent to the
+  solver (b/c they were removed from the subproblem first, or b/c their	
+  subproblem was found to be infeasible), we won't have a record of
+  their subgroup or treatment status. OTOH everyone matched will have
+  been processed in this way, and for all such subjects the `@nodes`
+  table carries an explicit record of their subgroup, which
+  `@subproblems` and `@nodes` combine to give row/column or
+  treatment/control status via
 ```r
 object@subproblems %>%
 with(flipped[match(object@nodes$groups,groups)]) %>%
 ifelse(!object@nodes$upstream_not_down, object@nodes$upstream_not_down)
 ```
-- There can be matchable units that don't appear in a nodes table, if e.g.
-they were excluded prior to matching or their subproblem was found to be infeasible prior to being sent to the solver. 
-- `is.na(object@matchables$row_unit)` indicates a unit that's being kept track of but didn't
-   have a value for the treatment variable. 
+- There can be `nodenames` units that don't appear in a nodes table, if e.g.
+they represent subjects that were were excluded prior to matching, or their subproblem was found to be infeasible prior to being sent to the solver. 
 - Checking validity for such an object may be moderately expensive
   when the object is large, as it calls for cross-comparison of
   constituent objects. So e.g. `c()` should not routinely check validity
@@ -159,20 +159,20 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 A type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@nodes`, exactly 2 `names` values s.t. `is.na(upstream_not_down)`, namely "`(_Sink_)`" and "`(_End_)`";
+- in `@nodes`, exactly 2 `as.character(names)` values per subgroup s.t. `is.na(upstream_not_down)`, strings beginning with "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@nodes`, each node with `upstream_not_down == TRUE` has positive `supply`;
 - in `@nodes`, each node with `upstream_not_down == FALSE` has `supply==0`;
 - in `@nodes`, each node with `is.na(upstream_not_down)` has nonpositive `supply`;
-- in `@arcs@bookkeeping`, each node with `!is.na(upstream_not_down)` appears as the `start` of an arc that has end node `(_End_)`;
-- in `@arcs@bookkeeping`, each node with `upstream_not_down == FALSE` appears as the `start` of an arc that has end node `(_Sink_)`.
+- in `@arcs@bookkeeping`, each node with `!is.na(upstream_not_down)` appears as the `start` of an arc that has end node (a string beginning w/) `(_End_)`;
+- in `@arcs@bookkeeping`, each node with `upstream_not_down == FALSE` appears as the `start` of an arc that has end node named by a string beginning with `(_Sink_)`.
 
 ## Return value of `fullmatch` / `pairmatch` (*ptmatch)
 
 ### Immediate plan
 
 Return an object bearing S3 class "optmatch", as we did before these changes.
-Embed an `MCFSolutions` into it as an attrfibute.
+Embed an `MCFSolutions` into it as an attribute.
 
 ### Final solution
 
@@ -187,6 +187,6 @@ Return object of a new S4 class, `Optmatch`, inheriting from factor as well as f
 
 - `getNamesTable()`: extract `@matchables` table from an `MCFSolutions`.  (¿Also from an optmatch that has an MCFSolutions inside of it?)
 - `getMCFSolution()`: extractor for optmatch objects (& later for Optmatch objects)
-- `c()` for `MCFSolutions`: `rbind()`s the various consitutent data frames, enforcing req that subproblems have distinct names
+- `c()` for `MCFSolutions`: `rbind()`s the various constituent data frames, enforcing req that subproblems have distinct names
 - `addArcs()` for `MCFSolutions` objects
 - `addNodes()` for `MCFSolutions` objects
