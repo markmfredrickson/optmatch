@@ -417,7 +417,7 @@ rbind.InfinitySparseMatrix <- function(x, y, ...) {
 
   if(!is.null(x@colnames) & !(is.null(y@colnames))) {
     if (!all(x@colnames %in% y@colnames) | !all(y@colnames %in% x@colnames)) {
-      stop("Matrices must have matching rownames")
+      stop("Matrices must have matching colnames")
     }
   }
 
