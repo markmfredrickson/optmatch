@@ -51,6 +51,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   }
 
   if (!is.integer(distance[['distance']])) {
+      if (any(distance[['distance']] > .Machine$integer.max)) stop("Integer distances too large for machine.\n (Tolerance/resolution too fine?)")
       tdist  <- as.integer(distance[['distance']])
       if (isFALSE(all.equal(distance[['distance']],tdist))) stop("distance should be integer")
       distance[['distance']]  <- tdist
@@ -143,6 +144,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
         {
             stopifnot(is(node_info, "NodeInfo"),
                       is.integer(node_info$price),
+                      !any(is.na(node_info$price)),
                       all(row.units %in% node_info[['name']]),
                       sum(node_info[['name']]=="(_End_)")==1,
                       sum(node_info[['name']]=="(_Sink_)")==1)
@@ -240,10 +242,18 @@ fmatch <- function(distance, max.row.units, max.col.units,
   stopifnot(length(Sink_rownum_in_nodes_table)==1)
   is_arctosink  <-  ( bookkeeping[['end']] == Sink_rownum_in_nodes_table )
   arctosink_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_arctosink )]
-  sinkprice  <- arctosink_redcosts +
+  arctosink_price_diffs  <-   
       nodes[ bookkeeping[['start']][ is_arctosink ] ,
                                             "price" ]
-  if (!all(sinkprice==sinkprice[1])) stop("Mutually inconsistent inferred sink prices.")
+  sinkprice  <- arctosink_redcosts + arctosink_price_diffs
+    if (any(is.na(sinkprice))) {
+        sinkprice  <- as.double(arctosink_redcosts) + as.double(arctosink_price_diffs)
+        if (any(abs(sinkprice - sinkprice[1])>.Machine$double.eps^.5))
+            stop("Inferred sink prices not mutually consistent.")
+            } else {
+                if (!all(sinkprice==sinkprice[1]))
+                    stop("Mutually inconsistent inferred sink prices.")
+                }
   nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]  
 
   ### Recover arc flow info, store in `arcs` ###
