@@ -517,3 +517,18 @@ test_that("BISM sorting", {
   expect_identical(m, sort(m.cols))
 
 })
+
+test_that("rbinds involving BISMs", {
+    dat  <- data.frame(Z=rep(c(0,1,1), 2), B=rep(0:1, each=3),
+                       S= 1:6, T= 5:0)
+    bismA  <- exactMatch(Z ~B, data=dat[c(1:2, 4:5), ]) 
+    bismA  <- match_on(Z~S, within=bismA, data=dat[c(1:2, 4:5), ])
+    bismB  <- exactMatch(Z ~B, data=dat[c(1,3,4,6), ])
+    bismB  <- match_on(Z~T, within =bismB, data=dat[c(1,3,4,6), ])
+    expect_is(bismA, "BlockedInfinitySparseMatrix")
+    expect_is(bismB, "BlockedInfinitySparseMatrix")
+    expect_is(rbind(bismA, bismB), "InfinitySparseMatrix")
+    expect_is(t(bismA), "BlockedInfinitySparseMatrix")
+    expect_is(t(bismB), "BlockedInfinitySparseMatrix")
+    expect_is(cbind(t(bismA), t(bismB)), "InfinitySparseMatrix")    
+})
