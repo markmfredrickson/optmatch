@@ -148,6 +148,7 @@ solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, epsilon) 
 {
+    dm_distance  <- dm$distance #Used below in roundoff error crude estimate
     dm$distance  <- as.integer(ceiling(.5 + dm$distance / epsilon))
     if (!is.null(node_info))
         node_info$price  <- as.integer(ceiling(node_info$price / epsilon))
@@ -165,8 +166,8 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     
     intsol$maxerr  <-
         if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
-            0 } else {
-                  sum(intsol$solution * dm$distance, na.rm = TRUE) -
+            0 } else { #roundoff error crude estimate
+                  sum(intsol$solution * dm_distance, na.rm = TRUE) -
                       sum(intsol$solution * (intsol$distance - 1/2), na.rm = TRUE) * epsilon +
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
                       (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
