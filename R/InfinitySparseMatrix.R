@@ -557,14 +557,14 @@ t.BlockedInfinitySparseMatrix <- function(x) {
 ##' @rdname cbindrbind
 cbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   # demote the blocked representation to a regular ISM and call the usual cbind method
-  cbind(as.InfinitySparseMatrix(x), y, ...)
+  cbind.InfinitySparseMatrix(x, y, ...)
 }
 
 ##' @export
 ##' @rdname cbindrbind
 rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
   # demote the blocked representation to a regular ISM and call the usual cbind method
-  rbind(as.InfinitySparseMatrix(x), y, ...)
+  rbind.InfinitySparseMatrix(x, y, ...)
 }
 
 #' Returns the dimension of each valid subproblem
