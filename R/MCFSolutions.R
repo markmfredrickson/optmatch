@@ -158,12 +158,15 @@ setClass("FullmatchMCFSolutions",
          )
 setValidity("FullmatchMCFSolutions", function(object){
     errors  <- character(0)
-    if ( nrow(object@nodes) &
-         !setequal(object@nodes[['name']][is.na(object@nodes[['upstream_not_down']])] ,
-                  c("(_Sink_)", "(_End_)") )
+    bnodenames  <- object@nodes[['name']][is.na(object@nodes[['upstream_not_down']])]
+    if ( nrow(object@nodes) &&
+         length( setdiff(bnodenames, c("(_Sink_)", "(_End_)")) )
         )
         errors  <- c(errors,
-                     "Need '(_Sink_)', '(_End_)' nodes.")
+                     "Bookkeeping nodes other than '(_Sink_)' and '(_End_)'.")
+    if ( nrow(object@nodes) && !any(bnodenames=="(_Sink_)") )
+        errors  <- c(errors,
+                     "Need a '(_Sink_)' node.")
     ## (Could probably do more checking here...)
     if (length(errors)==0) TRUE else errors    
 })

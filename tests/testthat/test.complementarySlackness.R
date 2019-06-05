@@ -10,11 +10,11 @@ make_known_optimal <- function() {
     m <- match_on(z ~ y, data = x, method = "euclidean")
     nodes <- new("NodeInfo",
                  data.frame(stringsAsFactors = FALSE,
-                     name = c("A", "B", "C", "D", "E", '(_End_)', '(_Sink_)'),
-                     price = c(3, 4.75, 0, 2.75, 0.25, 0, 0),
-                     upstream_not_down = c(TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA),
-                     supply = c(1L, 1L, 0L, 0L, 0L, -2L, 0L),
-                     groups = factor(rep("a", 7))))
+                     name = c("A", "B", "C", "D", "E", '(_Sink_)'),
+                     price = c(3, 4.75, 0, 2.75, 0.25, 0),
+                     upstream_not_down = c(TRUE, TRUE, FALSE, FALSE, FALSE, NA),
+                     supply = c(1L, 1L, 0L, 0L, 0L, -2L),
+                     groups = factor(rep("a", 6))))
 
     arcs <- new("ArcInfo",
                 matches = data.frame(
@@ -22,11 +22,11 @@ make_known_optimal <- function() {
                     upstream   = factor(c("A", "B" )),
                     downstream = factor(c("D", "E"))),
                 bookkeeping = data.frame(
-                    groups = rep("a", 4),
-                    start = factor(c("C", "D", "E", "C")),
-                    end = factor(c("(_End_)", "(_End_)", "(_End_)", "(_Sink_)")),
-                    flow = c(0L, 1L, 1L,0L),
-                    capacity = rep(1L, 4)
+                    groups = rep("a", 3),
+                    start = factor(c("C", "D", "E")),
+                    end = factor(c("(_Sink_)", "(_Sink_)", "(_Sink_)")),
+                    flow = c(0L, 1L, 1L),
+                    capacity = rep(1L, 3)
                 ))
     subprob  <- new("SubProbInfo",
                     data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
@@ -54,7 +54,7 @@ make_caliper_example <- function() {
                     bookkeeping = data.frame(
                         groups = rep("a", 2),
                         start = factor(c("C", "D")),
-                        end = factor(c("(_End_)", "(_End_)")),
+                        end = factor(c("(_Sink_)", "(_Sink_)")),
                         flow = c(1L, 1L),
                         capacity = rep(1L, 2)))
     return(opt)
