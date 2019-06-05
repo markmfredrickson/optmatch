@@ -73,7 +73,7 @@ evaluate_lagrangian <- function(distances, solution) {
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
 evaluate_dual <- function(distances, solution) {
-    stopifnot(is(solution, "MCFSolutions"),
+    stopifnot(is(solution, "FullmatchMCFSolutions"),
               nrow(solution@subproblems)==1)
     flipped  <- solution@subproblems[1L, "flipped"]
     ## according to Bertsekas *Network Optimization*, page 156-7,
@@ -140,7 +140,8 @@ evaluate_dual <- function(distances, solution) {
     
     ## if we've gotten this far, a missing node price means that it is a down stream node
     ## and the missing price is the lesser of the sink and the overflow bookkeeping nodes
-    ## TODO: Should this be the minimum of *any* bookkeeping node's price?
+    ## (at least for MCF encoding of full matching problems, the only type we're attempting to
+    ## accommodate at the moment).
     impute_price <- min(solution@nodes$price[is.na(solution@nodes$upstream_not_down)])
 
     newnames <- canadd[!(canadd %in% solution@nodes$name)]
