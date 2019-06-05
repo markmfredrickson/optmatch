@@ -248,13 +248,16 @@ fmatch <- function(distance, max.row.units, max.col.units,
   sinkprice  <- arctosink_redcosts + arctosink_price_diffs
     if (any(is.na(sinkprice))) {
         sinkprice  <- as.double(arctosink_redcosts) + as.double(arctosink_price_diffs)
+        nodes[nodes$name=="(_Sink_)", "price"]  <- mean(sinkprice)
         if (any(abs(sinkprice - sinkprice[1])> sinkprice[1]*.Machine$double.eps^.5))
             warning("Inferred sink prices not mutually consistent.")
             } else {
-                if (!all(sinkprice==sinkprice[1]))
-                    warning("Mutually inconsistent inferred sink prices.")
+                nodes[nodes$name=="(_Sink_)", "price"]  <-
+                    if (!all(sinkprice==sinkprice[1])) {
+                        warning("Mutually inconsistent inferred sink prices.")
+                        mean(sinkprice)
+                    } else sinkprice[1]
                 }
-  nodes[nodes$name=="(_Sink_)", "price"]  <- mean(sinkprice)
 
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:
