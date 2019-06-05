@@ -433,11 +433,11 @@ fullmatch.matrix <- function(x,
     mean.controls <- rep(mean.controls, np)
   }
 
-  if (any(mean.controls < min.controls, na.rm=TRUE)) {
+  if (any(mean.controls + .Machine$double.eps^0.5 < min.controls, na.rm=TRUE)) {
     stop("mean.controls cannot be smaller than min.controls")
   }
 
-  if (any(mean.controls > max.controls, na.rm=TRUE)) {
+  if (any(mean.controls - .Machine$double.eps^0.5> max.controls, na.rm=TRUE)) {
     stop("mean.controls cannot be larger than max.controls")
   }
 
