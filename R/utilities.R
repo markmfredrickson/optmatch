@@ -72,7 +72,6 @@ dist_digest <- function(dist) {
     csave <- attr(dist, "call")
     attr(dist, "call") <- NULL
     out <- digest::digest(dist)
-    attr(dist, "call") <- csave
     return(out)
   }
   stop("Must pass distance object")
