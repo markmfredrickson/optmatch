@@ -6,7 +6,7 @@
 #' @importFrom dplyr left_join
 evaluate_lagrangian <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
-              nrow(solution@subproblems)==1)
+              nrow(solution@subproblems)==1 || !any(solution@subproblems[["flipped"]]))
     flipped  <- solution@subproblems[1L, "flipped"]
     ## according to Bertsekas *Network Optimization*, page 155, the Lagrangian is given by:
     ## L(x, p) = \sum_{i,j} x_{ij} (a_ij - (p_i - p_j)) + \sum_i s_i p_i
@@ -46,10 +46,10 @@ evaluate_lagrangian <- function(distances, solution) {
     suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
                                 as.data.frame(unclass(solution@nodes)),
-                                by = c("start" = "name")) %>%
+                                by = c("start" = "name", "groups"="groups")) %>%
         left_join(y = subset(solution@nodes,
                              is.na(upstream_not_down)),#assumes bookkeeping arcs...
-                  by = c("end" = "name"),#...terminate only in bookkeeping nodes
+                  by = c("end" = "name", "groups"="groups"),#...terminate only in bookkeeping nodes
                   suffix = c(x = ".i", y = ".j"))
     )
 
@@ -74,7 +74,7 @@ evaluate_lagrangian <- function(distances, solution) {
 #' @importFrom dplyr left_join
 evaluate_dual <- function(distances, solution) {
     stopifnot(is(solution, "FullmatchMCFSolutions"),
-              nrow(solution@subproblems)==1)
+              nrow(solution@subproblems)==1 || !any(solution@subproblems[["flipped"]]) )
     flipped  <- solution@subproblems[1L, "flipped"]
     ## according to Bertsekas *Network Optimization*, page 156-7,
     ## the dual functional is given by:
@@ -100,10 +100,10 @@ evaluate_dual <- function(distances, solution) {
     suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
                                 as.data.frame(unclass(solution@nodes)),
-                                by = c("start" = "name")) %>%
+                                by = c("start" = "name", "groups"="groups")) %>%
         left_join(y = subset(solution@nodes,
                              is.na(upstream_not_down)), #assumes bookkeeping arcs...
-                             by = c("end" = "name"), #... terminate only in bookkeeping nodes
+                             by = c("end" = "name", "groups"="groups"), #... terminate only in bookkeeping nodes
                              suffix = c(x = ".i", y = ".j"))
     )
 

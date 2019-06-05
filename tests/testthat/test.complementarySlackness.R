@@ -95,3 +95,36 @@ test_that("Compute dual functional", {
     ## the caliper isn't optimal for the full problem, so the dual decreases using the full distance matrix
     expect_equal(evaluate_dual(cal$m, cal$mcf), 2.75)
 })
+test_that("Multiple subproblems", {
+    optA  <- make_known_optimal()
+    optA$mcf@subproblems[1L, "groups"]  <- 'a'
+
+    optB  <- make_known_optimal()
+    rownames(optB$x)  <- tolower( rownames(optB$x) )
+    rownames(optB$m)  <- tolower( rownames(optB$m) )
+    colnames(optB$m)  <- tolower( colnames(optB$m) )
+    optB$mcf@nodes$name[1:5]  <- tolower(optB$mcf@nodes$name[1:5])
+    levels(optB$mcf@arcs@matches$upstream)  <- tolower(levels(optB$mcf@arcs@matches$upstream))
+    levels(optB$mcf@arcs@matches$downstream)  <- tolower(levels(optB$mcf@arcs@matches$downstream))
+    levels(optB$mcf@arcs@bookkeeping$start)  <- tolower(levels(optB$mcf@arcs@bookkeeping$start))
+    levels(optB$mcf@nodes$groups)  <- 'b'
+    levels(optB$mcf@arcs@matches$groups)  <- 'b'
+    levels(optB$mcf@arcs@bookkeeping$groups)  <- 'b'
+    optB$mcf@subproblems[1L, "groups"]  <- 'b'
+
+    opt  <- list()
+    opt$x  <- rbind(optA$x, optB$x)
+    opt$m  <- rbind(cbind(optA$m, matrix(Inf, nrow=nrow(optA$m), ncol=ncol(optB$m))),
+                    cbind(matrix(Inf, nrow=nrow(optB$m), ncol=ncol(optA$m)), optB$m))
+    dimnames(opt$m)  <- list(c(rownames(optA$m), rownames(optB$m)),
+                             c(colnames(optA$m), colnames(optB$m)))
+    opt$m  <- as(opt$m, "InfinitySparseMatrix")
+    opt$m  <- as(opt$m, "BlockedInfinitySparseMatrix")
+    grpvec  <- factor(rep(c('a', 'b'), each=nrow(opt$x)))
+    names(grpvec)  <- row.names(opt$x)
+    opt$m@groups  <- grpvec
+    opt$mcf  <- c(optA$mcf, optB$mcf)
+
+    expect_equal(evaluate_lagrangian(opt$m, opt$mcf), 8)
+    expect_equal(evaluate_dual(opt$m, opt$mcf), 8)
+})
