@@ -1,5 +1,5 @@
-CHANGES IN OPTMATCH VERSION 1.0
-
+CHANGES IN OPTMATCH VERSION unreleased
+* Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
 * Removed support for old (pre 0.9) version of solver. 
 
 CHANGES IN OPTMATCH VERSION 0.9-10

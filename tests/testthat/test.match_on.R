@@ -843,3 +843,38 @@ test_that("147: within=caliper with NA's", {
   expect_true(is(m.2, "InfinitySparseMatrix"))
   expect_true(all.equal(sort(m.2@.Data), sort(m.1@.Data)))
 })
+
+test_that("Exclude argument for match_on.numeric with caliper arg", {
+    set.seed(10303920)
+    n <- 20
+    x <- rnorm(n, sd = 4)
+    names(x) <- letters[1:20]
+    z <- c(rep(0, 10), rep(1, 10))
+    mint <- names(which.min(x[z == 1]))
+    maxc <- names(which.min(x[z == 0]))
+    cal <- sd(x) / 5
+
+    m <- match_on(x, z = z, caliper = cal, exclude = c(mint, maxc))
+
+    mm <- as.matrix(m)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+
+    ## exclude only treatment
+    mt <- match_on(x, z = z, caliper = cal, exclude = mint)
+    mm <- as.matrix(mt)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_true(sum(is.finite(mm[, maxc])) < 10)
+
+    ## exclude only control
+    mc <- match_on(x, z = z, caliper = cal, exclude = maxc)
+    mm <- as.matrix(mc)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+    expect_true(sum(is.finite(mm[mint, ])) < 10)
+
+})
+
+

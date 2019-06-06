@@ -48,6 +48,11 @@ setMethod("toZ", "numeric", function(x) {
   as.logical(x)
 })
 
+setOldClass("haven_labelled")
+setMethod("toZ", "haven_labelled", function(x) {
+  toZ(as.numeric(x))
+})
+
 setMethod("toZ", "character", function(x) {
   stop(paste("Character treatment indicators no longer supported.\n",
              "Convert into a numeric or logical vector."))
@@ -72,7 +77,6 @@ dist_digest <- function(dist) {
     csave <- attr(dist, "call")
     attr(dist, "call") <- NULL
     out <- digest::digest(dist)
-    attr(dist, "call") <- csave
     return(out)
   }
   stop("Must pass distance object")
