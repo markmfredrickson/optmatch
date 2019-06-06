@@ -1,3 +1,6 @@
+CHANGES IN OPTMATCH VERSION unreleased
+* Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
+
 CHANGES IN OPTMATCH VERSION 0.9-10
 * Minor release to fix warnings during CRAN checks.
 
