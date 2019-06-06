@@ -186,12 +186,12 @@ First, lets fit the logistic regression model.
 
 ```stata
 logit foreign price mpg rep78 headroom trunk weight length turn displacement gear_ratio
-predict ppty
+predict ppty, xb
 ```
 
-Now, we can export a .csv file. Note that in addition to the treatment
-indicator and variables to match on, we need to include a unique
-identifier. In this case, we can use `make`. If no such identifier exists, you can use
+Note that in addition to the treatment indicator and variables to
+match on, we need to include a unique identifier. In this case, we can
+use `make`. If no such identifier exists, you could use
 
 ```stata
 gen case_id = _n
@@ -199,14 +199,22 @@ gen case_id = _n
 
 to generate ID's 1, 2, etc. These will be needed to merge the match information back in.
 
+We'll save only the relevant variables (treatment indicator, anything
+to be matched on (including propensity score), and an ID variable to merge on) to avoid saving
+and loading a very large file.
+
 ```stata
-outsheet make foreign price mpg ppty using C:\Users\myuser\Desktop\stataout.csv, comma
+preserve
+keep make foreign price mpg ppty
+save "C:\Users\myuser\Desktop\toR.dta"
+restore
 ```
 
-Turning to R, this can be read in similar to the SAS example, using
+Turning to R, this can be read in using the "haven" package
 
 ```{r,eval=FALSE}
-statadata <- read.csv("C:/Users/myuser/Desktop/stataout.csv", header=TRUE)
+library(haven)
+statadata <- read_dta("C:/Users/myuser/Desktop/toR.dta")
 ```
 
 (Again, depending on your version of Windows, you may need to use
@@ -225,20 +233,19 @@ Now, perform matching as desired, saving the final match to
 
 ```{r,eval=FALSE}
 library(optmatch)
-f <- fullmatch(foreign ~ price + mpg + ppty, data=statadata, max.controls=3)
-statadata$match <- f
+statadata$match <- fullmatch(foreign ~ price + mpg + ppty, data=statadata, max.controls=3)
 ```
 
-We do not recommend using .csv files to transfer the data back to
-Stata, though the `write.csv` file would be similar to that for
-SAS. Instead, we recommend using foreign.
+We'll use haven again to write the data back to Stata. We do not
+recommend using .csv files to transfer the data back to Stata, though
+the `write.csv` file would be similar to that for SAS.
 
 ```{r,eval=FALSE}
-write.dta(statadata, "C:/Users/myuser/Desktop/rout.stata.dta")
+write_dta(statadata, "C:/Users/myuser/Desktop/rout.stata.dta")
 ```
 
-Back in Stata, you can merge this into the existing `auto.dta` by the
-following commands.
+Back in Stata, you can merge this into the existing data set by the
+following commands:
 
 ```stata
 sort make

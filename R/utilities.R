@@ -48,6 +48,11 @@ setMethod("toZ", "numeric", function(x) {
   as.logical(x)
 })
 
+setOldClass("haven_labelled")
+setMethod("toZ", "haven_labelled", function(x) {
+  toZ(as.numeric(x))
+})
+
 setMethod("toZ", "character", function(x) {
   stop(paste("Character treatment indicators no longer supported.\n",
              "Convert into a numeric or logical vector."))
