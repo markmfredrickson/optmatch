@@ -1,5 +1,7 @@
 CHANGES IN OPTMATCH VERSION unreleased
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
+* `fullmatch()` and `pairmatch()` now accept a prior `fullmatch()` or `pairmatch()` value as a hint, at least if the treatment group is the same.
+* There are `evaluate_lagrangian()` and `evaluate_dual()` functions for examining optimality and regret using primal-dual solution pairs.
 * Removed support for old (pre 0.9) version of solver. 
 
 CHANGES IN OPTMATCH VERSION 0.9-10
