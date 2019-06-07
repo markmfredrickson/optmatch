@@ -350,6 +350,11 @@ fullmatch.matrix <- function(x,
   # min, max, and omit
 
   np <- length(problems)
+  if (np>1 & is.null(names(problems)))
+      stop("Subproblems should have names.")
+  subproblemids  <- names(problems)
+  if (is.null(subproblemids)) subproblemids  <- character(1L)
+
   if (length(min.controls) > 1 & np != length(min.controls)) {
     stop(paste("Length of \'min.controls\' arg must be same ",
               "as number of subproblems [", np, "]", sep = ""))
