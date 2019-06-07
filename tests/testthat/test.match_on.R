@@ -104,20 +104,21 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
+  tol <- 1e6 * sqrt(.Machine$double.eps)
+  
   # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
   z <- as.logical(Z)
   euclid <- euclid[z, !z]
   expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = "euclidean") - euclid) <
-                      .00001)) # there is some rounding error, but it is small
+                      tol)) # there is some rounding error, but it is small
 
   # factor-related
   f0 <- as.factor(rep(1:4, each=n/4))
   f1 <- as.factor(rep(rep(1:2, each=2),n/4))
   f2 <- as.factor(rep(3:4, each=n/2))
 
-  tol <- 100 * sqrt(.Machine$double.eps)
   # Euclidean distances on a single factor should be 1 or 0
   tmp <- match_on(Z~f1, method="euclidean")
   expect_true(all(abs(tmp) < tol | abs(tmp - 1) < tol))
@@ -842,3 +843,38 @@ test_that("147: within=caliper with NA's", {
   expect_true(is(m.2, "InfinitySparseMatrix"))
   expect_true(all.equal(sort(m.2@.Data), sort(m.1@.Data)))
 })
+
+test_that("Exclude argument for match_on.numeric with caliper arg", {
+    set.seed(10303920)
+    n <- 20
+    x <- rnorm(n, sd = 4)
+    names(x) <- letters[1:20]
+    z <- c(rep(0, 10), rep(1, 10))
+    mint <- names(which.min(x[z == 1]))
+    maxc <- names(which.min(x[z == 0]))
+    cal <- sd(x) / 5
+
+    m <- match_on(x, z = z, caliper = cal, exclude = c(mint, maxc))
+
+    mm <- as.matrix(m)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+
+    ## exclude only treatment
+    mt <- match_on(x, z = z, caliper = cal, exclude = mint)
+    mm <- as.matrix(mt)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_true(sum(is.finite(mm[, maxc])) < 10)
+
+    ## exclude only control
+    mc <- match_on(x, z = z, caliper = cal, exclude = maxc)
+    mm <- as.matrix(mc)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+    expect_true(sum(is.finite(mm[mint, ])) < 10)
+
+})
+
+
