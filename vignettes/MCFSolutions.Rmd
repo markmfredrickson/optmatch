@@ -118,14 +118,25 @@ of a primal and dual solution.   So we'll save both of them, as an S4 object.
 Slots for class `MCFSolutions`:
 
 - `subproblems`, a "SubProbInfo" object (see above); 
-- `nodes`, a `NodeInfo` object (see above);
-- `arcs`, a `ArcInfo` object (see above);
-- `nodenames`, character.
+- `nodes`, a `NodeInfo` object (see above); and
+- `arcs`, a `ArcInfo` object (see above).
 
 Rules/conventions:
 
-- `nodenames` is simultaneously the level set for `@nodes$name`, `@arcs@matches@upstream`,
-  `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and `@arcs@bookkeeping$end`.
+- Each of `@nodes$name`, `@arcs@matches@upstream`,
+  `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and
+  `@arcs@bookkeeping$end` has precisely the same collection of levels.
+  (The names of the units to be matched, and/or names for bookkeeping
+  units.)  To be enforced as a part of the validity check.
+- The levels of`@nodes$name`, etc may include references to units that
+  don't appear in the corresponding nodes table.(B/c e.g.  they
+  represent subjects that were were excluded prior to matching, or
+  their subproblem was found to be infeasible prior to being sent to
+  the solver, they're part of some other subproblem than the one(s)
+  currently under consideration.)
+- Distinct matchable units should not share levels.
+- OTOH bookkeeping nodes for distinct subproblems will share the
+  same level of `@nodes$name`.
 - For subjects not appearing in a subproblem that was sent to the
   solver (b/c they were removed from the subproblem first, or b/c their	
   subproblem was found to be infeasible), we won't have a record of
@@ -139,8 +150,6 @@ object@subproblems %>%
 with(flipped[match(object@nodes$groups,groups)]) %>%
 ifelse(!object@nodes$upstream_not_down, object@nodes$upstream_not_down)
 ```
-- There can be `nodenames` units that don't appear in a nodes table, if e.g.
-they represent subjects that were were excluded prior to matching, or their subproblem was found to be infeasible prior to being sent to the solver. 
 - Checking validity for such an object may be moderately expensive
   when the object is large, as it calls for cross-comparison of
   constituent objects. So e.g. `c()` should not routinely check validity
@@ -159,7 +168,7 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 A type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@nodes`, exactly 2 `as.character(names)` values per subgroup s.t. `is.na(upstream_not_down)`, strings beginning with "`(_Sink_)`" and "`(_End_)`";
+- in `@nodes`, exactly 2 `as.character(names)` values per subgroup s.t. `is.na(upstream_not_down)`, appearing in the final 2 positions of `levels(@names$name)`: "`(_Sink_)`" and "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@nodes`, each node with `upstream_not_down == TRUE` has positive `supply`;
 - in `@nodes`, each node with `upstream_not_down == FALSE` has `supply==0`;
