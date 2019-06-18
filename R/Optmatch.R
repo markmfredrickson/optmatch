@@ -223,13 +223,14 @@ optmatch_same_distance <- function(obj, newdist) {
 #'
 #' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 #' \code{optmatch} object differs from the hash of the new \code{data}.
-#' @param optmatch \code{Optmatch} object to update.
+#'
+#' To obtain an updated call without performing the actual update, pass an additional `evaluate = FALSE` argument.
+#' @param object \code{Optmatch} object to update.
 #' @param ... Additional arguments to the call, or arguments with changed values.
-#' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
 #' @export
-update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
-  if (is.null(call <- attr(optmatch, "call")))
+update.optmatch <- function(object, ...) {
+  if (is.null(call <- attr(object, "call")))
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
 
@@ -242,12 +243,16 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
     }
   }
 
-  if (evaluate) {
+  if (extras$evaluate != FALSE) {
     newmatch <- eval(call, parent.frame())
-    if (attr(newmatch, "hashed.distance") != attr(optmatch, "hashed.distance")) {
-      warning(paste("Distance given in update (", attr(newmatch, "hashed.distance"),
-                    ") is different than distance used to generate fullmatch (",
-                    attr(optmatch,"hashed.distance"), ").", sep=''))
+    if (attr(newmatch, "hashed.distance") !=
+        attr(object, "hashed.distance")) {
+      warning(paste("Distance given in update (",
+                    attr(newmatch, "hashed.distance"),
+                    ") is different than distance ",
+                    "used to generate fullmatch (",
+                    attr(object,"hashed.distance"),
+                    ").", sep = ''))
     }
     newmatch
   } else call
