@@ -227,6 +227,7 @@ optmatch_same_distance <- function(obj, newdist) {
 #' @param ... Additional arguments to the call, or arguments with changed values.
 #' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
+#' @export
 update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
   if (is.null(call <- attr(optmatch, "call")))
     stop("optmatch must have a call attribute")
