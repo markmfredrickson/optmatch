@@ -1,7 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: false
+sudo: required
 cache: packages
 r:
   - oldrel
@@ -11,10 +11,13 @@ r_packages:
   - biglm
   - arm
   - brglm
+  - CBPS
+  - haven
 r_github_packages:
   - jimhester/covr
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libnlopt-dev
+  - sudo apt-get install -qq ghostscript
 after_success:
   - Rscript -e 'covr::coveralls()'

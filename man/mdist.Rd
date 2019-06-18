@@ -20,8 +20,8 @@ mdist(x, structure.fmla = NULL, ...)
 \method{mdist}{formula}(x, structure.fmla = NULL, data = NULL,
   subset = NULL, ...)
 
-\method{mdist}{glm}(x, structure.fmla = NULL, standardization.scale = mad,
-  ...)
+\method{mdist}{glm}(x, structure.fmla = NULL,
+  standardization.scale = mad, ...)
 
 \method{mdist}{bigglm}(x, structure.fmla = NULL, data = NULL,
   standardization.scale = mad, ...)

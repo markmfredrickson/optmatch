@@ -58,6 +58,8 @@
 #'   with values greater than the width. For some methods, there may be a speed
 #'   advantage to passing a width rather than using the \code{\link{caliper}}
 #'   function on an existing distance specification.
+#' @param exclude A list of units (treated or control) to exclude from the
+#'     \code{caliper} argument (if supplied).
 #' @param data An optional data frame.
 #' @param ... Other arguments for methods.
 #' @return A distance specification (a matrix or similar object) which is
@@ -72,7 +74,7 @@
 #' @example inst/examples/match_on.R
 #' @docType methods
 #' @rdname match_on-methods
-match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
+match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL, ...) {
   # if x does not exist then print helpful error msg
   x_str <- deparse(substitute(x))
   data_str <- deparse(substitute(data))
@@ -127,7 +129,7 @@ match_on <- function(x, within = NULL, caliper = NULL, data=NULL, ...) {
 #' @method match_on glm
 #' @rdname match_on-methods
 #' @export
-match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
 
   stopifnot(all(c('y','data') %in% names(x)))
 
@@ -162,7 +164,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, data = NULL, standard
     }
   }
 
-  match_on(lp.adj, within = within, caliper = caliper, z = z, ...)
+  match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
 }
 
 match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
@@ -185,7 +187,7 @@ match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
 #' @method match_on bigglm
 #' @rdname match_on-methods
 #' @export
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -216,7 +218,7 @@ are there missing values in data?")
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
 
-  match_on(theps, within = within, caliper = caliper, z = z, ... )
+  match_on(theps, within = within, caliper = caliper, exclude = exclude, z = z, ... )
 }
 
 #' @details The formula method produces, by default, a Mahalanobis distance
@@ -260,7 +262,7 @@ are there missing values in data?")
 #' @method match_on formula
 #' @rdname match_on-methods
 #' @export
-match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
+match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
   }
@@ -381,7 +383,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, data = NULL, subs
     return(tmp)
   }
 
-  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
+  tmp <- tmp + optmatch::caliper(tmp, width = caliper, exclude = exclude)
   tmp@call <- cl
 
   return(tmp)
@@ -524,7 +526,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #' @method match_on function
 #' @rdname match_on-methods
 #' @export
-match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z = NULL, ...) {
+match_on.function <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z = NULL, ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
@@ -543,7 +545,7 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
     return(tmp)
   }
 
-  tmp <- tmp + optmatch::caliper(tmp, width = caliper)
+  tmp <- tmp + optmatch::caliper(tmp, width = caliper, exclude = exclude)
   tmp@call <- cl
   return(tmp)
 }
@@ -556,13 +558,13 @@ match_on.function <- function(x, within = NULL, caliper = NULL, data = NULL, z =
 #' \code{caliper} and \code{within} has been specified then only information about permissible pairings
 #' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
 #' as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-#' storage requirements and may otherwise improve performance, particularly in larger problems.
+#' storage requirements and may otherwise improve performance, particularly in larger problems. 
 #'
 #' For the numeric method, \code{x} must have names.
 #' @method match_on numeric
 #' @rdname match_on-methods
 #' @export
-match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, ...) {
+match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z, ...) {
 
   if(missing(z) || is.null(z)) {
     stop("You must supply a treatment indicator, 'z', when using the numeric match_on method.")
@@ -591,7 +593,51 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, data = NULL, z, .
       stop("Argument `caliper` must be a scalar value, not a vector.")
     }
 
-    allowed <- scoreCaliper(x, z, caliper)
+    if (!is.null(exclude)) {
+        names(z) <- names(x)
+        x.tmp <- x[!names(x) %in% exclude]
+        z.tmp <- z[!names(z) %in% exclude]
+        allowed <- scoreCaliper(x.tmp, z.tmp, caliper)
+
+        n1 <- sum(z)
+        n0 <- sum(!z)
+
+        z.exclude <- z[names(z) %in% exclude]
+
+        n1_exclude <- sum(z.exclude)
+        n0_exclude <- sum(!z.exclude)
+
+        if (n1_exclude > 0) {
+            n1_exclude_idx <- (n1 - n1_exclude + 1):n1
+            n1_names <- names(z.exclude[z.exclude])
+        } else {
+            n1_exclude_idx <- NULL
+            n1_names <- NULL
+        }
+
+        if (n0_exclude > 0) {
+            n0_exclude_idx <- (n0 - n0_exclude + 1):n0
+            n0_names <- names(z.exclude[!z.exclude])
+        } else {
+            n0_exclude_idx <- NULL
+            n0_names <- NULL
+        }
+
+        allowed <- makeInfinitySparseMatrix(
+            c(allowed@.Data,
+              rep(0, n1_exclude * n0 + n0_exclude * n1 - (n1_exclude * n0_exclude))),
+            rows = c(allowed@rows,
+                     rep(n1_exclude_idx, n0),
+                     rep(1:(n1 - n1_exclude), n0_exclude)),
+            cols = c(allowed@cols,
+                     rep(1:n0, each = n1_exclude),
+                     rep(n0_exclude_idx, each = (n1 - n1_exclude))),
+            rownames = c(allowed@rownames, n1_names),
+            colnames = c(allowed@colnames, n0_names))
+
+    } else {
+        allowed <- scoreCaliper(x, z, caliper)
+    }
 
     if (!is.null(within)) {
       within <- within + allowed
@@ -666,7 +712,7 @@ scoreCaliper <- function(x, z, caliper) {
 #' @rdname match_on-methods
 #' @method match_on InfinitySparseMatrix
 #' @export
-match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...) {
 
   if (!is.null(data)) {
     x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
@@ -674,13 +720,13 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, data
 
   if(is.null(caliper)) { return(x) }
 
-  return(x + optmatch::caliper(x, width = caliper))
+  return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
 } # just return the argument
 
 #' @rdname match_on-methods
 #' @method match_on matrix
 #' @export
-match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) {
+match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...) {
 
   if (!is.null(data)) {
     x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
@@ -688,7 +734,7 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, data = NULL, ...) 
 
   if(is.null(caliper)) { return(x) }
 
-  return(x + optmatch::caliper(x, width = caliper))
+  return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
 } # just return the argument
 
 ## Non-exported functioun

@@ -151,7 +151,8 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param ... Additional arguments, including \code{within}, which may be passed to \code{match_on}.
+#' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within}) 
+#' or to specific methods.
 #'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
 #'
@@ -349,23 +350,44 @@ fullmatch.matrix <- function(x,
   # min, max, and omit
 
   np <- length(problems)
+  if (np>1 & is.null(names(problems)))
+      stop("Subproblems should have names.")
+  subproblemids  <- names(problems)
+  if (is.null(subproblemids)) subproblemids  <- character(1L)
+
   if (length(min.controls) > 1 & np != length(min.controls)) {
-    stop(paste("Length of \'min.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+      if (is.null(names(min.controls)))
+          stop("\'min.controls\' longer than 1 should have names (that match names of subproblems/exact matching categories).")
+      min.controls  <- min.controls[match(subproblemids, names(min.controls), nomatch=0)]
+      if (length(min.controls)<np)
+      stop(paste("\'min.controls\' arg of length>1 lacks entries for ",
+              np-length(min.controls), " of ", np, " subproblems", sep = ""))
   }
   if (length(max.controls) > 1 & np != length(max.controls)) {
-    stop(paste("Length of \'max.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+      if (is.null(names(max.controls)))
+          stop("\'max.controls\' longer than 1 should have names (that match names of subproblems/exact matching categories).")
+      max.controls  <- max.controls[match(subproblemids, names(max.controls), nomatch=0)]
+      if (length(max.controls)<np)
+      stop(paste("\'max.controls\' arg of length>1 lacks entries for ",
+              np-length(max.controls), " of ", np, " subproblems", sep = ""))
   }
   if (!is.null(omit.fraction) & length(omit.fraction) > 1 & np !=
     length(omit.fraction)) {
-    stop(paste("Length of \'omit.fraction\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+      if (is.null(names(omit.fraction)))
+          stop("\'omit.fraction\' longer than 1 should have names (that match names of subproblems/exact matching categories).")
+      omit.fraction  <- omit.fraction[match(subproblemids, names(omit.fraction), nomatch=0)]
+      if (length(omit.fraction)<np)
+      stop(paste("\'omit.fraction\' arg of length>1 lacks entries for ",
+              np-length(omit.fraction), " of ", np, " subproblems", sep = ""))
   }
   if (!is.null(mean.controls) & length(mean.controls) > 1 & np !=
     length(mean.controls)) {
-    stop(paste("Length of \'mean.controls\' arg must be same ",
-              "as number of subproblems [", np, "]", sep = ""))
+      if (is.null(names(mean.controls)))
+          stop("\'mean.controls\' longer than 1 should have names (that match names of subproblems/exact matching categories).")
+      mean.controls  <- mean.controls[match(subproblemids, names(mean.controls), nomatch=0)]
+      if (length(mean.controls)<np)
+      stop(paste("\'mean.controls\' arg of length>1 lacks entries for ",
+              np-length(mean.controls), " of ", np, " subproblems", sep = ""))
   }
 
   # reset the arguments to be the right length if they are not
@@ -552,7 +574,10 @@ fullmatch.matrix <- function(x,
     attr(mout, "omit.fraction") <- out.omit.fraction
   }
 
-  if(length(new.omit.fraction) > 0 & !identical(new.omit.fraction, omit.fraction) & !all(is.na(new.omit.fraction))) {
+  if(length(new.omit.fraction) > 0 &
+     !identical(new.omit.fraction, omit.fraction) &
+     !all(is.na(new.omit.fraction)) &
+     getOption("optmatch_verbose_messaging", FALSE)) {
     if(!any(is.na(new.omit.fraction)) & all(new.omit.fraction == 1)) {
       # If we never got a feasible subproblem
       warning("The problem appears infeasible with the given constraints.")

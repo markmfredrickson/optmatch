@@ -7,10 +7,12 @@
 \alias{summary.DenseMatrix}
 \title{Summarize a distance matrix}
 \usage{
-\method{summary}{InfinitySparseMatrix}(object, ..., distanceSummary = TRUE)
+\method{summary}{InfinitySparseMatrix}(object, ...,
+  distanceSummary = TRUE)
 
 \method{summary}{BlockedInfinitySparseMatrix}(object, ...,
-  distanceSummary = TRUE, printAllBlocks = FALSE, blockStructure = TRUE)
+  distanceSummary = TRUE, printAllBlocks = FALSE,
+  blockStructure = TRUE)
 
 \method{summary}{DenseMatrix}(object, ..., distanceSummary = TRUE)
 }

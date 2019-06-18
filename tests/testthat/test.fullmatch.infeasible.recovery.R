@@ -110,6 +110,8 @@ test_that("Allow passing all NA to mean.controls or omit.fraction", {
 })
 
 test_that("Correctly apply max.controls", {
+  options("optmatch_verbose_messaging" = TRUE)
+
   set.seed(2)
   x <- runif(20)
   fact <- c(rep(0,7), rep(1, 4), rep(2, 9))
@@ -149,6 +151,7 @@ test_that("Correctly apply max.controls", {
 })
 
 test_that("Omits occur only on controls", {
+  options("optmatch_verbose_messaging" = TRUE)
   set.seed(3)
   x <- runif(20)
   fact <- c(rep(0,7), rep(1, 4), rep(2, 9))

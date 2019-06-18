@@ -81,18 +81,12 @@ For comparing treatment and control groups both of size 10,
   1/(0.5/n.t[s] + 0.5/n.c[s])} (Kalton, 1968).  The thus-weighted
   average of contrasts then has variance \eqn{2\sigma/\sum_s
   h_s}{2*sigma/sum(h)}. This motivates the use of \eqn{\sum_s
-  h_s}{sum(h)} as a measure of effective sample size.  Since for a
+  h_s}{sum(h)} as a measure of effective sample size (Hansen, 2011).
+  Somewhat different motivations of the same calculation appear 
+  in Hansen (2004) and in Hansen and Bowers (2008).  Since for a
   matched pair \eqn{s}{s}, \eqn{h_s=1}{h[s]=1}, \eqn{\sum_s
   h_s}{sum(h)} can be thought of as the number of matched pairs
-  needed to attain comparable precision.  (Alternately, the
-  stratification might be taken into account when comparing
-  treatment and control groups using fixed effects in an ordinary
-  least-squares regression, as in Hansen (2004). This leads to the
-  same result.  A still different formulation, in which outcomes
-  are not modeled as random variables but assignment to treatment
-  or control is, again suggests the same weighting across strata,
-  and a measure of precision featuring \eqn{\sum_s h_s}{sum(h)} in
-  a similar role; see Hansen and Bowers (2008).
+  needed to attain comparable precision.
 }
 \examples{
 data(plantdist)
@@ -115,7 +109,12 @@ Kalton, G. (1968), \sQuote{Standardization: A
 
   Hansen B.B. and Bowers, J. (2008), \sQuote{Covariate balance in
   simple, stratified and clustered comparative studies},
-  \emph{Statistical Science}, \bold{23}, to appear.
+  \emph{Statistical Science}, \bold{23} (2), 219--236.
+
+  Hansen, B.B. (2011), \sQuote{Propensity score matching to extract
+  latent experiments from nonexperimental data: A case study}.
+  Ch. 9 of \emph{Looking Backwards: Proceedings from a Conference
+  in Honor of Paul W. Holland}, Springer.
 }
 \seealso{
 \code{\link{matched}}, \code{\link{fullmatch}}
