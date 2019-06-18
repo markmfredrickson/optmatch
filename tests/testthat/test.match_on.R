@@ -844,7 +844,7 @@ test_that("147: within=caliper with NA's", {
   expect_true(all.equal(sort(m.2@.Data), sort(m.1@.Data)))
 })
 
-test_that("Exclude argument for match_on.numeric with caliper arg", {
+test_that("Exclude argument for match_on with caliper arg", {
     set.seed(10303920)
     n <- 20
     x <- rnorm(n, sd = 4)
@@ -875,6 +875,29 @@ test_that("Exclude argument for match_on.numeric with caliper arg", {
     expect_equal(sum(is.finite(mm[, maxc])), 10)
     expect_true(sum(is.finite(mm[mint, ])) < 10)
 
+    ## repeating with other versions of match_on
+    df <- data.frame(z = z, x = x)
+    mce <- match_on(z ~ x, data = df, caliper = cal, exclude = maxc, method = "euclidean")
+    mme <- as.matrix(mce)
+    expect_true(sum(is.finite(mme)) < 100)
+    expect_equal(sum(is.finite(mme[, maxc])), 10)
+    expect_true(sum(is.finite(mme[mint, ])) < 10)
+
+    mg <- match_on(glm(z ~ x, data = df, family = binomial),
+                    caliper = cal, exclude = c(mint, maxc))
+    mm <- as.matrix(mg)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+
+    exmat <- matrix(1:9, nrow = 3, dimnames = list(c('a', 'b', 'c'), c('x', 'y', 'z')))
+    mm <- as.matrix(match_on(exmat, caliper = 4, exclude = 'z'))
+    expect_equivalent(mm[, 'y'], c(4, Inf, Inf))
+    expect_equivalent(mm[, 'z'], 7:9)
+
+    mm <- as.matrix(match_on(as.InfinitySparseMatrix(exmat), caliper = 4, exclude = 'z'))
+    expect_equivalent(mm[, 'y'], c(4, Inf, Inf))
+    expect_equivalent(mm[, 'z'], 7:9)
 })
 
 
