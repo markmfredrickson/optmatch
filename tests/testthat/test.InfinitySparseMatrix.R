@@ -531,4 +531,7 @@ test_that("rbinds involving BISMs", {
     expect_is(t(bismA), "BlockedInfinitySparseMatrix")
     expect_is(t(bismB), "BlockedInfinitySparseMatrix")
     expect_is(cbind(t(bismA), t(bismB)), "InfinitySparseMatrix")    
+
+    expect_true(all(rownames(rbind(bismA, bismB)) %in% c(2, 3, 5, 6)))
+    expect_true(all(colnames(cbind(t(bismA),t(bismB))) %in% c(2, 3, 5, 6)))
 })
