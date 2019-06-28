@@ -16,7 +16,7 @@ test_that("maxControlsCap", {
   mx1 <- maxControlsCap(mhd2a.caliper)              # no unmatchable Tx
   expect_true(all.equal(unlist(mx1),c(0, 0, .5, 1), check.attributes=FALSE))
   s2 <- stratumStructure(fullmatch(mhd2a.caliper, max=1, data=nuclearplants))
-  s3 <- stratumStructure(fullmatch(mhd2a.caliper, max=1/2, data=nuclearplants))
+  expect_warning(s3 <- stratumStructure(fullmatch(mhd2a.caliper, max=1/2, data=nuclearplants)))
   s4 <- stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), data=nuclearplants)) # Problem in version <= .5-9:
   expect_equal(names(s2), c("5:1", "4:1", "2:1", "1:1"))
   expect_equal(as.vector(s2), c(1,2,2,5))
@@ -31,7 +31,7 @@ test_that("maxControlsCap", {
   mx2 <- maxControlsCap(mhd2a + caliper(mhd2a, 2))     # caused by unmatchable Tx
   expect_true(all.equal(unlist(mx2),c(0, 0, .5, 1), check.attributes=FALSE))
   s5 <- stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), max=mx2$strictest, data=nuclearplants))
-  s6 <- stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), max=1/2, data=nuclearplants))
+  expect_warning(s6 <- stratumStructure(fullmatch(mhd2a + caliper(mhd2a, 2), max=1/2, data=nuclearplants)))
   expect_equal(names(s5), c("4:1", "3:1", "2:1", "1:1"))
   expect_equal(as.vector(s5), c(2,1,4,3))
   expect_equal(attr(s5, "comparable.num.matched.pairs"), 13.03333333)

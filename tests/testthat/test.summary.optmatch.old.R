@@ -23,10 +23,10 @@ test_that("summary.optmatch", {
   summary(psfm) #!
 
   # Matching fails in a subgroup
-  pspm <- pairmatch(caliper(match_on(psm, standarization.scale = sd,
+  expect_warning(pspm <- pairmatch(caliper(match_on(psm, standarization.scale = sd,
                                      within = exactMatch(pr ~ pt, data = nuclearplants)),
                             width=2),
-                    data=nuclearplants)
+                    data=nuclearplants))
 
   expect_true(!is.null(summary(pspm)$matching.failed))
   psd[1,] <- psd[1,] + rep(100,22)
