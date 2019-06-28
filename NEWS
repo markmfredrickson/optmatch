@@ -1,5 +1,11 @@
-CHANGES IN OPTMATCH VERSION unreleased
+CHANGES IN OPTMATCH VERSION 0.9-11
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
+* `Optmatch` objects now support an `update` function. (#54)
+* Added support for `labelled` treatment vectors which often arise when importing
+  from Stata or SPSS. (#159)
+* Introduced more informative error messages in a few situations. (#149, #104)
+* Better handling of NA's in variables involved in matching/calipering/exactMatching. (#147)
+
 
 CHANGES IN OPTMATCH VERSION 0.9-10
 * Minor release to fix warnings during CRAN checks.
@@ -21,7 +27,7 @@ CHANGES IN OPTMATCH VERSION 0.9-8
   statements, e.g. if you have a character "T" and "C", `treatment_new = treatment == "T"`.
 * The treatment indicator can now include NA's. Any observations with NA treatment
   status will be excluded from distances matrices and will never match. WARNING:
-  if the `data` argument is excluded from `fullmatch` or `pairmatch` and `num_NA` > 0 
+  if the `data` argument is excluded from `fullmatch` or `pairmatch` and `num_NA` > 0
   entries in the treatment status vector are NA, then the length of the vector
   produced by `fullmatch` or `pairmatch` won't match the length of the treatment status
   vector, having `num_NA` fewer observations. Don't forget to pass a `data` argument!
@@ -30,7 +36,7 @@ CHANGES IN OPTMATCH VERSION 0.9-8
 * Addressed an issue affecting certain problems with both exact matching
   and caliper restrictions, where min/mean/max.controls directives would
   have been mistakenly applied to the wrong subclasses, resulting in strange
-  warnings and, potentially, spurious match failures or unintended 
+  warnings and, potentially, spurious match failures or unintended
   structural restrictions in some subclasses (#129).
 * Structural restrictions allowing only many-one matches no longer cause fullmatch
   to automatically fail.  I.e. we've restored the behaviour of the software prior to

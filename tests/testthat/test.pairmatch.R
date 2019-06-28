@@ -402,3 +402,18 @@ test_that("#116: If nt>nc, try creating nc pairs" , {
                      x = rnorm(4))
   expect_error(p <- pairmatch(z~x, controls = 2, data = data))
 })
+
+test_that("If matching fails, we should give a warning", {
+  m <- match_on(pr ~ cost, data = nuclearplants)
+  # One subproblem, matching fails
+  expect_warning(pairmatch(m + caliper(m, .1), data = nuclearplants),
+                 "Matching failed")
+  # Multiple subproblems, some fail
+  expect_warning(pairmatch(m + caliper(m, .1) + exactMatch(pr ~ pt, data = nuclearplants),
+                           data = nuclearplants),
+                 "subproblem matching failed")
+  # Multiple subproblems, all fails
+  expect_warning(pairmatch(m + caliper(m, .05) + exactMatch(pr ~ pt, data = nuclearplants),
+                           data = nuclearplants),
+                 "Matching failed")
+})

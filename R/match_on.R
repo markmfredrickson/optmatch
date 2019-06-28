@@ -446,8 +446,11 @@ findStrata <- function(x, data) {
 compute_mahalanobis <- function(index, data, z) {
   if (!all(is.finite(data))) stop("Infinite or NA values detected in data for Mahalanobis computations.")
 
-    mt <- cov(data[z, ,drop=FALSE]) * (sum(z) - 1) / (length(z) - 2)
-    mc <- cov(data[!z, ,drop=FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    mt <- cov(data[z, ,drop = FALSE]) * (sum(z) - 1) / (length(z) - 2)
+    mc <- cov(data[!z, ,drop = FALSE]) * (sum(!z) - 1) / (length(!z) - 2)
+    # Addressing #168
+    if (sum(z) == 1) mt <- 0
+    if (sum(!z) == 1) mc <- 0
     cv <- mt + mc
     rm(mt, mc)
 

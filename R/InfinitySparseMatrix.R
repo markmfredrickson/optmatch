@@ -20,19 +20,17 @@ NA
 setOldClass(c("optmatch.dlist", "list"))
 
 setClassUnion("OptionalCharacter", c("character", "NULL"))
-
 #' Objects for sparse matching problems.
 #'
 #' \code{InfinitySparseMatrix} is a special class of distance specifications. Finite entries
 #' indicate possible matches, while infinite entries indicated non-allowed
 #' matches. This data type can be more space efficient for sparse matching
 #' problems.
-#'
 #' Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
-#' \code{\link{exactMatch}}.
-#'
-#' @author Mark M. Fredrickson
+#' \code{\link{exactMatch}}. The ordering of units in an \code{InfinitySparseMatrix} is not guaranteed to be maintained after subsetting and/or other operations are performed.
 #' @seealso \code{\link{match_on}}, \code{\link{caliper}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{pairmatch}}
+#' @author Mark M. Fredrickson
+#' @template ISMslotsTemplate
 setClass("InfinitySparseMatrix",
          slots = c(cols = "integer",
                    rows = "integer",
@@ -507,12 +505,14 @@ sort.InfinitySparseMatrix <- function(x,
 
 }
 
-
-################################################################################
-# Blocked Infinity Sparse Matrix
-# Just like an ISM, but keeps track of which group a unit is in
-################################################################################
-
+#' Blocked Infinity Sparse Matrix
+#'
+#' Blocked Infinity Sparse Matrices are similar to Infinity Sparse Matrices, but they also keep track of the groups of units via an additional slot, \code{groups}
+#' @slot groups factor vector containing groups, with unit names as labels, when possible
+#' @template ISMslotsTemplate
+#'
+#' @seealso \code{\link{match_on}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{InfinitySparseMatrix-class}}
+#' @author Mark M. Fredrickson
 setClass("BlockedInfinitySparseMatrix",
   slots = c(groups = "factor"),
   contains = "InfinitySparseMatrix")
@@ -573,7 +573,7 @@ rbind.BlockedInfinitySparseMatrix <- function(x, y, ...) {
 #' @param x A distance specification to get the sub-dimensions of.
 #' @return A data frame listing the dimensions of each valid subproblem. Any subproblems with 0 controls
 #' or 0 treatments will be ignored. The names of the entries in the list will be the names of the
-#' subproblems, if they exist.  There will be two rows, named "treatments" and "controls". 
+#' subproblems, if they exist.  There will be two rows, named "treatments" and "controls".
 #' @export
 #' @docType methods
 #' @rdname subdim-methods

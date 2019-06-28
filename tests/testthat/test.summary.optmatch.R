@@ -57,7 +57,7 @@ test_that("New matching.failed", {
   # one subproblem, bad
   # should be row matrix
 
-  f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8)
+  expect_warning(f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8))
 
   expect_true(all(summary(f)$matching.failed ==  c(26,6)))
 
@@ -114,7 +114,7 @@ test_that("New matching.failed", {
   m <- match_on(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ct + ne, data=nuclearplants))
   m@.Data[m@rows==2] <- Inf
 
-  f <- fullmatch(m, data=nuclearplants)
+  expect_warning(f <- fullmatch(m, data=nuclearplants))
   f[1] <- NA
 
   # there are 5 NA's, but matching.failed only reports the 4 in the bad subgroup
