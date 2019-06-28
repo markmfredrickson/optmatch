@@ -3,7 +3,7 @@ CHANGES IN OPTMATCH VERSION 0.9-11
 * `Optmatch` objects now support an `update` function. (#54)
 * Added support for `labelled` treatment vectors which often arise when importing
   from Stata or SPSS. (#159)
-* Introduced more informative error messages in a few situations. (#149, #104, #
+* Introduced more informative error messages in a few situations. (#149, #104)
 * Better handling of NA's in variables involved in matching/calipering/exactMatching. (#147)
 
 
