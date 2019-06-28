@@ -128,6 +128,9 @@ test_that("response variables with complex names", {
   m2 <- lm(cbind(cost, t1) ~ cap + pr, data=nuclearplants)
   d2 <- model.frame(m2, na.action=na.pass)
 
+  # Informative error for #104 before fixing.
+  expect_error(fill.NAs(d2), "matrix columns not supported")
+
   ## Disabling for now. See issue 104 for details on probable solution
   ## d3 <- d2
   ## names(d3)[1] <- "cbind"
