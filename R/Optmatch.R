@@ -243,7 +243,7 @@ update.optmatch <- function(object, ...) {
     }
   }
 
-  if (extras$evaluate != FALSE) {
+  if (is.null(extras$evaluate) | !isFALSE(extras$evaluate)) {
     newmatch <- eval(call, parent.frame())
     if (attr(newmatch, "hashed.distance") !=
         attr(object, "hashed.distance")) {

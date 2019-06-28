@@ -256,9 +256,11 @@ test_that("optmatch_same_distance", {
 
 
 test_that("update.optmatch", {
+  set.seed(1)
   d <- data.frame(z = sample(c(TRUE, FALSE), 100, replace = TRUE),
                   b = rnorm(100))
 
+  options("optmatch_verbose_messaging" = FALSE)
   f1 <- fullmatch(z ~ b, data = d)
   f2 <- fullmatch(z ~ b, data = d, max.controls = 2)
   f3 <- fullmatch(z ~ b, data = d, max.controls = 1)
@@ -272,8 +274,8 @@ test_that("update.optmatch", {
   expect_true(identical(f1, update(f1)))
 
   expect_true(identical(f2, update(f1, max.controls = 2)))
-  expect_true(identical(f3, update(u2, max.controls = 1)))
-  expect_true(identical(f4, update(u3, min.controls = 1)))
+  expect_true(identical(f3, update(f1, max.controls = 1)))
+  expect_true(identical(f4, update(f1, max.controls = 1, min.controls = 1)))
   expect_true(identical(f5, update(f1, omit.fraction = 1/7)))
   expect_true(identical(f6, update(f1, mean.controls = 1)))
   expect_true(identical(f7, update(f1, tol = .00001)))
@@ -328,8 +330,8 @@ test_that("update.optmatch", {
 
   ftu <- fullmatch(res.c, data = d1)
   expect_warning(utu1 <- update(ftu, x = res.b1))
-  expect_warning(utu2 <- update(utu1, max.controls = 2), "infeasible")
-  expect_warning(ftu2 <- fullmatch(res.b1, data = d1, max.controls = 2))
+  utu2 <- update(utu1, max.controls = 2)
+  ftu2 <- fullmatch(res.b1, data = d1, max.controls = 2)
   attr(ftu2, "call") <- NULL
   attr(utu2, "call") <- NULL
   expect_true(identical(ftu2, utu2))
@@ -337,6 +339,7 @@ test_that("update.optmatch", {
 
 test_that("num_eligible_matches", {
 
+  options("optmatch_verbose_messaging" = TRUE)
   a <- matrix(rep(0,9), nrow=3)
   class(a) <- c("DenseMatrix", class(a))
   expect_true(num_eligible_matches(a) == 9)
