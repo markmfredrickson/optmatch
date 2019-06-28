@@ -677,3 +677,17 @@ test_that("accept negative omit.fraction", {
 
 
 })
+
+test_that("If matching fails, we should give a warning", {
+  # One subproblem, matching fails
+  expect_warning(fullmatch(pr ~ cost, data = nuclearplants, min = 5, max = 5),
+                 "Matching failed")
+  # Multiple subproblems, some fail
+  expect_warning(fullmatch(pr ~ cost, data = nuclearplants, min = 2, max = 3,
+                           within = exactMatch(pr ~ pt, data = nuclearplants)),
+                 "subproblem matching failed")
+  # Multiple subproblems, all fails
+  expect_warning(fullmatch(pr ~ cost, data = nuclearplants, min = 60, max = 60,
+                           within = exactMatch(pr ~ pt, data = nuclearplants)),
+                 "Matching failed")
+})
