@@ -24,5 +24,5 @@ test_that("", {
   expect_true("BlockedInfinitySparseMatrix" %in% class(m7))
 
   ### should give error, incorrect mode
-  #expect_error(match_on(as.factor(pr) ~ cap, data = nuclear))
+  expect_error(match_on(as.factor(pr) ~ cap, data = nuclear))
 })
