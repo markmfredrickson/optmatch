@@ -256,8 +256,7 @@ test_that("optmatch_same_distance", {
 
 
 test_that("update.optmatch", {
-  set.seed(1)
-  d <- data.frame(z = sample(c(TRUE, FALSE), 100, replace = TRUE),
+  d <- data.frame(z = rep(0:1, each = 50),
                   b = rnorm(100))
 
   options("optmatch_verbose_messaging" = FALSE)
