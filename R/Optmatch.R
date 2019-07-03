@@ -234,6 +234,15 @@ update.optmatch <- function(object, ...) {
     stop("optmatch must have a call attribute")
   extras <- match.call(expand.dots = FALSE)$...
 
+  # Short circuit if `update(x)` is called.
+  if(length(extras) == 0) {
+    return(eval(call, parent.frame()))
+  }
+
+  if (is.null(names(extras)) | any(names(extras) == "")) {
+    stop("all arguments must be named.")
+  }
+
   if (length(extras)) {
     existing <- !is.na(match(names(extras), names(call)))
     for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
@@ -243,7 +252,7 @@ update.optmatch <- function(object, ...) {
     }
   }
 
-  if (is.null(extras$evaluate) | !isFALSE(extras$evaluate)) {
+  if (length(extras) == 0 | (is.null(extras$evaluate) | !isFALSE(extras$evaluate))) {
     newmatch <- eval(call, parent.frame())
     if (attr(newmatch, "hashed.distance") !=
         attr(object, "hashed.distance")) {

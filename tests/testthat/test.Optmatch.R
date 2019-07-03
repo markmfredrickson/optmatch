@@ -293,8 +293,8 @@ test_that("update.optmatch", {
 
   expect_true(!identical(f1,f2))
 
-  expect_warning(u1 <- update(f2, x=res.b1), "different than distance")
-  expect_warning(u2 <- update(f1, x=res.b2), "different than distance")
+  expect_warning(u1 <- update(f2, x = res.b1), "different than distance")
+  expect_warning(u2 <- update(f1, x = res.b2), "different than distance")
   expect_true(identical(f1,u1))
   expect_true(identical(f2,u2))
   expect_true(!identical(f2,u1))
@@ -334,6 +334,27 @@ test_that("update.optmatch", {
   attr(ftu2, "call") <- NULL
   attr(utu2, "call") <- NULL
   expect_true(identical(ftu2, utu2))
+})
+
+test_that("update with no additional arguments", {
+  data(nuclearplants)
+
+  f1 <- fullmatch(pr ~ cost, data = nuclearplants)
+
+  expect_identical(f1, update(f1))
+
+})
+
+test_that("Update supporting new formula", {
+  data(nuclearplants)
+
+  f1 <- fullmatch(pr ~ cost, data = nuclearplants)
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants)
+
+  expect_error(update(f2, pr ~ cost), "must be named")
+  f3 <- update(f2, x = pr ~ cost)
+  expect_identical(f1, f3)
+  expect_identical(update(f1, x = pr ~ cost + t1), update(f2, x = pr ~ cost + t1))
 })
 
 test_that("num_eligible_matches", {
