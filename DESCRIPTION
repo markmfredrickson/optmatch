@@ -38,7 +38,7 @@ Enhances:
     CBPS,
     haven
 License: file LICENSE
-URL: https://www.r-project.org, https://github.com/markmfredrickson/optmatch
+URL: https://github.com/markmfredrickson/optmatch
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
