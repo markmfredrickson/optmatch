@@ -14,3 +14,4 @@ vignettes/Sweave.sty
 ^appveyor\.yml$
 tests/testthat/test.notforCRAN.R
 man-roxygen
+README.md
