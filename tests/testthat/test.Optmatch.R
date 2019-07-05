@@ -357,6 +357,12 @@ test_that("Update supporting new formula", {
   expect_identical(update(f1, x = pr ~ cost + t1), update(f2, x = pr ~ cost + t1))
 })
 
+test_that("#54 issue", {
+  data("nuclearplants")
+  pm1b <- pairmatch(pr ~ cap, data=nuclearplants)
+  expect_is(update(pm1b, caliper=1.5) , "optmatch")
+})
+
 test_that("num_eligible_matches", {
 
   options("optmatch_verbose_messaging" = TRUE)
