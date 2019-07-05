@@ -47,7 +47,7 @@ check_win: FUNC=check_win_release        # ... on win-builder release
 .PHONY:check_win_dev
 check_win_dev: FUNC=check_win_devel    # ... on win-builder dev
 
-dependencies test check document vignette clean-vignette build check_win check_win_dev check_win_oldrelease: .devtools
+dependencies test check document vignette clean-vignette build check_win check_win_dev check_win_old: .devtools
 
 .PHONY:clean
 clean: clean-vignette
