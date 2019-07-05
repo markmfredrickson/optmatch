@@ -255,29 +255,42 @@ test_that("optmatch_same_distance", {
 })
 
 
-test_that("update.optmatch", {
+test_that("update.optmatch basics", {
   d <- data.frame(z = rep(0:1, each = 50),
                   b = rnorm(100))
 
+  # update without arguments shouldn't change anything
+  f1 <- fullmatch(z ~ b, data = d)
+  expect_is(update(f1), "optmatch")
+  expect_true(identical(f1, update(f1)))
+})
+
+test_that("update without changing distance", {
   options("optmatch_verbose_messaging" = FALSE)
+
+  d <- data.frame(z = rep(0:1, each = 50),
+                  b = rnorm(100))
+
   f1 <- fullmatch(z ~ b, data = d)
   f2 <- fullmatch(z ~ b, data = d, max.controls = 2)
   f3 <- fullmatch(z ~ b, data = d, max.controls = 1)
-  f4 <- fullmatch(z ~ b, data = d, max.controls = 1, min.controls = 1)
+  f4 <- fullmatch(z ~ b, data = d, max.controls = 1,
+                  min.controls = 1)
   f5 <- fullmatch(z ~ b, data = d, omit.fraction = 1/7)
   f6 <- fullmatch(z ~ b, data = d, mean.controls = 1)
   f7 <- fullmatch(z ~ b, data = d, tol = .00001)
 
-  # update without arguments shouldn't change anything
-  expect_is(update(f1), "optmatch")
-  expect_true(identical(f1, update(f1)))
-
   expect_true(identical(f2, update(f1, max.controls = 2)))
   expect_true(identical(f3, update(f1, max.controls = 1)))
-  expect_true(identical(f4, update(f1, max.controls = 1, min.controls = 1)))
+  expect_true(identical(f4, update(f1, max.controls = 1,
+                                   min.controls = 1)))
   expect_true(identical(f5, update(f1, omit.fraction = 1/7)))
   expect_true(identical(f6, update(f1, mean.controls = 1)))
   expect_true(identical(f7, update(f1, tol = .00001)))
+})
+
+test_that("upadate passing a different distance as x argument", {
+  options("optmatch_verbose_messaging" = FALSE)
 
   # passing a difference distance
   set.seed(9876)
@@ -291,22 +304,41 @@ test_that("update.optmatch", {
   f1 <- fullmatch(res.b1, data = d1)
   f2 <- fullmatch(res.b2, data = d1)
 
-  expect_true(!identical(f1,f2))
+  expect_true(!identical(as.vector(f1),as.vector(f2)))
 
-  expect_warning(u1 <- update(f2, x = res.b1), "different than distance")
-  expect_warning(u2 <- update(f1, x = res.b2), "different than distance")
+  # When verbose messaging is off, this should produce no distance warning
+  options("optmatch_verbose_messaging" = FALSE)
+  u1 <- update(f2, x = res.b1)
+  u2 <- update(f1, x = res.b2)
   expect_true(identical(f1,u1))
   expect_true(identical(f2,u2))
   expect_true(!identical(f2,u1))
+  expect_true(!identical(as.vector(f2),as.vector(u1)))
 
+
+  # If verbose messaing is enabled, should produce warning
+  options("optmatch_verbose_messaging" = TRUE)
+  expect_warning(update(f2, x = res.b1), "different than distance")
+  expect_warning(update(f1, x = res.b2), "different than distance")
+  options("optmatch_verbose_messaging" = FALSE)
+
+  # ensure changing distance + other arguments works
   f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
   u3a <- update(f1, max.controls = 2)
-  expect_warning(u3b <- update(f2, x = res.b1, max.controls = 2))
+  u3b <- update(f2, x = res.b1, max.controls = 2)
 
   expect_true(identical(f3, u3a))
   expect_true(identical(f3, u3b))
 
-  # change distance between calls
+})
+
+test_that("update when distance is changed outside of update", {
+  options("optmatch_verbose_messaging" = FALSE)
+
+  set.seed(9876)
+  d1 <- data.frame(x = rnorm(10),
+                   y = runif(10),
+                   z = c(rep(0,6), rep(1,4)))
 
   res.c <- match_on(z ~ x, data = d1)
 
@@ -314,35 +346,30 @@ test_that("update.optmatch", {
 
   res.c <- match_on(z ~ y, data = d1)
 
-  expect_warning(uc <- update(fc, distance = res.c), "different than distance")
+  uc <- update(fc, x = res.c)
+  expect_true(!identical(as.vector(fc), as.vector(uc)))
 
-  expect_true(!identical(fc, uc))
+  # verbose should produce warning
 
+  options("optmatch_verbose_messaging" = TRUE)
+  expect_warning(update(fc, x = res.c), "different than distance")
+})
+
+test_that("Update arguments change be ordered differently", {
+  options("optmatch_verbose_messaging" = FALSE)
+
+  set.seed(9876)
+  d1 <- data.frame(x = rnorm(10),
+                   y = runif(10),
+                   z = c(rep(0,6), rep(1,4)))
+  res.c <- match_on(z ~ y, data = d1)
   # odd ordering of parameters
+
   fo <- fullmatch(data = d1, x = res.c)
   uo <- update(fo, max.controls = 2)
   fo <- fullmatch(data = d1, x = res.c, max.controls = 2)
 
   expect_true(identical(fo, uo))
-
-  # two updates, first changing data, only one warning
-
-  ftu <- fullmatch(res.c, data = d1)
-  expect_warning(utu1 <- update(ftu, x = res.b1))
-  utu2 <- update(utu1, max.controls = 2)
-  ftu2 <- fullmatch(res.b1, data = d1, max.controls = 2)
-  attr(ftu2, "call") <- NULL
-  attr(utu2, "call") <- NULL
-  expect_true(identical(ftu2, utu2))
-})
-
-test_that("update with no additional arguments", {
-  data(nuclearplants)
-
-  f1 <- fullmatch(pr ~ cost, data = nuclearplants)
-
-  expect_identical(f1, update(f1))
-
 })
 
 test_that("Update supporting new formula", {
@@ -351,16 +378,35 @@ test_that("Update supporting new formula", {
   f1 <- fullmatch(pr ~ cost, data = nuclearplants)
   f2 <- fullmatch(pr ~ t1, data = nuclearplants)
 
+  options("optmatch_verbose_messaging" = FALSE)
   expect_error(update(f2, pr ~ cost), "must be named")
   f3 <- update(f2, x = pr ~ cost)
   expect_identical(f1, f3)
-  expect_identical(update(f1, x = pr ~ cost + t1), update(f2, x = pr ~ cost + t1))
+  expect_identical(update(f1, x = pr ~ cost + t1),
+                   update(f2, x = pr ~ cost + t1))
 })
 
-test_that("#54 issue", {
+test_that("update warning for implicit distance changes", {
   data("nuclearplants")
-  pm1b <- pairmatch(pr ~ cap, data=nuclearplants)
-  expect_is(update(pm1b, caliper=1.5) , "optmatch")
+  p <- pairmatch(pr ~ cap, data = nuclearplants)
+
+  # Calipering
+  expect_warning(expect_is(up <- update(p, caliper = 1.5),
+                           "optmatch"),
+                 "different than distance")
+
+  pcal <- pairmatch(pr ~ cap, data = nuclearplants, caliper = 1.5)
+  expect_identical(up, pcal)
+
+  # Within
+  em <- exactMatch(pr ~ pt, data = nuclearplants)
+
+  expect_warning(uem <- update(p, within = em),
+                 "different than distance")
+
+  pe <- pairmatch(pr ~ cap, data = nuclearplants, within = em)
+
+  expect_identical(pe, uem)
 })
 
 test_that("num_eligible_matches", {

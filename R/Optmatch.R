@@ -235,7 +235,7 @@ update.optmatch <- function(object, ...) {
   extras <- match.call(expand.dots = FALSE)$...
 
   # Short circuit if `update(x)` is called.
-  if(length(extras) == 0) {
+  if (length(extras) == 0) {
     return(eval(call, parent.frame()))
   }
 
@@ -252,10 +252,24 @@ update.optmatch <- function(object, ...) {
     }
   }
 
-  if (length(extras) == 0 | (is.null(extras$evaluate) | !isFALSE(extras$evaluate))) {
+  if (length(extras) == 0 |
+      is.null(extras$evaluate) |
+      isTRUE(extras$evaluate)) {
     newmatch <- eval(call, parent.frame())
-    if (attr(newmatch, "hashed.distance") !=
-        attr(object, "hashed.distance")) {
+
+    # Distance warnings:
+    # 1) If optmatch_verbose_message is TRUE, always warn on
+    #    distance change
+    # 2) If optmatch_verbose_message is FALSE, warn only if user didn't
+    #    explicitly change distance (user didn't pass `x` or `data` to
+    #    update).
+    produce_distance_warning <-
+      getOption("optmatch_verbose_messaging", FALSE) |
+      (!any(c("x", "data") %in% names(extras)) &
+         attr(newmatch, "hashed.distance") !=
+         attr(object, "hashed.distance"))
+
+    if (produce_distance_warning) {
       warning(paste("Distance given in update (",
                     attr(newmatch, "hashed.distance"),
                     ") is different than distance ",
