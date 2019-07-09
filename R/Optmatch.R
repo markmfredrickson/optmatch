@@ -306,3 +306,52 @@ compare_optmatch <- function(o1, o2) {
 
   return(length(setdiff(l1,l2)) == 0)
 }
+
+
+#' Combine Optmatch objects
+#'
+#' @param ... Optmatch objects to be concatenated
+#'
+#' @return A combined Optmatch object
+#' @export
+c.optmatch <- function(...) {
+  objs <- list(...)
+
+  if (any(duplicated(unlist(lapply(objs, attr, "name"))))) {
+    stop("Observation names duplicated. Optmatch objects to be combined must have unique names.")
+  }
+
+  for (i in 1:length(objs)) {
+    # Match names
+    levels(objs[[i]]) <- paste0(i-1, ".", levels(objs[[i]]))
+
+    levels(attr(objs[[i]], "subproblem")) <-
+      paste0(i-1, ".", levels(attr(objs[[i]], "subproblem")))
+
+    for (a in c("exceedances",
+                "min.controls",
+                "max.controls",
+                "omit.fraction")) {
+      names(attr(objs[[i]], a)) <- i-1
+    }
+  }
+  out <- unlist(objs)
+  class(out) <- c("optmatch", "factor")
+  # Attributes which can be merged together
+  for (a in c("contrast.group",
+              "subproblem",
+              "exceedances",
+              "min.controls",
+              "max.controls",
+              "call",
+              "omit.fraction")) {
+    attr(out, a) <- unlist(sapply(objs, attr, a))
+  }
+
+  # attributes which will be sublists
+  for (a in c("call",
+              "hashed.distance")) {
+    attr(out, a) <- lapply(objs, attr, a)
+  }
+  out
+}

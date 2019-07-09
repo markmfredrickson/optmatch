@@ -555,3 +555,26 @@ test_that("equality of matches", {
   ## # Taking about .3sec on laptop.
 
 })
+
+test_that("combining optmatch objects", {
+  data(nuclearplants)
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 0,])
+
+  expect_is(c(f1), "optmatch")
+
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 1,])
+
+  fc <- c(f1, f2)
+
+  expect_equal(length(fc), length(f1) + length(f2))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(fc, a)),
+                 length(attr(f1, a)) + length(attr(f2, a)))
+  }
+
+  expect_error(c(f1, f1), "duplicated")
+
+  full <- fullmatch(pr ~ t1, data = nuclearplants,
+                    within = exactMatch(pr ~ pt, data = nuclearplants))
+
+})
