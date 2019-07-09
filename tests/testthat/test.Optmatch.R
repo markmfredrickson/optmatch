@@ -409,6 +409,18 @@ test_that("update warning for implicit distance changes", {
   expect_identical(pe, uem)
 })
 
+test_that("update producing errors properly", {
+  data(nuclearplants)
+  f <- fullmatch(pr ~ cost, data = nuclearplants)
+  call <- attr(f, "call")
+  attr(f, "call") <- NULL
+  expect_error(update(f), "must have a call")
+  attr(f, "call") <- 7
+  expect_error(update(f), "not a valid")
+  attr(f, "call") <- list(call, call)
+  expect_error(update(f), "combined optmatch")
+})
+
 test_that("num_eligible_matches", {
 
   options("optmatch_verbose_messaging" = TRUE)
@@ -572,9 +584,113 @@ test_that("combining optmatch objects", {
                  length(attr(f1, a)) + length(attr(f2, a)))
   }
 
+  expect_is(attr(fc, "hashed.distance"), "list")
+  expect_length(attr(fc, "hashed.distance"), 2)
+  expect_is(attr(fc, "call"), "list")
+  expect_length(attr(fc, "call"), 2)
+
+  for (a in c("min.controls", "max.controls", "omit.fraction", "exceedances")) {
+    expect_is(attr(fc, a), "numeric")
+    expect_length(attr(fc, a), 2)
+    expect_equivalent(attr(fc, a)[1], attr(f1, a))
+    expect_equivalent(attr(fc, a)[2], attr(f2, a))
+  }
+
+
   expect_error(c(f1, f1), "duplicated")
 
   full <- fullmatch(pr ~ t1, data = nuclearplants,
                     within = exactMatch(pr ~ pt, data = nuclearplants))
 
+  expect_true(compare_optmatch(fc, full))
+
+  levels(full) <- levels(fc)
+  expect_equivalent(full, fc)
+
+  p1 <- pairmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 0,])
+
+  expect_is(c(p1), "optmatch")
+
+  p2 <- pairmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 1,])
+
+  pc <- c(p1, p2)
+
+  expect_equal(length(pc), length(p1) + length(p2))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(pc, a)),
+                 length(attr(p1, a)) + length(attr(p2, a)))
+  }
+
+  expect_error(c(p1, p1), "duplicated")
+
+  expect_identical(is.na(p1), is.na(pc)[1:26])
+  expect_identical(is.na(p2), is.na(pc)[27:32])
+
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:10,])
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[11:25,])
+  f3 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,])
+
+  fc <- c(f1, f2, f3)
+  expect_is(fc, "optmatch")
+
+  expect_equal(length(fc), length(f1) + length(f2) + length(f3))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(fc, a)),
+                 length(attr(f1, a)) + length(attr(f2, a)) +
+                   length(attr(f3, a)))
+  }
+
+  expect_is(attr(fc, "hashed.distance"), "list")
+  expect_length(attr(fc, "hashed.distance"), 3)
+  expect_is(attr(fc, "call"), "list")
+  expect_length(attr(fc, "call"), 3)
+
+  for (a in c("min.controls", "max.controls", "omit.fraction", "exceedances")) {
+    expect_is(attr(fc, a), "numeric")
+    expect_length(attr(fc, a), 3)
+    expect_equivalent(attr(fc, a)[1], attr(f1, a))
+    expect_equivalent(attr(fc, a)[2], attr(f2, a))
+    expect_equivalent(attr(fc, a)[3], attr(f3, a))
+  }
+
+  # Min, Max, etc carry forward properly
+  options("optmatch_verbose_messaging" = FALSE)
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:25,],
+                  min = 1, max = 2)
+
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,],
+                  max = 3, omit.fraction = .1)
+
+  fc <- c(f1, f2)
+
+  expect_equivalent(attr(fc, "max.controls"),
+                    c(attr(f1, "max.controls"),
+                      attr(f2, "max.controls")))
+  expect_equivalent(attr(fc, "min.controls"),
+                    c(attr(f1, "min.controls"),
+                      attr(f2, "min.controls")))
+  expect_equivalent(attr(fc, "omit.fraction"),
+                    c(attr(f1, "omit.fraction"),
+                      attr(f2, "omit.fraction")))
+
+  # Functions taking optmatch objects
+
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:25,],
+                  min = 1, max = 2)
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,],
+                  min = 1, max = 2)
+  fc <- c(f1, f2)
+  nuclearplants$treat <- rep(0:1, times = c(25, 7))
+  full <- fullmatch(pr ~ t1, data = nuclearplants, min = 1, max = 2,
+                    within = exactMatch(pr ~ treat, data = nuclearplants))
+
+  expect_true(compare_optmatch(fc, full))
+  expect_identical(matched(fc), matched(full))
+
+  expect_identical(optmatch_restrictions(fc), optmatch_restrictions(full))
+  expect_identical(stratumStructure(fc), stratumStructure(full))
+  expect_identical(summary(fc)$effective.sample.size,
+                   summary(full)$effective.sample.size)
+  expect_identical(summary(fc)$matched.set.structures,
+                   summary(full)$matched.set.structures)
 })

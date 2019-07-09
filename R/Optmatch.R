@@ -230,8 +230,16 @@ optmatch_same_distance <- function(obj, newdist) {
 #' @return An updated \code{optmatch} object.
 #' @export
 update.optmatch <- function(object, ...) {
-  if (is.null(call <- attr(object, "call")))
+  call <- attr(object, "call")
+  if (is.null(call)) {
     stop("optmatch must have a call attribute")
+  }
+  if (is(call, "list")) {
+    stop("combined optmatch objects cannot be update")
+  }
+  if (!is(call, "call")) {
+    stop("optmatch call is not a valid 'call' object")
+  }
   extras <- match.call(expand.dots = FALSE)$...
 
   # Short circuit if `update(x)` is called.
