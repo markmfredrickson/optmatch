@@ -694,3 +694,33 @@ test_that("combining optmatch objects", {
   expect_identical(summary(fc)$matched.set.structures,
                    summary(full)$matched.set.structures)
 })
+
+test_that("combining already blocked matches", {
+  data("nuclearplants")
+  nuclearplants$z <- rep(0:2, times = c(15,10,7))
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$z == 0,])
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$z != 0,],
+                  within = exactMatch(pr ~ z, data = nuclearplants))
+  fc <- c(f1, f2)
+  full <- fullmatch(pr ~ t1, data = nuclearplants,
+                    within = exactMatch(pr ~ z, data = nuclearplants))
+
+  expect_true(compare_optmatch(fc, full))
+  expect_identical(matched(fc), matched(full))
+
+
+  expect_equivalent(attr(fc, "max.controls"),
+                    attr(full, "max.controls"))
+  expect_equivalent(attr(fc, "min.controls"),
+                    attr(full, "min.controls"))
+  expect_equivalent(attr(fc, "omit.fraction"),
+                    attr(full, "omit.fraction"))
+  expect_equivalent(attr(fc, "exceedances"),
+                    c(attr(f1, "exceedances"),
+                      attr(f2, "exceedances")))
+  expect_identical(stratumStructure(fc), stratumStructure(full))
+  expect_identical(summary(fc)$effective.sample.size,
+                   summary(full)$effective.sample.size)
+  expect_identical(summary(fc)$matched.set.structures,
+                   summary(full)$matched.set.structures)
+})
