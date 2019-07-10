@@ -331,16 +331,23 @@ c.optmatch <- function(...) {
 
   for (i in 1:length(objs)) {
     # Match names
-    levels(objs[[i]]) <- paste0(i-1, ".", levels(objs[[i]]))
+    levels(objs[[i]]) <- paste0(i - 1, ".",
+                                levels(objs[[i]]))
 
     levels(attr(objs[[i]], "subproblem")) <-
-      paste0(i-1, ".", levels(attr(objs[[i]], "subproblem")))
+      paste0(i - 1, ".", levels(attr(objs[[i]],
+                                     "subproblem")))
 
     for (a in c("exceedances",
                 "min.controls",
                 "max.controls",
                 "omit.fraction")) {
-      names(attr(objs[[i]], a)) <- i-1
+      if (length(attr(objs[[i]], a)) > 1) {
+        names(attr(objs[[i]], a)) <-
+          paste0(i - 1, ".", names(attr(objs[[i]], a)))
+      } else {
+        names(attr(objs[[i]], a)) <- i - 1
+      }
     }
   }
   out <- unlist(objs)
