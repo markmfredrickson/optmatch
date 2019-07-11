@@ -593,17 +593,11 @@ fullmatch.matrix <- function(x,
   attr(mout, "call") <- cl
 
 
-  ### Due to a bug in `subproblemSuccess` (#175) we need
-  ### to manually check for failure here.
-  #if (all(isFALSE(subproblemSuccess(mout)))) {
-  grps <- attr(mout, "subproblem")
-  failed <- sapply(split(mout, grps), function(x) { all(is.na(x) | grepl("\\.NA$", x)) })
-  if (all(failed)) {
+  if (all(subproblemSuccess(mout) == FALSE)) {
     warning(paste("Matching failed.",
                   "(Restrictions impossible to meet?)\n",
                   "Enter ?matchfailed for more info."))
-  #} else if (any(isFALSE(subproblemSuccess(mout)))) {
-  } else if (any(failed)) {
+  } else if (any(subproblemSuccess(mout) == FALSE)) {
     warning(paste("At least one subproblem matching failed.\n",
                   "(Restrictions impossible to meet?)\n",
                   "Enter ?matchfailed for more info."))

@@ -182,8 +182,65 @@ test_that("Indicating failing subproblems", {
   names(Z) <- names(B) <- letters[1:16]
   match <- pairmatch(exactMatch(Z ~ B), data = Z) # assure data order by passing Z
 
-  expect_equal(sum(subproblemSuccess(match)), 2)
-  expect_true(all(names(subproblemSuccess(match)) %in%  c("1", "2")))
+  spS <- subproblemSuccess(match)
+  mf <- matchfailed(match)
+  expect_equal(sum(spS), 2)
+  expect_true(all(names(spS) %in%  c("1", "2")))
+  expect_is(mf, "logical")
+  expect_length(mf, length(B))
+  expect_true(all(mf == FALSE))
+
+  Z[1] <- 1
+  match <- pairmatch(exactMatch(Z ~ B), data = Z)
+
+  spS <- subproblemSuccess(match)
+  mf <- matchfailed(match)
+  expect_equal(sum(spS), 2)
+  expect_true(all(names(spS) %in%  c("1", "2")))
+  expect_is(mf, "logical")
+  expect_length(mf, length(B))
+  expect_true(all(mf == FALSE))
+
+
+  data(nuclearplants)
+  expect_warning(f1 <- fullmatch(pr ~ t1, data = nuclearplants,
+                                 min = 5, max = 5))
+
+  spS <- subproblemSuccess(f1)
+  mf <- matchfailed(f1)
+  expect_true(all(spS == FALSE))
+  expect_equal(names(spS), "1")
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
+
+  expect_warning(f2 <-
+                   fullmatch(pr ~ t1, data = nuclearplants,
+                             min = 5, max = 5,
+                             within =
+                               exactMatch(pr ~ pt,
+                                          data = nuclearplants)))
+
+  spS <- subproblemSuccess(f2)
+  mf <- matchfailed(f2)
+  expect_true(all(spS == FALSE))
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
+
+  expect_warning(f3 <-
+                   fullmatch(pr ~ cost, data = nuclearplants,
+                             min = 60, max = 60,
+                             within =
+                               exactMatch(pr ~ pt,
+                                          data = nuclearplants)))
+
+  spS <- subproblemSuccess(f3)
+  mf <- matchfailed(f3)
+  expect_true(all(spS == FALSE))
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
 })
 
 test_that("optmatch_restrictions", {
