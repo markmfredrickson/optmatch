@@ -5,7 +5,7 @@ CHANGES IN OPTMATCH VERSION 0.9-11
   from Stata or SPSS. (#159)
 * Introduced more informative error messages in a few situations. (#149, #104)
 * Better handling of NA's in variables involved in matching/calipering/exactMatching. (#147)
-
+* Fixed a bug with incorrect results in `matchfailed`. (#175)
 
 CHANGES IN OPTMATCH VERSION 0.9-10
 * Minor release to fix warnings during CRAN checks.
