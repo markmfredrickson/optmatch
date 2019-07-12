@@ -756,6 +756,12 @@ test_that("combining optmatch objects", {
   expect_silent(invisible(capture.output(print(fc, quote = TRUE))))
   expect_silent(invisible(capture.output(print(fc, grouped = TRUE))))
 
+  expect_output(print(fc), "0.1.1")
+  expect_output(print(fc), "1.1.1")
+  expect_output(print(fc, grouped = TRUE), "0.1.1")
+  expect_output(print(fc, grouped = TRUE), "1.1.1")
+  expect_output(print(fc, grouped = TRUE), "Members")
+
 })
 
 test_that("combining already blocked matches", {
