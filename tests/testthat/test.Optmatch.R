@@ -750,6 +750,12 @@ test_that("combining optmatch objects", {
                    summary(full)$effective.sample.size)
   expect_identical(summary(fc)$matched.set.structures,
                    summary(full)$matched.set.structures)
+
+  # Suppress output, but will error
+  expect_silent(invisible(capture.output(print(fc))))
+  expect_silent(invisible(capture.output(print(fc, quote = TRUE))))
+  expect_silent(invisible(capture.output(print(fc, grouped = TRUE))))
+
 })
 
 test_that("combining already blocked matches", {
