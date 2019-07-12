@@ -1,6 +1,7 @@
 CHANGES IN OPTMATCH VERSION 0.9-11
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
 * `Optmatch` objects now support an `update` function. (#54)
+* `Optmatch` objects can be combined via `c`. (#68)
 * Added support for `labelled` treatment vectors which often arise when importing
   from Stata or SPSS. (#159)
 * Introduced more informative error messages in a few situations. (#149, #104)
