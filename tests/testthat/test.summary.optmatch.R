@@ -43,16 +43,23 @@ test_that("Failing subgroups", {
   res.b.subgrp.fail <- summary(tmp)
   expect_true(all(res.b.subgrp.fail$matching.failed ==  c(4,4)))
 
-  # Failing subgroups, at least one of which has an NA in
-  # treatment variable
+  # Failing subgroups, at least one but not all of which 
+  # has an NA in treatment variable
   data(nuclearplants)
   np_mod <-  nuclearplants
   np_mod[which.max(np_mod$pt==1), "pr"]  <- NA
   expect_warning(tmp  <- fullmatch(pr~cap + strata(pt), min.c=2, data=np_mod),
-                 "matching failed")
+                 "atching failed")
   expect_equivalent(optmatch:::subproblemSuccess(tmp),
                     c("0"=TRUE, "1"=FALSE))
   expect_silent(summary(tmp))
+  # As above, but now all subgroups fail
+  expect_warning(tmp  <- fullmatch(pr~cap + strata(pt), min.c=3, data=np_mod),
+                 "atching failed")
+  expect_equivalent(optmatch:::subproblemSuccess(tmp),
+                    c("0"=FALSE, "1"=FALSE))
+  expect_silent(summary(tmp))
+
 })
 
 test_that("New matching.failed", {

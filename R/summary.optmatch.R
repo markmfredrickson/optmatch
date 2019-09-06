@@ -52,7 +52,8 @@ summary.optmatch <- function(object,
   if (all(mfd))
     {
       class(so) <- "summary.optmatch"
-      so$matching.failed <- table(subprobs, attr(object, "contrast.group"))
+      so$matching.failed <- table(subprobs, attr(object, "contrast.group"),
+                                  exclude = NA, useNA = 'no')
       dimnames(so$matching.failed)[[2]] <- c("z==0", "z==1")
       so$warnings <- c(so$warnings,
                        list("Matching failed.  (Restrictions impossible to meet?)\nEnter ?matchfailed for more info.")
