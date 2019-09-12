@@ -1,3 +1,7 @@
+<notes for news in next release>
+
+* Fixed a bug causing summary.optmatch() to fail b/c of NAs in the treatment variable (#155)
+
 CHANGES IN OPTMATCH VERSION 0.9-11
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
 * `Optmatch` objects now support an `update` function. (#54)
