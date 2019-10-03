@@ -354,7 +354,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
     methodname <- as.character(class(method))
   }
 
-  which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 3)
+  which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 4)
   tmp <- switch(which.method,
 		makedist(z, data, compute_mahalanobis, within),
 		makedist(z, data, compute_euclidean, within),
