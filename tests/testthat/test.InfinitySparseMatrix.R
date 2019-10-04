@@ -194,11 +194,17 @@ test_that("Math ops with vectors", {
     expect_true(all(as.matrix(v-A) == vm))
     vm <- v^m
     vm[!is.finite(as.matrix(A))] <- Inf
-    expect_true(all(as.matrix(v^A) == vm))
-    expect_true(all(as.matrix(v%%A) == v%%m, na.rm=TRUE))
-    expect_true(all(as.matrix(v%/%A) == v%/%m, na.rm=TRUE))},
+    expect_true(all(as.matrix(v^A) == vm))},
     "not a multiple")
 
+  # R 3.7 changed the behavior of c%%Inf. See #179.
+  # Checking only for equality of finite entries
+  vmodA = as.matrix(v%%A)
+  vintdivA = as.matrix(v%/%A)
+  expect_warning({
+    expect_true(all(vmodA[is.finite(vmodA)] == (v%%m)[is.finite(m)], na.rm = TRUE))
+    expect_true(all(vintdivA[is.finite(vintdivA)] == (v%/%m)[is.finite(m)], na.rm = TRUE))
+  },  "not a multiple")
 
   # Error on non-numeric input
   expect_error("a"*A, "non-numeric")
