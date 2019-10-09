@@ -1,6 +1,12 @@
-<notes for news in next release>
+CHANGES IN OPTMATCH VERSION 0.9-12
 
-* Fixed a bug causing summary.optmatch() to fail b/c of NAs in the treatment variable (#155)
+* Fixed a bug causing summary.optmatch() to fail b/c of NAs in the treatment
+  variable (#155).
+* Fixed bug with using custom distance functions (#180) and updated
+  documentation related to custom distance functions.
+* Fixed minor compatability error in R-devel for math operations on sparse
+  distance matrices (#179).
+
 
 CHANGES IN OPTMATCH VERSION 0.9-11
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
