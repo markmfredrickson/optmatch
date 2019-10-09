@@ -517,9 +517,9 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #'   each of these pairs, the function should return the distance between the
 #'   treated unit and control unit.  This may sound complicated, but is simple
 #'   to use. For example, a function that returned the absolute difference
-#'   between two units using a vector of data would be \code{f <-
-#'   function(index, data, z) { abs(apply(index, 1, function(pair) {
-#'   data[pair[1]] - data[pair[2]] })) }}.  (Note: This simple case is precisely
+#'   between two units using a vector of data would be \code{
+#'   f <- function(index, data, z) { abs(data[index[,1]] - data[index[,2]]) }
+#'   }.  (Note: This simple case is precisely
 #'   handled by the \code{numeric} method.)
 #'
 #' @param z A logical or binary vector indicating treatment and control for each
@@ -538,7 +538,7 @@ match_on.function <- function(x, within = NULL, caliper = NULL, exclude = NULL, 
 
   theFun <- match.fun(x)
 
-  data <- data[!is.na(z), ]
+  data <- subset(data, !is.na(z))
   z <- z[!is.na(z)]
 
   tmp <- makedist(z, data, theFun, within)
