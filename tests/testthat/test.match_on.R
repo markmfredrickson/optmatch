@@ -357,6 +357,24 @@ test_that("Numeric: simple differences of scores", {
   expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
+test_that("use of matrix, ISM, BISM methods w/ caliper arg", {
+  scores <- rep(1:3, each = 4)
+  z <- rep(c(0,1), 6)
+  b <- rep(1:3, 4)
+  names(z) <- names(scores) <- letters[1:12]
+  sISM  <- match_on(scores, z=z)
+  expect_s4_class(sISM, "DenseMatrix")
+  sISM_cal  <- match_on(scores, z=z, caliper=1)
+  expect_equivalent(sISM_cal, match_on(sISM, caliper=1))
+  expect_equivalent(sISM_cal,
+                  match_on(as.InfinitySparseMatrix(sISM), caliper=1)
+                  )
+  
+  ez <- exactMatch(z ~ b)
+  res <- match_on(scores, z = z, # checked in "Numeric: simple..."
+                  caliper = 1, within = ez) # test above
+  expect_equivalent(res, sISM_cal + ez)  
+})
 
 test_that("update() of match_on created objects", {
   Z <- rep(c(1,0), 10)
