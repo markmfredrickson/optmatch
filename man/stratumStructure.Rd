@@ -7,14 +7,11 @@
 \alias{print.stratumStructure}
 \title{Return structure of matched sets}
 \usage{
-stratumStructure(stratum, trtgrp = NULL, min.controls = 0,
-  max.controls = Inf)
+stratumStructure(stratum, trtgrp = NULL, min.controls = 0, max.controls = Inf)
 
-\method{stratumStructure}{optmatch}(stratum, trtgrp, min.controls = 0,
-  max.controls = Inf)
+\method{stratumStructure}{optmatch}(stratum, trtgrp, min.controls = 0, max.controls = Inf)
 
-\method{stratumStructure}{default}(stratum, trtgrp, min.controls = 0,
-  max.controls = Inf)
+\method{stratumStructure}{default}(stratum, trtgrp, min.controls = 0, max.controls = Inf)
 
 \method{print}{stratumStructure}(x, ...)
 }

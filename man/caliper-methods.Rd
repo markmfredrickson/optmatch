@@ -10,14 +10,11 @@
 \usage{
 caliper(x, width, exclude = c(), compare = `<=`, values = FALSE)
 
-\S4method{caliper}{InfinitySparseMatrix}(x, width, exclude = c(),
-  compare = `<=`, values = FALSE)
+\S4method{caliper}{InfinitySparseMatrix}(x, width, exclude = c(), compare = `<=`, values = FALSE)
 
-\S4method{caliper}{matrix}(x, width, exclude = c(), compare = `<=`,
-  values = FALSE)
+\S4method{caliper}{matrix}(x, width, exclude = c(), compare = `<=`, values = FALSE)
 
-\S4method{caliper}{optmatch.dlist}(x, width, exclude = c(),
-  compare = `<=`, values = FALSE)
+\S4method{caliper}{optmatch.dlist}(x, width, exclude = c(), compare = `<=`, values = FALSE)
 }
 \arguments{
 \item{x}{A distance specification created with \code{\link{match_on}} or similar.}

@@ -5,11 +5,9 @@
 \alias{sort.BlockedInfinitySparseMatrix}
 \title{Sort the internal structure of an InfinitySparseMatrix.}
 \usage{
-\method{sort}{InfinitySparseMatrix}(x, decreasing = FALSE, ...,
-  byCol = FALSE)
+\method{sort}{InfinitySparseMatrix}(x, decreasing = FALSE, ..., byCol = FALSE)
 
-\method{sort}{BlockedInfinitySparseMatrix}(x, decreasing = FALSE, ...,
-  byCol = FALSE)
+\method{sort}{BlockedInfinitySparseMatrix}(x, decreasing = FALSE, ..., byCol = FALSE)
 }
 \arguments{
 \item{x}{An InfinitySparseMatrix or BlockedInfinitySparseMatrix.}
