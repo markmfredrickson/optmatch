@@ -1,6 +1,6 @@
 ---
 title: "Matching within subgroups"
-author: "Ben B. Hansen, Mark Fredrickson, Josh Buckner, Josh Errickson, and Peter Solenberger, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
+author: "Josh Errickson, Mark Fredrickson, Josh Buckner, Peter Solenberger and Ben B. Hansen, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
 vignette: >
