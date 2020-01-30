@@ -1,5 +1,5 @@
 ---
-title: "Matching within subgroups"
+title: "Combining Matches Within Subgroups"
 author: "Josh Errickson, Mark Fredrickson, Josh Buckner, Peter Solenberger and Ben B. Hansen, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
@@ -38,8 +38,8 @@ table(infert$case)
 table(infert$education, infert$case)
 ```
 
-Due to the sample size, if we were to compute matches on the entire data set, the `fullmatch` call would generate a distance matrix of size \(83\times
-65 = 13,695\). However, if we were instead to compute a match within each level of the "education" variable, we'd compute three different distance
+Due to the sample size, if we were to compute matches on the entire data set, the `fullmatch` call would generate a distance matrix of size \(165\times
+83 = 13,695\). However, if we were instead to compute a match within each level of the "education" variable, we'd compute three different distance
 matrices, of total size \(8\times 4 + 80\times 40 + 77\times 39 = 6,235\), a reduction of 55%.
 
 We'll do this by splitting the data within each match.

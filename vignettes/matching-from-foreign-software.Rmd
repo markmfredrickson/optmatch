@@ -23,12 +23,13 @@ In general, the procedure will be
 
 1. In your preferred software, export a data set containing a treatment indicator and all variables to match, exactMatch or caliper on.
     * (Optionally, if you wish to match using a propensity score, fit such a model and include the predicted propensity scores in the data set.)
-1. Import the data into R and perform the matching.
-1. Export the data from R, including the matches.
-1. Import the data back into your preferred software.
+2. Import the data into R.
+3. Perform the matching in R.
+4. Export the data from R, including the matches.
+5. Import the data back into your preferred software.
 
-The two best ways to import the data back-and-forth are either using
-comma separated value files (.csv files) or using the R package `foreign`.
+The most general way to import the data back-and-forth are using
+comma separated value files (.csv files), which any statistical software should be able to read \& write.
 
 For .csv files, sample R code may be
 
@@ -38,8 +39,7 @@ externaldata$match <- fullmatch(..., data=externaldata)
 write.csv(externaldata, file="externaldata.matched.csv")
 ```
 
-Examples of the use of `foreign` are included within the
-software-specific sections below.
+For SAS and Stata, there are R packages which can make the importing/exporting easier, and are document below.
 
 # Using Optmatch with SAS
 
