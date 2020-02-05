@@ -24,3 +24,4 @@ vignettes/*.md
 vignettes/*.R
 vignettes/*.pdf
 .Rproj.user
+.DS_Store
