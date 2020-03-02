@@ -261,14 +261,6 @@ caliper above, but with less extreme calipers it helps you salvage a
 few matches.
 
 
-## How closely did I match?
-
-Getting back to a matching that succeeded, note that `summary()`
-reports information about how close the matches are.
-
-```{r}
-summary(pm)
-```
 
 ## Did matching balance the covariate?
 
