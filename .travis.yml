@@ -2,6 +2,7 @@
 
 language: r
 os: linux
+dist: xenial
 cache: packages
 r:
   - oldrel
