@@ -66,7 +66,7 @@ Rules/conventions:
 
 A `NodeInfo` is an S4-typed data frame bearing the columns:
 
-- `name`, factor;
+- `name`, character;
 - `price`, double or integer (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
@@ -123,20 +123,19 @@ Slots for class `MCFSolutions`:
 
 Rules/conventions:
 
-- Each of `@nodes$name`, `@arcs@matches@upstream`,
+- Each of `@arcs@matches@upstream`,
   `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and
   `@arcs@bookkeeping$end` has precisely the same collection of levels.
-  (The names of the units to be matched, and/or names for bookkeeping
-  units.)  To be enforced as a part of the validity check.
+  Namely `@nodes$name`, the names of the units to be matched plus names for 
+  bookkeeping nodes.  To be enforced as a part of the validity check.
 - The levels of`@nodes$name`, etc may include references to units that
   don't appear in the corresponding nodes table.(B/c e.g.  they
   represent subjects that were were excluded prior to matching, or
   their subproblem was found to be infeasible prior to being sent to
   the solver, they're part of some other subproblem than the one(s)
   currently under consideration.)
-- Distinct matchable units should not share levels.
-- OTOH bookkeeping nodes for distinct subproblems will share the
-  same level of `@nodes$name`.
+- Distinct matchable units should not share values of `@nodes$name`.
+- Nor should bookkeeping nodes for distinct subproblems.
 - For subjects not appearing in a subproblem that was sent to the
   solver (b/c they were removed from the subproblem first, or b/c their	
   subproblem was found to be infeasible), we won't have a record of
@@ -168,7 +167,7 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 A type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@nodes`, exactly 2 `as.character(names)` values per subgroup s.t. `is.na(upstream_not_down)`, appearing in the final 2 positions of `levels(@names$name)`: "`(_Sink_)`" and "`(_End_)`";
+- in `@nodes`, exactly 2 `$names` values per subproblem s.t. `is.na(upstream_not_down)`: a string beginning with "`(_Sink_)`" and another beginning with "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@nodes`, each node with `upstream_not_down == TRUE` has positive `supply`;
 - in `@nodes`, each node with `upstream_not_down == FALSE` has `supply==0`;
@@ -191,11 +190,7 @@ Return object of a new S4 class, `Optmatch`, inheriting from factor as well as f
 
 - `as.optmatch()`/`as.factor()` for `MCFSolutions` objects
 - `names()`,`names<-` for `MCFSolutions` objects (to pull /set `@matcheables$names)
-
-(Rather than insisting on uniqueness of unit names across subproblems when `c()`-ing together `MCFSolutions` objects, check for non-uniqueness within the `as.optmatch`/`as.factor()` method, suggesting use of `getNamesTable()` and `names<-` to resolve.) 
-
-- `getNamesTable()`: extract `@matchables` table from an `MCFSolutions`.  (¿Also from an optmatch that has an MCFSolutions inside of it?)
 - `getMCFSolution()`: extractor for optmatch objects (& later for Optmatch objects)
-- `c()` for `MCFSolutions`: `rbind()`s the various constituent data frames, enforcing req that subproblems have distinct names
+- `c()` for `MCFSolutions`: `rbind()`s the various constituent data frames, enforcing req's that subproblems have distinct names, de-duping bookkeeping nodes and enforcing requirement that non-bookkeeping nodes' names be distinct. 
 - `addArcs()` for `MCFSolutions` objects
 - `addNodes()` for `MCFSolutions` objects
