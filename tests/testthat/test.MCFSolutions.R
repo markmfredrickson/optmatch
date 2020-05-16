@@ -131,6 +131,8 @@ test_that("c() methods", {
     ni1ni2 <- c(ni1, ni2)
     expect_equal(ni1ni2$name, c("a", "a", "(_Sink_)", "(_End_)"))
     expect_equal(levels(ni1ni2$groups), c("b", "c"))
+    expect_named(node.labels(ni1ni2), c("a", "a", "(_Sink_)", "(_End_)") )
+    expect_false( any(duplicated(node.labels(ni1ni2))) )
 
     mbls1  <- new("MatchablesInfo",
                   data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
@@ -285,11 +287,19 @@ test_that("filtering on groups/subproblem field", {
     expect_error(filter_by_subproblem(mcf1, groups="a"), "implemented")
 })
 
-test_that("Expectations about `base::rbind.data.frame()`",{
+test_that("Potentially unusual requirements of base functions",{
+    ## de-duplication of row names when stacking data.frame-s
     expect_true(formals(base::rbind.data.frame)[['make.row.names']])
     df1 <- data.frame(x=1:2, y=3:4, row.names=c('a','b'))
     df2 <- data.frame(x=3:4, y=3:4, row.names=c('a','B'))
     df3 <- data.frame(x=5:6, y=3:4, row.names=c('b','a'))
     expect_equal(row.names(rbind(df1, df2)), c("a",  "b",  "a1", "B"))
-    expect_equal(row.names(rbind(df1, df3)), c("a",  "b",  "b1", "a1"))    
+    expect_equal(row.names(rbind(df1, df3)), c("a",  "b",  "b1", "a1"))
+    ## char vecs can have repeats in row names
+    cvec  <- letters
+    names(cvec)  <- LETTERS
+    names(cvec)[1]  <- "B"
+    expect_is(cvec, "character")
+    expect_named(cvec, c("B", LETTERS[-1L]))
+    expect_true(any(duplicated(names(cvec))))
 })
