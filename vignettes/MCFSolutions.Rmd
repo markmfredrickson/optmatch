@@ -64,7 +64,8 @@ Rules/conventions:
 
 ### `NodeInfo` & subclasses
 
-A `NodeInfo` is an S4-typed data frame bearing the columns:
+A `NodeInfo` is an S4-typed data frame bearing a
+non-null `row.names` attribute and columns:
 
 - `name`, character;
 - `price`, double or integer (node prices);
@@ -75,8 +76,17 @@ A `NodeInfo` is an S4-typed data frame bearing the columns:
 
 Rules/conventions:
 
--  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e. "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)" nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink" in H.&K. '06 Fig. 2.
+-  This document terms "node labels" the row names of a `NodeInfo` table. 
 -  Multiple subproblems' node information can be combined into a single `NodeInfo` object.
+-  Ordinarily a `NodeInfo`'s `name` column and its node labels are the same.
+   The reason for the presence of both is to avoid duplication among node labels,
+   which might otherwise occur when a `NodeInfo` arises by concatenation of solutions
+   to distinct matching problems (which so happened to involve distinct units
+   that shared names). 
+-  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e.
+   "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)"
+   nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink"
+   in H.&K. '06 Fig. 2.
 - This type's validity checker should be fast, eschewing expensive operations.
 - If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
 
@@ -126,15 +136,19 @@ Rules/conventions:
 - Each of `@arcs@matches@upstream`,
   `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and
   `@arcs@bookkeeping$end` has precisely the same collection of levels.
-  Namely `@nodes$name`, the names of the units to be matched plus names for 
-  bookkeeping nodes.  To be enforced as a part of the validity check.
-- The levels of`@nodes$name`, etc may include references to units that
-  don't appear in the corresponding nodes table.(B/c e.g.  they
+  Namely the node labels `row.names(.@nodes)`.  To be enforced as a part of the validity check.
+- The nodes table will include nodes that don't correspond to any unit
+  described in the corresponding match vector: bookkeeping nodes; potentially
+  also nodes for units that have been filtered out the match vector. 
+- It may also include nodes that were not a part of the MCF problem
+  presented to the solver.  (B/c e.g.  they
   represent subjects that were were excluded prior to matching, or
   their subproblem was found to be infeasible prior to being sent to
   the solver, they're part of some other subproblem than the one(s)
-  currently under consideration.)
-- Distinct matchable units should not share values of `@nodes$name`.
+  currently under consideration.) In this case the corresponding `@node$price`
+  value may be `NA_real_` and references to them will not appear
+  in corresponding ArcInfo tables. 
+- Distinct matchable units must not share node labels (values of `row.names(@nodes)`).
 - Nor should bookkeeping nodes for distinct subproblems.
 - For subjects not appearing in a subproblem that was sent to the
   solver (b/c they were removed from the subproblem first, or b/c their	
@@ -167,7 +181,7 @@ Different kinds of matching problem have different bookkeeping nodes, implicit a
 
 A type extending `MCFSolutions()`, w/ characteristics:
 
-- in `@nodes`, exactly 2 `$names` values per subproblem s.t. `is.na(upstream_not_down)`: a string beginning with "`(_Sink_)`" and another beginning with "`(_End_)`";
+- in `@nodes`, exactly 2 node labels per subproblem s.t. `is.na(upstream_not_down)`: a string beginning with "`(_Sink_)`" and another beginning with "`(_End_)`";
 - in `@nodes`, also each of those appears exactly once per subproblem;
 - in `@nodes`, each node with `upstream_not_down == TRUE` has positive `supply`;
 - in `@nodes`, each node with `upstream_not_down == FALSE` has `supply==0`;
@@ -189,7 +203,7 @@ Return object of a new S4 class, `Optmatch`, inheriting from factor as well as f
 # Methods & Functions
 
 - `as.optmatch()`/`as.factor()` for `MCFSolutions` objects
-- `names()`,`names<-` for `MCFSolutions` objects (to pull /set `@matcheables$names)
+- `node.labels()`,`node.labels<-` for `MCFSolutions` objects (to pull /set `row.names(@nodes)`)
 - `getMCFSolution()`: extractor for optmatch objects (& later for Optmatch objects)
 - `c()` for `MCFSolutions`: `rbind()`s the various constituent data frames, enforcing req's that subproblems have distinct names, de-duping bookkeeping nodes and enforcing requirement that non-bookkeeping nodes' names be distinct. 
 - `addArcs()` for `MCFSolutions` objects

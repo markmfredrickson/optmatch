@@ -268,3 +268,12 @@ test_that("filtering on groups/subproblem field", {
     mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
     expect_error(filter_by_subproblem(mcf1, groups="a"), "implemented")
 })
+
+test_that("Expectations about `base::rbind.data.frame()`",{
+    expect_true(formals(base::rbind.data.frame)[['make.row.names']])
+    df1 <- data.frame(x=1:2, y=3:4, row.names=c('a','b'))
+    df2 <- data.frame(x=3:4, y=3:4, row.names=c('a','B'))
+    df3 <- data.frame(x=5:6, y=3:4, row.names=c('b','a'))
+    expect_equal(row.names(rbind(df1, df2)), c("a",  "b",  "a1", "B"))
+    expect_equal(row.names(rbind(df1, df3)), c("a",  "b",  "b1", "a1"))    
+})
