@@ -5,8 +5,7 @@
 \alias{pair}
 \title{Optimal 1:1 and 1:k matching}
 \usage{
-pairmatch(x, controls = 1, data = NULL, remove.unmatchables = FALSE,
-  ...)
+pairmatch(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
 
 pair(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
 }

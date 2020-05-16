@@ -209,7 +209,7 @@ optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
     stop("obj must be an optmatch object")
   }
-  if (!class(newdist) %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
+  if (!class(newdist)[1] %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
     stop("newdist must be a valid distance")
   }
 
@@ -223,14 +223,33 @@ optmatch_same_distance <- function(obj, newdist) {
 #'
 #' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 #' \code{optmatch} object differs from the hash of the new \code{data}.
-#' @param optmatch \code{Optmatch} object to update.
+#'
+#' To obtain an updated call without performing the actual update, pass an additional `evaluate = FALSE` argument.
+#' @param object \code{Optmatch} object to update.
 #' @param ... Additional arguments to the call, or arguments with changed values.
-#' @param evaluate If true evaluate the new call else return the call.
 #' @return An updated \code{optmatch} object.
-update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
-  if (is.null(call <- attr(optmatch, "call")))
+#' @export
+update.optmatch <- function(object, ...) {
+  call <- attr(object, "call")
+  if (is.null(call)) {
     stop("optmatch must have a call attribute")
+  }
+  if (is(call, "list")) {
+    stop("combined optmatch objects cannot be update")
+  }
+  if (!is(call, "call")) {
+    stop("optmatch call is not a valid 'call' object")
+  }
   extras <- match.call(expand.dots = FALSE)$...
+
+  # Short circuit if `update(x)` is called.
+  if (length(extras) == 0) {
+    return(eval(call, parent.frame()))
+  }
+
+  if (is.null(names(extras)) | any(names(extras) == "")) {
+    stop("all arguments must be named.")
+  }
 
   if (length(extras)) {
     existing <- !is.na(match(names(extras), names(call)))
@@ -241,12 +260,30 @@ update.optmatch <- function(optmatch, ..., evaluate = TRUE) {
     }
   }
 
-  if (evaluate) {
+  if (length(extras) == 0 |
+      is.null(extras$evaluate) |
+      isTRUE(extras$evaluate)) {
     newmatch <- eval(call, parent.frame())
-    if (attr(newmatch, "hashed.distance") != attr(optmatch, "hashed.distance")) {
-      warning(paste("Distance given in update (", attr(newmatch, "hashed.distance"),
-                    ") is different than distance used to generate fullmatch (",
-                    attr(optmatch,"hashed.distance"), ").", sep=''))
+
+    # Distance warnings:
+    # 1) If optmatch_verbose_message is TRUE, always warn on
+    #    distance change
+    # 2) If optmatch_verbose_message is FALSE, warn only if user didn't
+    #    explicitly change distance (user didn't pass `x` or `data` to
+    #    update).
+    produce_distance_warning <-
+      getOption("optmatch_verbose_messaging", FALSE) |
+      (!any(c("x", "data") %in% names(extras)) &
+         attr(newmatch, "hashed.distance") !=
+         attr(object, "hashed.distance"))
+
+    if (produce_distance_warning) {
+      warning(paste("Distance given in update (",
+                    attr(newmatch, "hashed.distance"),
+                    ") is different than distance ",
+                    "used to generate fullmatch (",
+                    attr(object,"hashed.distance"),
+                    ").", sep = ''))
     }
     newmatch
   } else call
@@ -276,4 +313,60 @@ compare_optmatch <- function(o1, o2) {
   l2 <- lapply(levels(o2), function(x) sort(names(o2)[o2 == x]))
 
   return(length(setdiff(l1,l2)) == 0)
+}
+
+
+#' Combine Optmatch objects
+#'
+#' @param ... Optmatch objects to be concatenated
+#'
+#' @return A combined Optmatch object
+#' @export
+c.optmatch <- function(...) {
+  objs <- list(...)
+
+  if (any(duplicated(unlist(lapply(objs, attr, "name"))))) {
+    stop("Observation names duplicated. Optmatch objects to be combined must have unique names.")
+  }
+
+  for (i in 1:length(objs)) {
+    # Match names
+    levels(objs[[i]]) <- paste0(i - 1, ".",
+                                levels(objs[[i]]))
+
+    levels(attr(objs[[i]], "subproblem")) <-
+      paste0(i - 1, ".", levels(attr(objs[[i]],
+                                     "subproblem")))
+
+    for (a in c("exceedances",
+                "min.controls",
+                "max.controls",
+                "omit.fraction")) {
+      if (length(attr(objs[[i]], a)) > 1) {
+        names(attr(objs[[i]], a)) <-
+          paste0(i - 1, ".", names(attr(objs[[i]], a)))
+      } else {
+        names(attr(objs[[i]], a)) <- i - 1
+      }
+    }
+  }
+  out <- unlist(objs)
+  class(out) <- c("optmatch", "factor")
+  # Attributes which can be merged together
+  for (a in c("contrast.group",
+              "subproblem",
+              "exceedances",
+              "min.controls",
+              "max.controls",
+              "call",
+              "omit.fraction")) {
+    attr(out, a) <- unlist(sapply(objs, attr, a))
+  }
+
+  # attributes which will be sublists
+  for (a in c("call",
+              "hashed.distance")) {
+    attr(out, a) <- lapply(objs, attr, a)
+  }
+  out
 }

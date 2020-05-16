@@ -301,8 +301,8 @@ test_that("fullmatch_try_recovery", {
   # warn and fix
   expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
   options("fullmatch_try_recovery" = FALSE)
-  # no warning, just die
-  expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2))))
+  # fail to fix
+  expect_warning(expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
   options("fullmatch_try_recovery" = TRUE)
   # back to fixing.
   expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
@@ -320,7 +320,7 @@ test_that("n_t > n_c", {
   expect_true(any(!is.na(fullmatch(m, data=nuclearplants))))
 
   # min.controls = 1/2, so we need 11 controls. Can't accomodate.
-  expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants))))
+  expect_warning(expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants)))))
 })
 
 test_that("Issue #92", {

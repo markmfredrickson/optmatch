@@ -43,6 +43,23 @@ test_that("Failing subgroups", {
   res.b.subgrp.fail <- summary(tmp)
   expect_true(all(res.b.subgrp.fail$matching.failed ==  c(4,4)))
 
+  # Failing subgroups, at least one but not all of which 
+  # has an NA in treatment variable
+  data(nuclearplants)
+  np_mod <-  nuclearplants
+  np_mod[which.max(np_mod$pt==1), "pr"]  <- NA
+  expect_warning(tmp  <- fullmatch(pr~cap + strata(pt), min.c=2, data=np_mod),
+                 "atching failed")
+  expect_equivalent(optmatch:::subproblemSuccess(tmp),
+                    c("0"=TRUE, "1"=FALSE))
+  expect_silent(summary(tmp))
+  # As above, but now all subgroups fail
+  expect_warning(tmp  <- fullmatch(pr~cap + strata(pt), min.c=3, data=np_mod),
+                 "atching failed")
+  expect_equivalent(optmatch:::subproblemSuccess(tmp),
+                    c("0"=FALSE, "1"=FALSE))
+  expect_silent(summary(tmp))
+
 })
 
 test_that("New matching.failed", {
@@ -57,7 +74,7 @@ test_that("New matching.failed", {
   # one subproblem, bad
   # should be row matrix
 
-  f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8)
+  expect_warning(f <- fullmatch(pt ~ cost, data=nuclearplants, caliper=1e-8))
 
   expect_true(all(summary(f)$matching.failed ==  c(26,6)))
 
@@ -114,7 +131,7 @@ test_that("New matching.failed", {
   m <- match_on(pr ~ cost, data=nuclearplants, within=exactMatch(pr ~ ct + ne, data=nuclearplants))
   m@.Data[m@rows==2] <- Inf
 
-  f <- fullmatch(m, data=nuclearplants)
+  expect_warning(f <- fullmatch(m, data=nuclearplants))
   f[1] <- NA
 
   # there are 5 NA's, but matching.failed only reports the 4 in the bad subgroup

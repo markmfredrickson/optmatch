@@ -641,6 +641,17 @@ fullmatch.matrix <- function(x,
     ##b/c in next line `c()` needs to dispatch on an `x` argument
                                        do.call("c", mcfsolutions)
                                        }
+
+  if (all(subproblemSuccess(mout) == FALSE)) {
+    warning(paste("Matching failed.",
+                  "(Restrictions impossible to meet?)\n",
+                  "Enter ?matchfailed for more info."))
+  } else if (any(subproblemSuccess(mout) == FALSE)) {
+    warning(paste("At least one subproblem matching failed.\n",
+                  "(Restrictions impossible to meet?)\n",
+                  "Enter ?matchfailed for more info."))
+  }
+
   return(mout)
 }
 

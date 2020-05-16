@@ -78,3 +78,25 @@ test_that("Checking mahalanobis distance", {
         compute_mahalanobis(args$index, args$data, args$z),
         trad.mahal(args$index, args$data, args$z))
 })
+
+test_that("#168, singleton treatment/control units", {
+
+  index <- matrix(c("1", "1", "1", "2", "3", "4"), ncol = 2, byrow = FALSE)
+  data <- matrix(as.numeric(1:4), ncol = 1, dimnames = list(as.character(1:4), "scores"))
+  z <- c(TRUE, FALSE, FALSE, FALSE)
+  names(z) <- as.character(1:4)
+
+  t <- compute_mahalanobis(index, data, z)
+  expect_length(t, 3)
+  expect_false(any(is.na(t)))
+
+  index <- matrix(c("2", "3", "4", "1", "1", "1"), ncol = 2, byrow = FALSE)
+  data <- matrix(as.numeric(1:4), ncol = 1, dimnames = list(as.character(1:4), "scores"))
+  z <- c(FALSE, TRUE, TRUE, TRUE)
+  names(z) <- as.character(1:4)
+
+  c <- compute_mahalanobis(index, data, z)
+  expect_length(c, 3)
+  expect_false(any(is.na(c)))
+
+})

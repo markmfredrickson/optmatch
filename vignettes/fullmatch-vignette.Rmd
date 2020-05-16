@@ -261,14 +261,6 @@ caliper above, but with less extreme calipers it helps you salvage a
 few matches.
 
 
-## How closely did I match?
-
-Getting back to a matching that succeeded, note that `summary()`
-reports information about how close the matches are.
-
-```{r}
-summary(pm)
-```
 
 ## Did matching balance the covariate?
 
@@ -303,7 +295,8 @@ facilitates checking balance on multiple variables at the same time. Here are so
 ```{r}
 
 xBalance(pr ~ cap + t2, report="all", data=nuke.nopt)
-xBalance(pr ~ cap + t2 + strata(pm),
+xBalance(pr ~ cap + t2,
+         strata= pm,
          data=nuke.nopt,
          report=c("adj.mean.diffs", "std", "z"))
 ```
@@ -353,7 +346,7 @@ The groups do overlap, if not greatly.  It may be wise to restrict the
 sample to the region of overlap, at least roughly.  A propensity
 caliper would help with this.
 
-First, lets match directly on the propensity score without restricting
+First, let's match directly on the propensity score without restricting
 the sample to the region of overlap.
 
 ```{r}

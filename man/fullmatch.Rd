@@ -5,12 +5,27 @@
 \alias{full}
 \title{Optimal full matching}
 \usage{
-fullmatch(x, min.controls = 0, max.controls = Inf,
-  omit.fraction = NULL, mean.controls = NULL, tol = 0.001,
-  data = NULL, ...)
+fullmatch(
+  x,
+  min.controls = 0,
+  max.controls = Inf,
+  omit.fraction = NULL,
+  mean.controls = NULL,
+  tol = 0.001,
+  data = NULL,
+  ...
+)
 
-full(x, min.controls = 0, max.controls = Inf, omit.fraction = NULL,
-  mean.controls = NULL, tol = 0.001, data = NULL, ...)
+full(
+  x,
+  min.controls = 0,
+  max.controls = Inf,
+  omit.fraction = NULL,
+  mean.controls = NULL,
+  tol = 0.001,
+  data = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{Any valid input to \code{match_on}. \code{fullmatch} will use

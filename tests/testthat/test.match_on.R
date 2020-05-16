@@ -104,8 +104,8 @@ test_that("Distances from formulas", {
   res.logical <- match_on(as.logical(Z) ~ X1)
   expect_equivalent(res.one, res.logical)
 
-  tol <- 1e6 * sqrt(.Machine$double.eps)
-  
+  tol <- 10^(9L - getOption("digits")) * sqrt(.Machine$double.eps)
+
   # euclidean distances
   # first, compute what the distances should be for the data.
   euclid <- as.matrix(dist(test.data[,-1], method = "euclidean", upper = T))
@@ -134,7 +134,8 @@ test_that("Distances from formulas", {
   expect_equal(as.matrix(match_on(Z~as.numeric(f1), method="euclidean")), as.matrix(match_on(Z~f1, method="euclidean")))
 
   # passing a function name for method
-  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = optmatch:::compute_euclidean) - euclid) < tol)) # there is some rounding error, but it is small
+  #  expect_true(all(abs(match_on(Z ~ X1 + X2 + B, method = optmatch:::compute_euclidean) - euclid) < tol)) # there is some rounding error, but it is small
+  # removed - no longer support user-functions in method
 
   # Mahalanobis distances involving factors
 
@@ -357,6 +358,24 @@ test_that("Numeric: simple differences of scores", {
   expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
+test_that("use of matrix, ISM, BISM methods w/ caliper arg", {
+  scores <- rep(1:3, each = 4)
+  z <- rep(c(0,1), 6)
+  b <- rep(1:3, 4)
+  names(z) <- names(scores) <- letters[1:12]
+  sISM  <- match_on(scores, z=z)
+  expect_s4_class(sISM, "DenseMatrix")
+  sISM_cal  <- match_on(scores, z=z, caliper=1)
+  expect_equivalent(sISM_cal, match_on(sISM, caliper=1))
+  expect_equivalent(sISM_cal,
+                  match_on(as.InfinitySparseMatrix(sISM), caliper=1)
+                  )
+
+  ez <- exactMatch(z ~ b)
+  res <- match_on(scores, z = z, # checked in "Numeric: simple..."
+                  caliper = 1, within = ez) # test above
+  expect_equivalent(res, sISM_cal + ez)
+})
 
 test_that("update() of match_on created objects", {
   Z <- rep(c(1,0), 10)
@@ -844,7 +863,7 @@ test_that("147: within=caliper with NA's", {
   expect_true(all.equal(sort(m.2@.Data), sort(m.1@.Data)))
 })
 
-test_that("Exclude argument for match_on.numeric with caliper arg", {
+test_that("Exclude argument for match_on with caliper arg", {
     set.seed(10303920)
     n <- 20
     x <- rnorm(n, sd = 4)
@@ -875,6 +894,33 @@ test_that("Exclude argument for match_on.numeric with caliper arg", {
     expect_equal(sum(is.finite(mm[, maxc])), 10)
     expect_true(sum(is.finite(mm[mint, ])) < 10)
 
+    ## repeating with other versions of match_on
+    df <- data.frame(z = z, x = x)
+    mce <- match_on(z ~ x, data = df, caliper = cal, exclude = maxc, method = "euclidean")
+    mme <- as.matrix(mce)
+    expect_true(sum(is.finite(mme)) < 100)
+    expect_equal(sum(is.finite(mme[, maxc])), 10)
+    expect_true(sum(is.finite(mme[mint, ])) < 10)
+
+    mg <- match_on(glm(z ~ x, data = df, family = binomial),
+                    caliper = cal, exclude = c(mint, maxc))
+    mm <- as.matrix(mg)
+    expect_true(sum(is.finite(mm)) < 100)
+    expect_equal(sum(is.finite(mm[mint, ])), 10)
+    expect_equal(sum(is.finite(mm[, maxc])), 10)
+
+    exmat <- matrix(1:9, nrow = 3, dimnames = list(c('a', 'b', 'c'), c('x', 'y', 'z')))
+    mm <- as.matrix(match_on(exmat, caliper = 4, exclude = 'z'))
+    expect_equivalent(mm[, 'y'], c(4, Inf, Inf))
+    expect_equivalent(mm[, 'z'], 7:9)
+
+    mm <- as.matrix(match_on(as.InfinitySparseMatrix(exmat), caliper = 4, exclude = 'z'))
+    expect_equivalent(mm[, 'y'], c(4, Inf, Inf))
+    expect_equivalent(mm[, 'z'], 7:9)
 })
 
 
+test_that("No longer support user-defined distances in match_on.formula", {
+  data(nuclearplants)
+  expect_warning(match_on(pr ~ cost, data = nuclearplants, method = optmatch:::compute_euclidean), "not supported")
+})

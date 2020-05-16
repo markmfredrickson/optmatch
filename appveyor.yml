@@ -45,6 +45,7 @@ environment:
 
 build_script:
   - travis-tool.sh install_r CBPS
+  - travis-tool.sh install_r haven
   - travis-tool.sh install_deps
 
 test_script:

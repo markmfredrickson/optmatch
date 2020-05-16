@@ -1,0 +1,97 @@
+---
+title: "Combining Matches Within Subgroups"
+author: "Josh Errickson, Mark Fredrickson, Josh Buckner, Peter Solenberger and Ben B. Hansen, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Matching within subgroups}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
+library(optmatch)
+```
+
+When utilizing full matching, a user may want to introduce restrictions to the potential match sets. There are two main reasons to do this.
+
+- There may be certain variables which matches should either always or never agree upon. For example, if there is a binary gender variable, you may
+  wish to only match treatment members to control members of the same gender.
+- When matching on a medium-to-large data set, speed concerns can become paramount. By splitting the matching problem into a series of smaller
+  subproblems, we can realize substantial performance improvements.
+
+# Combining matches
+
+In optmatch 0.9-11 and above, `optmatch` objects can be easily combined to facilitate breaking a problem into smaller sub-problems and reconstituting
+a matched structure on the entire data set. To demonstrate this, let's consider the `infert` data set.
+
+```{r}
+data(infert)
+head(infert)
+```
+
+The "case" variable indicates treatment (1) versus control (0) status. We'll want to match upon "age".
+
+```{r}
+table(infert$case)
+table(infert$education, infert$case)
+```
+
+Due to the sample size, if we were to compute matches on the entire data set, the `fullmatch` call would generate a distance matrix of size \(165\times
+83 = 13,695\). However, if we were instead to compute a match within each level of the "education" variable, we'd compute three different distance
+matrices, of total size \(8\times 4 + 80\times 40 + 77\times 39 = 6,235\), a reduction of 55%.
+
+We'll do this by splitting the data within each match.
+
+```{r}
+f1 <- fullmatch(case ~ age, data = infert[infert$education == "0-5yrs", ])
+f2 <- fullmatch(case ~ age, data = infert[infert$education == "6-11yrs", ])
+f3 <- fullmatch(case ~ age, data = infert[infert$education == "12+ yrs", ])
+summary(f1)
+summary(f2)
+summary(f3)
+```
+
+Some of the matched sets are quite large (1:5+) so let's put some restrictions.
+
+```{r}
+f2 <- fullmatch(case ~ age, data = infert[infert$education == "6-11yrs", ],
+                max.controls = 4)
+f3 <- fullmatch(case ~ age, data = infert[infert$education == "12+ yrs", ],
+                max.controls = 4)
+summary(f2)
+summary(f3)
+```
+
+Now we simply combine the three matches.
+
+```{r}
+fcombine <- c(f1, f2, f3)
+summary(fcombine)
+infert$match <- fcombine
+```
+
+# Using the `within` argument
+
+An alternative approach would be using the `within` argument and the `exactMatch` function to define subproblems.
+
+```{r}
+fwithin <- fullmatch(case ~ age, data = infert, max.controls = 4,
+                     within = exactMatch(case ~ education, data = infert))
+summary(fwithin)
+```
+
+Observe that we obtain equivalent matched structure. A few notes comparing the two approaches:
+
+1. When using the `within` argument, restrictions must be the same across subproblems. That is, `max.controls`, `min.controls` and `omit.fraction`
+   will be equivalent. By running the subproblems separately, you can set different restrictions per subproblem. E.g.,
+
+   ```{r, eval = FALSE}
+   f1 <- fullmatch(z ~ x, data = d[d$group == 1, ], max.controls = 2)
+   f2 <- fullmatch(z ~ x, data = d[d$group == 2, ], min.controls = 1/3)
+   c(f1, f2)
+   ```
+
+2. While the matched structures will be equivalent between these two approaches (if the restrictions are the same across subproblems), the actual
+   matched sets themselves may differ if you have observations of equal distance. In general this should not be considered a problem.

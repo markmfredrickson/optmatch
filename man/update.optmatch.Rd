@@ -4,14 +4,12 @@
 \alias{update.optmatch}
 \title{Performs an update on an \code{optmatch} object.}
 \usage{
-\method{update}{optmatch}(optmatch, ..., evaluate = TRUE)
+\method{update}{optmatch}(object, ...)
 }
 \arguments{
-\item{optmatch}{\code{Optmatch} object to update.}
+\item{object}{\code{Optmatch} object to update.}
 
 \item{...}{Additional arguments to the call, or arguments with changed values.}
-
-\item{evaluate}{If true evaluate the new call else return the call.}
 }
 \value{
 An updated \code{optmatch} object.
@@ -23,4 +21,6 @@ OPTMATCH OBJECT CREATED WITHOUT AN EXPLICIT DISTANCE ARGUMENT.
 \details{
 Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 \code{optmatch} object differs from the hash of the new \code{data}.
+
+To obtain an updated call without performing the actual update, pass an additional `evaluate = FALSE` argument.
 }

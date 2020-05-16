@@ -100,39 +100,6 @@ test_that("Solutions -> factor helper", {
   expect_true(is.null(solution2factor(noMatches)))
 })  
 
-test_that("Fallback version of optmatch solver", {
-  data(nuclearplants)
-
-  expect_true(is.null(options()$use_fallback_optmatch_solver))
-
-  f1 <- fullmatch(pr ~ cost, data=nuclearplants)
-
-  # turn fallback on
-
-  options("use_fallback_optmatch_solver" = TRUE)
-  expect_warning(f2 <- fullmatch(pr ~ cost, data=nuclearplants),
-                 "using current")
-
-  expect_true(!is.null(options()$use_fallback_optmatch_solver))
-
-  # turn fallback off again
-
-  options("use_fallback_optmatch_solver" = FALSE)
-  f3 <- fullmatch(pr ~ cost, data=nuclearplants)
-
-  # And make it nonsense
-
-  options("use_fallback_optmatch_solver" = "fdjsklf")
-  f4 <- fullmatch(pr ~ cost, data=nuclearplants)
-
-  # There should be no practical difference between these
-  expect_identical(f1,f2)
-  expect_identical(f1,f3)
-  expect_identical(f1,f4)
-
-  options("use_fallback_optmatch_solver" = NULL)
-})
-
 test_that("Passing and receiving node information",{
   v <- c(1, Inf, 2,
          2, 1, Inf,

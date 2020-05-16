@@ -141,7 +141,7 @@ test_that("Subsetting drops any matched.distances attributes", {
 test_that("Summary properly handles matched.distances #106", {
   data(nuclearplants)
   dist <- match_on(glm(pr~.-(pr+cost), family=binomial(),
-                    data=nuclearplants))
+                       data=nuclearplants))
 
   pm <- pairmatch(dist, data=nuclearplants)
 
@@ -182,8 +182,65 @@ test_that("Indicating failing subproblems", {
   names(Z) <- names(B) <- letters[1:16]
   match <- pairmatch(exactMatch(Z ~ B), data = Z) # assure data order by passing Z
 
-  expect_equal(sum(subproblemSuccess(match)), 2)
-  expect_true(all(names(subproblemSuccess(match)) %in%  c("1", "2")))
+  spS <- subproblemSuccess(match)
+  mf <- matchfailed(match)
+  expect_equal(sum(spS), 2)
+  expect_true(all(names(spS) %in%  c("1", "2")))
+  expect_is(mf, "logical")
+  expect_length(mf, length(B))
+  expect_true(all(mf == FALSE))
+
+  Z[1] <- 1
+  match <- pairmatch(exactMatch(Z ~ B), data = Z)
+
+  spS <- subproblemSuccess(match)
+  mf <- matchfailed(match)
+  expect_equal(sum(spS), 2)
+  expect_true(all(names(spS) %in%  c("1", "2")))
+  expect_is(mf, "logical")
+  expect_length(mf, length(B))
+  expect_true(all(mf == FALSE))
+
+
+  data(nuclearplants)
+  expect_warning(f1 <- fullmatch(pr ~ t1, data = nuclearplants,
+                                 min = 5, max = 5))
+
+  spS <- subproblemSuccess(f1)
+  mf <- matchfailed(f1)
+  expect_true(all(spS == FALSE))
+  expect_equal(names(spS), "1")
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
+
+  expect_warning(f2 <-
+                   fullmatch(pr ~ t1, data = nuclearplants,
+                             min = 5, max = 5,
+                             within =
+                               exactMatch(pr ~ pt,
+                                          data = nuclearplants)))
+
+  spS <- subproblemSuccess(f2)
+  mf <- matchfailed(f2)
+  expect_true(all(spS == FALSE))
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
+
+  expect_warning(f3 <-
+                   fullmatch(pr ~ cost, data = nuclearplants,
+                             min = 60, max = 60,
+                             within =
+                               exactMatch(pr ~ pt,
+                                          data = nuclearplants)))
+
+  spS <- subproblemSuccess(f3)
+  mf <- matchfailed(f3)
+  expect_true(all(spS == FALSE))
+  expect_is(mf, "logical")
+  expect_length(mf, nrow(nuclearplants))
+  expect_true(all(mf == TRUE))
 })
 
 test_that("optmatch_restrictions", {
@@ -255,125 +312,175 @@ test_that("optmatch_same_distance", {
 })
 
 
-## test_that("update.optmatch", {
-##  Z <- c(1,0,0,0,0,1,0,0)
-##  B <- c(rep('a', 5), rep('b', 3))
-##  d <- as.data.frame(cbind(Z,B))
-##  rm(Z)
-##  rm(B)
+test_that("update.optmatch basics", {
+  d <- data.frame(z = rep(0:1, each = 50),
+                  b = rnorm(100))
 
-##   res.b <- exactMatch(Z ~ B, data=d)
+  # update without arguments shouldn't change anything
+  f1 <- fullmatch(z ~ b, data = d)
+  expect_is(update(f1), "optmatch")
+  expect_true(identical(f1, update(f1)))
+})
 
-##   f1 <- fullmatch(res.b, data=d)
-##   f2 <- fullmatch(res.b, data=d, max.controls = 2)
-##   f3 <- fullmatch(res.b, data=d, max.controls = 1)
-##   f4 <- fullmatch(res.b, data=d, max.controls = 1, min.controls = 1)
-##   f5 <- fullmatch(res.b, data=d, omit.fraction = 1/7)
-##   f6 <- fullmatch(res.b, data=d, mean.controls = 1)
-##   f7 <- fullmatch(res.b, data=d, tol = .00001)
+test_that("update without changing distance", {
+  options("optmatch_verbose_messaging" = FALSE)
 
-##   u2 <- update(f1, max.controls=2)
-##   u3 <- update(u2, max.controls=1)
-##   u4 <- update(u3, min.controls=1)
-##   u5 <- update(f1, omit.fraction = 1/7)
-##   u6 <- update(f1, mean.controls = 1)
-##   u7 <- update(f1, tol = .00001)
+  d <- data.frame(z = rep(0:1, each = 50),
+                  b = rnorm(100))
 
-##   expect_true(identical(f2, u2))
-##   expect_true(identical(f3, u3))
-##   expect_true(identical(f4, u4))
-##   expect_true(identical(f5, u5))
-##   expect_true(identical(f6, u6))
-##   expect_true(identical(f7, u7))
+  f1 <- fullmatch(z ~ b, data = d)
+  f2 <- fullmatch(z ~ b, data = d, max.controls = 2)
+  f3 <- fullmatch(z ~ b, data = d, max.controls = 1)
+  f4 <- fullmatch(z ~ b, data = d, max.controls = 1,
+                  min.controls = 1)
+  f5 <- fullmatch(z ~ b, data = d, omit.fraction = 1/7)
+  f6 <- fullmatch(z ~ b, data = d, mean.controls = 1)
+  f7 <- fullmatch(z ~ b, data = d, tol = .00001)
 
-##   # update without arguments shouldn't change anything
-##   f1 <- fullmatch(res.b, data=d)
-##   u1 <- update(f1)
-##   expect_true(identical(f1, u1))
+  expect_true(identical(f2, update(f1, max.controls = 2)))
+  expect_true(identical(f3, update(f1, max.controls = 1)))
+  expect_true(identical(f4, update(f1, max.controls = 1,
+                                   min.controls = 1)))
+  expect_true(identical(f5, update(f1, omit.fraction = 1/7)))
+  expect_true(identical(f6, update(f1, mean.controls = 1)))
+  expect_true(identical(f7, update(f1, tol = .00001)))
+})
 
-##   f1 <- fullmatch(res.b, data=d)
-##   u1 <- update(f1,data=d)
-##   expect_true(identical(f1, u1))
+test_that("upadate passing a different distance as x argument", {
+  options("optmatch_verbose_messaging" = FALSE)
+
+  # passing a difference distance
+  set.seed(9876)
+  d1 <- data.frame(x = rnorm(10),
+                   y = runif(10),
+                   z = c(rep(0,6), rep(1,4)))
+
+  res.b1 <- match_on(z ~ x, data = d1)
+  res.b2 <- match_on(z ~ y, data = d1)
+
+  f1 <- fullmatch(res.b1, data = d1)
+  f2 <- fullmatch(res.b2, data = d1)
+
+  expect_true(!identical(as.vector(f1),as.vector(f2)))
+
+  # When verbose messaging is off, this should produce no distance warning
+  options("optmatch_verbose_messaging" = FALSE)
+  u1 <- update(f2, x = res.b1)
+  u2 <- update(f1, x = res.b2)
+  expect_true(identical(f1,u1))
+  expect_true(identical(f2,u2))
+  expect_true(!identical(f2,u1))
+  expect_true(!identical(as.vector(f2),as.vector(u1)))
 
 
-##   # passing a difference distance
-##  set.seed(9876)
-##  x <- rnorm(10)
-##  y <- runif(10)
-##  z <- c(rep(0,6), rep(1,4))
-##  d1 <- as.data.frame(cbind(x,y,z))
-##  rm(x)
-##  rm(y)
-##  rm(z)
+  # If verbose messaing is enabled, should produce warning
+  options("optmatch_verbose_messaging" = TRUE)
+  expect_warning(update(f2, x = res.b1), "different than distance")
+  expect_warning(update(f1, x = res.b2), "different than distance")
+  options("optmatch_verbose_messaging" = FALSE)
 
-##   res.b1 <- match_on(z ~ x, data=d1)
-##   res.b2 <- match_on(z ~ y, data=d1)
+  # ensure changing distance + other arguments works
+  f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
+  u3a <- update(f1, max.controls = 2)
+  u3b <- update(f2, x = res.b1, max.controls = 2)
 
-##   f1 <- fullmatch(res.b1, data = d1)
-##   f2 <- fullmatch(res.b2, data = d1)
+  expect_true(identical(f3, u3a))
+  expect_true(identical(f3, u3b))
 
-##   expect_true(!identical(f1,f2))
+})
 
-##   expect_warning(u1 <- update(f2, x=res.b1))
-##   expect_warning(u2 <- update(f1, x=res.b2))
-##   expect_true(identical(f1,u1))
-##   expect_true(identical(f2,u2))
-##   expect_true(!identical(f2,u1))
+test_that("update when distance is changed outside of update", {
+  options("optmatch_verbose_messaging" = FALSE)
 
-##   f3 <- fullmatch(res.b1, data = d1, max.controls = 2)
-##   u3a <- update(f1, max.controls = 2)
-##   expect_warning(u3b <- update(f2, x = res.b1, max.controls = 2))
+  set.seed(9876)
+  d1 <- data.frame(x = rnorm(10),
+                   y = runif(10),
+                   z = c(rep(0,6), rep(1,4)))
 
-##   expect_true(identical(f3, u3a))
-##   expect_true(identical(f3, u3b))
+  res.c <- match_on(z ~ x, data = d1)
 
-##   # change distance between calls
+  fc <- fullmatch(res.c, data = d1)
 
-##   res.c <- match_on(z ~ x, data = d2)
+  res.c <- match_on(z ~ y, data = d1)
 
-##   fc <- fullmatch(res.c, data=d1)
+  uc <- update(fc, x = res.c)
+  expect_true(!identical(as.vector(fc), as.vector(uc)))
 
-##   res.c <- match_on(z ~ y, data = d1)
+  # verbose should produce warning
 
-##   expect_warning(uc <- update(fc, distance = res.c))
+  options("optmatch_verbose_messaging" = TRUE)
+  expect_warning(update(fc, x = res.c), "different than distance")
+})
 
-##   expect_true(!identical(fc, uc))
+test_that("Update arguments change be ordered differently", {
+  options("optmatch_verbose_messaging" = FALSE)
 
-##   # odd ordering of parameters
-##   fo <- fullmatch(data = d1, x = res.c)
-##   uo <- update(fo, max.controls=2)
-##   fo <- fullmatch(data = d1, x = res.c, max.controls=2)
+  set.seed(9876)
+  d1 <- data.frame(x = rnorm(10),
+                   y = runif(10),
+                   z = c(rep(0,6), rep(1,4)))
+  res.c <- match_on(z ~ y, data = d1)
+  # odd ordering of parameters
 
-##   expect_true(identical(fo, uo))
+  fo <- fullmatch(data = d1, x = res.c)
+  uo <- update(fo, max.controls = 2)
+  fo <- fullmatch(data = d1, x = res.c, max.controls = 2)
 
-##   # two updates, first changing data, only one warning
+  expect_true(identical(fo, uo))
+})
 
-##   ftu <- fullmatch(res.c, data=d1)
-##   expect_warning(utu1 <- update(ftu, x=res.b))
-##   expect_warning(utu2 <- update(utu1, max.controls=2), "The problem is infeasible with the given constraints; some units were omitted to allow a match.")
-##   expect_warning(ftu2 <- fullmatch(res.b, data=d1, max.controls=2))
-##   attr(ftu2, "call") <- NULL
-##   attr(utu2, "call") <- NULL
-##   expect_true(identical(ftu2, utu2))
-## })
+test_that("Update supporting new formula", {
+  data(nuclearplants)
 
-## test_that("update.optmatch with fullmatch ui simplications", {
-##   set.seed(9876)
-##   x <- rnorm(10)
-##   y <- runif(10)
-##   z <- c(rep(0,6), rep(1,4))
-##   d1 <- as.data.frame(cbind(x,y,z))
-##   rm(x)
-##   rm(y)
-##   rm(z)
+  f1 <- fullmatch(pr ~ cost, data = nuclearplants)
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants)
 
-##   f1 <- fullmatch(z~y+x, data=d1)
-##   a <- update(f1, x=z~y, max.controls=2)
+  options("optmatch_verbose_messaging" = FALSE)
+  expect_error(update(f2, pr ~ cost), "must be named")
+  f3 <- update(f2, x = pr ~ cost)
+  expect_identical(f1, f3)
+  expect_identical(update(f1, x = pr ~ cost + t1),
+                   update(f2, x = pr ~ cost + t1))
+})
 
-## })
+test_that("update warning for implicit distance changes", {
+  data("nuclearplants")
+  p <- pairmatch(pr ~ cap, data = nuclearplants)
+
+  # Calipering
+  expect_warning(expect_is(up <- update(p, caliper = 1.5),
+                           "optmatch"),
+                 "different than distance")
+
+  pcal <- pairmatch(pr ~ cap, data = nuclearplants, caliper = 1.5)
+  expect_identical(up, pcal)
+
+  # Within
+  em <- exactMatch(pr ~ pt, data = nuclearplants)
+
+  expect_warning(uem <- update(p, within = em),
+                 "different than distance")
+
+  pe <- pairmatch(pr ~ cap, data = nuclearplants, within = em)
+
+  expect_identical(pe, uem)
+})
+
+test_that("update producing errors properly", {
+  data(nuclearplants)
+  f <- fullmatch(pr ~ cost, data = nuclearplants)
+  call <- attr(f, "call")
+  attr(f, "call") <- NULL
+  expect_error(update(f), "must have a call")
+  attr(f, "call") <- 7
+  expect_error(update(f), "not a valid")
+  attr(f, "call") <- list(call, call)
+  expect_error(update(f), "combined optmatch")
+})
 
 test_that("num_eligible_matches", {
 
+  options("optmatch_verbose_messaging" = TRUE)
   a <- matrix(rep(0,9), nrow=3)
   class(a) <- c("DenseMatrix", class(a))
   expect_true(num_eligible_matches(a) == 9)
@@ -472,7 +579,7 @@ test_that("equality of matches", {
 
   # Make some wonky observation names
   row.names(nuclearplants) <- sapply(1:nrow(nuclearplants), function(x)
-                                     paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
+    paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
 
   w1 <- fullmatch(pr ~ cost, data=nuclearplants)
   w2 <- fullmatch(pr ~ cost, data=nuclearplants, max=10)
@@ -516,4 +623,173 @@ test_that("equality of matches", {
   ## system.time(compare_optmatch(s1,s2))
   ## # Taking about .3sec on laptop.
 
+})
+
+test_that("combining optmatch objects", {
+  data(nuclearplants)
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 0,])
+
+  expect_is(c(f1), "optmatch")
+
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 1,])
+
+  fc <- c(f1, f2)
+
+  expect_equal(length(fc), length(f1) + length(f2))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(fc, a)),
+                 length(attr(f1, a)) + length(attr(f2, a)))
+  }
+
+  expect_is(attr(fc, "hashed.distance"), "list")
+  expect_length(attr(fc, "hashed.distance"), 2)
+  expect_is(attr(fc, "call"), "list")
+  expect_length(attr(fc, "call"), 2)
+
+  for (a in c("min.controls", "max.controls", "omit.fraction", "exceedances")) {
+    expect_is(attr(fc, a), "numeric")
+    expect_length(attr(fc, a), 2)
+    expect_equivalent(attr(fc, a)[1], attr(f1, a))
+    expect_equivalent(attr(fc, a)[2], attr(f2, a))
+  }
+
+
+  expect_error(c(f1, f1), "duplicated")
+
+  full <- fullmatch(pr ~ t1, data = nuclearplants,
+                    within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_true(compare_optmatch(fc, full))
+
+  levels(full) <- levels(fc)
+  expect_equivalent(full, fc)
+
+  p1 <- pairmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 0,])
+
+  expect_is(c(p1), "optmatch")
+
+  p2 <- pairmatch(pr ~ t1, data = nuclearplants[nuclearplants$pt == 1,])
+
+  pc <- c(p1, p2)
+
+  expect_equal(length(pc), length(p1) + length(p2))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(pc, a)),
+                 length(attr(p1, a)) + length(attr(p2, a)))
+  }
+
+  expect_error(c(p1, p1), "duplicated")
+
+  expect_identical(is.na(p1), is.na(pc)[1:26])
+  expect_identical(is.na(p2), is.na(pc)[27:32])
+
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:10,])
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[11:25,])
+  f3 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,])
+
+  fc <- c(f1, f2, f3)
+  expect_is(fc, "optmatch")
+
+  expect_equal(length(fc), length(f1) + length(f2) + length(f3))
+  for (a in c("subproblem", "contrast.group", "levels")) {
+    expect_equal(length(attr(fc, a)),
+                 length(attr(f1, a)) + length(attr(f2, a)) +
+                   length(attr(f3, a)))
+  }
+
+  expect_is(attr(fc, "hashed.distance"), "list")
+  expect_length(attr(fc, "hashed.distance"), 3)
+  expect_is(attr(fc, "call"), "list")
+  expect_length(attr(fc, "call"), 3)
+
+  for (a in c("min.controls", "max.controls", "omit.fraction", "exceedances")) {
+    expect_is(attr(fc, a), "numeric")
+    expect_length(attr(fc, a), 3)
+    expect_equivalent(attr(fc, a)[1], attr(f1, a))
+    expect_equivalent(attr(fc, a)[2], attr(f2, a))
+    expect_equivalent(attr(fc, a)[3], attr(f3, a))
+  }
+
+  # Min, Max, etc carry forward properly
+  options("optmatch_verbose_messaging" = FALSE)
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:25,],
+                  min = 1, max = 2)
+
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,],
+                  max = 3, omit.fraction = .1)
+
+  fc <- c(f1, f2)
+
+  expect_equivalent(attr(fc, "max.controls"),
+                    c(attr(f1, "max.controls"),
+                      attr(f2, "max.controls")))
+  expect_equivalent(attr(fc, "min.controls"),
+                    c(attr(f1, "min.controls"),
+                      attr(f2, "min.controls")))
+  expect_equivalent(attr(fc, "omit.fraction"),
+                    c(attr(f1, "omit.fraction"),
+                      attr(f2, "omit.fraction")))
+
+  # Functions taking optmatch objects
+
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[1:25,],
+                  min = 1, max = 2)
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[26:32,],
+                  min = 1, max = 2)
+  fc <- c(f1, f2)
+  nuclearplants$treat <- rep(0:1, times = c(25, 7))
+  full <- fullmatch(pr ~ t1, data = nuclearplants, min = 1, max = 2,
+                    within = exactMatch(pr ~ treat, data = nuclearplants))
+
+  expect_true(compare_optmatch(fc, full))
+  expect_identical(matched(fc), matched(full))
+
+  expect_identical(optmatch_restrictions(fc), optmatch_restrictions(full))
+  expect_identical(stratumStructure(fc), stratumStructure(full))
+  expect_identical(summary(fc)$effective.sample.size,
+                   summary(full)$effective.sample.size)
+  expect_identical(summary(fc)$matched.set.structures,
+                   summary(full)$matched.set.structures)
+
+  # Suppress output, but will error
+  expect_silent(invisible(capture.output(print(fc))))
+  expect_silent(invisible(capture.output(print(fc, quote = TRUE))))
+  expect_silent(invisible(capture.output(print(fc, grouped = TRUE))))
+
+  expect_output(print(fc), "0.1.1")
+  expect_output(print(fc), "1.1.1")
+  expect_output(print(fc, grouped = TRUE), "0.1.1")
+  expect_output(print(fc, grouped = TRUE), "1.1.1")
+  expect_output(print(fc, grouped = TRUE), "Members")
+
+})
+
+test_that("combining already blocked matches", {
+  data("nuclearplants")
+  nuclearplants$z <- rep(0:2, times = c(15,10,7))
+  f1 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$z == 0,])
+  f2 <- fullmatch(pr ~ t1, data = nuclearplants[nuclearplants$z != 0,],
+                  within = exactMatch(pr ~ z, data = nuclearplants))
+  fc <- c(f1, f2)
+  full <- fullmatch(pr ~ t1, data = nuclearplants,
+                    within = exactMatch(pr ~ z, data = nuclearplants))
+
+  expect_true(compare_optmatch(fc, full))
+  expect_identical(matched(fc), matched(full))
+
+
+  expect_equivalent(attr(fc, "max.controls"),
+                    attr(full, "max.controls"))
+  expect_equivalent(attr(fc, "min.controls"),
+                    attr(full, "min.controls"))
+  expect_equivalent(attr(fc, "omit.fraction"),
+                    attr(full, "omit.fraction"))
+  expect_equivalent(attr(fc, "exceedances"),
+                    c(attr(f1, "exceedances"),
+                      attr(f2, "exceedances")))
+  expect_identical(stratumStructure(fc), stratumStructure(full))
+  expect_identical(summary(fc)$effective.sample.size,
+                   summary(full)$effective.sample.size)
+  expect_identical(summary(fc)$matched.set.structures,
+                   summary(full)$matched.set.structures)
 })
