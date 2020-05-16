@@ -211,7 +211,23 @@ test_that("nodeinfo getter",{
     expect_is(nodeinfo(f1), "NodeInfo")
     expect_null(nodeinfo(10))
 })
+test_that("Node labels getter",{
+    expect_silent(mcf  <-  new("MCFSolutions")) #prelim-
+    expect_true(validObject(mcf, complete=TRUE))#inaries
 
+    expect_is(node.labels(mcf@nodes), "character")
+    expect_is(node.labels(mcf), "character")
+
+    data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                       x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_is(f1, "optmatch")
+    expect_false(is.null(attr(f1, "MCFSolutions")))
+    expect_is(node.labels(f1), "character")
+    expect_false(is.null(names(node.labels(f1))))
+    expect_null(nodeinfo(10))
+
+})
 test_that("filtering on groups/subproblem field", {
 
     spi1  <- new("SubProbInfo",

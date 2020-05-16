@@ -260,7 +260,19 @@ setMethod("nodeinfo", "optmatch", function(x) {
 })
 setMethod("nodeinfo", "ANY", function(x) NULL)
 
-
+## node labels
+setGeneric("node.labels", function(x) standardGeneric("node.labels"))
+### (setter setup postponed)
+### setGeneric("node.labels<-", function(x) standardGeneric("node.labels<-"))
+setMethod("node.labels", "NodeInfo",
+          function(x) setNames(row.names(x), nm=x[['name']])
+          )
+setMethod("node.labels", "MCFSolutions", function(x) node.labels(x@nodes))
+setMethod("node.labels", "optmatch", function(x) {
+    mcfs  <- attr(x, "MCFSolutions")
+    if (is.null(mcfs)) NULL else node.labels(mcfs)
+})
+setMethod("node.labels", "ANY", function(x) NULL)
 ##'
 ##' This implementation does *not* drop levels of factor
 ##' variables (such as `groups`), in order to facilitate interpretation
