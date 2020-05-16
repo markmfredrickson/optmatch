@@ -12,6 +12,7 @@ r_packages:
   - arm
   - brglm
   - CBPS
+  - haven
 r_github_packages:
   - jimhester/covr
 before_install:

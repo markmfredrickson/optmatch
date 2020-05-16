@@ -1,3 +1,4 @@
+
 Package: optmatch
 Version: 0.9.11.9002
 Title: Functions for Optimal Matching
@@ -35,7 +36,8 @@ Suggests:
     pander,
     xtable
 Enhances:
-    CBPS
+    CBPS,
+    haven
 License: file LICENSE
 URL: https://www.r-project.org, https://github.com/markmfredrickson/optmatch
 Collate:
