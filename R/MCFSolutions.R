@@ -99,39 +99,98 @@ setValidity("ArcInfo", function(object){
     if (length(errors)==0) TRUE else errors      
 })
 
-setClass("MatchablesInfo", contains="data.frame",
-         prototype=
-             prototype(data.frame(name = character(0),
-                                  row_unit = logical(0),
-                                  groups = factor(), stringsAsFactors=FALSE)
-                       )
-         )
-setValidity("MatchablesInfo", function(object){
-    errors <- character(0)
-    if (!all(colnames(object)==
-             c("name", "row_unit", "groups") ) )
-        errors  <- c(errors,
-                     'Columns should be:\n\t c("name", "row_unit", "groups")')
-    if (!is.character(object[['name']]))
-        errors  <- c(errors,
-                     'Cols "name" should have type character.')
-    if (!is.factor(object[['groups']]))
-        errors  <- c(errors,
-                     'Cols "groups" should have type factor.')
-    if ( !is.logical(object[['row_unit']]) )
-        errors  <- c(errors,
-                     "'row_unit' col should have type logical.")
-    
-    if (length(errors)==0) TRUE else errors  
-})
 
 setClass("MCFSolutions", slots=c(subproblems='SubProbInfo',nodes='NodeInfo',
-                                 arcs='ArcInfo',matchables="MatchablesInfo"),
+                                 arcs='ArcInfo'),
          prototype = prototype(subproblems=new('SubProbInfo'), nodes=new('NodeInfo'),
-                               arcs=new('ArcInfo'),matchables=new("MatchablesInfo"))
+                               arcs=new('ArcInfo'))
          )
 setValidity("MCFSolutions", function(object){
     errors  <- character(0)
+    ## Each of factors object@arcs@matches$upstream, object@arcs@matches$downstream,
+    ## object@arcs@bookkeeping$start and object@arcs@bookkeeping$end must have the same
+    ## levels set, namely node.labels(object) (i.e. row.names(object@nodes) ). 
+    if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['upstream']]),
+                                    node.labels(object)
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Arcs' upstream nodes not listed in nodes table, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(node.labels(object),
+                                    levels(object@arcs@matches[['upstream']])
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Nodes table has entries not in levels of arcs' upstream nodes, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['downstream']]),
+                                    node.labels(object)
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Arcs' downstream nodes not listed in nodes table, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(node.labels(object),
+                                    levels(object@arcs@matches[['downstream']])
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Nodes table has entries not in levels of arcs' downstream nodes, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(levels(object@arcs@bookkeeping[['start']]),
+                                    node.labels(object)
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Bookkeeping arc start nodes not listed in nodes table, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(node.labels(object),
+                                    levels(object@arcs@bookkeeping[['start']])
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Nodes table has entries not in levels of bookkeeping arcs' start nodes, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(levels(object@arcs@bookkeeping[['end']]),
+                                    node.labels(object)
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Bookkeeping arcs' end nodes not listed in nodes table, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    if (length(xtralevs  <- setdiff(node.labels(object),
+                                    levels(object@arcs@bookkeeping[['end']])
+                                    )
+               )
+        )
+        errors  <- c(errors,
+                     paste("Nodes table has entries not in levels of bookkeeping arcs' end nodes, e.g.",
+                           paste(head(xtralevs,2), collapse=", "), "."
+                           )
+                     )
+    ## Groups listed in nodes table must be same as in subproblems
     subprobs  <- unique(object@subproblems[['groups']])
     if (length(subprobs) && (length(subprobs)>1 || subprobs!=character(1)))
         {
@@ -144,9 +203,6 @@ setValidity("MCFSolutions", function(object){
             if (!all(unique(object@arcs@bookkeeping[['groups']]) %in% subprobs ))
                 errors  <- c(errors,
                              "Detected subproblems ('groups') in @arcs@bookkeeping that aren't in @subproblems.")
-            if (!all(unique(object@matchables[['groups']]) %in% subprobs ))
-                errors  <- c(errors,
-                             "Detected subproblems ('groups') in @matchables that aren't in @subproblems.")
     }
     if (length(errors)==0) TRUE else errors      
 })
@@ -154,12 +210,12 @@ setValidity("MCFSolutions", function(object){
 setClass("FullmatchMCFSolutions",
          contains="MCFSolutions",
          prototype = prototype(subproblems=new('SubProbInfo'), nodes=new('NodeInfo'),
-                               arcs=new('ArcInfo'),matchables=new("MatchablesInfo"))
+                               arcs=new('ArcInfo'))
          )
 setValidity("FullmatchMCFSolutions", function(object){
     errors  <- character(0)
     if ( nrow(object@nodes) &
-         !setequal(object@nodes[['name']][is.na(object@nodes[['upstream_not_down']])] ,
+         !setequal(node.labels(object)[is.na(object@nodes[['upstream_not_down']])] ,
                   c("(_Sink_)", "(_End_)") )
         )
         errors  <- c(errors,
@@ -201,9 +257,6 @@ setMethod("c", signature(x="SubProbInfo"),
 setMethod("c", signature(x="NodeInfo"),
           definition=typed_dataframe_combiner(thetype="NodeInfo")
           )
-setMethod("c", signature(x="MatchablesInfo"),
-          definition=typed_dataframe_combiner(thetype="MatchablesInfo")
-          )
 setMethod("c", signature(x="ArcInfo"),
           definition=function(x, ...) {
               objs = list(...)
@@ -227,6 +280,12 @@ setMethod("c", signature(x="MCFSolutions"),
               objs  <-  list(...)
               if (!missing(x)) objs  <- c(list(x), objs)
               ans  <- new("MCFSolutions")
+              ## combine NodeInfo slots first, creating a new version
+              ## of the row names that's free of duplicates. Among
+              ## other things, this makes the bookkeeping
+              ## node levels unique by appending subproblem string. Then
+              ## update factor levels in remaining slots, before
+              ## attempting to combine them. 
               theslots  <- names(getSlots("MCFSolutions"))
               combined_slotvalues  <-
                   sapply(theslots, 
