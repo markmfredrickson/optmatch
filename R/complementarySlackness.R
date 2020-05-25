@@ -1,4 +1,4 @@
-## Computing the Lagrangian given a mathc and a set of node prices 
+## Computing the Lagrangian given a match and a set of node prices 
 ##
 ## @param distances An InfinitySparseMatrix giving distances
 ## @param solution A MCFSolutions object
