@@ -12,54 +12,30 @@
 \alias{match_on.matrix}
 \title{Create treated to control distances for matching problems}
 \usage{
-match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
+match_on(x, within = NULL, caliper = NULL, exclude = NULL,
+  data = NULL, ...)
 
-\method{match_on}{glm}(
-  x,
-  within = NULL,
-  caliper = NULL,
-  exclude = NULL,
-  data = NULL,
-  standardization.scale = mad,
-  ...
-)
+\method{match_on}{glm}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, standardization.scale = mad, ...)
 
-\method{match_on}{bigglm}(
-  x,
-  within = NULL,
-  caliper = NULL,
-  exclude = NULL,
-  data = NULL,
-  standardization.scale = mad,
-  ...
-)
+\method{match_on}{bigglm}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, standardization.scale = mad, ...)
 
-\method{match_on}{formula}(
-  x,
-  within = NULL,
-  caliper = NULL,
-  exclude = NULL,
-  data = NULL,
-  subset = NULL,
-  method = "mahalanobis",
-  ...
-)
+\method{match_on}{formula}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, subset = NULL,
+  method = "mahalanobis", ...)
 
-\method{match_on}{`function`}(
-  x,
-  within = NULL,
-  caliper = NULL,
-  exclude = NULL,
-  data = NULL,
-  z = NULL,
-  ...
-)
+\method{match_on}{function}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, z = NULL, ...)
 
-\method{match_on}{numeric}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z, ...)
+\method{match_on}{numeric}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, z, ...)
 
-\method{match_on}{InfinitySparseMatrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
+\method{match_on}{InfinitySparseMatrix}(x, within = NULL,
+  caliper = NULL, exclude = NULL, data = NULL, ...)
 
-\method{match_on}{matrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
+\method{match_on}{matrix}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, ...)
 }
 \arguments{
 \item{x}{An object defining how to create the distances. All methods require

@@ -7,15 +7,12 @@
 \alias{summary.DenseMatrix}
 \title{Summarize a distance matrix}
 \usage{
-\method{summary}{InfinitySparseMatrix}(object, ..., distanceSummary = TRUE)
+\method{summary}{InfinitySparseMatrix}(object, ...,
+  distanceSummary = TRUE)
 
-\method{summary}{BlockedInfinitySparseMatrix}(
-  object,
-  ...,
-  distanceSummary = TRUE,
-  printAllBlocks = FALSE,
-  blockStructure = TRUE
-)
+\method{summary}{BlockedInfinitySparseMatrix}(object, ...,
+  distanceSummary = TRUE, printAllBlocks = FALSE,
+  blockStructure = TRUE)
 
 \method{summary}{DenseMatrix}(object, ..., distanceSummary = TRUE)
 }
@@ -81,7 +78,7 @@ The output consists of several pieces.
 \itemize{
  \item{Membership: }{Indicates the dimension of the distance.}
 
- \item{Total (in)eligible potential matches: }{A measure of the
+\item{Total (in)eligible potential matches: }{A measure of the
   sparsity of the distance. Eligible matches have a finite
   distance between treatment and control members; they could be
   matched. Ineligible matches have \code{Inf} distance and can not
@@ -89,19 +86,19 @@ The output consists of several pieces.
   matching, but runs the risk of less optimal overall matching
   results.}
 
- \item{Unmatchable treatment/control members: }{If any
+\item{Unmatchable treatment/control members: }{If any
   observations have no eligible matches (e.g. their distance to
   every potential match is \code{Inf}) they are listed here. See
   Value below for details of how to access lists of matchable and
   unmatchable treatment and control members.}
 
- \item{Summary of minimum matchable distance per treatment member:
+\item{Summary of minimum matchable distance per treatment member:
   }{To assist with choosing a caliper, this is a numeric summary
   of the smallest distance per matchable treatment member. If you
   provide a caliper that is less than the maximum value, at least
   one treatment member will become unmatchable.}
 
- \item{Block structure: }{For \code{BlockedInfinitySparseMatrix},
+\item{Block structure: }{For \code{BlockedInfinitySparseMatrix},
   a quick summary of the structure of each individual block. (The
   above will all be across all blocks.) This may indicate which
   blocks, if any, are problematic.}

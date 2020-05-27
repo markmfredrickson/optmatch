@@ -15,13 +15,16 @@ mdist(x, structure.fmla = NULL, ...)
 
 \method{mdist}{optmatch.dlist}(x, structure.fmla = NULL, ...)
 
-\method{mdist}{`function`}(x, structure.fmla = NULL, data = NULL, ...)
+\method{mdist}{function}(x, structure.fmla = NULL, data = NULL, ...)
 
-\method{mdist}{formula}(x, structure.fmla = NULL, data = NULL, subset = NULL, ...)
+\method{mdist}{formula}(x, structure.fmla = NULL, data = NULL,
+  subset = NULL, ...)
 
-\method{mdist}{glm}(x, structure.fmla = NULL, standardization.scale = mad, ...)
+\method{mdist}{glm}(x, structure.fmla = NULL,
+  standardization.scale = mad, ...)
 
-\method{mdist}{bigglm}(x, structure.fmla = NULL, data = NULL, standardization.scale = mad, ...)
+\method{mdist}{bigglm}(x, structure.fmla = NULL, data = NULL,
+  standardization.scale = mad, ...)
 
 \method{mdist}{numeric}(x, structure.fmla = NULL, trtgrp = NULL, ...)
 }
@@ -77,11 +80,11 @@ nuclear plants with \code{pr==1}) and controls (here, plants with
    }
  }
 
- The \code{mdist.function} method does similar things as the
+The \code{mdist.function} method does similar things as the
  earlier optmatch function \code{makedist}, although the interface
  is a bit different.
 
- The \code{mdist.formula} method computes the squared Mahalanobis
+The \code{mdist.formula} method computes the squared Mahalanobis
  distance between observations, with the right-hand side of the
  formula determining which variables contribute to the Mahalanobis
  distance. If matching is to be done within strata, the
@@ -89,7 +92,7 @@ nuclear plants with \code{pr==1}) and controls (here, plants with
  \code{structure.fmla} argument (e.g. \code{~ grp}) or as part of
  the main formula (e.g. \code{z ~ x1 + x2 | grp}).
 
- An \code{mdist.glm} method takes an argument of class \code{glm}
+An \code{mdist.glm} method takes an argument of class \code{glm}
  as first argument.  It assumes that this object is a fitted
  propensity model, extracting distances on the linear propensity
  score (logits of the estimated conditional probabilities) and, by
