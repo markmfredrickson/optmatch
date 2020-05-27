@@ -630,8 +630,13 @@ fullmatch.matrix <- function(x,
             mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
             mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
             mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
-            if (nrow(mcfsolutions[[ii]]@matchables))
-                mcfsolutions[[ii]]@matchables[,"groups"]  <- factor(thesubprob)
+            bookkeeping_nodes  <- c('(_Sink_)', '(_End_)')
+            for (bn in bookkeeping_nodes)
+            {
+                nlabs <- node.labels(mcfsolutions[[ii]])
+                nlabs[nlabs==bn]  <- paste0(bn, thesubprob)
+                node.labels(mcfsolutions[[ii]])  <-  nlabs
+            }
         }
     mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
 

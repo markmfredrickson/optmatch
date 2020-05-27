@@ -30,6 +30,9 @@ test_that("Instantiation & validity", {
                                          stringsAsFactors=F)
                               )
                   )
+    expect_equivalent(node.labels(ni1f), as.character(1:5))
+    expect_silent(node.labels(ni1f)  <- ni1f[['name']])
+    expect_equivalent(node.labels(ni1f), ni1f[['name']])
     expect_error(new("NodeInfo",
                       data.frame(name='a', price='foo', upstream_not_down=FALSE,
                                  supply=1L, groups = as.factor('b'),
@@ -83,6 +86,10 @@ test_that("Instantiation & validity", {
     
     expect_silent(mcf1f  <- new("MCFSolutions", subproblems=spi1,nodes=ni1f,arcs=ai))
     expect_silent(as(mcf1f, "FullmatchMCFSolutions"))
+    expect_equal(node.labels(mcf1f), node.labels(ni1f))
+    expect_silent(node.labels(mcf1f) <- paste0(node.labels(ni1f),"_") )
+    expect_equivalent(node.labels(mcf1f), paste0(node.labels(ni1f), "_") )
+    expect_equivalent(node.labels(mcf1f@nodes), paste0(node.labels(ni1f), "_") )
 })
 
 test_that("c() methods", {
