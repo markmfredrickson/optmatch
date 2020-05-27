@@ -120,16 +120,6 @@ setValidity("MCFSolutions", function(object){
                            paste(head(xtralevs,2), collapse=", "), "."
                            )
                      )
-    if (length(xtralevs  <- setdiff(node.labels(object),
-                                    levels(object@arcs@matches[['upstream']])
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Nodes table has entries not in levels of arcs' upstream nodes, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
     if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['downstream']]),
                                     node.labels(object)
                                     )
@@ -137,16 +127,6 @@ setValidity("MCFSolutions", function(object){
         )
         errors  <- c(errors,
                      paste("Arcs' downstream nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
-    if (length(xtralevs  <- setdiff(node.labels(object),
-                                    levels(object@arcs@matches[['downstream']])
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Nodes table has entries not in levels of arcs' downstream nodes, e.g.",
                            paste(head(xtralevs,2), collapse=", "), "."
                            )
                      )
@@ -160,16 +140,6 @@ setValidity("MCFSolutions", function(object){
                            paste(head(xtralevs,2), collapse=", "), "."
                            )
                      )
-    if (length(xtralevs  <- setdiff(node.labels(object),
-                                    levels(object@arcs@bookkeeping[['start']])
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Nodes table has entries not in levels of bookkeeping arcs' start nodes, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
     if (length(xtralevs  <- setdiff(levels(object@arcs@bookkeeping[['end']]),
                                     node.labels(object)
                                     )
@@ -177,16 +147,6 @@ setValidity("MCFSolutions", function(object){
         )
         errors  <- c(errors,
                      paste("Bookkeeping arcs' end nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
-    if (length(xtralevs  <- setdiff(node.labels(object),
-                                    levels(object@arcs@bookkeeping[['end']])
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Nodes table has entries not in levels of bookkeeping arcs' end nodes, e.g.",
                            paste(head(xtralevs,2), collapse=", "), "."
                            )
                      )
