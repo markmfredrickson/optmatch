@@ -21,9 +21,12 @@ test_that("Instantiation & validity", {
                              )
                   )
     expect_silent(ni1f  <- new("NodeInfo",
-                              data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
-                                         upstream_not_down=c(FALSE, NA, NA),
-                                         supply=c(0L,-1L,-2L), groups = as.factor('b'),
+                               data.frame(name=c('b', 'c', 'd',
+                                                 '(_Sink_)', '(_End_)'),
+                                          price=0.5,
+                                          upstream_not_down=c(TRUE, FALSE,
+                                                              FALSE, NA, NA),
+                                         supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),
                                          stringsAsFactors=F)
                               )
                   )
@@ -36,11 +39,18 @@ test_that("Instantiation & validity", {
                   )                        # that 'price' be double not integer
     expect_true(validObject(new("ArcInfo"))) # test the prototype
     expect_silent(ai  <- new("ArcInfo",
-                             matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
-                                                downstream = as.factor(c('c','d')), stringsAsFactors=F),
-                             bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
-                                                    end = as.factor('(_Sink_)'), flow=1L,
-                                                    capacity=1L, stringsAsFactors=F)
+                             matches=data.frame(groups = as.factor('a'), upstream = factor('b', levels=node.labels(ni1f)),
+                                                downstream = factor(c('c','d'), levels=node.labels(ni1f)),
+                                                stringsAsFactors=F),
+                             bookkeeping=data.frame(groups = as.factor('a'),
+                                                    start = factor(c('c','d'),
+                                                                   levels=node.labels(ni1f)
+                                                                   ),
+                                                    end = factor('(_Sink_)',
+                                                                 levels=node.labels(ni1f)
+                                                                 ),
+                                                    flow=1L, capacity=1L,
+                                                    stringsAsFactors=F)
                              )
                   )
     expect_error(new("ArcInfo",
@@ -60,37 +70,18 @@ test_that("Instantiation & validity", {
                      ), "should be nonnegative" 
                   )                                
     expect_error(new("ArcInfo",
-                     matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
-                                        downstream=c('c','d'),stringsAsFactors=F),
-                     bookkeeping=data.frame(groups='a', start=c('c','d'),
-                                            end='(_Sink_)', flow=2L,
+                     matches=data.frame(groups = as.factor('a'),
+                                        upstream = as.factor('b'),
+                                        downstream=as.factor(c('c','d')),
+                                        stringsAsFactors=F),
+                     bookkeeping=data.frame(groups=as.factor('a'),
+                                            start=as.factor(c('c','d')),
+                                            end=as.factor('(_Sink_)'), flow=2L,
                                             capacity=1L, stringsAsFactors=F)
-                     ), "flow can be now greater than capacity" 
+                     ), "flow can be no greater than capacity" 
                   )                                
-
-    expect_true(validObject(new("MatchablesInfo"))) # test the prototype    
-    expect_silent(mbls1  <- new("MatchablesInfo",
-                                data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                                           groups = as.factor(rep("a",2)), stringsAsFactors=F)
-                                )
-                  )
-
-    mbls2  <- mbls1
-    colnames(mbls2)[3]  <- "Kind"
-    expect_error(validObject(mbls2), "Columns should be", fixed=TRUE)    
     
-    expect_silent(mcf1  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls1))
-    expect_silent(mcf2  <- new("MCFSolutions", subproblems=spi1,nodes=ni1,arcs=ai,matchables=mbls2))
-    expect_error(validObject(mcf2, complete=TRUE), "Columns should be", fixed=TRUE)
-    mbls3  <- new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("d",2)), stringsAsFactors=F)
-                  )
-    mcf3  <- mcf1
-    mcf3@matchables  <- mbls3 #mismatch between subproblems here vs elswhere in object
-    expect_error(validObject(mcf3), "etected subproblems")
-
-    expect_silent(mcf1f  <- new("MCFSolutions", subproblems=spi1,nodes=ni1f,arcs=ai,matchables=mbls1))
+    expect_silent(mcf1f  <- new("MCFSolutions", subproblems=spi1,nodes=ni1f,arcs=ai))
     expect_silent(as(mcf1f, "FullmatchMCFSolutions"))
 })
 
@@ -115,39 +106,30 @@ test_that("c() methods", {
     expect_silent(c(spi1, spi2, spi3))
     expect_silent(c(a=spi1, b=spi2)) # no confusion just b/c no `x=` arg!
     
-    ni1  <- new("NodeInfo",
-               data.frame(name='a', price=0.5, upstream_not_down=TRUE,
-                          supply=1L, groups= as.factor('b'),
-                          stringsAsFactors=F)
-               )
-    expect_silent(c(ni1, ni1))
-    expect_silent(c(ni1, ni1, ni1))
+    ni1f  <- new("NodeInfo",
+                 data.frame(name=c('b', 'c', 'd',
+                                   '(_Sink_)', '(_End_)'),
+                            price=0.5,
+                            upstream_not_down=c(TRUE, FALSE,
+                                                FALSE, NA, NA),
+                            supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),
+                            stringsAsFactors=F)
+                 )
+    node.labels(ni1f) <- ni1f[['name']]
+    expect_silent(c(ni1f, ni1f))
+    expect_silent(c(ni1f, ni1f, ni1f))
     ni2  <- new("NodeInfo",
-                data.frame(name=c('a', '(_Sink_)', '(_End_)'), price=0.5,
-                           upstream_not_down=c(FALSE, NA, NA),
-                          supply=c(0L,-1L,-2L), groups=as.factor('c'),
+                data.frame(name=c(letters[2:5], '(_Sink_)', '(_End_)'), price=0.5,
+                           upstream_not_down=c(TRUE, rep(FALSE,3), NA, NA),
+                          supply=c(1L, rep(0L,3),-1L,-2L), groups=as.factor('c'),
                           stringsAsFactors=F)
-               )
-    ni1ni2 <- c(ni1, ni2)
-    expect_equal(ni1ni2$name, c("a", "a", "(_Sink_)", "(_End_)"))
+                )
+    node.labels(ni2) <- ni2[['name']]
+    ni1ni2 <- c(ni1f, ni2)
+    expect_equal(ni1ni2$name, c("b", "c", "d", "(_Sink_)", "(_End_)", letters[2:5], "(_Sink_)", "(_End_)"))
     expect_equal(levels(ni1ni2$groups), c("b", "c"))
-    expect_named(node.labels(ni1ni2), c("a", "a", "(_Sink_)", "(_End_)") )
+    expect_named(node.labels(ni1ni2), c("b", "c", "d", "(_Sink_)", "(_End_)", letters[2:5], "(_Sink_)", "(_End_)") )
     expect_false( any(duplicated(node.labels(ni1ni2))) )
-
-    mbls1  <- new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("a",2)), stringsAsFactors=F)
-                  )
-    expect_silent(c(mbls1, mbls1))
-    mbls2  <- new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("c",2)), stringsAsFactors=F)
-                  )
-
-    mb1mb2 <- c(mbls1, mbls2)
-    expect_equal(mb1mb2$name,  c('a', 'b', 'a', 'b'))
-    expect_equal(levels(mb1mb2$groups), c('a', 'c'))
-
 
     ai1  <- new("ArcInfo",
                matches=data.frame(groups = factor('a'), upstream = factor('b'),
@@ -173,26 +155,14 @@ test_that("c() methods", {
     expect_equal(levels(ai1ai2@bookkeeping$end), "(_Sink_)")
 
 
-    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
+    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1f, arcs=ai1)
     expect_error(c(mcf1, mcf1), "uplicates")
 
 
-    mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2,matchables=mbls2)
+    mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2)
     
     expect_silent(c(mcf1, mcf2))
     expect_silent(c(y=mcf1, z=mcf2))
-
-    mcf3  <- mcf2
-    mcf3@matchables  <-
-        new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("d",2)), stringsAsFactors=F)
-            )
-    ## this `mcf3` is now corrupted:
-    expect_error(validObject(mcf3))
-    ## however, to save time c() just assumes each 
-    ## of the MCFSolutions objects it's combining is individually valid. 
-    expect_silent(c(mcf1, mcf3))
 
     mcf2f  <- as(mcf2, "FullmatchMCFSolutions")
     expect_is(c(mcf2f, mcf1), "FullmatchMCFSolutions")
@@ -239,14 +209,20 @@ test_that("filtering on groups/subproblem field", {
                  )
     expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
 
-    ni1  <- new("NodeInfo",
-               data.frame(name='a', price=0.5, upstream_not_down=TRUE,
-                          supply=1L, groups= as.factor('b'),
-                          stringsAsFactors=F)
-               )
-    expect_silent(ni1a  <- filter_by_subproblem(ni1, groups="b"))
-    expect_identical(ni1, ni1a)
-    expect_silent(ni10  <- filter_by_subproblem(ni1, groups="a"))
+    ni1f  <- new("NodeInfo",
+                 data.frame(name=c('b', 'c', 'd',
+                                   '(_Sink_)', '(_End_)'),
+                            price=0.5,
+                            upstream_not_down=c(TRUE, FALSE,
+                                                FALSE, NA, NA),
+                            supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),
+                            stringsAsFactors=F
+                            )
+                 )
+    node.labels(ni1f)  <- ni1f[['name']]
+    expect_silent(ni1a  <- filter_by_subproblem(ni1f, groups="b"))
+    expect_identical(ni1f, ni1a)
+    expect_silent(ni10  <- filter_by_subproblem(ni1f, groups="a"))
     expect_is(ni10, "NodeInfo")
     expect_equal(nrow(ni10), 0L)
 
@@ -256,24 +232,14 @@ test_that("filtering on groups/subproblem field", {
                           supply=c(0L,-1L,-2L), groups=as.factor('c'),
                           stringsAsFactors=F)
                )
-    ni12  <- c(ni1, ni2)
+    ni12  <- c(ni1f, ni2)
     expect_silent(ni1b  <- filter_by_subproblem(ni12, groups="b"))
     expect_is(ni1b, "NodeInfo")
-    expect_equal(nrow(ni1b), 1L)
+    expect_equal(nrow(ni1b), 5L)
     expect_silent(ni12a  <- filter_by_subproblem(ni12, groups=c("b","c")))
     expect_is(ni12a, "NodeInfo")
-    expect_equal(nrow(ni12a), 4L)
+    expect_equal(nrow(ni12a), 8L)
     
-    mbls1  <- new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("a",2)), stringsAsFactors=F)
-                  )
-    mbls2  <- new("MatchablesInfo",
-                  data.frame(name=c('a','b'), 'row_unit'=c(TRUE, FALSE),
-                             groups = as.factor(rep("c",2)), stringsAsFactors=F)
-                  )
-    mb1mb2 <- c(mbls1, mbls2)
-    expect_error(filter_by_subproblem(mb1mb2, groups="a"), "implemented")
     ai1  <- new("ArcInfo",
                matches=data.frame(groups = factor('a'), upstream = factor('b'),
                                   downstream = factor(c('c','d')), stringsAsFactors=F),
@@ -283,7 +249,7 @@ test_that("filtering on groups/subproblem field", {
                )
     expect_error(filter_by_subproblem(ai1, groups="a"), "implemented")
 
-    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1, arcs=ai1, matchables=mbls1)
+    mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1f, arcs=ai1)
     expect_error(filter_by_subproblem(mcf1, groups="a"), "implemented")
 })
 

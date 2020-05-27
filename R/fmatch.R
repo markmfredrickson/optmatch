@@ -139,6 +139,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                        stringsAsFactors=FALSE
                        )
             )
+    node.labels(nodes)  <- nodes[['name']] # new convention per i166
     if (!is.null(node_info))
         {
             stopifnot(is(node_info, "NodeInfo"),
@@ -165,7 +166,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                  start=c(1L:(nt + nc), # ~ c(row.units, col.units)
                          nt + 1L:nc), # ~ col.units
                  end=c(rep(nt + nc + 1L, nc + nt), # nt + nc+ 1L ~ '(_End_)'
-                       rep(nt + nc + 2L, nc) ), # nt + nc + 2L ~ '(_Sink_)'   
+                       rep(nt + nc + 2L, nc) ), # nt + nc + 2L ~ '(_Sink_)'
           flow=0L,
           capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
                  )
@@ -251,17 +252,28 @@ fmatch <- function(distance, max.row.units, max.col.units,
   matches  <- distance[as.logical(fop$x1[1L:narcs]), c("treated", "control")]
   bookkeeping[1L:(problem.size-narcs), "flow"]  <- fop$x1[(narcs+1L):problem.size]
   ## reshape `matches`, `bookkeeping` to match ArcInfo object spec:
-  colnames(matches)  <- c("upstream", "downstream")
   matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
-                         matches)  
-  bookkeeping[['start']]  <- factor(nodes$name[ bookkeeping[['start']] ])
-  bookkeeping[['end']]  <- factor(nodes$name[ bookkeeping[['end']] ])
+                         upstream=factor(matches[['treated']],
+                                         levels=node.labels(nodes)
+                                         ),
+                         downstream=factor(matches[['control']],
+                                         levels=node.labels(nodes)
+                                         )
+                         )
+  bookkeeping[['start']]  <- factor(bookkeeping[['start']], 
+                                    levels=1L:(nt + nc + 2),
+                                    labels=node.labels(nodes)
+                                    )
+  bookkeeping[['end']]  <- factor(bookkeeping[['end']],
+                                  levels=1L:(nt + nc + 2),
+                                  labels=node.labels(nodes)
+                                  )
   arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
 
   sp  <- new("SubProbInfo")
   sp[1L, "feasible"]  <- TRUE
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
-                nodes=nodes, arcs=arcs, matchables=new("MatchablesInfo"))
+                nodes=nodes, arcs=arcs)
     c(obj,
       list(maxerr=0), # if we were called from doubleSolve(), this will be re-set there
       list(MCFSolution=fmcfs) )
