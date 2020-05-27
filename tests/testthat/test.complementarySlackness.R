@@ -15,16 +15,18 @@ make_known_optimal <- function() {
                      upstream_not_down = c(TRUE, TRUE, FALSE, FALSE, FALSE, NA),
                      supply = c(1L, 1L, 0L, 0L, 0L, -2L),
                      groups = factor(rep("a", 6))))
-
+    node.labels(nodes)  <- nodes[['name']]
+    
     arcs <- new("ArcInfo",
                 matches = data.frame(
                     groups = rep("a", 2),
-                    upstream   = factor(c("A", "B" )),
-                    downstream = factor(c("D", "E"))),
+                    upstream   = factor(c("A", "B" ), levels=node.labels(nodes)),
+                    downstream = factor(c("D", "E"), levels=node.labels(nodes))
+                ),
                 bookkeeping = data.frame(
                     groups = rep("a", 3),
-                    start = factor(c("C", "D", "E")),
-                    end = factor(c("(_End_)", "(_End_)", "(_End_)")),
+                    start = factor(c("C", "D", "E"), levels=node.labels(nodes)),
+                    end = factor(c("(_End_)", "(_End_)", "(_End_)"), levels=node.labels(nodes)),
                     flow = c(0L, 1L, 1L),
                     capacity = rep(1L, 3)
                 ))
@@ -33,8 +35,7 @@ make_known_optimal <- function() {
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
                                feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
-    mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs,
-                         matchables=new("MatchablesInfo"))
+    mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs)
 
     list(x = x, m = m, mcf = mcf_solution)
 }
