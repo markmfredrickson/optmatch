@@ -95,7 +95,7 @@ setValidity("ArcInfo", function(object){
                      '@bookkeeping "flow" values should be nonnegative.')
     if (!all(object@bookkeeping[['flow']]<=object@bookkeeping[['capacity']]))
         errors  <- c(errors,
-                     'in @bookkeeping, flow can be now greater than capacity.')
+                     'in @bookkeeping, flow can be no greater than capacity.')
     if (length(errors)==0) TRUE else errors      
 })
 
@@ -321,8 +321,7 @@ setMethod("nodeinfo", "ANY", function(x) NULL)
 
 ## node labels
 setGeneric("node.labels", function(x) standardGeneric("node.labels"))
-### (setter setup postponed)
-### setGeneric("node.labels<-", function(x) standardGeneric("node.labels<-"))
+ setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))
 setMethod("node.labels", "NodeInfo",
           function(x) setNames(row.names(x), nm=x[['name']])
           )
@@ -332,6 +331,45 @@ setMethod("node.labels", "optmatch", function(x) {
     if (is.null(mcfs)) NULL else node.labels(mcfs)
 })
 setMethod("node.labels", "ANY", function(x) NULL)
+setMethod("node.labels<-", "NodeInfo",
+          function(x, value) {
+              row.names(x) <- value
+              x
+          } 
+          )
+setMethod("node.labels<-", "MCFSolutions",
+          function(x, value) {
+              oldlabels  <- node.labels(x)
+              stopifnot(length(oldlabels)==length(value))
+              names(value)  <- oldlabels
+              node.labels(x@nodes) <- value
+              ## Now have to touch up all the factor levels!
+              x@arcs@matches[['upstream']]  <-
+                  factor(x@arcs@matches[['upstream']], levels=oldlabels,
+                         labels = value[levels(x@arcs@matches[['upstream']])])
+              x@arcs@matches[['downstream']]  <-
+                  factor(x@arcs@matches[['downstream']], levels=oldlabels,
+                         labels = value[levels(x@arcs@matches[['downstream']])])
+              x@arcs@bookkeeping[['start']]  <-
+                  factor(x@arcs@bookkeeping[['start']], levels=oldlabels,
+                         labels = value[levels(x@arcs@bookkeeping[['start']])])
+              x@arcs@bookkeeping[['end']]  <-
+                  factor(x@arcs@bookkeeping[['end']], levels=oldlabels,
+                         labels = value[levels(x@arcs@bookkeeping[['end']])]) 
+              x
+          } 
+          )
+setMethod("node.labels<-", "optmatch", function(x, value) {
+    mcfs  <- attr(x, "MCFSolutions")
+    if (!is.null(mcfs))
+    {
+        node.labels(mcfs)  <- value
+        attr(x, "MCFSolutions")  <- mcfs
+    }
+    x
+})
+setMethod("node.labels<-", "ANY", function(x, value) NULL)
+
 ##'
 ##' This implementation does *not* drop levels of factor
 ##' variables (such as `groups`), in order to facilitate interpretation
