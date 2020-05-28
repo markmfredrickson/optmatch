@@ -32,8 +32,8 @@ evaluate_lagrangian <- function(distances, solution) {
                          suffix = c(x = ".i", y = ".j")
                          )
 
-    eld <- edgelist(distances)
-    suppressWarnings(
+    eld <- edgelist(distances, node.labels(solution))
+
     if (!flipped) {
         main_ij <- left_join(main_ij,
                              eld,
@@ -45,7 +45,7 @@ evaluate_lagrangian <- function(distances, solution) {
                              by = c("upstream" = "j", "downstream"= "i"),
                              suffix = c(x = "", y = ".dist"))
     }
-    )
+
 
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
                                 data.frame(unclass(solution@nodes),
@@ -123,7 +123,7 @@ evaluate_dual <- function(distances, solution) {
              ) * bookkeeping_ij$capacity
 
     ## now do edges corresponding to potential matches
-    eld <- edgelist(distances)
+    eld <- edgelist(distances, node.labels(solution))
 
     ## TODO: need to check if any treated/upstream nodes are being added and bail if solution
     ## need to use the minimum of the price of (_Sink_) and (_End_) to get price of any missing control nodes
@@ -166,6 +166,7 @@ evaluate_dual <- function(distances, solution) {
     ## this time we have to pay attn to whether problem was flipped
     suffices  <-
         if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
+
     suppressWarnings(
     matchable_ij <- left_join(eld,
                          upstream[['TRUE']],
@@ -174,7 +175,6 @@ evaluate_dual <- function(distances, solution) {
                          by = c("j" = "name"),
                          suffix = suffices) # if nec., flip right at end.
     )
-
 
     nonpositive_flowcosts_matchables <-
         pmin(0,
