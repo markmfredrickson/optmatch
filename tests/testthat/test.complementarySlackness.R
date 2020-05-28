@@ -46,16 +46,18 @@ make_caliper_example <- function() {
     tmp <- opt$mcf@nodes[c(1:4, 6), ]
     tmp$price <- c(3.25, 5.75, 0.25, 3.25, 0)
     opt$mcf@nodes <- new("NodeInfo", tmp)
+    row.names(opt$mcf@nodes)  <- setNames(tmp$name, tmp$name)
 
     opt$mcf@arcs <- new("ArcInfo",
                     matches = data.frame(
                         groups = rep("a", 2),
-                        upstream   = factor(c("A", "B" )),
-                        downstream = factor(c("C", "D"))),
+                        upstream   = factor(c("A", "B" ),levels=node.labels(opt$mcf)),
+                        downstream = factor(c("C", "D"),levels=node.labels(opt$mcf))
+                    ),
                     bookkeeping = data.frame(
                         groups = rep("a", 2),
-                        start = factor(c("C", "D")),
-                        end = factor(c("(_End_)", "(_End_)")),
+                        start = factor(c("C", "D"),levels=node.labels(opt$mcf)),
+                        end = factor(c("(_End_)", "(_End_)"),levels=node.labels(opt$mcf)),
                         flow = c(1L, 1L),
                         capacity = rep(1L, 2)))
     return(opt)

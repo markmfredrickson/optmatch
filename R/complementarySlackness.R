@@ -4,6 +4,7 @@
 ## @param solution A MCFSolutions object
 ## @return The value of the Lagrangian.
 #' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 evaluate_lagrangian <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
               nrow(solution@subproblems)==1)
@@ -19,14 +20,17 @@ evaluate_lagrangian <- function(distances, solution) {
 
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
-    suppressWarnings(# re factor conversion
     main_ij <- left_join(solution@arcs@matches,
-                         subset(solution@nodes, upstream_not_down),
-                         by = c("upstream" = "name")) %>%
-               left_join(y = subset(solution@nodes, !upstream_not_down),
-                         by = c("downstream" = "name"),
-                         suffix = c(x = ".i", y = ".j"))
-    )
+                         mutate(subset(solution@nodes, upstream_not_down),
+                                nodelabels=factor(name, levels=node.labels(solution))
+                               ),
+                         by = c("groups", "upstream" = "nodelabels")) %>%
+               left_join(y = mutate(subset(solution@nodes, !upstream_not_down),
+                                    nodelabels=factor(name, levels=node.labels(solution))
+                                    ),
+                         by = c("groups", "downstream" = "nodelabels"),
+                         suffix = c(x = ".i", y = ".j")
+                         )
 
     eld <- edgelist(distances)
     suppressWarnings(
@@ -43,15 +47,18 @@ evaluate_lagrangian <- function(distances, solution) {
     }
     )
 
-    suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
-                                as.data.frame(unclass(solution@nodes)),
-                                by = c("start" = "name")) %>%
-        left_join(y = subset(solution@nodes,
-                             is.na(upstream_not_down)),#assumes bookkeeping arcs...
-                  by = c("end" = "name"),#...terminate only in bookkeeping nodes
+                                data.frame(unclass(solution@nodes),
+                                           nodelabels=factor(solution@nodes[['name']],
+                                                             levels=node.labels(solution))
+                                          ),
+                                by = c("groups", "start" = "nodelabels")) %>%
+        left_join(y = mutate(subset(solution@nodes,#assumes bookkeeping arcs terminate...
+                                        is.na(upstream_not_down)),#...only in bookkeeping nodes
+                             nodelabels = factor(name, levels=node.labels(solution))
+                             ), 
+                  by = c("groups", "end" = "nodelabels"),
                   suffix = c(x = ".i", y = ".j"))
-    )
 
     sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
 
@@ -72,6 +79,7 @@ evaluate_lagrangian <- function(distances, solution) {
 ## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 evaluate_dual <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
               nrow(solution@subproblems)==1)
@@ -97,15 +105,17 @@ evaluate_dual <- function(distances, solution) {
 
     ## calculate costs from bookkeeping edges
     ##
-    suppressWarnings(
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
-                                as.data.frame(unclass(solution@nodes)),
-                                by = c("start" = "name")) %>%
-        left_join(y = subset(solution@nodes,
-                             is.na(upstream_not_down)), #assumes bookkeeping arcs...
-                             by = c("end" = "name"), #... terminate only in bookkeeping nodes
-                             suffix = c(x = ".i", y = ".j"))
-    )
+                                mutate(as.data.frame(unclass(solution@nodes)),
+                                       nodelabels=factor(name, levels=node.labels(solution))
+                                       ), 
+                                by = c("groups", "start" = "nodelabels")) %>%
+        left_join(y = mutate(subset(solution@nodes,#assumes bookkeeping arcs terminate ...
+                                    is.na(upstream_not_down)), #... only in bookkeeping nodes
+                             nodelabels=factor(name, levels=node.labels(solution))
+                            ),
+                  by = c("groups", "end" = "nodelabels"), 
+                  suffix = c(x = ".i", y = ".j"))
 
     nonpositive_flowcosts_bookkeeping  <-
         pmin(0,
