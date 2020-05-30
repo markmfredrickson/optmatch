@@ -4,7 +4,7 @@
 ## @param solution A MCFSolutions object
 ## @return The value of the Lagrangian.
 #' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
+#' @importFrom dplyr filter 
 evaluate_lagrangian <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
               nrow(solution@subproblems)==1)
@@ -20,14 +20,11 @@ evaluate_lagrangian <- function(distances, solution) {
 
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
+    nodes  <- as(solution@nodes, "tbl_df")
     main_ij <- left_join(solution@arcs@matches,
-                         mutate(subset(solution@nodes, upstream_not_down),
-                                nodelabels=factor(name, levels=node.labels(solution))
-                               ),
+                         dplyr::filter(nodes, upstream_not_down),
                          by = c("groups", "upstream" = "nodelabels")) %>%
-               left_join(y = mutate(subset(solution@nodes, !upstream_not_down),
-                                    nodelabels=factor(name, levels=node.labels(solution))
-                                    ),
+               left_join(y = dplyr::filter(nodes, !upstream_not_down),
                          by = c("groups", "downstream" = "nodelabels"),
                          suffix = c(x = ".i", y = ".j")
                          )
@@ -48,19 +45,14 @@ evaluate_lagrangian <- function(distances, solution) {
 
 
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
-                                data.frame(unclass(solution@nodes),
-                                           nodelabels=factor(solution@nodes[['name']],
-                                                             levels=node.labels(solution))
-                                          ),
+                                nodes,
                                 by = c("groups", "start" = "nodelabels")) %>%
-        left_join(y = mutate(subset(solution@nodes,#assumes bookkeeping arcs terminate...
-                                        is.na(upstream_not_down)),#...only in bookkeeping nodes
-                             nodelabels = factor(name, levels=node.labels(solution))
-                             ), 
+        left_join(y = dplyr::filter(nodes,#assumes bookkeeping arcs terminate...
+                             is.na(upstream_not_down)),#...only in bookkeeping nodes
                   by = c("groups", "end" = "nodelabels"),
                   suffix = c(x = ".i", y = ".j"))
 
-    sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
+    sum_supply_price <- sum(nodes$supply * nodes$price)
 
     sum_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j)) +
         sum(bookkeeping_ij$flow * (0 - (bookkeeping_ij$price.i - bookkeeping_ij$price.j)))
@@ -79,7 +71,7 @@ evaluate_lagrangian <- function(distances, solution) {
 ## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
 evaluate_dual <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
               nrow(solution@subproblems)==1)
@@ -101,19 +93,16 @@ evaluate_dual <- function(distances, solution) {
     ## This Q(p) being what you get if minimize the Lagrangian over x's
     ##  respecting capacity but not conservation of flow constraints.
     ##
-    sum_supply_price <- sum(solution@nodes$supply * solution@nodes$price)
+    nodes  <- as(solution@nodes, "tbl_df")    
+    sum_supply_price <- sum(nodes$supply * nodes$price)
 
     ## calculate costs from bookkeeping edges
     ##
     bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
-                                mutate(as.data.frame(unclass(solution@nodes)),
-                                       nodelabels=factor(name, levels=node.labels(solution))
-                                       ), 
+                                nodes, 
                                 by = c("groups", "start" = "nodelabels")) %>%
-        left_join(y = mutate(subset(solution@nodes,#assumes bookkeeping arcs terminate ...
-                                    is.na(upstream_not_down)), #... only in bookkeeping nodes
-                             nodelabels=factor(name, levels=node.labels(solution))
-                            ),
+        left_join(y = dplyr::filter(nodes,#assumes bookkeeping arcs terminate ...
+                                    is.na(upstream_not_down)),#... only in bookkeeping nodes
                   by = c("groups", "end" = "nodelabels"), 
                   suffix = c(x = ".i", y = ".j"))
 
@@ -141,7 +130,7 @@ evaluate_dual <- function(distances, solution) {
     cantadd <- as.character(cantadd)
     canadd <- as.character(canadd)
 
-    upstream <- split(solution@nodes, solution@nodes$upstream_not_down)
+    upstream <- split(nodes, nodes$upstream_not_down)
 
     ## can't impute a node price for these missing node prices
     if (any(!(cantadd %in% upstream[["TRUE"]]$name))) {
@@ -151,30 +140,34 @@ evaluate_dual <- function(distances, solution) {
     ## if we've gotten this far, a missing node price means that it is a down stream node
     ## and the missing price is the lesser of the sink and the overflow bookkeeping nodes
     ## TODO: Should this be the minimum of *any* bookkeeping node's price?
-    impute_price <- min(solution@nodes$price[is.na(solution@nodes$upstream_not_down)])
+    impute_price <- min(nodes$price[is.na(nodes$upstream_not_down)])
 
-    newnames <- canadd[!(canadd %in% solution@nodes$name)]
+    newnames <- canadd[!(canadd %in% nodes$name)]
     k <- length(newnames)
-    upstream[['FALSE']] <- rbind(upstream[['FALSE']],
-                                 new("NodeInfo", data.frame(stringsAsFactors = FALSE,
-                                     name = newnames,
-                                     price = rep(impute_price, k),
-                                     upstream_not_down = rep(FALSE, k),
-                                     supply = rep(0L, k),
-                                     groups = as.factor(rep(NA, k))))) # TODO: get any group labels from the distance?
+    newlevels  <- c(levels(nodes$nodelabels), newnames)
+    levels(upstream[['FALSE']]$nodelabels)  <- newlevels
+    upstream[['FALSE']] <-
+        rbind(upstream[['FALSE']],
+              data.frame(stringsAsFactors = FALSE,
+                         name = newnames,
+                         price = rep(impute_price, k),
+                         upstream_not_down = rep(FALSE, k),
+                         supply = rep(0L, k),
+                         groups = as.factor(rep(NA, k)), # TODO: get any group labels from the distance?
+                         nodelabels = factor(newnames, levels=newlevels)
+                         )
+              )
 
     ## this time we have to pay attn to whether problem was flipped
     suffices  <-
         if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
 
-    suppressWarnings(
     matchable_ij <- left_join(eld,
                          upstream[['TRUE']],
-                         by = c("i" = "name")) %>%
+                         by = c("i" = "nodelabels")) %>%
                left_join(y = upstream[["FALSE"]],
-                         by = c("j" = "name"),
+                         by = c("j" = "nodelabels"),
                          suffix = suffices) # if nec., flip right at end.
-    )
 
     nonpositive_flowcosts_matchables <-
         pmin(0,
