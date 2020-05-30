@@ -43,10 +43,10 @@ make_known_optimal <- function() {
 make_caliper_example <- function() {
     opt <- make_known_optimal()
     opt$cal <- caliper(opt$m, 3, values = TRUE)
-    tmp <- opt$mcf@nodes[c(1:4, 6), ]
-    tmp$price <- c(3.25, 5.75, 0.25, 3.25, 0)
+    tmp <- opt$mcf@nodes
+    tmp$price <- c(3.25, 5.75, 0.25, 3.25, NA_real_, 0)
     opt$mcf@nodes <- new("NodeInfo", tmp)
-    row.names(opt$mcf@nodes)  <- setNames(tmp$name, tmp$name)
+    node.labels(opt$mcf)  <- setNames(tmp$name, tmp$name)
 
     opt$mcf@arcs <- new("ArcInfo",
                     matches = data.frame(

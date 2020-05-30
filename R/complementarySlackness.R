@@ -6,9 +6,8 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr filter 
 evaluate_lagrangian <- function(distances, solution) {
-    stopifnot(is(solution, "MCFSolutions"),
-              nrow(solution@subproblems)==1)
-    flipped  <- solution@subproblems[1L, "flipped"]
+    stopifnot(is(solution, "MCFSolutions"))
+    anyflipped  <- any(solution@subproblems[["flipped"]])
     ## according to Bertsekas *Network Optimization*, page 155, the Lagrangian is given by:
     ## L(x, p) = \sum_{i,j} x_{ij} (a_ij - (p_i - p_j)) + \sum_i s_i p_i
     ## where
@@ -20,7 +19,7 @@ evaluate_lagrangian <- function(distances, solution) {
 
     ## note to self, need to know if problem was flipped to get distances out of the ISM.
 
-    nodes  <- as(solution@nodes, "tbl_df")
+    nodes  <- as(nodeinfo(solution), "tbl_df")
     main_ij <- left_join(solution@arcs@matches,
                          dplyr::filter(nodes, upstream_not_down),
                          by = c("groups", "upstream" = "nodelabels")) %>%
@@ -30,25 +29,20 @@ evaluate_lagrangian <- function(distances, solution) {
                          )
 
     eld <- edgelist(distances, node.labels(solution))
+    if (anyflipped)
+        eld  <- rbind(eld, edgelist(t(distances), node.labels(solution)))
 
-    if (!flipped) {
-        main_ij <- left_join(main_ij,
-                             eld,
-                             by = c("upstream" = "i", "downstream"= "j"),
-                             suffix = c(x = "", y = ".dist"))
-    } else {
-        main_ij <- left_join(main_ij,
-                             eld,
-                             by = c("upstream" = "j", "downstream"= "i"),
-                             suffix = c(x = "", y = ".dist"))
-    }
+    main_ij <- left_join(main_ij, eld,
+                         by = c("upstream" = "i", "downstream"= "j"),
+                         suffix = c(x = "", y = ".dist")
+                         )
 
-
-    bookkeeping_ij <- left_join(solution@arcs@bookkeeping,
-                                nodes,
-                                by = c("groups", "start" = "nodelabels")) %>%
-        left_join(y = dplyr::filter(nodes,#assumes bookkeeping arcs terminate...
-                             is.na(upstream_not_down)),#...only in bookkeeping nodes
+    bookkeeping_ij <- solution@arcs@bookkeeping %>%
+        left_join(nodes,
+                  by = c("groups", "start" = "nodelabels")
+                  ) %>%
+        left_join(dplyr::filter(nodes,#assumes bookkeeping arcs terminate...
+                                is.na(upstream_not_down)),#...only in bookkeeping nodes
                   by = c("groups", "end" = "nodelabels"),
                   suffix = c(x = ".i", y = ".j"))
 
@@ -71,11 +65,27 @@ evaluate_lagrangian <- function(distances, solution) {
 ## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
+#' @importFrom dplyr semi_join 
 #' @importFrom dplyr filter
 evaluate_dual <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
-              nrow(solution@subproblems)==1)
-    flipped  <- solution@subproblems[1L, "flipped"]
+              is(solution, "FullmatchMCFSolutions") ||
+              all(nodeinfo(solution)[is.na(nodeinfo(solution)$upstream_not_down),
+                                     "name"] %in% c('(_Sink_)', '(_End_)')
+                  ),
+              all(rownames(distances) %in% names(node.labels(solution))),
+              all(colnames(distances) %in% names(node.labels(solution)))
+              )
+    if (xtras  <- 
+            length(setdiff(unlist(dimnames(distances)),
+                             nodeinfo(solution)[['name']]
+                           )
+                   )
+        ) stop(paste("distances involve", xtras,
+                     "nodes not in nodeinfo(solution)[['name']].\n",
+                     "All nodes need to be tabled there.")
+               )
+    anyflipped  <- any(solution@subproblems[["flipped"]])
     ## according to Bertsekas *Network Optimization*, page 156-7,
     ## the dual functional is given by:
     ##
@@ -93,7 +103,7 @@ evaluate_dual <- function(distances, solution) {
     ## This Q(p) being what you get if minimize the Lagrangian over x's
     ##  respecting capacity but not conservation of flow constraints.
     ##
-    nodes  <- as(solution@nodes, "tbl_df")    
+    nodes  <- as(nodeinfo(solution), "tbl_df")    
     sum_supply_price <- sum(nodes$supply * nodes$price)
 
     ## calculate costs from bookkeeping edges
@@ -113,68 +123,59 @@ evaluate_dual <- function(distances, solution) {
 
     ## now do edges corresponding to potential matches
     eld <- edgelist(distances, node.labels(solution))
+    if (anyflipped)
+        eld  <- rbind(eld, edgelist(t(distances), node.labels(solution)))
 
-    ## TODO: need to check if any treated/upstream nodes are being added and bail if solution
-    ## need to use the minimum of the price of (_Sink_) and (_End_) to get price of any missing control nodes
-    ## append these to the nodes table.
-
-    ## for usual problems, we can add treated units (rownames) because we can infer a node price
-    if (!flipped) {
-        cantadd <- unique(eld$i)
-        canadd <- unique(eld$j)
-    } else {
-        cantadd <- unique(eld$j)
-        canadd <- unique(eld$i)
-    }
-
-    cantadd <- as.character(cantadd)
-    canadd <- as.character(canadd)
-
-    upstream <- split(nodes, nodes$upstream_not_down)
-
-    ## can't impute a node price for these missing node prices
-    if (any(!(cantadd %in% upstream[["TRUE"]]$name))) {
+    ## now check if any treated/upstream nodes are being added; if so, bail
+    ## (don't currently know how to impute prices for upstream nodes.
+    ##  nor do we have logic with which to impute their supplies.)
+    if (any(upstream_NA  <- is.na(nodes[['price']]) &
+                !is.na(nodes[['upstream_not_down']]) &
+                nodes[['upstream_not_down']]
+            )
+        ) {
+        if (any(nodes[['name']][upstream_NA] %in%
+                as.character(c(eld[['i']], eld[['j']]))
+                )
+            )
         stop("Cannot impute node price for upstream nodes (usually treatment) that were not included in original matching problem.")
     }
     
     ## if we've gotten this far, a missing node price means that it is a down stream node
     ## and the missing price is the lesser of the sink and the overflow bookkeeping nodes
-    ## TODO: Should this be the minimum of *any* bookkeeping node's price?
-    impute_price <- min(nodes$price[is.na(nodes$upstream_not_down)])
+    if (any(downstream_NA  <- is.na(nodes[['price']]) &
+                !is.na(nodes[['upstream_not_down']]) &
+                !nodes[['upstream_not_down']]
+            )
+        ) {
+        for (gg in levels(factor(nodes$groups)))
+            {
+        price_imputation <-
+            min(nodes$price[nodes$groups==gg &
+                            is.na(nodes$upstream_not_down)]
+                )
+        nodes[downstream_NA & nodes$groups==gg,
+              "price"]  <- price_imputation
+        }
+    }
 
-    newnames <- canadd[!(canadd %in% nodes$name)]
-    k <- length(newnames)
-    newlevels  <- c(levels(nodes$nodelabels), newnames)
-    levels(upstream[['FALSE']]$nodelabels)  <- newlevels
-    upstream[['FALSE']] <-
-        rbind(upstream[['FALSE']],
-              data.frame(stringsAsFactors = FALSE,
-                         name = newnames,
-                         price = rep(impute_price, k),
-                         upstream_not_down = rep(FALSE, k),
-                         supply = rep(0L, k),
-                         groups = as.factor(rep(NA, k)), # TODO: get any group labels from the distance?
-                         nodelabels = factor(newnames, levels=newlevels)
-                         )
-              )
-
-    ## this time we have to pay attn to whether problem was flipped
-    suffices  <-
-        if (!flipped) c(x =".i", y =".j") else c(x =".j", y =".i")
-
-    matchable_ij <- left_join(eld,
-                         upstream[['TRUE']],
-                         by = c("i" = "nodelabels")) %>%
-               left_join(y = upstream[["FALSE"]],
-                         by = c("j" = "nodelabels"),
-                         suffix = suffices) # if nec., flip right at end.
+    matchable_ij <-  eld %>% 
+        semi_join(y = filter(nodes, upstream_not_down),
+                  by = c("i" = "nodelabels")
+                  ) %>%
+        semi_join(y = filter(nodes, !upstream_not_down),
+                  by = c("j" = "nodelabels"),
+                  suffix = c(x =".i", y =".j")
+                  ) 
 
     nonpositive_flowcosts_matchables <-
         pmin(0,
-             matchable_ij$dist - (matchable_ij$price.i - matchable_ij$price.j)
+             matchable_ij$dist -
+             (matchable_ij$price.i - matchable_ij$price.j)
              )
 
     return(sum_supply_price +
            sum(nonpositive_flowcosts_bookkeeping) +
-           sum(nonpositive_flowcosts_matchables))
+           sum(nonpositive_flowcosts_matchables)
+           )
 }
