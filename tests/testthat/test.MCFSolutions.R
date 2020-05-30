@@ -31,6 +31,9 @@ test_that("Instantiation & validity", {
                               )
                   )
     expect_equivalent(node.labels(ni1f), as.character(1:5))
+    expect_named(node.labels(ni1f),
+                 c('b', 'c', 'd', '(_Sink_)', '(_End_)')
+                 )
     expect_silent(node.labels(ni1f)  <- ni1f[['name']])
     expect_equivalent(node.labels(ni1f), ni1f[['name']])
     expect_error(new("NodeInfo",
@@ -189,6 +192,49 @@ test_that("nodeinfo getter",{
     expect_false(is.null(attr(f1, "MCFSolutions")))
     expect_is(nodeinfo(f1), "NodeInfo")
     expect_null(nodeinfo(10))
+})
+test_that("NodeInfo to tibble converter", {
+    ni1f  <- new("NodeInfo",
+                 data.frame(name=c('b', 'c', 'd',
+                                   '(_Sink_)', '(_End_)'),
+                            price=0.5,
+                            upstream_not_down=c(TRUE, FALSE,
+                                                FALSE, NA, NA),
+                            supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),
+                            stringsAsFactors=F)
+                 )
+    expect_silent(ni_tbl  <- as(ni1f, "tbl_df"))
+    expect_is(ni_tbl$nodelabels, "factor")
+    expect_equivalent(as.character(ni_tbl$nodelabels),
+                      as.character(1:5))
+    expect_null(names(ni_tbl$nodelabels))
+    node.labels(ni1f) <- ni1f[['name']]
+    expect_silent(ni_tbl  <- as(ni1f, "tbl_df"))
+    expect_is(ni_tbl$nodelabels, "factor")
+    expect_equivalent(as.character(ni_tbl$nodelabels), 
+                      c('b', 'c', 'd', '(_Sink_)', '(_End_)')
+                      )
+    expect_equivalent(levels(ni_tbl$nodelabels), 
+                      c('b', 'c', 'd', '(_Sink_)', '(_End_)')
+                      ) # default encoding would start w/ "(_End_)", "(_Sink_)"
+})
+test_that("Preserve levels when filtering a node info tibble",{
+    ni1f  <- new("NodeInfo",
+                 data.frame(name=c('b', 'c', 'd',
+                                   '(_Sink_)', '(_End_)'),
+                            price=0.5,
+                            upstream_not_down=c(TRUE, FALSE,
+                                                FALSE, NA, NA),
+                            supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),
+                            stringsAsFactors=F)
+                 )
+    node.labels(ni1f) <- ni1f[['name']]
+    ni_tbl  <- as(ni1f, "tbl_df")
+    expect_silent(ni_tbl_s  <- dplyr::filter(ni_tbl, name %in% letters))
+    expect_is(ni_tbl_s$nodelabels, "factor")
+    expect_equivalent(levels(ni_tbl_s$nodelabels), 
+                      c('b', 'c', 'd', '(_Sink_)', '(_End_)')
+                      ) 
 })
 test_that("Node labels getter",{
     expect_silent(mcf  <-  new("MCFSolutions")) #prelim-

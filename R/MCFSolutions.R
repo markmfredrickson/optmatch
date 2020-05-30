@@ -62,6 +62,17 @@ setValidity("NodeInfo", function(object){
     if (length(errors)==0) TRUE else errors      
 })
 
+##' @importFrom tibble as_tibble
+##' @importFrom tibble enframe
+setAs("NodeInfo", "tbl_df", function(from){
+    nl  <- node.labels(from)
+    nl  <- factor(nl, levels=nl)
+    nl  <- enframe(nl, name= NULL, value = "nodelabels")
+    from  <- asS3(from) # circumvent as.tibble warning about dropping S4 
+    ans <- as_tibble(from, rownames=NULL)
+    cbind(ans, nl)
+})
+
 setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
          prototype=
              prototype(matches=data.frame(groups = factor(), upstream = factor(), 
