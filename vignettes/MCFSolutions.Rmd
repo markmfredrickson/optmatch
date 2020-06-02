@@ -26,7 +26,7 @@ Through 2018 (version 0.9*), no attempt was made to store the dual problem solut
 1.  When solver saw a discretized version of the distance, check whether solution is optimal for matching problem w/ double precision distance (by checking whether primal solution and back-transformed dual solution stand in CS relation to one another). (Cf. issue 160.)
 2. Warm starts for MCF problems deriving from same double-precision distance but w/ a different discretization. (Cf. issue 76.)
 3. Use dual solution to one problem as warm start for another problem with same arcs, arc costs as in original problem but adding new arcs (between existing nodes).
-4. Use dual solution to one problem as warm start for another problem with same arcs, arc costs but adding new arcs and nodes.
+4. Use dual solution to one problem as warm start for another problem with same arcs and arc costs, but adding new "downstream" nodes and new arcs connecting them to existing "upstream" nodes.  
 
 
 
@@ -87,6 +87,7 @@ Rules/conventions:
    "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)"
    nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink"
    in H.&K. '06 Fig. 2.
+-  A node's `price` can be `NA_real_`, but only if `upstream_not_down=FALSE`.  See also Rules/conventions pertaining to `MCFSolutions` objects, below. 
 - This type's validity checker should be fast, eschewing expensive operations.
 - If the solver operated on a transformation of the distance, it's the correspondingly back-transformed node prices that are stored in the `NodeInfo`. 
 

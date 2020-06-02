@@ -119,7 +119,9 @@ test_that("c() methods", {
     ni1f  <- new("NodeInfo",
                  data.frame(name=c('b', 'c', 'd',
                                    '(_Sink_)', '(_End_)'),
-                            price=0.5,
+                            price=c(0.5, 0.5,
+                                    NA_real_, # permissible for downstream nodes
+                                    0.5, 0.5),
                             upstream_not_down=c(TRUE, FALSE,
                                                 FALSE, NA, NA),
                             supply=c(1L,0L,0L,-1L,-2L), groups = as.factor('b'),

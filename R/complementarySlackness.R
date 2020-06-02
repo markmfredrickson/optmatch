@@ -46,7 +46,7 @@ evaluate_lagrangian <- function(distances, solution) {
                   by = c("groups", "end" = "nodelabels"),
                   suffix = c(x = ".i", y = ".j"))
 
-    sum_supply_price <- sum(nodes$supply * nodes$price)
+    sum_supply_price <- sum(nodes$supply * nodes$price, na.rm=TRUE)
 
     sum_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j)) +
         sum(bookkeeping_ij$flow * (0 - (bookkeeping_ij$price.i - bookkeeping_ij$price.j)))
@@ -65,7 +65,7 @@ evaluate_lagrangian <- function(distances, solution) {
 ## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
-#' @importFrom dplyr semi_join 
+#' @importFrom dplyr inner_join 
 #' @importFrom dplyr filter
 evaluate_dual <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"),
@@ -104,7 +104,7 @@ evaluate_dual <- function(distances, solution) {
     ##  respecting capacity but not conservation of flow constraints.
     ##
     nodes  <- as(nodeinfo(solution), "tbl_df")    
-    sum_supply_price <- sum(nodes$supply * nodes$price)
+    sum_supply_price <- sum(nodes$supply * nodes$price, na.rm=TRUE)
 
     ## calculate costs from bookkeeping edges
     ##
@@ -160,10 +160,10 @@ evaluate_dual <- function(distances, solution) {
     }
 
     matchable_ij <-  eld %>% 
-        semi_join(y = filter(nodes, upstream_not_down),
+        inner_join(y = filter(nodes, upstream_not_down),
                   by = c("i" = "nodelabels")
                   ) %>%
-        semi_join(y = filter(nodes, !upstream_not_down),
+        inner_join(y = filter(nodes, !upstream_not_down),
                   by = c("j" = "nodelabels"),
                   suffix = c(x =".i", y =".j")
                   ) 
