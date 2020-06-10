@@ -12,28 +12,30 @@
 \alias{match_on.matrix}
 \title{Create treated to control distances for matching problems}
 \usage{
-match_on(x, within = NULL, caliper = NULL, data = NULL, ...)
+match_on(x, within = NULL, caliper = NULL, exclude = NULL,
+  data = NULL, ...)
 
-\method{match_on}{glm}(x, within = NULL, caliper = NULL, data = NULL,
-  standardization.scale = mad, ...)
+\method{match_on}{glm}(x, within = NULL, caliper = NULL,
+  exclude = NULL, data = NULL, standardization.scale = mad, ...)
 
 \method{match_on}{bigglm}(x, within = NULL, caliper = NULL,
-  data = NULL, standardization.scale = mad, ...)
+  exclude = NULL, data = NULL, standardization.scale = mad, ...)
 
 \method{match_on}{formula}(x, within = NULL, caliper = NULL,
-  data = NULL, subset = NULL, method = "mahalanobis", ...)
+  exclude = NULL, data = NULL, subset = NULL,
+  method = "mahalanobis", ...)
 
 \method{match_on}{function}(x, within = NULL, caliper = NULL,
-  data = NULL, z = NULL, ...)
+  exclude = NULL, data = NULL, z = NULL, ...)
 
 \method{match_on}{numeric}(x, within = NULL, caliper = NULL,
-  data = NULL, z, ...)
+  exclude = NULL, data = NULL, z, ...)
 
 \method{match_on}{InfinitySparseMatrix}(x, within = NULL,
-  caliper = NULL, data = NULL, ...)
+  caliper = NULL, exclude = NULL, data = NULL, ...)
 
 \method{match_on}{matrix}(x, within = NULL, caliper = NULL,
-  data = NULL, ...)
+  exclude = NULL, data = NULL, ...)
 }
 \arguments{
 \item{x}{An object defining how to create the distances. All methods require
@@ -51,6 +53,9 @@ methods will fail.}
 with values greater than the width. For some methods, there may be a speed
 advantage to passing a width rather than using the \code{\link{caliper}}
 function on an existing distance specification.}
+
+\item{exclude}{A list of units (treated or control) to exclude from the
+\code{caliper} argument (if supplied).}
 
 \item{data}{An optional data frame.}
 
@@ -217,7 +222,7 @@ are forbidden.  Conceptually, those distances are set to \code{Inf}; computation
 \code{caliper} and \code{within} has been specified then only information about permissible pairings
 will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
 as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-storage requirements and may otherwise improve performance, particularly in larger problems.
+storage requirements and may otherwise improve performance, particularly in larger problems. 
 
 For the numeric method, \code{x} must have names.
 

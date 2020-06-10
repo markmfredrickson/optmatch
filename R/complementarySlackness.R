@@ -1,3 +1,47 @@
+##' @title Compute value of primal problem given flows and arc costs
+##' @param distances An InfinitySparseMatrix giving distances
+##' @param solution A MCFSolutions object
+##' @return The value of the primal problem, i.e. sum of
+##' products of \code{distances} with flow along arcs in \code{solution}
+##' @author Hansen
+##' @importFrom dplyr left_join
+evaluate_primal  <- function(distances, solution) {
+    stopifnot(is(solution, "MCFSolutions"),
+              nrow(solution@subproblems)==1 || !any(solution@subproblems[["flipped"]]))
+    flipped  <- solution@subproblems[1L, "flipped"]
+    ## Following notation of Bertsekas *Network Optimization*, page 155,
+    ## the primal problem value is
+    ## \sum_{i,j} x_{ij} a_ij 
+    ## where
+    ##  - x_ij is the amount of flow along ij
+    ##  - a_ij is the cost of the edge ij
+    ## (Node prices don't have a role here.)
+
+    suppressWarnings(# re factor conversion
+    main_ij <- left_join(solution@arcs@matches,
+                         subset(solution@nodes, upstream_not_down),
+                         by = c("upstream" = "name")) %>%
+               left_join(y = subset(solution@nodes, !upstream_not_down),
+                         by = c("downstream" = "name"),
+                         suffix = c(x = ".i", y = ".j"))
+    )
+
+    eld <- edgelist(distances)
+    suppressWarnings(
+    if (!flipped) {
+        main_ij <- left_join(main_ij,
+                             eld,
+                             by = c("upstream" = "i", "downstream"= "j"),
+                             suffix = c(x = "", y = ".dist"))
+    } else {
+        main_ij <- left_join(main_ij,
+                             eld,
+                             by = c("upstream" = "j", "downstream"= "i"),
+                             suffix = c(x = "", y = ".dist"))
+    }
+    )
+    sum(main_ij$dist)
+    }
 ## Computing the Lagrangian given a mathc and a set of node prices 
 ##
 ## @param distances An InfinitySparseMatrix giving distances
