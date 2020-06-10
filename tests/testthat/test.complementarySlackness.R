@@ -63,6 +63,16 @@ make_caliper_example <- function() {
     return(opt)
 }
 
+test_that("Compute primal", {
+    opt <- make_known_optimal()
+    expect_equal(evaluate_primal(opt$m, opt$mcf), 4)
+  ## repeat with a dense density matrix
+    expect_equal(evaluate_primal(as.matrix(opt$m), opt$mcf), 4)
+
+    ## now do it with a calipered version of the problem.
+    cal <- make_caliper_example()
+    expect_equal(evaluate_primal(cal$cal, cal$mcf), 5)
+})
 test_that("Compute Lagrangian", {
     opt <- make_known_optimal()
     ## since the above arcs represents the optimal, the lagrangian at this point should be equal to the

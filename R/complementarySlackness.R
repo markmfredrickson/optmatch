@@ -1,10 +1,81 @@
+##' @title Compute value of primal problem given flows and arc costs
+##' @param distances An InfinitySparseMatrix giving distances
+##' @param solution A MCFSolutions object
+##' @return The value of the primal problem, i.e. sum of
+##' products of \code{distances} with flow along arcs in \code{solution}
+##' @author Hansen
+##' @importFrom dplyr left_join
+##' @importFrom dplyr filter 
+evaluate_primal  <- function(distances, solution) {
+    stopifnot(is(solution, "MCFSolutions"))
+    anyflipped  <- any(solution@subproblems[["flipped"]])
+    ## Following notation of Bertsekas *Network Optimization*, page 155,
+    ## the primal problem value is
+    ## \sum_{i,j} x_{ij} a_ij 
+    ## where
+    ##  - x_ij is the amount of flow along ij
+    ##  - a_ij is the cost of the edge ij
+    ## (Node prices don't have a role here.)
+
+    nodes  <- as(nodeinfo(solution), "tbl_df")
+    main_ij <- left_join(solution@arcs@matches,
+                         dplyr::filter(nodes, upstream_not_down),
+                         by = c("groups", "upstream" = "nodelabels")) %>%
+               left_join(y = dplyr::filter(nodes, !upstream_not_down),
+                         by = c("groups", "downstream" = "nodelabels"),
+                         suffix = c(x = ".i", y = ".j")
+                         )
+
+
+    eld <- edgelist(distances)
+    if (anyflipped)
+        eld  <- rbind(eld,
+                      edgelist(t(distances),
+                               node.labels(solution)
+                               )
+                      )
+
+    main_ij <- main_ij %>% left_join(eld,
+                                     by = c("upstream" = "i",
+                                            "downstream"= "j"),
+                         suffix = c(x = "", y = ".dist")
+                         )
+    main_costs  <- sum(main_ij$dist)
+
+    ## The below addresses a circumstance that doesn't
+    ## currently arise, namely nonzero costs for arcs involving
+    ## bookkeeping nodes.   It assumes that if/when that
+    ## occurs:
+    ## - bookkeeping node labels in the levels of the EdgeList's
+    ##   i/j cols indicates that we're in this scenario
+    ## - any nonzero costs will be communicated by EdgeList entries
+    bookkeeping_node_labels  <- nodes %>%
+        filter(is.na(upstream_not_down))$nodelabels
+    bookkeeping_costs  <-
+        if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        {
+                if (!anyflipped) #if `anyflipped` is T, then this 
+                    eld  <- rbind(eld,#was already done previously
+                                  edgelist(t(distances),
+                                           node.labels(solution)
+                                           )
+                                  )
+                bookkeeping_ij <- solution@arcs@bookkeeping %>%
+                    left_join(eld, by=c("start" = "i", "end"="j")
+                              )
+                sum(bookkeeping_ij$dist * bookkeeping_ij$flow,
+                    na.rm=TRUE)
+        } else 0
+    
+    main_costs + bookkeeping_costs
+    }
 ## Computing the Lagrangian given a match and a set of node prices 
 ##
 ## @param distances An InfinitySparseMatrix giving distances
 ## @param solution A MCFSolutions object
 ## @return The value of the Lagrangian.
 #' @importFrom dplyr left_join
-#' @importFrom dplyr filter 
+#' @importFrom dplyr filter
 evaluate_lagrangian <- function(distances, solution) {
     stopifnot(is(solution, "MCFSolutions"))
     anyflipped  <- any(solution@subproblems[["flipped"]])
@@ -48,10 +119,15 @@ evaluate_lagrangian <- function(distances, solution) {
 
     sum_supply_price <- sum(nodes$supply * nodes$price, na.rm=TRUE)
 
-    sum_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j)) +
+    sum_main_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j))
+    bookkeeping_node_labels  <- nodes %>%
+        filter(is.na(upstream_not_down))$nodelabels
+    if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        warning("Distances involving bookkeeping nodes ignored/treated as 0")
+    sum_bookkeeping_flow_cost  <- 
         sum(bookkeeping_ij$flow * (0 - (bookkeeping_ij$price.i - bookkeeping_ij$price.j)))
 
-    return(sum_flow_cost + sum_supply_price)
+    return(sum_main_flow_cost + sum_bookkeeping_flow_cost + sum_supply_price)
 }
 
 
@@ -121,11 +197,14 @@ evaluate_dual <- function(distances, solution) {
              bookkeeping_ij$price.j - bookkeeping_ij$price.i
              ) * bookkeeping_ij$capacity
 
-    ## now do edges corresponding to potential matches
     eld <- edgelist(distances, node.labels(solution))
+    bookkeeping_node_labels  <- nodes %>%
+        filter(is.na(upstream_not_down))$nodelabels
+    if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        warning("Distances involving bookkeeping nodes ignored/treated as 0")
+
     if (anyflipped)
         eld  <- rbind(eld, edgelist(t(distances), node.labels(solution)))
-
     ## now check if any treated/upstream nodes are being added; if so, bail
     ## (don't currently know how to impute prices for upstream nodes.
     ##  nor do we have logic with which to impute their supplies.)
