@@ -35,8 +35,8 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
     stop("inputs min.cpt, max.cpt must be positive")
   }
     stopifnot(is(node_info, "NodeInfo"))
-    rownames   <- subset(node_info, upstream_not_down, name)[["name"]]
-    colnames   <- subset(node_info, !upstream_not_down, name)[["name"]]
+    rownames   <- node_info[ node_info[['upstream_not_down']], "name"]
+    colnames   <- node_info[!node_info[['upstream_not_down']], "name"]
   if (!all(rownames %in% dimnames(distspec)[[1]])) {
     stop("node_info rownames must be rownames for \'distspec\'")
   }
@@ -46,20 +46,18 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
   }
  
   # distance must have a prepareMatching object
-  if (!hasMethod("prepareMatching", class(distspec))) {
-    stop("Argument \'distspec\' must have a \'prepareMatching\' method")
+  if (!hasMethod("edgelist", class(distspec))) {
+    stop("Argument \'distspec\' must have a \'edgelist\' method")
   }
 
-  # convert the distspec into a cannonical matching specification with columns
-  # treated, control, distance
-
-  dm <- prepareMatching(distspec)
+  # convert the distspec to cannonical EdgeList
+  dm <- edgelist(distspec, c(rownames, colnames))
 
   rownames <- as.character(rownames)
   colnames <- as.character(colnames)
 
-  rfeas <- length(unique(dm$treated))
-  cfeas <- length(unique(dm$control))
+  rfeas <- length(unique(dm[['i']]))
+  cfeas <- length(unique(dm[['j']]))
   # If any controls were unmatchable, they were dropped by prepareMatching, and
   # positive `omit.fraction`'s need to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
@@ -93,7 +91,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
     
 
     old.o <- options(warn=-1)
-    epsilon_lower_lim  <- max(dm$distance)/(.Machine$integer.max/64 -2)
+    epsilon_lower_lim  <- max(dm[['dist']])/(.Machine$integer.max/64 -2)
     epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
                 min(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
             } else epsilon_lower_lim
@@ -111,8 +109,8 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
             doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, epsilon)
         }
 
-  temp$treated <- factor(temp$treated)
-  temp$control <- factor(temp$control)
+  temp$treated <- factor(temp[['i']]) # levels of these factors now convey
+  temp$control <- factor(temp[['j']]) # treatment/control distinction
   ans <- rep(NA,length(rownames)+length(colnames))
   names(ans) <- c(rownames, colnames)
 
@@ -148,7 +146,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, epsilon) 
 {
-    dm$distance  <- as.integer(ceiling(.5 + dm$distance / epsilon))
+    dm[['dist']]  <- as.integer(ceiling(.5 + dm[['dist']] / epsilon))
     if (!is.null(node_info))
         node_info$price  <- as.integer(ceiling(node_info$price / epsilon))
     
@@ -166,8 +164,8 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     intsol$maxerr  <-
         if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
             0 } else {
-                  sum(intsol$solution * dm$distance, na.rm = TRUE) -
-                      sum(intsol$solution * (intsol$distance - 1/2), na.rm = TRUE) * epsilon +
+                  sum(intsol$solution * dm[['dist']], na.rm = TRUE) -
+                      sum(intsol$solution * (intsol$dist - 1/2), na.rm = TRUE) * epsilon +
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
                       (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
               }
@@ -177,7 +175,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info)
     fmatch(dm, max.row.units = ceiling(1/min.cpt),
            max.col.units = ceiling(max.cpt),
            min.col.units = max(1, floor(min.cpt)),
@@ -187,21 +185,38 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info = NULL)
 ##* @keywords internal
 solution2factor <- function(s) {
     s2  <- as.data.frame(s[c("control","treated","solution")])
-  s2 <- s2[s2$solution == 1,]
+  s2 <- s2[s2[['solution']] == 1,,drop=FALSE]
 
   if (dim(s2)[1] == 0) {
     return(NULL)
   }
 
-  # control units are labeled by the first treated unit to which they are connected
-  # unlist(as.list(...)) was the best way I could find to make this into a vector, keeping names
-  control.links <- unlist(as.list(by(s2, s2$control, function(x) { x[1,"treated"] })))
+  ## control units are labeled by the first treated unit
+  ## to which they are connected.
+  control.links  <- factor(character(nlevels(s2[['control']])),
+                           levels=levels(s2[['treated']])
+                           )
+  names(control.links)  <- levels(s2[['control']])
+  reduced  <- s2[!duplicated(s2[['control']]),,drop=FALSE]
+  control.links[as.character(reduced[['control']])]  <- 
+      reduced[['treated']]
 
-  # treated units are labeld by the label of the first control unit to which they are connected
-  treated.links <- unlist(as.list(by(s2, s2$treated, function(x) { control.links[x[1, "control"]][1] })))
+  ## Treated units are labeled the same as the
+  ## controls they're connected to.  When
+  ## a treatment is matched to multiple controls,
+  ## they each have the same label, so we just
+  ## use the first instance.
+  treated.links  <- factor(character(nlevels(s2[['treated']])),
+                           levels=levels(s2[['treated']])
+                           )
+  names(treated.links)  <- levels(s2[['treated']])
+  reduced  <- s2[!duplicated(s2[['treated']]), , drop=FALSE]
+  treated.links[as.character(reduced[['treated']])]  <- 
+    control.links[as.character(reduced[['control']])]
 
   # join the links
-  return(c(treated.links, control.links))
+  combined.factor  <- c(treated.links, control.links)
+  return(as.integer(combined.factor))
 
 }
 

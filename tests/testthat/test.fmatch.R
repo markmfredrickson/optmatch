@@ -17,7 +17,7 @@ test_that("fmatch accepts DistanceSpecifications", {
   m <- matrix(v, nrow = 3, ncol = 3)
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
-  pm <- prepareMatching(m)
+  pm <- edgelist(m)
 
   res <- fmatch(pm, 2, 2)
   expect_true(all(c("control","treated",
@@ -31,7 +31,7 @@ test_that("fmatch accepts DistanceSpecifications", {
                numeric(0))
 
   M <- as.InfinitySparseMatrix(m)
-  pM <- prepareMatching(M)
+  pM <- edgelist(M)
   res.ism <- fmatch(pM, 2, 2)
   expect_identical(res$solution, res.ism$solution)
 })
@@ -47,14 +47,14 @@ test_that("Stop on unacceptable input", {
   
   m1  <- m
   colnames(m1) <- c("(_Sink_)", "B", "C")  
-  pm1  <- prepareMatching(m1)
+  pm1  <- edgelist(m1)
   expect_error(fmatch(pm1,2,2), "(_Sink_)")
 
   m2  <- m1
   colnames(m2) <- c("A", "B", "C")
   rownames(m2) <- c("(_End_)", "E", "F")
 
-  pm2  <- prepareMatching(m2)
+  pm2  <- edgelist(m2)
   expect_error(fmatch(pm2,2,2), "(_End_)")
 
 })
@@ -68,7 +68,7 @@ test_that("Solutions -> factor helper", {
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
 
-  skeleton <- prepareMatching(m)
+  skeleton <- edgelist(m)
 
   pairs <- cbind(skeleton, solution = c(1,0,0,1,0,0,1))
   pairs.expected <- c(1,2,3,1,2,3)
@@ -76,11 +76,10 @@ test_that("Solutions -> factor helper", {
 
   expect_equal(solution2factor(pairs), pairs.expected)
 
-  groupOfFour <- cbind(skeleton, solution = c(1,1,0,1,1,0,1))
-  gof.expected <- c(1,2,1,1,2,1)
-  names(gof.expected) <- c("D", "E", "F", "A", "B", "C")
-
-  expect_equal(solution2factor(groupOfFour), gof.expected)
+  pairOfTriples <- cbind(skeleton, solution = c(1,0,1,0,0,1,1))
+  pot.expected <- c(1,2,2,1,1,2)
+  names(pot.expected) <- c("D", "E", "F", "A", "B", "C")
+  expect_equal(solution2factor(pairOfTriples), pot.expected)
 
   treatedNotMatched <- cbind(skeleton, solution = c(1,0,0,1,1,0,0))
   tnm.expected <- c(1,2, NA, 1,2,1)
@@ -109,7 +108,7 @@ test_that("Passing and receiving node information",{
   m <- matrix(v, nrow = 3, ncol = 3)
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
-  pm <- prepareMatching(m)
+  pm <- edgelist(m)
 
   res <- fmatch(pm, 2, 2)
   expect_false(is.null(mcfs0  <-  res$MCFSolution))

@@ -11,28 +11,24 @@
 ##* distances, unless all provided distances are NA, in which case
 ##* they'll be interpreted as 1L's. 
 ##* @title Full matching via RELAX-IV min cost flow solver
-##* @param distance data frame w/ integer columns distance, treated, control; see Details
+##* @param distance EdgeList; see details
 ##* @param max.row.units numeric, upper limit on num treated units per matched set
 ##* @param max.col.units numeric, upper limit on num control units per matched set
 ##* @param min.col.units numeric, lower limit on num control units per matched set
 ##* @param f double, fraction of all row units to be matched
-##* @param node_info NodeInfo object for this subproblem, or `NULL` 
-##* @return data frame with columns `treatment`, `control`, `solution`, `distance`. 
-##*         The `distance` column holds values of the integer distance that `intSolve()` saw. 
+##* @param node_info NodeInfo object for this subproblem
+##* @return data frame with columns `dist`, `i`, `j`, `solution`.
+##*         The `dist` column holds values of the integer distance that `intSolve()` saw.
 ##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
 ##* @keywords internal
 
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, node_info = NULL)
+			min.col.units = 1, f = 1, node_info)
 {
     if (identical(options()$use_fallback_optmatch_solver, TRUE))
        warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")
-    if (!inherits(distance, "data.frame") ||
-        !setequal(colnames(distance), c("control", "treated", "distance"))
-        ) 
-        stop("Distance argument is not a canonical matching problem\n (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
-  
-  stopifnot(is.numeric(f))
+    stopifnot(is(distance, "EdgeList"), is(node_info, "NodeInfo"),
+              is.numeric(f))
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))
@@ -50,45 +46,51 @@ fmatch <- function(distance, max.row.units, max.col.units,
     stop("max and min constraints must be 1 or greater")
   }
 
-  if (!is.integer(distance[['distance']])) {
-      tdist  <- as.integer(distance[['distance']])
-      if (isFALSE(all.equal(distance[['distance']],tdist))) stop("distance should be integer")
-      distance[['distance']]  <- tdist
+  thenodes  <- node_info[['name']]
+  row.units <- subset(thenodes, node_info[['upstream_not_down']])
+  col.units <- subset(thenodes, !node_info[['upstream_not_down']])
+    distance  <-
+        edgelist(distance,
+                 c(row.units,# NB: solver prep below assumes row.units come
+                   col.units)# before col.units in levels(distance$i/j)
+                 )# This also removes arcs to/from nodes not in subproblem.
+  if (!is.integer(distance[['dist']])) {
+      tdist  <- as.integer(distance[['dist']])
+      if (isFALSE(all.equal(distance[['dist']],tdist))) stop("distance should be integer")
+      distance[['dist']]  <- tdist
   }
-  if (any(nadists  <-  is.na(distance[['distance']])))
+  if (any(nadists  <-  is.na(distance[['dist']])))
   {
       replacement  <- if (all(nadists)) { #occurs if
                           1L              #user passed ISM 
                       } else {            #produced by exactMatch()`
-                          min(distance[['distance']], na.rm=TRUE)
+                          min(distance[['dist']], na.rm=TRUE)
                           }
-      distance[['distance']][nadists]  <- replacement
+      distance[['dist']][nadists]  <- replacement
   }
   
   if (mxr > 1) # i.e. many-one matches permissible
   {
-      if (any(distance[['distance']] <= 0))
+      if (any(distance[['dist']] <= 0))
           stop("Nonpositive discrepancies not compatible with full matching\n (see Hansen & Klopfer, 2006 JCGS, sec.4.1).")
-      } else if (any(distance[['distance']] < 0)) stop("distance should be nonnegative")
+      } else if (any(distance[['dist']] < 0)) stop("distance should be nonnegative")
 
   if (!is.numeric(f) | f > 1 | f < 0) {
     stop("f must be a number in [0,1]")
   }
 
-  ## distance is a "canonical" matching: a data.frame with
-  ## three columns, 'control', 'treated' and 'distance', the first two
+  ## distance is an EdgeList rep'n of a "canonical" matching, with
+  ## columns, 'j', 'i' and 'dist', the first two
   ## being factors and the last being a numeric.  Typically
-  ## 'control' and 'treated' are interpretable as control (Z=0)
+  ## 'j' and 'i' are interpretable as control (Z=0)
   ## and treated (Z=1) in the matching problem as it was presented
   ## to fullmatch(), pairmatch() or match_on(), but in full
   ## matching the subproblem may have been "flipped" prior  
   ## to its delivery to this function.  In that case, what's  
   ## "treated" here would be control in the originating problem,  
   ## and vice versa.  To eliminate ambiguities in such instances, 
-  ## we'll prefer "row.units" or "upstream" to "treated",
-  ## and also "col.units" or "downstream" over "control". 
-  row.units <- levels(distance$treated)
-  col.units <- levels(distance$control)
+  ## we'll prefer "i', "row.units" or "upstream" to "treated",
+  ## and also "j", "col.units" or "downstream" over "control".
   nt <- length(row.units)
   nc <- length(col.units)
   n.mc  <- as.integer(round(nc * f)) # no. downstream (usu., control) units to be matched
@@ -140,16 +142,13 @@ fmatch <- function(distance, max.row.units, max.col.units,
                        )
             )
     node.labels(nodes)  <- nodes[['name']] # new convention per i166
-    if (!is.null(node_info))
-        {
-            stopifnot(is(node_info, "NodeInfo"),
-                      is.integer(node_info$price),
-                      all(row.units %in% node_info[['name']]),
-                      sum(node_info[['name']]=="(_End_)")==1,
-                      sum(node_info[['name']]=="(_Sink_)")==1)
-            nodes[,'price']  <- node_info[match(c(row.units, col.units,
-                                                  "(_End_)", "(_Sink_)"),
-                                                node_info$name),'price']
+
+    if ( !all(node_info[['price']]==0) )
+    {
+        nodes[,'price']  <- node_info[match(c(row.units, col.units,
+                                              "(_End_)", "(_Sink_)"),
+                                            node_info$name),
+                                      'price']
             ## if a col unit doesn't have a match w/in node_info$name, then
             ## if nodes now has an NA for its price. Replace that w/ min of
             ## bookkeeping node prices, so that CS has a chance of being preserved.
@@ -176,17 +175,15 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## "End"/"Overflow" is node nt+nc+1; "Sink" is node nt+nc+2
   #################### All arcs  ###################
   ###         Arcs rep'ing potential matches    Arcs involving End or Sink
-  startn<- c(as.integer(distance$treated),     bookkeeping$start )
-  endn <-  c(nt + as.integer(distance$control),bookkeeping$end )
-  ucap <-  c(rep(1L, narcs),                   bookkeeping$capacity )
-  redcost<-c(distance$distance,                rep(0L, nrow(bookkeeping)) ) +
+  startn<- c(as.integer(distance[['i']]), bookkeeping$start )
+  endn <-  c(as.integer(distance[['j']]), bookkeeping$end )
+  ucap <-  c(rep(1L, narcs),              bookkeeping$capacity )
+  redcost<-c(distance[['dist']],               rep(0L, nrow(bookkeeping)) ) +
         nodes[endn, "price"] - nodes[startn, "price"]
     
   ## Everything headed for the solver ought currently to be cast as integer,
-  ## but I couldn't immediately find documentation of rules for preserving integer
-  ## cast in arithmetic ops, and it's hard to be sure those won't change.  Since
-  ## feeding a double by mistake will cause a difficult to diagnose infeasibility,
-  ## let's just be sure:
+  ## but passing a double by mistake will cause a difficult-to-diagnose
+  ## infeasibility.  So let's just be sure:
   if (!is.integer(problem.size)) problem.size  <- as.integer(problem.size)    
   if (!is.integer(startn)) startn  <- as.integer(startn)    
   if (!is.integer(endn)) endn  <- as.integer(endn)
@@ -199,7 +196,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     na1=problem.size,
                     startn1=startn,
                     endn1=endn,
-                    c1=c(distance$distance, rep(0L, nrow(bookkeeping))),
+                    c1=c(distance[['dist']], rep(0L, nrow(bookkeeping))),
                     u1=ucap,
                     b1=nodes$supply,
                     x1=integer(problem.size),
@@ -249,14 +246,14 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:
-  matches  <- distance[as.logical(fop$x1[1L:narcs]), c("treated", "control")]
+  matches  <- distance[as.logical(fop$x1[1L:narcs]), c("i", "j")]
   bookkeeping[1L:(problem.size-narcs), "flow"]  <- fop$x1[(narcs+1L):problem.size]
   ## reshape `matches`, `bookkeeping` to match ArcInfo object spec:
   matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
-                         upstream=factor(matches[['treated']],
+                         upstream=factor(matches[['i']],
                                          levels=node.labels(nodes)
                                          ),
-                         downstream=factor(matches[['control']],
+                         downstream=factor(matches[['j']],
                                          levels=node.labels(nodes)
                                          )
                          )

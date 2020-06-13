@@ -1,12 +1,16 @@
 ## Computing the Lagrangian given a match and a set of node prices 
 ##
-## @param distances An InfinitySparseMatrix giving distances
+## @param distances An InfinitySparseMatrix, DenseMatrix or EdgeList giving distances
 ## @param solution A MCFSolutions object
 ## @return The value of the Lagrangian.
 #' @importFrom dplyr left_join
 #' @importFrom dplyr filter 
 evaluate_lagrangian <- function(distances, solution) {
-    stopifnot(is(solution, "MCFSolutions"))
+    stopifnot(is(solution, "MCFSolutions"),
+              is(distances, "EdgeList") ||
+              is(distances, "InfinitySparseMatrix") ||
+              is(distances, "DenseMatrix")
+              )
     anyflipped  <- any(solution@subproblems[["flipped"]])
     ## according to Bertsekas *Network Optimization*, page 155, the Lagrangian is given by:
     ## L(x, p) = \sum_{i,j} x_{ij} (a_ij - (p_i - p_j)) + \sum_i s_i p_i
@@ -61,7 +65,7 @@ evaluate_lagrangian <- function(distances, solution) {
 ## for node prices and the latter for upper capacities of bookkeeping
 ## arcs.
 ##
-## @param distances An InfinitySparseMatrix giving distances
+## @param distances An InfinitySparseMatrix, DenseMatrix or EdgeList giving distances
 ## @param solution A MCFSolutions object 
 ## @return Value of the dual functional, a numeric of length 1.
 #' @importFrom dplyr left_join
@@ -73,18 +77,10 @@ evaluate_dual <- function(distances, solution) {
               all(nodeinfo(solution)[is.na(nodeinfo(solution)$upstream_not_down),
                                      "name"] %in% c('(_Sink_)', '(_End_)')
                   ),
-              all(rownames(distances) %in% names(node.labels(solution))),
-              all(colnames(distances) %in% names(node.labels(solution)))
+              is(distances, "EdgeList") ||
+              is(distances, "InfinitySparseMatrix") ||
+              is(distances, "DenseMatrix")
               )
-    if (xtras  <- 
-            length(setdiff(unlist(dimnames(distances)),
-                             nodeinfo(solution)[['name']]
-                           )
-                   )
-        ) stop(paste("distances involve", xtras,
-                     "nodes not in nodeinfo(solution)[['name']].\n",
-                     "All nodes need to be tabled there.")
-               )
     anyflipped  <- any(solution@subproblems[["flipped"]])
     ## according to Bertsekas *Network Optimization*, page 156-7,
     ## the dual functional is given by:
