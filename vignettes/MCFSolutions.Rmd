@@ -71,7 +71,7 @@ non-null `row.names` attribute and columns:
 - `price`, double or integer (node prices);
 - `upstream_not_down`, logical (node type indicator, see below);
 - `supply`, integer; 
-- `groups`, factor (name of a subproblem); and
+- `groups`, factor (optional; name of a subproblem); and
 - ... (hold open the possibility of additional columns for subclasses).
 
 Rules/conventions:
@@ -138,6 +138,7 @@ Rules/conventions:
   `@arcs@matches@downstream`, `@arcs@bookkeeping$start` and
   `@arcs@bookkeeping$end` has precisely the same collection of levels.
   Namely the node labels `row.names(.@nodes)`.  To be enforced as a part of the validity check.
+- The `@nodes` table has to have a `groups` column.  
 - The nodes table will include nodes that don't correspond to any unit
   described in the corresponding match vector: bookkeeping nodes; potentially
   also nodes for units that have been filtered out the match vector. 

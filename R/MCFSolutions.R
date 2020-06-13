@@ -40,14 +40,14 @@ setClass("NodeInfo", contains="data.frame",
          )
 setValidity("NodeInfo", function(object){
     errors <- character(0)
-    if (!all(colnames(object)[1:5]==
-             c("name", "price", "upstream_not_down", "supply", "groups")))
+    if (!all(colnames(object)[1:4]==
+             c("name", "price", "upstream_not_down", "supply")))
         errors  <- c(errors,
-                     'Cols 1-5 should be:\n\t c("name", "price", "upstream_not_down", "supply", "groups")')
+                     'Cols 1-4 should be:\n\t c("name", "price", "upstream_not_down", "supply")')
     if (!is.character(object[['name']]))
         errors  <- c(errors,
                      'Col "name" should have type character.')
-    if (!is.factor(object[['groups']]))
+    if (any(colnames(object)=="groups") && !is.factor(object[['groups']]))
         errors  <- c(errors,
                      'Col "groups" should have type factor.')
     if (!is.numeric(object[['price']]))
@@ -161,6 +161,10 @@ setValidity("MCFSolutions", function(object){
                            paste(head(xtralevs,2), collapse=", "), "."
                            )
                      )
+    ## Nodes table must have groups column
+    if (!any(colnames(object@nodes)=="groups"))
+        errors  <- c(errors,
+                     "nodes table must have 'groups' column")
     ## Groups listed in nodes table must be same as in subproblems
     subprobs  <- unique(object@subproblems[['groups']])
     if (length(subprobs) && (length(subprobs)>1 || subprobs!=character(1)))
@@ -289,7 +293,6 @@ setMethod("nodeinfo", "optmatch", function(x) {
     if (is.null(mcfs)) NULL else nodeinfo(mcfs)
 })
 setMethod("nodeinfo", "ANY", function(x) NULL)
-
 ## node labels
 setGeneric("node.labels", function(x) standardGeneric("node.labels"))
  setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))

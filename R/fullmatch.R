@@ -501,14 +501,18 @@ fullmatch.matrix <- function(x,
       flipped  <- TRUE
     }
 
-    temp <- solve_reg_fm_prob(rownames = rownames(d),
-                        colnames = colnames(d),
+    ## (I'd like to do the following higher in the call stack, and also more
+    ##  informatively, obviating subsequent needs for max.cpt, min.cpt,
+    ##  omit.fraction etc. Keeping it here for fear of mischief with flipped subproblems.)
+    if (is.null(hint)) hint  <- nodes_shell_fmatch(rownames(d), colnames(d))
+      
+    temp <- solve_reg_fm_prob(node_info = hint,
                         distspec = d,
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
-                        omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
-                        node_info = hint)
+                        omit.fraction = if(!is.na(omf)) { omf.calc }# passes NULL for NA
+                        )
       if (!is.null(temp$MCFSolution))
           temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped 
 

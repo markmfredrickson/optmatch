@@ -17,34 +17,34 @@
 ##*       can be seen to be infeasible even w/o calling
 ##*       the solver.
 ##* }
-##* @param rownames character
-##* @param colnames character
+##* @param node_info NodeInfo. (Only names and upstream_not_down cols will be used.)
 ##* @param distspec InfinitySparseMatrix, matrix, etc (must have a `prepareMatching()` method)
 ##* @param min.cpt double, minimum permissible ratio of controls per treatment
 ##* @param max.cpt double, maximum permissible ratio of controls per treatment
 ##* @param tolerance 
 ##* @param omit.fraction 
-##* @param node_info NodeInfo specific to subproblem, or `NULL`
 ##* @return 
 ##* @keywords internal
 
-solve_reg_fm_prob <- function(rownames, colnames, distspec, min.cpt,
-                              max.cpt, tolerance, omit.fraction=NULL,
-                              node_info = NULL)
+solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
+                              max.cpt, tolerance, omit.fraction=NULL
+                              )
 {
 
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
   }
-
+    stopifnot(is(node_info, "NodeInfo"))
+    rownames   <- subset(node_info, upstream_not_down, name)[["name"]]
+    colnames   <- subset(node_info, !upstream_not_down, name)[["name"]]
   if (!all(rownames %in% dimnames(distspec)[[1]])) {
-    stop("input \'rownames\' may only contain row names of input \'distspec\'")
+    stop("node_info rownames must be rownames for \'distspec\'")
   }
 
   if (!all(colnames %in% dimnames(distspec)[[2]])) {
-    stop("input \'rownames\' may only contain col. names of input \'distspec\'")
+    stop("node_info colnames must be colnames for \'distspec\'")
   }
-
+ 
   # distance must have a prepareMatching object
   if (!hasMethod("prepareMatching", class(distspec))) {
     stop("Argument \'distspec\' must have a \'prepareMatching\' method")
@@ -204,3 +204,19 @@ solution2factor <- function(s) {
   return(c(treated.links, control.links))
 
 }
+
+##' Node table shell. For now, only name and upstream_not_down cols are meaninful
+nodes_shell_fmatch  <- function(rownames, colnames) {
+    dm  <- c(length(rownames), length(colnames))
+    ans  <- data.frame(name=c(rownames, colnames,"(_Sink_)", "(_End_)"),
+                       price=0,
+                       upstream_not_down=c(rep(c(TRUE, FALSE),
+                                               times=dm),
+                                           rep(NA, 2)
+                                           ),
+                       supply=integer(sum(dm)+2),
+                       stringsAsFactors=FALSE
+                       )
+    new("NodeInfo", ans)
+          }
+          
