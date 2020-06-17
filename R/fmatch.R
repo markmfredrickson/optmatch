@@ -57,7 +57,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (!is.integer(distance[['dist']])) {
       tdist  <- as.integer(distance[['dist']])
       if (isFALSE(all.equal(distance[['dist']],tdist))) stop("distance should be integer")
-      distance[['dist']]  <- tdist
+      distance  <- edgelist(data.frame(i=distance[['i']], j=distance[['j']],
+                                       dist=tdist),
+                            c(row.units, col.units)
+                            )
   }
   if (any(nadists  <-  is.na(distance[['dist']])))
   {

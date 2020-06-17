@@ -29,11 +29,11 @@ t.EdgeList  <- function(x) new("EdgeList", data.frame(dist=x[['dist']], i=x[['j'
 setGeneric("edgelist", function(x, y=NULL) { stop("Not implemented.") })
 
 setMethod("edgelist", c(x = "InfinitySparseMatrix"), function(x, y=unlist(dimnames(x))) {
-    el  <- data.frame(i = factor(x@rownames[x@rows], levels=y),
+    elist  <- data.frame(i = factor(x@rownames[x@rows], levels=y),
                       j = factor(x@colnames[x@cols], levels=y),
                       dist = x@.Data)
-    ccs  <- complete.cases(el) # to remove rows involving i/j not in y
-    new("EdgeList", el[ccs,])
+    ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
+    new("EdgeList", elist[ccs,])
 })
 
 setMethod("edgelist", c(x = "matrix"), function(x, y=unlist(dimnames(x))) {
@@ -47,18 +47,18 @@ setMethod("edgelist", c(x = "EdgeList"), function(x, y=levels(x[['i']])) {
         )
         return(x)
 
-    el  <- data.frame(i = factor(x[['i']], levels=y),
+    elist  <- data.frame(i = factor(x[['i']], levels=y),
                       j = factor(x[['j']], levels=y),
-                      dist = x@.Data)
-    ccs  <- complete.cases(el) # to remove rows involving i/j not in y
-    new("EdgeList", el[ccs,])
+                      dist = x[['dist']])
+    ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
+    new("EdgeList", elist[ccs,])
     })
 setMethod("edgelist", c(x = "data.frame"), function(x, y=levels(x[['i']])){
     stopifnot(ncol(x)==3, setequal(colnames(x), c('i', 'j', 'dist')),
               is.numeric(x$dist))
-    el <- data.frame(i = factor(x[['i']], levels=y),
+    elist <- data.frame(i = factor(x[['i']], levels=y),
                      j= factor(x[['j']], levels=y),
                      dist=x[['dist']])
-    ccs  <- complete.cases(el) # to remove rows involving i/j not in y
-    new("EdgeList", el[ccs,])
+    ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
+    new("EdgeList", elist[ccs,])
     })
