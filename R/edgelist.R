@@ -1,9 +1,9 @@
 ################################################################################
 ## Turning matrices and ISMs into edge lists
 ################################################################################
-setOldClass("data.frame")
-setClass("EdgeList", contains="data.frame",
-         prototype=prototype(data.frame(i=factor(), j=factor(),
+setOldClass("tbl_df")
+setClass("EdgeList", contains="tbl_df",
+         prototype=prototype(tibble::tibble(i=factor(), j=factor(),
                                         dist=double(0)
                                         )
                              )
@@ -23,13 +23,15 @@ setValidity("EdgeList", function(object) {
                      'Col "dist" must be numeric')
     if (length(errors)==0) TRUE else errors
 })
+#' @importFrom tibble tibble
 #' @export
-t.EdgeList  <- function(x) new("EdgeList", data.frame(dist=x[['dist']], i=x[['j']], j=x[['i']]))
-
+t.EdgeList  <- function(x) new("EdgeList", tibble(dist=x[['dist']], i=x[['j']], j=x[['i']]))
+#' @export
+dim.EdgeList  <- base::dim.data.frame
 setGeneric("edgelist", function(x, y=NULL) { stop("Not implemented.") })
 
 setMethod("edgelist", c(x = "InfinitySparseMatrix"), function(x, y=unlist(dimnames(x))) {
-    elist  <- data.frame(i = factor(x@rownames[x@rows], levels=y),
+    elist  <- tibble::tibble(i = factor(x@rownames[x@rows], levels=y),
                       j = factor(x@colnames[x@cols], levels=y),
                       dist = x@.Data)
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
@@ -47,7 +49,7 @@ setMethod("edgelist", c(x = "EdgeList"), function(x, y=levels(x[['i']])) {
         )
         return(x)
 
-    elist  <- data.frame(i = factor(x[['i']], levels=y),
+    elist  <- tibble::tibble(i = factor(x[['i']], levels=y),
                       j = factor(x[['j']], levels=y),
                       dist = x[['dist']])
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
@@ -56,7 +58,7 @@ setMethod("edgelist", c(x = "EdgeList"), function(x, y=levels(x[['i']])) {
 setMethod("edgelist", c(x = "data.frame"), function(x, y=levels(x[['i']])){
     stopifnot(ncol(x)==3, setequal(colnames(x), c('i', 'j', 'dist')),
               is.numeric(x$dist))
-    elist <- data.frame(i = factor(x[['i']], levels=y),
+    elist <- tibble::tibble(i = factor(x[['i']], levels=y),
                      j= factor(x[['j']], levels=y),
                      dist=x[['dist']])
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
