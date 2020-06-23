@@ -709,9 +709,10 @@ test_that('Hints accepted',{
   expect_equal(length(summary(mosc)$overall$unmatchable$treatment), 1)
   expect_silent(f1c  <- fullmatch(mosc, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1b))
   expect_is(attr(f1c, "MCFSolutions"), "FullmatchMCFSolutions")
-  expect_error(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1c))
-  ## (b/c hint is missing price for the treatment node that was excluded by the caliper.)
-  ## OTOH it's OK to be missing a price for a control node.
+  ## expect_error(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1c))
+  ## (b/c hint is missing price for the treatment node that was excluded by the caliper.
+  ##  [But this is no longer an error.])
+  ## OTOH it's always been OK to be missing a price for a control node.
   expect_silent(f1d  <- fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1))
   expect_is(attr(f1d, "MCFSolutions"), "FullmatchMCFSolutions")  
   expect_silent(fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1, hint=f1d))

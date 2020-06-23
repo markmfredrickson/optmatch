@@ -98,3 +98,30 @@ test_that("remove edges to or from nodes not appearing in y",{
     expect_is(dplyr::filter(m.el, TRUE), "data.frame")
     expect_equivalent(edgelist(dplyr::filter(m.el, TRUE), c(rns[-2], cns)), m.el)
 })
+
+context("is_matchable()")
+test_that("EdgeList method", {
+    cns <- c("C1", "C2", "C3", "C4")
+    rns <- c("TZ", "TY", "TX", "TW", "TU")
+    ism <- makeInfinitySparseMatrix(1:7,
+                                    cols = c(1, 2, 1, 2, 3, 1, 3),
+                                    rows = c(2, 2, 3, 3, 3, 5, 5),
+                                    colnames = cns,
+                                    rownames = rns)
+    ism.el  <- edgelist(ism)
+    expect_silent(matchable_rows  <- is_matchable(rns, ism.el, "rows"))
+    expect_is(matchable_rows, "logical")
+    unmatchable_rows  <- !matchable_rows
+    expect_equal(rns[unmatchable_rows], c("TZ", "TW"))
+
+    expect_silent(unmatchable_rows_e  <- !is_matchable(rns, ism.el, "either"))
+    expect_equal(rns[unmatchable_rows_e], c("TZ", "TW"))
+
+    expect_silent(unmatchable_cols  <- !is_matchable(cns, ism.el, "cols"))
+    expect_equal(cns[unmatchable_cols], c("C4"))
+    expect_silent(unmatchable_cols_e  <- !is_matchable(cns, ism.el, "either"))
+    expect_equal(cns[unmatchable_cols_e], c("C4"))
+
+    expect_silent(unmatchable_either  <- !is_matchable(c(rns, cns), ism.el, "either"))
+    expect_equal(c(rns,cns)[unmatchable_either], c("TZ", "TW","C4"))
+})

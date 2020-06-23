@@ -64,3 +64,23 @@ setMethod("edgelist", c(x = "data.frame"), function(x, y=levels(x[['i']])){
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
+
+
+setGeneric("is_matchable",
+           function(node_names, distspec, which=c("rows", "cols", "either")[3]) {
+               stop("Not implemented")
+           }
+           )
+setMethod("is_matchable", c(distspec="EdgeList"),
+          function(node_names, distspec, which){
+              stopifnot(is.character(node_names), is.character(which),
+                        length(which)==1, nchar(which)>0,
+                        sum(which==c("rows", "cols", "either"))==1
+                        )
+              ans  <- logical(length(node_names))
+              if (which=="rows" | which=="either")
+                  ans  <- ans | (node_names %in% distspec$'i')
+              if (which=="cols" | which=="either")
+                  ans  <- ans | (node_names %in% distspec$'j')
+              ans
+          })

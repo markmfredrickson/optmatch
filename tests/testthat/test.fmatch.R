@@ -4,6 +4,24 @@
 
 context("R/Fortran Interface")
 
+# convenience function for use in testing
+pairmatch_nodeinfo  <- function(edges) {
+    stopifnot(is(edges, "EdgeList"))
+    allunits  <- levels(edges[['i']])
+    istreated  <- allunits %in% edges[['i']]
+
+    adf  <- data.frame(name=c(allunits, "(_Sink_)"),
+                       price=0L,
+                       upstream_not_down=c(istreated, NA),
+                       supply=c(rep(1L, sum(istreated)),
+                                rep(0L, sum(!istreated)),
+                                -sum(istreated)
+                                ),
+                       stringsAsFactors=FALSE
+                       )
+    new("NodeInfo", adf)
+}
+
 test_that("fmatch accepts DistanceSpecifications", {
   v <- c(1, Inf, 2,
          2, 1, Inf,
@@ -19,20 +37,20 @@ test_that("fmatch accepts DistanceSpecifications", {
   rownames(m) <- c("D", "E", "F")
   pm <- edgelist(m)
 
-  res <- fmatch(pm, 2, 2)
-  expect_true(all(c("control","treated",
-                    "distance", # used in `doubleSolve()`'s "maxerr" calc
+  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm))
+  expect_true(all(c("j","i",
+                    "dist", # used in `doubleSolve()`'s "maxerr" calc
                     "solution") %in% names(res)))
   expect_equal(length(res$solution), 7) # seven non-Inf entries
 
   # check that A-D is a pair and A-B is not a match
-  expect_equal(res$solution[res$control == "A" & res$treated == "D"], 1)
-  expect_equal(res$solution[res$control == "A" & res$treated == "B"],
+  expect_equal(res$solution[res$j == "A" & res$i == "D"], 1)
+  expect_equal(res$solution[res$j == "A" & res$i == "B"],
                numeric(0))
 
   M <- as.InfinitySparseMatrix(m)
   pM <- edgelist(M)
-  res.ism <- fmatch(pM, 2, 2)
+  res.ism <- fmatch(pM, 2, 2, node_info=pairmatch_nodeinfo(pM))
   expect_identical(res$solution, res.ism$solution)
 })
 
@@ -48,14 +66,14 @@ test_that("Stop on unacceptable input", {
   m1  <- m
   colnames(m1) <- c("(_Sink_)", "B", "C")  
   pm1  <- edgelist(m1)
-  expect_error(fmatch(pm1,2,2), "(_Sink_)")
+  expect_error(fmatch(pm1,2,2, node_info=pairmatch_nodeinfo(pm1)), "(_Sink_)")
 
   m2  <- m1
   colnames(m2) <- c("A", "B", "C")
   rownames(m2) <- c("(_End_)", "E", "F")
 
   pm2  <- edgelist(m2)
-  expect_error(fmatch(pm2,2,2), "(_End_)")
+  expect_error(fmatch(pm2,2,2, node_info=pairmatch_nodeinfo(pm2)), "(_End_)")
 
 })
 
@@ -69,6 +87,7 @@ test_that("Solutions -> factor helper", {
   rownames(m) <- c("D", "E", "F")
 
   skeleton <- edgelist(m)
+  skeleton  <- dplyr::mutate(skeleton, treated=factor(i), control=factor(j))
 
   pairs <- cbind(skeleton, solution = c(1,0,0,1,0,0,1))
   pairs.expected <- c(1,2,3,1,2,3)
@@ -110,7 +129,7 @@ test_that("Passing and receiving node information",{
   rownames(m) <- c("D", "E", "F")
   pm <- edgelist(m)
 
-  res <- fmatch(pm, 2, 2)
+  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm))
   expect_false(is.null(mcfs0  <-  res$MCFSolution))
   n0  <-  mcfs0@nodes
   expect_silent(fmatch(pm, 2, 2, node_info=n0))

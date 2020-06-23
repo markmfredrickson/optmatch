@@ -35,8 +35,10 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
     stop("inputs min.cpt, max.cpt must be positive")
   }
     stopifnot(is(node_info, "NodeInfo"))
-    rownames   <- node_info[ node_info[['upstream_not_down']], "name"]
-    colnames   <- node_info[!node_info[['upstream_not_down']], "name"]
+    rownames   <- subset(node_info[["name"]], node_info[['upstream_not_down']])
+    colnames   <- subset(node_info[["name"]], !node_info[['upstream_not_down']])
+    nrows  <- length(rownames)
+    ncols  <- length(colnames)
   if (!all(rownames %in% dimnames(distspec)[[1]])) {
     stop("node_info rownames must be rownames for \'distspec\'")
   }
@@ -45,7 +47,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
     stop("node_info colnames must be colnames for \'distspec\'")
   }
  
-  # distance must have a prepareMatching object
+  # distance must have an edgelist method
   if (!hasMethod("edgelist", class(distspec))) {
     stop("Argument \'distspec\' must have a \'edgelist\' method")
   }
@@ -53,21 +55,24 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
   # convert the distspec to cannonical EdgeList
   dm <- edgelist(distspec, c(rownames, colnames))
 
-  rownames <- as.character(rownames)
-  colnames <- as.character(colnames)
 
-  rfeas <- length(unique(dm[['i']]))
-  cfeas <- length(unique(dm[['j']]))
-  # If any controls were unmatchable, they were dropped by prepareMatching, and
-  # positive `omit.fraction`'s need to be updated.
-  if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
-    original_number_to_omit <- omit.fraction*length(colnames)
-    number_implicitly_omitted_already <- length(colnames) - cfeas
-    omit.fraction <- (original_number_to_omit - number_implicitly_omitted_already)/cfeas
-    # This can happen if the number to be omitted is less than the number of unmatchables
-    if (omit.fraction <= 0) {
-      omit.fraction <- NULL
-    }
+  matchable_nodes_info  <-
+      filter(node_info,
+             is.na(node_info[['upstream_not_down']]) | #retail bookkeeping nodes
+             is_matchable(node_info[['name']], dm, "either")
+             )
+  rfeas  <- sum( matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
+  cfeas  <- sum(!matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
+  ## Update `omit.fraction`:
+  if (cfeas < ncols & is.numeric(omit.fraction) && omit.fraction >0) {
+      original_number_to_omit <- omit.fraction*ncols
+      number_implicitly_omitted_already <- ncols - cfeas
+      omit.fraction <-
+          (original_number_to_omit - number_implicitly_omitted_already)/cfeas
+      ## If the number to be omitted is less than the number of unmatchable
+      ## columns, ncols - cfeas, then this omit.fraction can be negative.  Then
+      ## we just omit a few more than directed by the supplied omit.fraction:
+      if (omit.fraction <= 0) omit.fraction <- NULL
   }
 
   if (is.null(omit.fraction)) {
@@ -84,37 +89,38 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
         !rfeas |  !cfeas  # either no controls or no treatments
         )
   {
-    ans <- rep(NA_integer_,length(rownames)+length(colnames))
+    ans <- rep(NA_integer_, nrows + ncols)
     names(ans) <- c(rownames, colnames)
     return(list(cells=ans, maxerr=NULL, distance=NULL))
   }
     
 
     old.o <- options(warn=-1)
-    epsilon_lower_lim  <- max(dm[['dist']])/(.Machine$integer.max/64 -2)
+    epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
     epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
                 min(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
             } else epsilon_lower_lim
     options(old.o)
 
-    if (isTRUE(all.equal(dm[['distance']], 0)))
-        dm[['distance']]  <- rep(1L, length(dm[['distance']])) # so we'll be routed to intSolve()
-
+    if (all(abs(dm$'dist'- 0) < sqrt(.Machine$double.eps)))
+    {
+        dm$'dist'  <- rep(1L, length(dm$'dist')) # so we'll be routed to intSolve()
+        }
     temp <-
-        if (is.integer(dm[['distance']]))
+        if (is.integer(dm$'dist'))
         {
-            intSolve(dm, min.cpt, max.cpt, f.ctls, node_info)
+            intSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info)
         } else
         {
-            doubleSolve(dm, min.cpt, max.cpt, f.ctls, node_info, rfeas, cfeas, epsilon)
+            doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info, rfeas, cfeas, epsilon)
         }
 
   temp$treated <- factor(temp[['i']]) # levels of these factors now convey
   temp$control <- factor(temp[['j']]) # treatment/control distinction
-  ans <- rep(NA,length(rownames)+length(colnames))
-  names(ans) <- c(rownames, colnames)
-
   matches <- solution2factor(temp)
+
+  ans <- rep(NA_character_, nrows + ncols)
+  names(ans) <- c(rownames, colnames)
   ans[names(matches)] <- matches
 
     if (!is.null(temp[["MCFSolution"]]))
@@ -134,6 +140,8 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
                 temp[["MCFSolution"]]@subproblems[1L, "lagrangian_value"]
             evaluate_dual(dm, temp[["MCFSolution"]]) ->
                 temp[["MCFSolution"]]@subproblems[1L,   "dual_value"    ]
+            nodeinfo(temp[["MCFSolution"]])  <-
+                update(node_info, nodeinfo(temp[["MCFSolution"]]))
             }
 
     return(list(cells = ans, err = temp$maxerr,
@@ -146,9 +154,14 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, epsilon) 
 {
-    dm[['dist']]  <- as.integer(ceiling(.5 + dm[['dist']] / epsilon))
+    dm$'dist'  <- as.integer(ceiling(.5 + dm$'dist' / epsilon))
     if (!is.null(node_info))
-        node_info$price  <- as.integer(ceiling(node_info$price / epsilon))
+        node_info$price  <-
+            as.integer(ifelse(abs(node_info$price) <sqrt(.Machine$double.eps),
+                              0, 
+                              ceiling(node_info$price / epsilon)
+                              )
+                       )
     
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
                        node_info = node_info)
@@ -164,7 +177,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     intsol$maxerr  <-
         if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
             0 } else {
-                  sum(intsol$solution * dm[['dist']], na.rm = TRUE) -
+                  sum(intsol$solution * dm$'dist', na.rm = TRUE) -
                       sum(intsol$solution * (intsol$dist - 1/2), na.rm = TRUE) * epsilon +
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
                       (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
@@ -176,10 +189,20 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
 
 
 intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info)
+{
+    stopifnot(is(dm, "EdgeList"), is(node_info, "NodeInfo"))
+    if (!is.integer(node_info[['price']]))
+    {
+        price_col_position  <- which(node_info@names=="price")
+        node_info@.Data[[price_col_position]]  <-
+            as.integer(round(node_info[['price']]))
+    }
+
     fmatch(dm, max.row.units = ceiling(1/min.cpt),
            max.col.units = ceiling(max.cpt),
            min.col.units = max(1, floor(min.cpt)),
            f=f.ctls, node_info =node_info)
+    }
 
 ##* Small helper function to turn a solution data.frame into a factor of matches
 ##* @keywords internal
@@ -214,14 +237,13 @@ solution2factor <- function(s) {
   treated.links[as.character(reduced[['treated']])]  <- 
     control.links[as.character(reduced[['control']])]
 
-  # join the links
-  combined.factor  <- c(treated.links, control.links)
-  return(as.integer(combined.factor))
-
+  ## join the links. (Note that `c()` drops the factor
+  ## structure, giving a named integer vector.)
+  c(treated.links, control.links)
 }
 
-##' Node table shell. For now, only name and upstream_not_down cols are meaninful
-nodes_shell_fmatch  <- function(rownames, colnames) {
+##' Node table shell. For now, only name and upstream_not_down cols are meaningful
+nodes_shell_fmatch <- function(rownames, colnames) {
     dm  <- c(length(rownames), length(colnames))
     ans  <- data.frame(name=c(rownames, colnames,"(_Sink_)", "(_End_)"),
                        price=0,
@@ -235,3 +257,4 @@ nodes_shell_fmatch  <- function(rownames, colnames) {
     new("NodeInfo", ans)
           }
           
+

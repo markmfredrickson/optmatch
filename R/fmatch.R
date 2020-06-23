@@ -9,7 +9,13 @@
 ##* Distances should be integer and **positive** (no 0s).  There
 ##* can be NAs: these will be converted to the minimum of provided
 ##* distances, unless all provided distances are NA, in which case
-##* they'll be interpreted as 1L's. 
+##* they'll be interpreted as 1L's.
+##*
+##* Units to be matched are those mentioned in the node_info argument.
+##* If any of these are without eligible matches according to distance,
+##* then the problem will be found infeasible.  To avoid this behavior,
+##* identify and remove these units from the node_info before passing it
+##* to fmatch.
 ##* @title Full matching via RELAX-IV min cost flow solver
 ##* @param distance EdgeList; see details
 ##* @param max.row.units numeric, upper limit on num treated units per matched set
@@ -28,6 +34,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
     if (identical(options()$use_fallback_optmatch_solver, TRUE))
        warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")
     stopifnot(is(distance, "EdgeList"), is(node_info, "NodeInfo"),
+              is.integer(node_info[['price']]),
               is.numeric(f))
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
@@ -125,7 +132,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
        (nt * mxc < n.mc) #max.col.units too low
       )
   {
-    return(cbind(distance[1:narcs, ], solution = rep(-1L, narcs)))
+    return(cbind(distance, solution = rep(-1L, narcs)))
       }
 
   ##  Min-Cost-Flow representation of problem  ####
@@ -153,8 +160,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
                                             node_info$name),
                                       'price']
             ## if a col unit doesn't have a match w/in node_info$name, then
-            ## if nodes now has an NA for its price. Replace that w/ min of
-            ## bookkeeping node prices, so that CS has a chance of being preserved.
+            ## its nodes row now has a 0 for its price. Replace that w/ min of
+            ## bookkeeping node prices may preserve CS in some cases.
             if (length(col.noprice  <- setdiff(col.units, node_info[['name']])))
                 nodes[nodes[['name']] %in% col.noprice, 'price']  <-
                     min(node_info[match(c("(_End_)", "(_Sink_)"), node_info$name),
@@ -214,7 +221,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## Material used to create s3 optmatch object:
   feas <- fop$feasible1
   x <- feas * fop$x1 - (1 - feas)
-  obj <-cbind(distance, solution = x[1:narcs])
+  obj <-cbind(distance, solution = x[seq(from=min(1L, narcs), to=narcs)])
 
   #### Recover node prices, store in nodes table ##
   ## In full matching, each upstream (row) or downstream (column) node starts
