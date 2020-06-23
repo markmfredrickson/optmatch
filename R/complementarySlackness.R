@@ -27,7 +27,7 @@ evaluate_primal  <- function(distances, solution) {
                          )
 
 
-    eld <- edgelist(distances)
+    eld <- edgelist(distances, node.labels(solution))
     if (anyflipped)
         eld  <- rbind(eld,
                       edgelist(t(distances),
@@ -50,9 +50,9 @@ evaluate_primal  <- function(distances, solution) {
     ##   i/j cols indicates that we're in this scenario
     ## - any nonzero costs will be communicated by EdgeList entries
     bookkeeping_node_labels  <- nodes %>%
-        filter(is.na(upstream_not_down))$nodelabels
+        filter(is.na(upstream_not_down)) %>% .$nodelabels %>% as.character()
     bookkeeping_costs  <-
-        if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        if (any(eld[['i']] %in% bookkeeping_node_labels))
         {
                 if (!anyflipped) #if `anyflipped` is T, then this 
                     eld  <- rbind(eld,#was already done previously
@@ -125,8 +125,8 @@ evaluate_lagrangian <- function(distances, solution) {
 
     sum_main_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j))
     bookkeeping_node_labels  <- nodes %>%
-        filter(is.na(upstream_not_down))$nodelabels
-    if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        filter(is.na(upstream_not_down)) %>% .$nodelabels %>% as.character()
+    if (any(eld[['i']] %in% bookkeeping_node_labels))
         warning("Distances involving bookkeeping nodes ignored/treated as 0")
     sum_bookkeeping_flow_cost  <- 
         sum(bookkeeping_ij$flow * (0 - (bookkeeping_ij$price.i - bookkeeping_ij$price.j)))
@@ -195,8 +195,8 @@ evaluate_dual <- function(distances, solution) {
 
     eld <- edgelist(distances, node.labels(solution))
     bookkeeping_node_labels  <- nodes %>%
-        filter(is.na(upstream_not_down))$nodelabels
-    if (any(levels(eld[['i']]) %in% bookkeeping_node_labels))
+        filter(is.na(upstream_not_down)) %>% .$nodelabels %>% as.character()
+    if (any(eld[['i']] %in% bookkeeping_node_labels))
         warning("Distances involving bookkeeping nodes ignored/treated as 0")
 
     if (anyflipped)

@@ -19,12 +19,12 @@ make_known_optimal <- function() {
     
     arcs <- new("ArcInfo",
                 matches = data.frame(
-                    groups = rep("a", 2),
+                    groups = factor(rep("a", 2)),
                     upstream   = factor(c("A", "B" ), levels=node.labels(nodes)),
                     downstream = factor(c("D", "E"), levels=node.labels(nodes))
                 ),
                 bookkeeping = data.frame(
-                    groups = rep("a", 3),
+                    groups = factor(rep("a", 3)),
                     start = factor(c("C", "D", "E"), levels=node.labels(nodes)),
                     end = factor(c("(_End_)", "(_End_)", "(_End_)"), levels=node.labels(nodes)),
                     flow = c(0L, 1L, 1L),
@@ -50,12 +50,12 @@ make_caliper_example <- function() {
 
     opt$mcf@arcs <- new("ArcInfo",
                     matches = data.frame(
-                        groups = rep("a", 2),
+                        groups = factor(rep("a", 2)),
                         upstream   = factor(c("A", "B" ),levels=node.labels(opt$mcf)),
                         downstream = factor(c("C", "D"),levels=node.labels(opt$mcf))
                     ),
                     bookkeeping = data.frame(
-                        groups = rep("a", 2),
+                        groups = factor(rep("a", 2)),
                         start = factor(c("C", "D"),levels=node.labels(opt$mcf)),
                         end = factor(c("(_End_)", "(_End_)"),levels=node.labels(opt$mcf)),
                         flow = c(1L, 1L),
@@ -67,7 +67,7 @@ test_that("Compute primal", {
     opt <- make_known_optimal()
     expect_equal(evaluate_primal(opt$m, opt$mcf), 4)
   ## repeat with a dense density matrix
-    expect_equal(evaluate_primal(as.matrix(opt$m), opt$mcf), 4)
+    expect_equal(evaluate_primal(new("DenseMatrix", as.matrix(opt$m)), opt$mcf), 4)
 
     ## now do it with a calipered version of the problem.
     cal <- make_caliper_example()
@@ -80,7 +80,7 @@ test_that("Compute Lagrangian", {
     expect_equal(evaluate_lagrangian(opt$m, opt$mcf), 4)
 
     ## repeat with a dense density matrix
-    expect_equal(evaluate_lagrangian(as.matrix(opt$m), opt$mcf), 4)
+    expect_equal(evaluate_lagrangian(new("DenseMatrix", as.matrix(opt$m)), opt$mcf), 4)
 
     ## now do it with a calipered version of the problem.
     cal <- make_caliper_example()
@@ -99,7 +99,7 @@ test_that("Compute dual functional", {
     expect_equal(evaluate_dual(opt$m, opt$mcf), 4)
 
     ## repeat with a dense density matrix
-    expect_equal(evaluate_dual(as.matrix(opt$m), opt$mcf), 4)
+    expect_equal(evaluate_dual(new("DenseMatrix", as.matrix(opt$m)), opt$mcf), 4)
 
     ## now do it with a calipered version of the problem.
     cal <- make_caliper_example()
