@@ -62,11 +62,12 @@ maxControlsCap <- function(distance, min.controls = NULL)
     tdm <- 1 + (p > 0) / (p < Inf)
     tdm <- matrix(tdm, length(trnl), length(tcnl), dimnames = list(trnl, tcnl))
 
-    # FEASIBILITY CHECK -- temp depends on whether problem requires flipping
     ncol <- length(tcnl)
     nrow <- length(trnl)
 
     nodes  <- nodes_shell_fmatch(rownames = trnl, colnames = tcnl)
+    t_nodes  <- nodes_shell_fmatch(rownames = tcnl, colnames = trnl)
+    # FEASIBILITY CHECK -- temp depends on whether problem requires flipping
     temp <- solve_reg_fm_prob(node_info=nodes, distspec = tdm,
       max.cpt = min(tlmxc, ncol),
       min.cpt = max(tgmnc, 1/nrow), tolerance=.5,
@@ -94,7 +95,9 @@ maxControlsCap <- function(distance, min.controls = NULL)
 # SHOULD TLMXC ALSO BE SET TO ONE OR LESS?
         ncol <- length(trnl)
           nrow <- length(tcnl)
-          temp <- solve_reg_fm_prob(node_info=nodes, distspec=t(tdm),
+          temp <-
+              solve_reg_fm_prob(node_info=t_nodes,
+                                distspec=t(tdm),
               max.cpt=min(1/tgmnc, ncol), min.cpt=1,
               tolerance=.5, omit.fraction=
               switch(1+is.na(omf), -omf, NULL))
@@ -109,7 +112,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
         {
           tlmxc <-
             optimize( function(invlmxc) {
-                ifelse(!all(is.na(solve_reg_fm_prob(node_info=nodes,
+                ifelse(!all(is.na(solve_reg_fm_prob(node_info=t_nodes,
                                         distspec = t(tdm),
                                         max.cpt = min(1/tgmnc, length(trnl)),
                                         min.cpt = invlmxc,
