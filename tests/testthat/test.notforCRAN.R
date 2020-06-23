@@ -63,6 +63,7 @@ test_that("Hinting decreases runtimes",{
   v <- c(1, Inf, 2,
          2, 1, Inf,
          3, 2, 1)
+  suppressWarnings(v  <- as.integer(v))
   # the clear match to make: 
   # A:D, B:E, C:F
   m <- matrix(v, nrow = 3, ncol = 3)
