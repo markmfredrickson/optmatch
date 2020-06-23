@@ -59,18 +59,38 @@ test_that("match_on with bigglm distances", {
   }
 })
 
+# convenience function for use in testing
+pairmatch_nodeinfo  <- function(edges) {
+    stopifnot(is(edges, "EdgeList"))
+    allunits  <- levels(edges[['i']])
+    istreated  <- allunits %in% edges[['i']]
+
+    adf  <- data.frame(name=c(allunits, "(_Sink_)"),
+                       price=0L,
+                       upstream_not_down=c(istreated, NA),
+                       supply=c(rep(1L, sum(istreated)),
+                                rep(0L, sum(!istreated)),
+                                -sum(istreated)
+                                ),
+                       stringsAsFactors=FALSE
+                       )
+    new("NodeInfo", adf)
+}
 test_that("Hinting decreases runtimes",{
   v <- c(1, Inf, 2,
          2, 1, Inf,
          3, 2, 1)
+  suppressWarnings(v  <- as.integer(v))
   # the clear match to make: 
   # A:D, B:E, C:F
   m <- matrix(v, nrow = 3, ncol = 3)
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
-  pm <- prepareMatching(m)
+  pm <- edgelist(m)
 
-  t0  <- system.time(res <- fmatch(pm, 2, 2))
+  t0  <- system.time(res <- fmatch(pm, 2, 2,
+                                   node_info=pairmatch_nodeinfo(pm))
+                     )
   expect_false(is.null(mcfs0  <-  res$MCFSolution))
   n0  <-  mcfs0@nodes
   t1  <- system.time(fmatch(pm, 2, 2, node_info=n0))

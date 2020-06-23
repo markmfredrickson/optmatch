@@ -51,21 +51,4 @@ test_that("summary.optmatch", {
   s5 <- summary(psfm, psm)
   expect_true(is.null(s5$warnings))
 
-  #expect_equal(s2$thematch, s3$thematch)
-  #expect_equal(s2$thematch, s4$thematch)
-  #expect_equal(s2$thematch, s5$thematch)
-
-
-  psm2 <- glm(pr~ cut(date, c(67, 69.5, 72)) +
-              t1 + t2 + cap + ne + ct + bw + cum.n + pt,
-              family=binomial, data=nuclearplants)
-  psd2 <- match_on(psm2, standardization.scale = sd)
-  psd2summary <- summary(pairmatch(psd2, data = nuclearplants), propensity.model=psm2)
-
-  # due to slight differences in the match on different platforms, just check that the
-  # total.distances are the same and that the chi-squared value is 9.5 +- 0.5
-
-  #expect_equal(psd2summary$total.distance, 7.5621504)
-  chisquared.value <- psd2summary$balance$overall$chisquare
-  expect_true(abs(9.5 - chisquared.value) < 0.5)
 })
