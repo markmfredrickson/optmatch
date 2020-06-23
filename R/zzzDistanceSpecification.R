@@ -178,6 +178,12 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
       }
       return(FALSE)
     }
+
+      if (any(sbprobs[[i]]<0)) {
+          if (stopOnProblem) {
+              stop("Invalid distance: distances can't be negative.")
+          }
+      }
   }
 
   if(!hasMethod(dim, class(distance)[1])) {

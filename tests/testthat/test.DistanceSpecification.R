@@ -131,4 +131,14 @@ test_that("Validating DistSpecs", {
   expect_true(validDistanceSpecification(m3))
   expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m3)))
 
+  # negative distances not OK
+  m4  <- matrix(1:4 -2, nrow = 2)
+  dimnames(m4) <- list(1:2, 3:4)
+  expect_error(validDistanceSpecification(m4), "can't be negative")
+  expect_error(validDistanceSpecification(as.InfinitySparseMatrix(m4)),
+               "can't be negative")
+  m5  <- matrix(1:4 -1, nrow = 2)
+  dimnames(m5) <- list(1:2, 3:4)
+  expect_true(validDistanceSpecification(m5))
+  expect_true(validDistanceSpecification(as.InfinitySparseMatrix(m5)))
 })
