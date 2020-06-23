@@ -324,3 +324,26 @@ test_that("Potentially unusual requirements of base functions",{
     expect_named(cvec, c("B", LETTERS[-1L]))
     expect_true(any(duplicated(names(cvec))))
 })
+
+test_that("NodeInfo subsetting", {
+    expect_silent(ni0_o  <- nodes_shell_fmatch(c(1,2), c(3,4)))
+    expect_is(ni0_o, "NodeInfo")
+    expect_equal(nrow(ni0_o), 6)
+    expect_silent(ni0_n  <- filter(ni0_o, name!=2 & name!=4))
+    expect_is(ni0_n, "NodeInfo")
+    expect_equal(nrow(ni0_n), 4)    
+})
+test_that("Pull updated prices & supplies into a NodeInfo",{
+    expect_silent(ni0_o  <- nodes_shell_fmatch(c(1,2), c(3,4)))
+    expect_true(all(ni0_o[['price']]==0))
+    ni0_n  <- filter(ni0_o, name!=2 & name!=4)
+    expect_equal(nrow(ni0_n), 4) # unimportant in itself but presumed by next few lines
+    ni0_n@.Data[[which(ni0_n@names=="price")]]  <- rep(1, 4)
+    ni0_n@.Data[[which(ni0_n@names=="supply")]]  <- c(2, 0, -1, -1)
+    ## (Now ni0_n has the form of an actual price/supply combo)
+    expect_silent(ni0  <- update.NodeInfo(ni0_o, ni0_n))
+    expect_equal(ni0[['price']], c(1, 0, 1, 0, 1, 1))
+    expect_equal(ni0[['supply']], c(2, 0, 0, 0, -1, -1))
+
+    expect_equal(update(ni0_o, ni0_n), ni0) # confirm `update()` dispatch
+})

@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.9-12
+Version: 1.0.0.9001
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
     oriented to matching of treatment and control groups in observational
@@ -7,13 +7,13 @@ Description: Distance based bipartite matching using the RELAX-IV minimum cost f
     score matching), formulas giving variables on which to limit matched distances, stratified or
     exact matching directives, or calipers, alone or in combination.
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
-    <mark.m.fredrickson@gmail.com>, Josh Buckner, Josh Errickson,
-    Adam Rauh and Peter Solenberger, with embedded Fortran code due to
+    <mark.m.fredrickson@gmail.com>, Josh Errickson <jerrick@umich.edu>,
+    Josh Buckner, Adam Rauh and Peter Solenberger, with embedded Fortran code due to
     Dimitri P. Bertsekas <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
+Maintainer: Josh Errickson <jerrick@umich.edu>
 LazyData: true
 Depends:
-    R (>= 2.15.1),
+    R (>= 3.5.0),
     survival
 LinkingTo: Rcpp
 Imports:

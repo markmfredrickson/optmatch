@@ -282,8 +282,6 @@ setMethod("c", signature(x="FullmatchMCFSolutions"),
 
 ### node information getter:
 setGeneric("nodeinfo", function(x) standardGeneric("nodeinfo"))
-### (not sure yet that setter will be needed)
-###setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
 setMethod("nodeinfo", "NodeInfo", function(x) x)
 setMethod("nodeinfo", "MCFSolutions", function(x) x@nodes)
 setOldClass(c("optmatch", "factor")) # redundant given similar declaration
@@ -293,6 +291,43 @@ setMethod("nodeinfo", "optmatch", function(x) {
     if (is.null(mcfs)) NULL else nodeinfo(mcfs)
 })
 setMethod("nodeinfo", "ANY", function(x) NULL)
+## node information setter.  Note presumption that 
+## the new nodes are a superset of the old ones.  Note
+## also that they're lined up on the basis of their name column,
+## not their node.labels
+setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
+setMethod("nodeinfo<-", c(x="MCFSolutions", value="NodeInfo"),
+          function(x, value) {
+              stopifnot(isTRUE(validObject(x)),
+                        !any(is.na(positions  <-
+                                       match(nodeinfo(x)[['name']], value[['name']])
+                                   )
+                             )
+                        )
+              ## prepare to update the various factor levels
+              oldlevs  <- node.labels(x)
+              newlevs  <- node.labels(value)
+              intermediatelevs  <- newlevs
+              intermediatelevs[positions]  <- oldlevs
+              ## first the easy part:
+              x@nodes  <- value
+              ## now we cycle through and update all the levels
+              x@arcs@matches[['upstream']]  <- factor(x@arcs@matches[['upstream']],
+                                                 levels=intermediatelevs,
+                                                 labels=newlevs)
+              x@arcs@matches[['downstream']]  <- factor(x@arcs@matches[['downstream']],
+                                                 levels=intermediatelevs,
+                                                 labels=newlevs)
+              x@arcs@bookkeeping[['start']]  <- factor(x@arcs@bookkeeping[['start']],
+                                                 levels=intermediatelevs,
+                                                 labels=newlevs)
+              x@arcs@bookkeeping[['end']]  <- factor(x@arcs@bookkeeping[['end']],
+                                                 levels=intermediatelevs,
+                                                 labels=newlevs)
+              x
+})
+setMethod("nodeinfo<-", "ANY", function(x, value) stop("Not implemented."))
+
 ## node labels
 setGeneric("node.labels", function(x) standardGeneric("node.labels"))
  setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))
@@ -344,6 +379,38 @@ setMethod("node.labels<-", "optmatch", function(x, value) {
 })
 setMethod("node.labels<-", "ANY", function(x, value) NULL)
 
+## Function to update a node table's prices and supplies
+## using from a second node table carrying price and supply
+## info about a subset of the first table's nodes. The two 
+## tables will be aligned using their "name" columns,
+## not their node.labels (rownames).
+update.NodeInfo  <- function(old, new, ...)
+{
+    stopifnot(is(old, "NodeInfo"), is(new, "NodeInfo"),
+              !any(is.na(positions  <- match(new[['name']], old[['name']])))
+              )
+    price_col_position_old  <- which(old@names=="price")
+    price_col_position_new  <- which(new@names=="price")
+    old@.Data[[price_col_position_old]][positions]  <-
+        new@.Data[[price_col_position_new]]
+    
+    supply_col_position_old  <- which(old@names=="supply")
+    supply_col_position_new  <- which(new@names=="supply")
+    old@.Data[[supply_col_position_old]][positions]  <-
+        new@.Data[[supply_col_position_new]]
+
+    old
+}
+## Filter (subset) a NodeInfo. 
+filter.NodeInfo  <- function(.data, ...) {
+    x  <- as(.data, "tbl_df")
+    ans  <- filter(x, ...)
+    nl  <- which(colnames(ans)=="nodelabels")
+    ans <- as.data.frame(ans[-nl],
+                         row.names=as.character(ans[[nl]])
+                         )
+    new("NodeInfo", ans)
+}
 ##'
 ##' This implementation does *not* drop levels of factor
 ##' variables (such as `groups`), in order to facilitate interpretation
