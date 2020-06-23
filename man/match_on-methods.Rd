@@ -217,7 +217,7 @@ are forbidden.  Conceptually, those distances are set to \code{Inf}; computation
 \code{caliper} and \code{within} has been specified then only information about permissible pairings
 will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
 as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-storage requirements and may otherwise improve performance, particularly in larger problems.
+storage requirements and may otherwise improve performance, particularly in larger problems. 
 
 For the numeric method, \code{x} must have names.
 
