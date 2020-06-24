@@ -243,7 +243,14 @@ solution2factor <- function(s) {
   c(treated.links, control.links)
 }
 
-##' Node table shell. For now, only name and upstream_not_down cols are meaningful
+##* Make shell of node table, as required by `fmatch()`
+##*
+##* For now, only name and upstream_not_down cols are meaningful
+##* @title MCF node table for ordinary full matches 
+##* @param rownames character
+##* @param colnames character
+##* @return NodeInfo
+##* @author Hansen
 nodes_shell_fmatch <- function(rownames, colnames) {
     dm  <- c(length(rownames), length(colnames))
     ans  <- data.frame(name=c(rownames, colnames,"(_Sink_)", "(_End_)"),
