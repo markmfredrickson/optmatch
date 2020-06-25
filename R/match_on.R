@@ -719,10 +719,21 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, excl
     x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
   }
 
-  if(is.null(caliper)) { return(x) }
+    if (is.null(caliper) & is.null(within)) {
+        return(x) # just return the argument
+    }
 
-  return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
-} # just return the argument
+  if (is.null(within)) { # If we're here, caliper arg is non-null
+        return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
+  }
+
+    ## If we're here, within is non-null, but caliper may or may not be null
+    within  <-  within * 0 
+    if (!is.null(caliper))
+        within  <- within +
+            optmatch::caliper(x, width = caliper, exclude = exclude)
+    return(x + within)
+} 
 
 #' @rdname match_on-methods
 #' @method match_on matrix
@@ -732,13 +743,23 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
   if (!is.null(data)) {
     x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
   }
+    if (is.null(caliper) & is.null(within)) {
+        return(x) # just return the argument
+    }
 
-  if(is.null(caliper)) { return(x) }
+  if (is.null(within)) { # If we're here, caliper arg is non-null
+        return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
+  }
 
-  return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
-} # just return the argument
+    ## If we're here, within is non-null, but caliper may or may not be null
+    within  <-  within * 0 
+    if (!is.null(caliper))
+        within  <- within +
+            optmatch::caliper(x, width = caliper, exclude = exclude)
+    return(x + within)
+} 
 
-## Non-exported functioun
+## Non-exported function
 ## @title A contrasts function suitable for use within match_on
 ## @details Scales the result of `contr.poly` by `2^-1`. Necessary for
 ## Euclidean distance to be the same when you apply it with a 2-level
