@@ -4,7 +4,9 @@
 \name{plantdist}
 \alias{plantdist}
 \title{Dissimilarities of Some U.S. Nuclear Plants}
-\format{A matrix with 7 rows and 19 columns}
+\format{
+A matrix with 7 rows and 19 columns
+}
 \source{
 The data appear in Cox, D.R. and Snell, E.J. (1981),
   \emph{Applied Statistics: Principles and Examples}, p.82 (Chapman

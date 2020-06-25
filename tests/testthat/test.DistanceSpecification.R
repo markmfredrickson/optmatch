@@ -21,7 +21,10 @@ test_that("Matrix => nodes and arcs", {
   expect_equal(unique(m.result$treated), as.factor(c("D", "E")))
   expect_equal(unique(m.result$control), as.factor(c("A", "B", "C")))
 
-
+  # NA's and NaN's the same as Inf's
+  mm  <- m
+  mm[is.infinite(m)]  <- c(NA_real_, NaN)
+  expect_equal(prepareMatching(mm), m.result)
 })
 
 test_that("ISM => nodes and arcs", {
@@ -40,6 +43,11 @@ test_that("ISM => nodes and arcs", {
   expect_equal(unique(res.ISM$treated), as.factor(c("D", "E")))
   expect_equal(unique(res.ISM$control), as.factor(c("A", "B", "C")))
 
+  # NA's and NaN's the same as Inf's  
+  mm  <- m
+  mm[is.infinite(m)]  <- c(NA_real_, NaN)
+  expect_equal(prepareMatching(as.InfinitySparseMatrix(mm)), res.ISM)
+  
 })
 
 test_that("Subproblems", {
