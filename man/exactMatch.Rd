@@ -11,8 +11,7 @@ exactMatch(x, ...)
 
 \S4method{exactMatch}{vector}(x, treatment)
 
-\S4method{exactMatch}{formula}(x, data = NULL, subset = NULL,
-  na.action = NULL, ...)
+\S4method{exactMatch}{formula}(x, data = NULL, subset = NULL, na.action = NULL, ...)
 }
 \arguments{
 \item{x}{A factor vector or a formula, used to select method.}

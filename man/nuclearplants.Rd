@@ -4,7 +4,8 @@
 \name{nuclearplants}
 \alias{nuclearplants}
 \title{Nuclear Power Station Construction Data}
-\format{A data frame with 32 rows and 11 columns
+\format{
+A data frame with 32 rows and 11 columns
 \itemize{
   \item cost: The capital cost of construction in millions of
   dollars adjusted to 1976 base.
@@ -28,7 +29,8 @@
   each architect-engineer.
   \item pt: A binary variable where \code{1} indicates those plants
   with partial turnkey guarantees.
-}}
+}
+}
 \source{
 The data were obtained from the \code{boot} package, for
   which they were in turn taken from Cox and Snell (1981). Although

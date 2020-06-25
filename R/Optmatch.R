@@ -209,7 +209,7 @@ optmatch_same_distance <- function(obj, newdist) {
   if (!is(obj, "optmatch")) {
     stop("obj must be an optmatch object")
   }
-  if (!class(newdist) %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
+  if (!class(newdist)[1] %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
     stop("newdist must be a valid distance")
   }
 

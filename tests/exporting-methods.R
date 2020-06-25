@@ -1,4 +1,4 @@
-# the testthat library executes test within the optmatch namespace, 
+# the testthat library executes test within the optmatch namespace,
 # so it can't detect if we forget to export methods
 # R CMD check tests, on the other hand, use the package externally
 
@@ -14,7 +14,7 @@ tmp <- match_on(pr ~ date + cost, data = nuclearplants, within = exactMatch(pr ~
 tmp.m <- as.matrix(tmp)
 
 stopifnot(dim(tmp.m) == c(10,22))
-stopifnot(class(tmp.m) == "matrix")
+stopifnot(class(tmp.m)[1] == "matrix")
 
 # dense
 tmp <- match_on(pr ~ date + cost, data = nuclearplants)
@@ -22,6 +22,4 @@ tmp <- match_on(pr ~ date + cost, data = nuclearplants)
 tmp.m <- as.matrix(tmp)
 
 stopifnot(dim(tmp.m) == c(10,22))
-stopifnot(class(tmp.m) == "matrix")
-
-
+stopifnot(class(tmp.m)[1] == "matrix")

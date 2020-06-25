@@ -1,3 +1,4 @@
+
 # the testthat library executes test within the optmatch namespace,
 # so it can't detect if we forget to export methods
 # R CMD check tests, on the other hand, use the package externally
@@ -11,7 +12,7 @@ test_that("sparse", {
   tmp.m <- as.matrix(tmp)
 
   expect_equal(dim(tmp.m), c(10,22))
-  expect_equal(class(tmp.m), "matrix")
+  expect_is(tmp.m, "matrix")
 })
 
 test_that("dense", {
@@ -21,5 +22,5 @@ test_that("dense", {
   tmp.m <- as.matrix(tmp)
 
   expect_equal(dim(tmp.m), c(10,22))
-  expect_equal(class(tmp.m), "matrix")
+  expect_is(tmp.m, "matrix")
 })

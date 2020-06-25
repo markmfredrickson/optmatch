@@ -12,30 +12,54 @@
 \alias{match_on.matrix}
 \title{Create treated to control distances for matching problems}
 \usage{
-match_on(x, within = NULL, caliper = NULL, exclude = NULL,
-  data = NULL, ...)
+match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 
-\method{match_on}{glm}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, standardization.scale = mad, ...)
+\method{match_on}{glm}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  standardization.scale = mad,
+  ...
+)
 
-\method{match_on}{bigglm}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, standardization.scale = mad, ...)
+\method{match_on}{bigglm}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  standardization.scale = mad,
+  ...
+)
 
-\method{match_on}{formula}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, subset = NULL,
-  method = "mahalanobis", ...)
+\method{match_on}{formula}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  subset = NULL,
+  method = "mahalanobis",
+  ...
+)
 
-\method{match_on}{function}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, z = NULL, ...)
+\method{match_on}{`function`}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  z = NULL,
+  ...
+)
 
-\method{match_on}{numeric}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, z, ...)
+\method{match_on}{numeric}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z, ...)
 
-\method{match_on}{InfinitySparseMatrix}(x, within = NULL,
-  caliper = NULL, exclude = NULL, data = NULL, ...)
+\method{match_on}{InfinitySparseMatrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 
-\method{match_on}{matrix}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, ...)
+\method{match_on}{matrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 }
 \arguments{
 \item{x}{An object defining how to create the distances. All methods require
@@ -69,8 +93,7 @@ specification.}
 
 \item{method}{A string indicating which method to use in computing the
 distances from the data.  The current possibilities are
-\code{"mahalanobis", "euclidean", "rank_mahalanobis"}, or pass a user
-created distance function.}
+\code{"mahalanobis", "euclidean"} or \code{"rank_mahalanobis"}.}
 
 \item{z}{A logical or binary vector indicating treatment and control for each
 unit in the study. TRUE or 1 represents a treatment unit, FALSE of 0 represents
@@ -119,21 +142,17 @@ argument as a guide for producing the new distance. Any entry that is
 returned by \code{match_on}. This argument can reduce the processing time
 needed to compute sparse distance matrices.
 
-The \code{match_on} function is similar to the older, but still supplied,
-\code{\link{mdist}} function. Future development will concentrate on
-\code{match_on}, but \code{mdist} is still supplied for users familiar with
-the interface. For the most part, the two functions can be used
-interchangeably by users.
+Details for each particular first type of argument follow:
 
-The \code{glm} method assumes its first argument to be a fitted
-  propensity model. From this it extracts distances on the \emph{linear}
-  propensity score: fitted values of the linear predictor, the link function
-  applied to the estimated conditional probabilities, as opposed to the
-  estimated conditional probabilities themselves (Rosenbaum \& Rubin, 1985).
-  For example, a logistic model (\code{glm} with \code{family=binomial()})
-  has the logit function as its link, so from such models \code{match_on}
-  computes distances in terms of logits of the estimated conditional
-  probabilities, i.e. the estimated log odds.
+\bold{First argument (\code{x}): \code{glm}.} The model is assumed to be
+  a fitted propensity score model. From this it extracts distances on the
+  \emph{linear} propensity score: fitted values of the linear predictor, the
+  link function applied to the estimated conditional probabilities, as opposed
+  to the estimated conditional probabilities themselves (Rosenbaum \& Rubin,
+  1985).  For example, a logistic model (\code{glm} with
+  \code{family=binomial()}) has the logit function as its link, so from such
+  models \code{match_on} computes distances in terms of logits of the
+  estimated conditional probabilities, i.e. the estimated log odds.
 
   Optionally these distances are also rescaled. The default is to rescale, by
   the reciprocal of an outlier-resistant variant of the pooled s.d. of
@@ -163,23 +182,24 @@ The \code{glm} method assumes its first argument to be a fitted
   the \code{caliper} argument, the standard deviation used for the caliper will be
   computed across all strata, not within each strata.
 
-The \code{bigglm}
-method works analogously to the \code{glm} method, but with \code{bigglm} objects, created by
-the \code{bigglm} function from package \sQuote{biglm}, which can
-handle bigger data sets than the ordinary glm function can.
+\bold{First argument (\code{x}): \code{bigglm}.} This method works
+  analogously to the \code{glm} method, but with \code{bigglm} objects,
+  created by the \code{bigglm} function from package \sQuote{biglm}, which can
+  handle bigger data sets than the ordinary glm function can.
 
-The formula method produces, by default, a Mahalanobis distance
-  specification based on the formula \code{Z ~ X1 + X2 + ... }, where
-  \code{Z} is the treatment indicator. The Mahalanobis distance is calculated
-  as the square root of d'Cd, where d is the vector of X-differences on a
-  pair of observations and C is an inverse (generalized inverse) of the
-  pooled covariance of Xes. (The pooling is of the covariance of X within the
-  subset defined by \code{Z==0} and within the complement of that
-  subset. This is similar to a Euclidean distance calculated after
-  reexpressing the Xes in standard units, such that the reexpressed variables
-  all have pooled SDs of 1; except that it addresses redundancies among the
-  variables by scaling down variables contributions in proportion to their
-  correlations with other included variables.)
+\bold{First argument (\code{x}): \code{formula}.} The formula must have
+  \code{Z}, the treatment indicator (\code{Z=0} incidates control group,
+  \code{Z=1} indicates treatment group), on the left hand side, and any
+  variables to compute a distance on on the right hand side. E.g. \code{Z ~ X1
+  + X2}. The Mahalanobis distance is calculated as the square root of d'Cd,
+  where d is the vector of X-differences on a pair of observations and C is an
+  inverse (generalized inverse) of the pooled covariance of Xes. (The pooling
+  is of the covariance of X within the subset defined by \code{Z==0} and
+  within the complement of that subset. This is similar to a Euclidean
+  distance calculated after reexpressing the Xes in standard units, such that
+  the reexpressed variables all have pooled SDs of 1; except that it addresses
+  redundancies among the variables by scaling down variables contributions in
+  proportion to their correlations with other included variables.)
 
   Euclidean distance is also available, via \code{method="euclidean"}, and
   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
@@ -200,33 +220,32 @@ The formula method produces, by default, a Mahalanobis distance
   deviation used for the caliper will be computed across all strata, not
   within each strata.
 
-The \code{function} method takes as its \code{x} argument a function
-  of three arguments: \code{index}, \code{data}, and \code{z}. The
-  \code{data} and \code{z} arguments will be the same as those passed
-  directly to \code{match_on}. The \code{index} argument is a matrix of two
-  columns, representing the pairs of treated and control units that are valid
-  comparisons (given any \code{within} arguments). The first column is the
-  row name or id of the treated unit in the \code{data} object. The second
-  column is the id for the control unit, again in the \code{data} object. For
-  each of these pairs, the function should return the distance between the
-  treated unit and control unit.  This may sound complicated, but is simple
-  to use. For example, a function that returned the absolute difference
-  between two units using a vector of data would be \code{f <-
-  function(index, data, z) { abs(apply(index, 1, function(pair) {
-  data[pair[1]] - data[pair[2]] })) }}.  (Note: This simple case is precisely
-  handled by the \code{numeric} method.)
+\bold{First argument (\code{x}): \code{function}.} The passed function
+  must take arguments: \code{index}, \code{data}, and \code{z}. The
+  \code{data} and \code{z} arguments will be the same as those passed directly
+  to \code{match_on}. The \code{index} argument is a matrix of two columns,
+  representing the pairs of treated and control units that are valid
+  comparisons (given any \code{within} arguments). The first column is the row
+  name or id of the treated unit in the \code{data} object. The second column
+  is the id for the control unit, again in the \code{data} object. For each of
+  these pairs, the function should return the distance between the treated
+  unit and control unit.  This may sound complicated, but is simple to
+  use. For example, a function that returned the absolute difference between
+  two units using a vector of data would be \code{ f <- function(index, data,
+  z) { abs(data[index[,1]] - data[index[,2]]) } }.  (Note: This simple case is
+  precisely handled by the \code{numeric} method.)
 
-The \code{numeric} method returns absolute differences between treated and control units'
+\bold{First argument (\code{x}): \code{numeric}.} This returns absolute differences between treated and control units'
 values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it
 are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of
 \code{caliper} and \code{within} has been specified then only information about permissible pairings
 will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
 as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-storage requirements and may otherwise improve performance, particularly in larger problems. 
+storage requirements and may otherwise improve performance, particularly in larger problems.
 
 For the numeric method, \code{x} must have names.
 
-The \code{matrix} and \code{InfinitySparseMatrix} just return their
+\bold{First argument (\code{x}): \code{matrix} or \code{InfinitySparseMatrix}.} These just return their
   arguments as these objects are already valid distance specifications.
 }
 \examples{
