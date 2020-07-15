@@ -170,7 +170,7 @@ test_that("Match carries info about subproblems", {
   match <- pairmatch(exactMatch(Z ~ B), data = Z) # assure data order by passing Z
 
   # subproblem attribute should be a factor indicating which group each item maps to
-  expect_equal(class(attr(match, "subproblem")), "factor")
+  expect_equal(class(attr(match, "subproblem"))[1], "factor")
   expect_equal(length(match), length(attr(match, "subproblem")))
   expect_equivalent(B, attr(match, "subproblem"))
 
