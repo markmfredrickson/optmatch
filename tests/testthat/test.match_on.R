@@ -358,6 +358,45 @@ test_that("Numeric: simple differences of scores", {
   expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
+test_that("Numeric, issues with vector names", {
+  # #189
+
+  # If z is not named, it should copy over x's names
+  z <- c(0, 0, 1, 1)
+  x <- c("a" = NA, "b" = 1, "c" = 2, "d" = 3)
+  m1 <- match_on(x, z = z)
+  expect_equal(dim(m1), c(2, 2))
+  expect_equal(m1, match_on(z ~ x, method = "euclidean",
+                            data = data.frame(x,z)),
+               check.attributes = FALSE)
+
+  # If z is named, and the same as x, everything should work.
+  z <- c("a" = 0,  "b" = 0, "c" = 1, "d" = 1)
+  x <- c("a" = NA, "b" = 1, "c" = 2, "d" = 3)
+  m2 <- match_on(x, z = z)
+  expect_equal(dim(m2), c(2, 2))
+  expect_equal(m2, match_on(z ~ x, method = "euclidean",
+                        data = data.frame(x,z)),
+               check.attributes = FALSE)
+  expect_identical(m1, m2)
+
+  # if z is named same as x, but misordered, order and continue on.
+  z <- c("b" = 0,  "a" = 0, "d" = 1, "c" = 1)
+  x <- c("a" = NA, "a" = 1, "c" = 2, "d" =  3)
+  m3 <- match_on(x, z = z)
+  expect_equal(dim(m3), c(2, 2))
+  expect_equal(m3, match_on(z ~ x, method = "euclidean",
+                        data = data.frame(x,z)),
+               check.attributes = FALSE)
+
+  # if names of z and x are not the same, error
+  z <- c("a" = 0,  "c" = 0, "b" = 1)
+  x <- c("a" = NA, "b" = 1, "d" = 2)
+  expect_error(match_on(x, z = z), "names")
+
+
+})
+
 test_that("matrix, ISM methods' within args",{
   scores <- rep(1:3, each = 4)
   z <- rep(c(0,1), 6)
