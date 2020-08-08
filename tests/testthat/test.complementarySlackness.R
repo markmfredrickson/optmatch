@@ -4,10 +4,13 @@
 
 context("Complementary slackness")
 
-make_known_optimal <- function() {
+make_known_optimal <- function(flipped=FALSE) {
 
-    x <- data.frame(row.names = c("A", "B", "C", "D", "E"), z = c(1, 1, 0, 0, 0), y = c(0, 2, -3, 0, 6))
+    x <- data.frame(row.names = c("A", "B", "C", "D", "E"),
+                    z = c(rep(!flipped, 2), rep(flipped, 3)),
+                    y = c(0, 2, -3, 0, 6))
     m <- match_on(z ~ y, data = x, method = "euclidean")
+    m  <- as.InfinitySparseMatrix(m)
     nodes <- new("NodeInfo",
                  data.frame(stringsAsFactors = FALSE,
                      name = c("A", "B", "C", "D", "E", '(_End_)'),
@@ -31,7 +34,7 @@ make_known_optimal <- function() {
                     capacity = rep(1L, 3)
                 ))
     subprob  <- new("SubProbInfo",
-                    data.frame(groups=character(1), flipped=FALSE, hashed_dist=character(1),
+                    data.frame(groups=character(1), flipped=flipped, hashed_dist=character(1),
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
                                feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
@@ -40,8 +43,8 @@ make_known_optimal <- function() {
     list(x = x, m = m, mcf = mcf_solution)
 }
 
-make_caliper_example <- function() {
-    opt <- make_known_optimal()
+make_caliper_example <- function(flipped=FALSE) {
+    opt <- make_known_optimal(flipped=flipped)
     opt$cal <- caliper(opt$m, 3, values = TRUE)
     tmp <- opt$mcf@nodes
     tmp$price <- c(3.25, 5.75, 0.25, 3.25, NA_real_, 0)
@@ -63,10 +66,13 @@ make_caliper_example <- function() {
     return(opt)
 }
 
-make_known_optimal_fullm <- function()
+make_known_optimal_fullm <- function(flipped=FALSE)
 {
-    x <- data.frame(row.names = c("a", "b", "c", "d", "e"), z = c(1, 1, 1, 0, 0), y = c(0, 2, 4, 0, 6))
+    x <- data.frame(row.names = c("a", "b", "c", "d", "e"),
+                    z = c(rep(!flipped, 3), rep(flipped, 2)),
+                    y = c(0, 2, 4, 0, 6))
     m <- match_on(z ~ y, data = x, method = "euclidean")
+    m  <- as.InfinitySparseMatrix(m)
     nodes <- new("NodeInfo",
                  data.frame(stringsAsFactors = FALSE,
                      name = c("a", "b", "c", "d", "e", '(_Sink_)', '(_End_)'),
@@ -89,7 +95,7 @@ make_known_optimal_fullm <- function()
                 )
                 )
 subprob  <- new("SubProbInfo",
-                    data.frame(groups='b', flipped=FALSE, hashed_dist=character(1),
+                    data.frame(groups='b', flipped=flipped, hashed_dist=character(1),
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
                                feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
@@ -97,6 +103,23 @@ subprob  <- new("SubProbInfo",
     node.labels(mcf_solution)  <- names(node.labels(mcf_solution)) # for alignment w/ m
     list(x = x, m = m, mcf = mcf_solution)
 }
+make_known_2subprobs  <- function()
+    {
+        o1  <- make_known_optimal()
+        o2  <- make_known_optimal_fullm()
+        newx  <- rbind(o1$x, o2$x)
+        newm  <- matrix(Inf,
+                        nrow=(nrow(o1$m)+nrow(o2$m)),
+                        ncol=(ncol(o1$m)+ncol(o2$m)),
+                        dimnames=list(c(rownames(o1$m), rownames(o2$m)),
+                                      c(colnames(o1$m), colnames(o2$m))
+                                      )
+                        )
+        newm[rownames(o1$m), colnames(o1$m)]  <- o1$m
+        newm[rownames(o2$m), colnames(o2$m)]  <- o2$m
+        newmcf  <- c(o1$mcf, o2$mcf)
+        list(x=newx, m=newm, mcf=newmcf)
+        }
 test_that("Compute primal", {
     opt <- make_known_optimal()
     expect_equal(evaluate_primal(opt$m, opt$mcf), 4)
@@ -110,6 +133,10 @@ test_that("Compute primal", {
     ## simple f.m. problem (with both End and Sink bookkeeping nodes)
     optfm  <- make_known_optimal_fullm()
     expect_equal(evaluate_primal(optfm$m, optfm$mcf), 4)
+    ## 'flipped' variant
+    opt.f  <- make_known_optimal(flipped=TRUE)
+    expect_equal(evaluate_primal(opt.f$m, opt.f$mcf), 4)
+    
 })
 test_that("Compute Lagrangian", {
     opt <- make_known_optimal()
@@ -130,6 +157,9 @@ test_that("Compute Lagrangian", {
     ## simple f.m. problem (with both End and Sink bookkeeping nodes)
     optfm  <- make_known_optimal_fullm()
     expect_equal(evaluate_lagrangian(optfm$m, optfm$mcf), 4)    
+    ## 'flipped' variant
+    opt.f  <- make_known_optimal(flipped=TRUE)
+    expect_equal(evaluate_lagrangian(opt.f$m, opt.f$mcf), 4)
 })
 
 
@@ -153,4 +183,7 @@ test_that("Compute dual functional", {
     ## simple f.m. problem (with both End and Sink bookkeeping nodes)
     optfm  <- make_known_optimal_fullm()
     expect_equal(evaluate_dual(optfm$m, optfm$mcf), 4)    
+    ## 'flipped' variant
+    opt.f  <- make_known_optimal(flipped=TRUE)
+    expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 4)
 })
