@@ -296,14 +296,16 @@ setMethod("nodeinfo", "optmatch", function(x) {
     if (is.null(mcfs)) NULL else nodeinfo(mcfs)
 })
 setMethod("nodeinfo", "ANY", function(x) NULL)
-## node information setter.  Note presumption that 
-## the new nodes are a superset of the old ones.  Note
-## also that they're lined up on the basis of their name column,
-## not their node.labels
+## node information setter.  Note presumptions of a single `group`,
+## and that the new nodes are a superset of the old ones. (The one-
+## group presumption is only b/c I didn't need it for more than 1 group.) 
+## Note also that they're lined up on the basis of their name column,
+## not their node.labels.
 setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
 setMethod("nodeinfo<-", c(x="MCFSolutions", value="NodeInfo"),
           function(x, value) {
               stopifnot(isTRUE(validObject(x)),
+                        length(unique(nodeinfo(x)[['groups']]))<=1,
                         !any(is.na(positions  <-
                                        match(nodeinfo(x)[['name']], value[['name']])
                                    )
