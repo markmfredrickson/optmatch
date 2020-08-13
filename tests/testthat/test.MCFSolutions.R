@@ -43,6 +43,13 @@ test_that("Instantiation & validity", {
                      ),
                  "should be a numeric" # Not sure it's necessary, but insisting
                   )                        # that 'price' be double not integer
+    expect_error(new("NodeInfo",
+                      data.frame(name=rep('a', 2), price=0, upstream_not_down=FALSE,
+                                 supply=1L, groups = as.factor('b'),
+                                 stringsAsFactors=F)
+                     ),
+                 "unique" 
+                  )
     expect_true(validObject(new("ArcInfo"))) # test the prototype
     expect_silent(ai  <- new("ArcInfo",
                              matches=data.frame(groups = as.factor('a'), upstream = factor('b', levels=node.labels(ni1f)),
@@ -128,8 +135,11 @@ test_that("c() methods", {
                             stringsAsFactors=F)
                  )
     node.labels(ni1f) <- ni1f[['name']]
-    expect_silent(c(ni1f, ni1f))
-    expect_silent(c(ni1f, ni1f, ni1f))
+    ni1f.a  <- ni1f.b <- ni1f.c  <- ni1f
+    ni1f.a[,'groups']  <- factor(rep('a', nrow(ni1f)))
+    ni1f.c[,'groups']  <- factor(rep('c', nrow(ni1f)))    
+    expect_silent(c(ni1f.a, ni1f.b))
+    expect_silent(c(ni1f.a, ni1f.b, ni1f.c))
     ni2  <- new("NodeInfo",
                 data.frame(name=c(letters[2:5], '(_Sink_)', '(_End_)'), price=0.5,
                            upstream_not_down=c(TRUE, rep(FALSE,3), NA, NA),

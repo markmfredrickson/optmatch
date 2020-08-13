@@ -66,7 +66,7 @@ test_that("Stop on unacceptable input", {
   m1  <- m
   colnames(m1) <- c("(_Sink_)", "B", "C")  
   pm1  <- edgelist(m1)
-  expect_error(fmatch(pm1,2,2, node_info=pairmatch_nodeinfo(pm1)), "(_Sink_)")
+  expect_error(fmatch(pm1,2,2, node_info=pairmatch_nodeinfo(pm1)), "unique") #"(_Sink_)"
 
   m2  <- m1
   colnames(m2) <- c("A", "B", "C")

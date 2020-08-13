@@ -83,6 +83,9 @@ Rules/conventions:
    which might otherwise occur when a `NodeInfo` arises by concatenation of solutions
    to distinct matching problems (which so happened to involve distinct units
    that shared names). 
+-  Within levels of `groups`, values of `name` should be unique.  (Presently the validity 
+   checker only looks for this when `groups` has a single level, in the interests of avoiding
+   slowdowns when combining NodeInfo's.)
 -  Coding of node types in `upstream_not_down` column: `TRUE ~` upstream, i.e.
    "T(**f**)" nodes in Fig. 2 of H.&K. '06, `FALSE ~` downstream or "C(**f**)"
    nodes in H.&K. '06 Fig. 2; `NA ~`  bookkeeping nodes, e.g. "Overflow" or "Sink"

@@ -50,6 +50,11 @@ setValidity("NodeInfo", function(object){
     if (any(colnames(object)=="groups") && !is.factor(object[['groups']]))
         errors  <- c(errors,
                      'Col "groups" should have type factor.')
+    if (nlevels(factor(object[['groups']]))<=1 & # skipping this check for multi-group NodeInfo's in order
+        anyDuplicated(object[['name']])          # to avoid slowing down c() methods, which (as of this
+        )                                        # writing) invoke validObject() indirectly via new().
+        errors <- c(errors,
+                    'W/in levels of `groups`, `name`s must be unique.')
     if (!is.numeric(object[['price']]))
         errors  <- c(errors,
                      'Col "price" should be a numeric.')
