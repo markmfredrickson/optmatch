@@ -39,7 +39,7 @@ test_that("ISM Basics", {
                     as.InfinitySparseMatrix(m) )
   mm[is.infinite(m)]  <- NaN
   expect_equivalent(as.InfinitySparseMatrix(mm),
-                    as.InfinitySparseMatrix(m) )  
+                    as.InfinitySparseMatrix(m) )
 })
 
 test_that("ISM Handles Names", {
@@ -91,7 +91,7 @@ test_that("Math Ops", {
   m0  <- m * 0
   m0[is.nan(m0)]  <- Inf
   expect_equivalent(as.matrix(A * 0), m0)
-  
+
   # The harder case is when the matrix has non-identical row/col ids
 
   q <- matrix(c(1, 2, Inf, 4), nrow = 2, ncol = 2)
@@ -221,6 +221,48 @@ test_that("Math ops with vectors", {
 
   # Error on non-numeric input
   expect_error("a"*A, "non-numeric")
+
+})
+
+test_that("#190: agreement in dimension names", {
+  m1 <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
+  m1 <- as.InfinitySparseMatrix(m1)
+  m2 <- matrix(c(1, 2, Inf, 4), nrow = 2, ncol = 2)
+  m2 <- as.InfinitySparseMatrix(m2)
+
+  # No names, no error
+  expect_null(dimnames(m1+m2))
+
+  # Only one matrix has a name, should error
+  colnames(m1) <- paste("C", 1:2, sep = "")
+  rownames(m1) <- paste("T", 1:2, sep = "")
+  expect_error(m1 + m2, "rows in first matrix: T1, T2")
+  expect_error(m2 + m1, "rows in second matrix: T1, T2")
+  expect_error(m1 + m2, "columns in first matrix: C1, C2")
+  expect_error(m2 + m1, "columns in second matrix: C1, C2")
+
+  # Testing other binops
+  expect_error(m1 - m2)
+  expect_error(m1 * m2)
+  expect_error(m1 / m2)
+
+  # Both have names but disagree
+  colnames(m2) <- paste("C", 1:2, sep = "")
+  rownames(m2) <- paste("T", 2:3, sep = "")
+  expect_error(m1 + m2, "rows in first matrix: T1")
+  expect_error(m1 + m2, "rows in second matrix: T3")
+  expect_error(m2 + m1, "rows in first matrix: T3")
+  expect_error(m2 + m1, "rows in second matrix: T1")
+
+  # Same names but different order should be fine
+  rownames(m2) <- paste("T", 2:1, sep = "")
+  expect_equal(dim(m1 + m2), c(2,2))
+  expect_equal(dim(m2 + m1), c(2,2))
+
+  # Same names should be fine
+  rownames(m2) <- paste("T", 1:2, sep = "")
+  expect_equal(dim(m1 + m2), c(2,2))
+  expect_equal(dim(m2 + m1), c(2,2))
 
 })
 
@@ -540,7 +582,7 @@ test_that("BISM sorting", {
 test_that("rbinds involving BISMs", {
     dat  <- data.frame(Z=rep(c(0,1,1), 2), B=rep(0:1, each=3),
                        S= 1:6, T= 5:0)
-    bismA  <- exactMatch(Z ~B, data=dat[c(1:2, 4:5), ]) 
+    bismA  <- exactMatch(Z ~B, data=dat[c(1:2, 4:5), ])
     bismA  <- match_on(Z~S, within=bismA, data=dat[c(1:2, 4:5), ])
     bismB  <- exactMatch(Z ~B, data=dat[c(1,3,4,6), ])
     bismB  <- match_on(Z~T, within =bismB, data=dat[c(1,3,4,6), ])
@@ -549,7 +591,7 @@ test_that("rbinds involving BISMs", {
     expect_is(rbind(bismA, bismB), "InfinitySparseMatrix")
     expect_is(t(bismA), "BlockedInfinitySparseMatrix")
     expect_is(t(bismB), "BlockedInfinitySparseMatrix")
-    expect_is(cbind(t(bismA), t(bismB)), "InfinitySparseMatrix")    
+    expect_is(cbind(t(bismA), t(bismB)), "InfinitySparseMatrix")
 
     expect_true(all(rownames(rbind(bismA, bismB)) %in% c(2, 3, 5, 6)))
     expect_true(all(colnames(cbind(t(bismA),t(bismB))) %in% c(2, 3, 5, 6)))
