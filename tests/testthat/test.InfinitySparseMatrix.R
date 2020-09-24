@@ -382,6 +382,11 @@ test_that("BlockedISM addition", {
   expect_equal(res.b2b1@groups, res.b1@groups)
 
   expect_is(res.b2 + 1, "BlockedInfinitySparseMatrix")
+
+  # Per #190, combining an ISM with name and ISM without names should error,
+  # so removing names here.
+  expect_error(res.b2 + matrix(1, nrow = 8, ncol = 8), "must be in agreement")
+  dimnames(res.b2) <- NULL
   expect_is(res.b2 + matrix(1, nrow = 8, ncol = 8),
     "BlockedInfinitySparseMatrix")
   expect_is(matrix(1, nrow = 8, ncol = 8) + res.b2,
