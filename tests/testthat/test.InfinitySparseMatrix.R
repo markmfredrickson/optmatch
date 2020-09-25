@@ -233,18 +233,10 @@ test_that("#190: agreement in dimension names", {
   # No names, no error
   expect_null(dimnames(m1+m2))
 
-  # Only one matrix has a name, should error
+  # Only one matrix has a name, should warn
   colnames(m1) <- paste("C", 1:2, sep = "")
   rownames(m1) <- paste("T", 1:2, sep = "")
-  expect_error(m1 + m2, "rows in first matrix: T1, T2")
-  expect_error(m2 + m1, "rows in second matrix: T1, T2")
-  expect_error(m1 + m2, "columns in first matrix: C1, C2")
-  expect_error(m2 + m1, "columns in second matrix: C1, C2")
-
-  # Testing other binops
-  expect_error(m1 - m2)
-  expect_error(m1 * m2)
-  expect_error(m1 / m2)
+  expect_warning(m1 + m2, "One matrix has dimnames and the other does not")
 
   # Both have names but disagree
   colnames(m2) <- paste("C", 1:2, sep = "")
@@ -253,6 +245,12 @@ test_that("#190: agreement in dimension names", {
   expect_error(m1 + m2, "rows in second matrix: T3")
   expect_error(m2 + m1, "rows in first matrix: T3")
   expect_error(m2 + m1, "rows in second matrix: T1")
+
+  # Testing other binops
+
+  expect_error(m1 - m2)
+  expect_error(m1 * m2)
+  expect_error(m1 / m2)
 
   # Same names but different order should be fine
   rownames(m2) <- paste("T", 2:1, sep = "")
@@ -383,9 +381,9 @@ test_that("BlockedISM addition", {
 
   expect_is(res.b2 + 1, "BlockedInfinitySparseMatrix")
 
-  # Per #190, combining an ISM with name and ISM without names should error,
+  # Per #190, combining an ISM with name and ISM without names should warn,
   # so removing names here.
-  expect_error(res.b2 + matrix(1, nrow = 8, ncol = 8), "must be in agreement")
+  expect_warning(res.b2 + matrix(1, nrow = 8, ncol = 8))
   dimnames(res.b2) <- NULL
   expect_is(res.b2 + matrix(1, nrow = 8, ncol = 8),
     "BlockedInfinitySparseMatrix")

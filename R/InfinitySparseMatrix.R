@@ -173,7 +173,11 @@ ismOpHandler <- function(binOp, e1, e2) {
 
   # #190 - dimension names must agree (agnostic to ordering)
   # If there are no dimension names, skip this check
-  if (!is.null(dimnames(e1)) | !is.null(dimnames(e2))) {
+  if ((!is.null(dimnames(e1)) & is.null(dimnames(e2))) |
+        (is.null(dimnames(e1)) & !is.null(dimnames(e2)))) {
+    warning("One matrix has dimnames and the other does not. Proper ordering is not guaranteed.")
+  }
+  else if (!is.null(dimnames(e1)) | !is.null(dimnames(e2))) {
     t1 <- dimnames(e1)$treated
     t2 <- dimnames(e2)$treated
     c1 <- dimnames(e1)$control
