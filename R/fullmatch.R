@@ -216,8 +216,8 @@ fullmatch.default <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
-                              within = NULL,
                               method = "RELAX-IV",
+                              within = NULL,
                               ...) {
 
   if (!inherits(x, gsub("match_on.","",methods("match_on")))) {
@@ -257,9 +257,9 @@ fullmatch.numeric <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
+                              method = "RELAX-IV",
                               z,
                               within = NULL,
-                              method = "RELAX-IV",
                               ...) {
 
   m <- match_on(x, within=within, z=z, ...)
@@ -284,8 +284,8 @@ fullmatch.matrix <- function(x,
                              mean.controls = NULL,
                              tol = .001,
                              data = NULL,
-                             within = NULL,
                              method = "RELAX-IV",
+                             within = NULL,
                              ...) {
 
   ### Checking Input ###
