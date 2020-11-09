@@ -1,5 +1,6 @@
 SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
-    max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE)
+                        max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
+                        method = "RELAX-IV")
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -28,7 +29,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
   rfeas <- length(unique(dm$treated))
   cfeas <- length(unique(dm$control))
 
-  # If any controls were unmatchable, they were dropped by prepareMatching, and 
+  # If any controls were unmatchable, they were dropped by prepareMatching, and
   # positive `omit.fraction`'s need to be updated.
   if (cfeas < length(colnames) & is.numeric(omit.fraction) && omit.fraction >0) {
       original_number_to_omit <- omit.fraction*length(colnames)
@@ -40,7 +41,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     }
   }
 
-  # ... and similarly in the case of negative `omit.fraction` if there were 
+  # ... and similarly in the case of negative `omit.fraction` if there were
   # treatments that couldn't be matched.
   if (rfeas < length(rownames) & is.numeric(omit.fraction) && omit.fraction <0) {
       original_number_to_omit <- -1*omit.fraction*length(rownames)
@@ -51,7 +52,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       omit.fraction <- NULL
     }
   }
-  
+
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
     ans <- rep("NA",length(rownames)+length(colnames))
@@ -100,7 +101,8 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       fmatch(tmp,
              max.row.units = ceiling(1/min.cpt),
              max.col.units = ceiling(max.cpt),
-             min.col.units = max(1, floor(min.cpt)), f=f.ctls)
+             min.col.units = max(1, floor(min.cpt)), f=f.ctls,
+             method = method)
 
     }
 

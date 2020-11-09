@@ -691,3 +691,26 @@ test_that("If matching fails, we should give a warning", {
                            within = exactMatch(pr ~ pt, data = nuclearplants)),
                  "Matching failed")
 })
+
+test_that("LEMON solvers", {
+
+  data("nuclearplants")
+  f1 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants)
+  f2 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  method = "RELAX-IV")
+  f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  method = "CycleCancellingRunner")
+  f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  method = "CapacityScalingRunner")
+  f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  method = "CostScalingRunner")
+  f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  method = "NetworkSimplexRunner")
+
+  match_equal(f1, f2)
+  match_equal(f1, f3)
+  match_equal(f1, f4)
+  match_equal(f1, f5)
+  match_equal(f1, f6)
+
+})

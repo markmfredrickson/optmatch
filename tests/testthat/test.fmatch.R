@@ -74,3 +74,27 @@ test_that("Solutions -> factor helper", {
 
   expect_true(is.null(solution2factor(noMatches)))
 })
+
+test_that("LEMON solvers", {
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+  pm <- prepareMatching(m)
+
+  f_blank <- fmatch(pm, 2, 2)
+  f_relax <- fmatch(pm, 2, 2, method = "RELAX-IV")
+  # CycleCancellingRunner CapacityScalingRunner CostScalingRunner NetworkSimplexRunner
+  f_cycle = fmatch(pm, 2, 2, method = "CycleCancellingRunner")
+  f_capac = fmatch(pm, 2, 2, method = "CapacityScalingRunner")
+  f_costs = fmatch(pm, 2, 2, method = "CostScalingRunner")
+  f_netwo = fmatch(pm, 2, 2, method = "NetworkSimplexRunner")
+
+  expect_identical(f_blank, f_relax)
+  expect_identical(f_blank, f_cycle)
+  expect_identical(f_blank, f_capac)
+  expect_identical(f_blank, f_costs)
+
+})

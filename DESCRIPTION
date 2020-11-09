@@ -22,7 +22,8 @@ Imports:
     digest,
     stats,
     methods,
-    graphics
+    graphics,
+    rlemon
 Suggests:
     boot,
     biglm,
