@@ -49,7 +49,7 @@ test_that("No Warnings", {
   expect_silent(
     res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d),
                        distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                       tolerance = tolerance, omit.fraction = NULL)
+                       tolerance = tolerance, omit.fraction = NULL, method = "RELAX-IV")
   )
 })
 
@@ -61,7 +61,7 @@ test_that("NA for unmatched items", {
 
   res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d),
                      distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                     tolerance = tolerance, omit.fraction = NULL)
+                     tolerance = tolerance, omit.fraction = NULL, method = "RELAX-IV")
 
   expect_equal(length(res$cells), 5)
 

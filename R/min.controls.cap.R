@@ -25,6 +25,11 @@
 ##' @param min.controls Optionally, set limits on the minimum number
 ##'   of controls per matched set.  (Only makes sense for
 ##'   \code{maxControlsCap}.)
+##' @param method Choose which algorithm to use. Choices include "RELAX-IV" (default),
+##'  "CycleCancellingRunner", "CapacityScalingRunner", "CostScalingRunner",
+##'  "NetworkSimplexRunner". The last four are from the LEMON graph library. See this
+##'  site for details on their differences:
+##'  \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}.
 ##' @return For \code{minControlsCap},
 ##'   \code{strictest.feasible.min.controls} and
 ##'   \code{given.max.controls}. For \code{maxControlsCap},
@@ -54,7 +59,7 @@
 ##' @keywords optimize
 ##' @export
 ##' @rdname minmaxctlcap
-minControlsCap <- function(distance, max.controls=NULL)
+minControlsCap <- function(distance, max.controls=NULL, method = "RELAX-IV")
 {
   distance <- as.matrix(distance) # cast ISM to matrix, temporary
   if (!is.list(distance) & !is.matrix(distance))
@@ -65,12 +70,14 @@ minControlsCap <- function(distance, max.controls=NULL)
     tmp <- maxControlsCap(t(distance),  min.controls=
                                           switch(1+is.null(max.controls),
                                                  ifelse(max.controls>=1, 1/ceiling(max.controls),
-                                                        floor(1/max.controls) ), NULL))
+                                                        floor(1/max.controls) ), NULL),
+                          method = method)
   } else   {
     tmp <- maxControlsCap(lapply(distance, t), min.controls=
                                                  switch(1+is.null(max.controls),
                ifelse(max.controls>=1, 1/ceiling(max.controls),
-                      floor(1/max.controls) ), NULL))
+                      floor(1/max.controls) ), NULL),
+               method = method)
   }
 
   list(strictest.feasible.min.controls=

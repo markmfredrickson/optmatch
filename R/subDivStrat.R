@@ -1,6 +1,6 @@
 SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
-                        method = "RELAX-IV")
+                        method)
 {
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")

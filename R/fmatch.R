@@ -1,7 +1,7 @@
 #' @importFrom rlemon CycleCancellingRunner CapacityScalingRunner CostScalingRunner NetworkSimplexRunner
 fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
-                   method = "RELAX-IV")
+                   method)
 {
   stopifnot(method %in% c("RELAX-IV",
                           "CycleCancellingRunner",
