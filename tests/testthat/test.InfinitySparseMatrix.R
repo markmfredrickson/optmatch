@@ -32,6 +32,14 @@ test_that("ISM Basics", {
   expect_equivalent(as(D, "matrix"), y)
   expect_equivalent(A, as(m, "InfinitySparseMatrix"))
 
+  # NAs, NaNs are effectively Inf's
+  mm  <- m
+  mm[is.infinite(m)]  <- NA
+  expect_equivalent(as.InfinitySparseMatrix(mm),
+                    as.InfinitySparseMatrix(m) )
+  mm[is.infinite(m)]  <- NaN
+  expect_equivalent(as.InfinitySparseMatrix(mm),
+                    as.InfinitySparseMatrix(m) )  
 })
 
 test_that("ISM Handles Names", {
@@ -68,7 +76,7 @@ test_that("Math Ops", {
   # matrix element wise math
   expect_equivalent(as.matrix(A + A), m + m)
 
-  # Inf - Inf or Inf / Inf gives NA
+  # Inf - Inf or Inf / Inf gives NA (Inf)
   mm <- m - m
   mm[is.na(mm)] <- Inf
 
@@ -79,6 +87,11 @@ test_that("Math Ops", {
   expect_equivalent(as.matrix(A * A), m * m)
   expect_equivalent(as.matrix(A / A), md)
 
+  # Inf * 0 gives NaN (Inf)
+  m0  <- m * 0
+  m0[is.nan(m0)]  <- Inf
+  expect_equivalent(as.matrix(A * 0), m0)
+  
   # The harder case is when the matrix has non-identical row/col ids
 
   q <- matrix(c(1, 2, Inf, 4), nrow = 2, ncol = 2)

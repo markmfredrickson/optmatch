@@ -1,7 +1,13 @@
 CHANGES IN OPTMATCH VERSION 1.0.0 unreleased
+* Hinting: `fullmatch()` and `pairmatch()` now accept a prior `fullmatch()` or 
+  `pairmatch()` value as a starting value, at least if the treatment group is the same.
+* There are now `evaluate_primal()`, `evaluate_lagrangian()` and `evaluate_dual()`
+  functions for examining optimality and regret using primal-dual solution pairs.
 * Added `exclude` argument to `match_on` mirroring the `exclude` argument for `caliper`.
-* `fullmatch()` and `pairmatch()` now accept a prior `fullmatch()` or `pairmatch()` value as a hint, at least if the treatment group is the same.
-* There are `evaluate_lagrangian()` and `evaluate_dual()` functions for examining optimality and regret using primal-dual solution pairs.
+  (As `...` arguments passed to `fullmatch()` or `pairmatch()` get passed down to
+   `match_on()`, this means you can now designate exclusions from caliper requirements
+   you impose within your call to `fullmatch()`/`pairmatch()` by passing a `caliper=`
+   argument.)
 * Removed support for old (pre 0.9) version of solver. 
 
 CHANGES IN OPTMATCH VERSION 0.9-12
