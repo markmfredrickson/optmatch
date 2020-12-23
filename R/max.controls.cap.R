@@ -136,7 +136,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
         {
           tlmxc <- ceiling(
               optimize( function(lmxc1, rown1, coln1, dist1, gmnc1, omf1) {
-                ifelse(!all(is.na(solve_reg_fm_prob(node_info=nodes, colnames=coln1, distspec=dist1,
+                ifelse(!all(is.na(solve_reg_fm_prob(node_info=nodes, distspec=dist1,
                       min.cpt=max(gmnc1, 1/length(rown1)), max.cpt=lmxc1,
                       tolerance=.5, omit.fraction= switch(1+is.na(omf), omf,
                         NULL))$cells)),
