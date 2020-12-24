@@ -87,6 +87,7 @@ test_that("Solutions -> factor helper", {
   rownames(m) <- c("D", "E", "F")
 
   skeleton <- edgelist(m)
+  class(skeleton)  <- "data.frame" #drops S4 class
   skeleton  <- dplyr::mutate(skeleton, treated=factor(i), control=factor(j))
 
   pairs <- cbind(skeleton, solution = c(1,0,0,1,0,0,1))
