@@ -553,15 +553,20 @@ match_on.function <- function(x, within = NULL, caliper = NULL, exclude = NULL, 
 
 # Note that Details for the glm method, above, refers to the below for discussion of computational
 # benefits of calipers -- if that's changed here, adjust there accordingly.
-#' @details \bold{First argument (\code{x}): \code{numeric}.} This returns absolute differences between treated and control units'
-#' values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it
-#' are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of
-#' \code{caliper} and \code{within} has been specified then only information about permissible pairings
-#' will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
-#' as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-#' storage requirements and may otherwise improve performance, particularly in larger problems.
+#' @details \bold{First argument (\code{x}): \code{numeric}.} This returns
+#'   absolute differences between treated and control units' values of \code{x}.
+#'   If a caliper is specified, pairings with \code{x}-differences greater than
+#'   it are forbidden.  Conceptually, those distances are set to \code{Inf};
+#'   computationally, if either of \code{caliper} and \code{within} has been
+#'   specified then only information about permissible pairings will be stored,
+#'   so the forbidden pairings are simply omitted. Providing a \code{caliper}
+#'   argument here, as opposed to omitting it and afterward applying the
+#'   \code{\link{caliper}} function, reduces storage requirements and may
+#'   otherwise improve performance, particularly in larger problems.
 #'
-#' For the numeric method, \code{x} must have names.
+#'   For the numeric method, \code{x} must have names. If \code{z} is named
+#'   it must have the same names as \code{x}, though it allows for a different
+#'   ordering of names. \code{x}'s name ordering is considered canonical.
 #' @method match_on numeric
 #' @rdname match_on-methods
 #' @export
@@ -577,6 +582,18 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
   if (!exists("cl")) cl <- match.call()
 
   z <- toZ(z)
+
+  # #189
+  if (is.null(names(z))) {
+    names(z) <- names(x)
+  } else {
+    # we already know length(x) == length(z)
+    if (!all(names(x) %in% names(z))) {
+      stop("names of x and z must be the same")
+    }
+    # Treat x's name ordering as canonical
+    z <- z[names(x)]
+  }
 
   x <- x[!is.na(z)]
   z <- z[!is.na(z)]
@@ -595,7 +612,6 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
     }
 
     if (!is.null(exclude)) {
-        names(z) <- names(x)
         x.tmp <- x[!names(x) %in% exclude]
         z.tmp <- z[!names(z) %in% exclude]
         allowed <- scoreCaliper(x.tmp, z.tmp, caliper)

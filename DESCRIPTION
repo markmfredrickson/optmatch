@@ -20,6 +20,7 @@ Imports:
     Rcpp,
     RItools,
     digest,
+    dplyr,
     stats,
     methods,
     graphics
@@ -81,5 +82,5 @@ Collate:
     'zzz.R'
     'zzzDistanceSpecification.R'
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8

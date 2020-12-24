@@ -28,6 +28,7 @@ evaluate_primal  <- function(distances, solution) {
 
 
     eld <- edgelist(distances, node.labels(solution))
+    eld <- asS3(eld) # saves some dplyr headaches
     if (anyflipped)
         eld  <- rbind(eld,
                       edgelist(t(distances),
@@ -104,6 +105,8 @@ evaluate_lagrangian <- function(distances, solution) {
                          )
 
     eld <- edgelist(distances, node.labels(solution))
+    eld <- asS3(eld) # saves some dplyr headaches
+    
     if (anyflipped)
         eld  <- rbind(eld, edgelist(t(distances), node.labels(solution)))
 
@@ -175,7 +178,7 @@ evaluate_dual <- function(distances, solution) {
     ## This Q(p) being what you get if minimize the Lagrangian over x's
     ##  respecting capacity but not conservation of flow constraints.
     ##
-    nodes  <- as(nodeinfo(solution), "tbl_df")    
+    nodes  <- as(nodeinfo(solution), "tbl_df")
     sum_supply_price <- sum(nodes$supply * nodes$price, na.rm=TRUE)
 
     ## calculate costs from bookkeeping edges
@@ -194,6 +197,7 @@ evaluate_dual <- function(distances, solution) {
              ) * bookkeeping_ij$capacity
 
     eld <- edgelist(distances, node.labels(solution))
+    eld  <- asS3(eld) # saves some dplyr headaches    
     bookkeeping_node_labels  <- nodes %>%
         filter(is.na(upstream_not_down)) %>% .$nodelabels %>% as.character()
     if (any(eld[['i']] %in% bookkeeping_node_labels))

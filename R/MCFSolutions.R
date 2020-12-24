@@ -408,7 +408,8 @@ update.NodeInfo  <- function(old, new, ...)
 
     old
 }
-## Filter (subset) a NodeInfo. 
+##* `dplyr::filter()` method for NodeInfo's. 
+##' @export
 filter.NodeInfo  <- function(.data, ...) {
     x  <- as(.data, "tbl_df")
     ans  <- filter(x, ...)
@@ -418,16 +419,16 @@ filter.NodeInfo  <- function(.data, ...) {
                          )
     new("NodeInfo", ans)
 }
-##'
-##' This implementation does *not* drop levels of factor
-##' variables (such as `groups`), in order to facilitate interpretation
-##' and re-stitching together.
-##' @title Filter min-cost flow information table(s) by subproblem ID
-##' @param x (currently only implemented for NodeInfo objects)
-##' @param ... additional parameters, including `groups`
-##' @return NodeInfo
-##' @author Ben Hansen
-##' @keywords internal
+##*
+##* This implementation does *not* drop levels of factor
+##* variables (such as `groups`), in order to facilitate interpretation
+##* and re-stitching together.
+##* @title Filter min-cost flow information table(s) by subproblem ID
+##* @param x (currently only implemented for NodeInfo objects)
+##* @param ... additional parameters, including `groups`
+##* @return NodeInfo
+##* @author Ben Hansen
+##* @keywords internal
 setGeneric("filter_by_subproblem", function(x, ...) standardGeneric("filter_by_subproblem"))
 setMethod("filter_by_subproblem", "NodeInfo", function(x, groups) {
     ans  <-  if (length(groups)<=1) {

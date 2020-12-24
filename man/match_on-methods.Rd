@@ -12,30 +12,54 @@
 \alias{match_on.matrix}
 \title{Create treated to control distances for matching problems}
 \usage{
-match_on(x, within = NULL, caliper = NULL, exclude = NULL,
-  data = NULL, ...)
+match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 
-\method{match_on}{glm}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, standardization.scale = mad, ...)
+\method{match_on}{glm}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  standardization.scale = mad,
+  ...
+)
 
-\method{match_on}{bigglm}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, standardization.scale = mad, ...)
+\method{match_on}{bigglm}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  standardization.scale = mad,
+  ...
+)
 
-\method{match_on}{formula}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, subset = NULL,
-  method = "mahalanobis", ...)
+\method{match_on}{formula}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  subset = NULL,
+  method = "mahalanobis",
+  ...
+)
 
-\method{match_on}{function}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, z = NULL, ...)
+\method{match_on}{`function`}(
+  x,
+  within = NULL,
+  caliper = NULL,
+  exclude = NULL,
+  data = NULL,
+  z = NULL,
+  ...
+)
 
-\method{match_on}{numeric}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, z, ...)
+\method{match_on}{numeric}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z, ...)
 
-\method{match_on}{InfinitySparseMatrix}(x, within = NULL,
-  caliper = NULL, exclude = NULL, data = NULL, ...)
+\method{match_on}{InfinitySparseMatrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 
-\method{match_on}{matrix}(x, within = NULL, caliper = NULL,
-  exclude = NULL, data = NULL, ...)
+\method{match_on}{matrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 }
 \arguments{
 \item{x}{An object defining how to create the distances. All methods require
@@ -211,15 +235,20 @@ Details for each particular first type of argument follow:
   z) { abs(data[index[,1]] - data[index[,2]]) } }.  (Note: This simple case is
   precisely handled by the \code{numeric} method.)
 
-\bold{First argument (\code{x}): \code{numeric}.} This returns absolute differences between treated and control units'
-values of \code{x}. If a caliper is specified, pairings with \code{x}-differences greater than it
-are forbidden.  Conceptually, those distances are set to \code{Inf}; computationally, if either of
-\code{caliper} and \code{within} has been specified then only information about permissible pairings
-will be stored, so the forbidden pairings are simply omitted. Providing a \code{caliper} argument here,
-as opposed to omitting it and afterward applying the \code{\link{caliper}} function, reduces
-storage requirements and may otherwise improve performance, particularly in larger problems. 
+\bold{First argument (\code{x}): \code{numeric}.} This returns
+  absolute differences between treated and control units' values of \code{x}.
+  If a caliper is specified, pairings with \code{x}-differences greater than
+  it are forbidden.  Conceptually, those distances are set to \code{Inf};
+  computationally, if either of \code{caliper} and \code{within} has been
+  specified then only information about permissible pairings will be stored,
+  so the forbidden pairings are simply omitted. Providing a \code{caliper}
+  argument here, as opposed to omitting it and afterward applying the
+  \code{\link{caliper}} function, reduces storage requirements and may
+  otherwise improve performance, particularly in larger problems.
 
-For the numeric method, \code{x} must have names.
+  For the numeric method, \code{x} must have names. If \code{z} is named
+  it must have the same names as \code{x}, though it allows for a different
+  ordering of names. \code{x}'s name ordering is considered canonical.
 
 \bold{First argument (\code{x}): \code{matrix} or \code{InfinitySparseMatrix}.} These just return their
   arguments as these objects are already valid distance specifications.

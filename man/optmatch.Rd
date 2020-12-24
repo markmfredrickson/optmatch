@@ -6,9 +6,14 @@
 \alias{summary.optmatch}
 \title{Optmatch Class}
 \usage{
-\method{summary}{optmatch}(object, propensity.model = NULL, ...,
-  min.controls = 0.2, max.controls = 5, quantiles = c(0, 0.5, 0.95,
-  1))
+\method{summary}{optmatch}(
+  object,
+  propensity.model = NULL,
+  ...,
+  min.controls = 0.2,
+  max.controls = 5,
+  quantiles = c(0, 0.5, 0.95, 1)
+)
 }
 \arguments{
 \item{object}{The \code{optmatch} object to summarize.}

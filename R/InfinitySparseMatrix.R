@@ -171,6 +171,44 @@ ismOpHandler <- function(binOp, e1, e2) {
     stop(paste("non-conformable matrices"))
   }
 
+  # #190 - dimension names must agree (agnostic to ordering)
+  # If there are no dimension names, skip this check
+  if ((!is.null(dimnames(e1)) & is.null(dimnames(e2))) |
+        (is.null(dimnames(e1)) & !is.null(dimnames(e2)))) {
+    warning("One matrix has dimnames and the other does not. Proper ordering is not guaranteed.")
+  }
+  else if (!is.null(dimnames(e1)) | !is.null(dimnames(e2))) {
+    t1 <- dimnames(e1)$treated
+    t2 <- dimnames(e2)$treated
+    c1 <- dimnames(e1)$control
+    c2 <- dimnames(e2)$control
+    t1extra <- setdiff(t1, t2)
+    t2extra <- setdiff(t2, t1)
+    c1extra <- setdiff(c1, c2)
+    c2extra <- setdiff(c2, c1)
+    if (length(c(t1extra, t2extra, c1extra, c2extra)) > 0) {
+      error <- ""
+      if (length(t1extra > 0)) {
+        error <- paste0(error, "    extra rows in first matrix: ",
+                        paste0(t1extra, collapse = ", "), "\n")
+      }
+      if (length(t2extra > 0)) {
+        error <- paste0(error, "    extra rows in second matrix: ",
+                        paste0(t2extra, collapse = ", "), "\n")
+      }
+      if (length(c1extra > 0)) {
+        error <- paste0(error, "    extra columns in first matrix: ",
+                        paste0(c1extra, collapse = ", "), "\n")
+      }
+      if (length(c2extra > 0)) {
+        error <- paste0(error, "    extra columns in second matrix: ",
+                        paste0(c2extra, collapse = ", "), "\n")
+      }
+      stop(paste0("dimension names between matrices must be in agreement:\n",
+                 error))
+    }
+  }
+
   # re-order e2 by the row and column names in e1
   if (!is.null(e1@rownames) && !is.null(e2@rownames)) {
 
