@@ -2,7 +2,7 @@
 ## Tests of functions that test for complementarySlackness
 ################################################################################
 
-context("Complementary slackness")
+context("Complementary slackness, no subproblems")
 
 make_known_optimal <- function(flipped=FALSE) {
 
@@ -34,12 +34,11 @@ make_known_optimal <- function(flipped=FALSE) {
                     capacity = rep(1L, 3)
                 ))
     subprob  <- new("SubProbInfo",
-                    data.frame(groups=character(1), flipped=flipped, hashed_dist=character(1),
+                    data.frame(groups="a", flipped=flipped, hashed_dist=character(1),
                                resolution=NA_real_, lagrangian_value=NA_real_, dual_value=NA_real_,
                                feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                     )
     mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs)
-
     list(x = x, m = m, mcf = mcf_solution)
 }
 
@@ -103,23 +102,6 @@ subprob  <- new("SubProbInfo",
     node.labels(mcf_solution)  <- names(node.labels(mcf_solution)) # for alignment w/ m
     list(x = x, m = m, mcf = mcf_solution)
 }
-make_known_2subprobs  <- function()
-    {
-        o1  <- make_known_optimal()
-        o2  <- make_known_optimal_fullm()
-        newx  <- rbind(o1$x, o2$x)
-        newm  <- matrix(Inf,
-                        nrow=(nrow(o1$m)+nrow(o2$m)),
-                        ncol=(ncol(o1$m)+ncol(o2$m)),
-                        dimnames=list(c(rownames(o1$m), rownames(o2$m)),
-                                      c(colnames(o1$m), colnames(o2$m))
-                                      )
-                        )
-        newm[rownames(o1$m), colnames(o1$m)]  <- o1$m
-        newm[rownames(o2$m), colnames(o2$m)]  <- o2$m
-        newmcf  <- c(o1$mcf, o2$mcf)
-        list(x=newx, m=newm, mcf=newmcf)
-        }
 test_that("Compute primal", {
     opt <- make_known_optimal()
     expect_equal(evaluate_primal(opt$m, opt$mcf), 4)
@@ -187,3 +169,25 @@ test_that("Compute dual functional", {
     opt.f  <- make_known_optimal(flipped=TRUE)
     expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 4)
 })
+
+context("Complementary slackness, multiple subproblems")
+
+make_known_2subprobs  <- function(flipped=c(FALSE, FALSE))
+    {
+        o1  <- make_known_optimal(flipped=flipped[1])
+        o2  <- make_known_optimal_fullm(flipped=flipped[2])
+        stopifnot(length(intersect(rownames(o1$m), rownames(o2$m)))==0,
+                  length(intersect(colnames(o1$m), colnames(o2$m)))==0)
+        newx  <- rbind(o1$x, o2$x)
+        newm  <- matrix(Inf,
+                        nrow=(nrow(o1$m)+nrow(o2$m)),
+                        ncol=(ncol(o1$m)+ncol(o2$m)),
+                        dimnames=list(c(rownames(o1$m), rownames(o2$m)),
+                                      c(colnames(o1$m), colnames(o2$m))
+                                      )
+                        )
+        newm[rownames(o1$m), colnames(o1$m)]  <- o1$m
+        newm[rownames(o2$m), colnames(o2$m)]  <- o2$m
+        newmcf  <- c(o1$mcf, o2$mcf)
+        list(x=newx, m=newm, mcf=newmcf)
+        }

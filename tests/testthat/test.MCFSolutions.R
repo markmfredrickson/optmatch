@@ -119,9 +119,9 @@ test_that("c() methods", {
                             feasible=c(TRUE), exceedance=1, stringsAsFactors=F)
                  )
     
-    expect_silent(c(spi1, spi2))
-    expect_silent(c(spi1, spi2, spi3))
-    expect_silent(c(a=spi1, b=spi2)) # no confusion just b/c no `x=` arg!
+    expect_true(validObject(c(spi1, spi2)))
+    expect_true(validObject(c(spi1, spi2, spi3)))
+    expect_true(validObject(c(a=spi1, b=spi2))) # no confusion just b/c no `x=` arg!
     
     ni1f  <- new("NodeInfo",
                  data.frame(name=c('b', 'c', 'd',
@@ -138,8 +138,8 @@ test_that("c() methods", {
     ni1f.a  <- ni1f.b <- ni1f.c  <- ni1f
     ni1f.a[,'groups']  <- factor(rep('a', nrow(ni1f)))
     ni1f.c[,'groups']  <- factor(rep('c', nrow(ni1f)))    
-    expect_silent(c(ni1f.a, ni1f.b))
-    expect_silent(c(ni1f.a, ni1f.b, ni1f.c))
+    expect_true(validObject(c(ni1f.a, ni1f.b)))
+    expect_true(validObject(c(ni1f.a, ni1f.b, ni1f.c)))
     ni2  <- new("NodeInfo",
                 data.frame(name=c(letters[2:5], '(_Sink_)', '(_End_)'), price=0.5,
                            upstream_not_down=c(TRUE, rep(FALSE,3), NA, NA),
@@ -160,8 +160,8 @@ test_that("c() methods", {
                                       end= factor('(_Sink_)'), flow=1L,
                                       capacity=1L, stringsAsFactors=F)
                )
-    expect_silent(c(ai1, ai1))
-    expect_silent(c(x=ai1, y=ai1, z=ai1))
+    expect_true(validObject(c(ai1, ai1)))
+    expect_true(validObject(c(x=ai1, y=ai1, z=ai1)))
     ai2  <- new("ArcInfo",
                matches=data.frame(groups = factor('c'), upstream = factor('b'),
                                   downstream = factor(c('c','d', 'e')), stringsAsFactors=F),
@@ -183,8 +183,8 @@ test_that("c() methods", {
 
     mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2)
     
-    expect_silent(c(mcf1, mcf2))
-    expect_silent(c(y=mcf1, z=mcf2))
+    expect_true(validObject(c(mcf1, mcf2)))
+    expect_true(validObject(c(y=mcf1, z=mcf2)))
 
     mcf2f  <- as(mcf2, "FullmatchMCFSolutions")
     expect_is(c(mcf2f, mcf1), "FullmatchMCFSolutions")
