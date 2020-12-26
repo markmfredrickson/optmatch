@@ -188,6 +188,38 @@ make_known_2subprobs  <- function(flipped=c(FALSE, FALSE))
                         )
         newm[rownames(o1$m), colnames(o1$m)]  <- o1$m
         newm[rownames(o2$m), colnames(o2$m)]  <- o2$m
+        newm  <- as.InfinitySparseMatrix(newm)
         newmcf  <- c(o1$mcf, o2$mcf)
         list(x=newx, m=newm, mcf=newmcf)
         }
+
+test_that("Compute primal", {
+    opt <- make_known_2subprobs()
+    expect_equal(evaluate_primal(opt$m, opt$mcf), 8)
+    ## partly 'flipped' variant
+    opt.f  <- make_known_2subprobs(flipped=c(FALSE, TRUE))
+    expect_equal(evaluate_primal(opt.f$m, opt.f$mcf), 8)
+})
+
+test_that("Compute Lagrangian", {
+    opt <- make_known_2subprobs()
+    ## since the above arcs represents the optimal, the lagrangian
+    ## at this point should be equal to the primal 
+    ## objective function (ie., the sum of matched distances).
+    expect_equal(evaluate_lagrangian(opt$m, opt$mcf), 8)
+    ## 'flipped' variant
+    opt.f  <- make_known_2subprobs(flipped=c(FALSE, TRUE))
+    expect_equal(evaluate_lagrangian(opt.f$m, opt.f$mcf), 8)
+})
+
+test_that("Compute dual functional", {
+    opt <- make_known_2subprobs()
+    ## since the above arcs represents the optimal, the dual
+    ## functional at this point should be equal to the primal 
+    ## objective function (ie., the sum of matched distances).
+    expect_equal(evaluate_dual(opt$m, opt$mcf), 8)
+    ## 'flipped' variant
+    opt.f  <- make_known_2subprobs(flipped=c(FALSE,TRUE))
+    expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 8)
+})
+
