@@ -255,22 +255,24 @@ setMethod("c", signature(x="MCFSolutions"),
           definition=function(x, ...) {
               objs  <-  list(...)
               if (!missing(x)) objs  <- c(list(x), objs)
+
               ans  <- new("MCFSolutions")
-              ## combine NodeInfo slots first, creating a new version
-              ## of the row names that's free of duplicates. Among
-              ## other things, this makes the bookkeeping
-              ## node levels unique by appending subproblem string. Then
-              ## update factor levels in remaining slots, before
-              ## attempting to combine them. 
-              theslots  <- names(getSlots("MCFSolutions"))
-              combined_slotvalues  <-
-                  sapply(theslots, 
-                         function(theslot){
-                             as_list  <- lapply(objs, function(x) slot(x, theslot))
-                             do.call(c, as_list)
-                         }, simplify=FALSE, USE.NAMES=TRUE)
-              for (theslot in theslots)
-                  slot(ans, theslot)  <- combined_slotvalues[[theslot]]
+              slot(ans, "subproblems")  <- do.call(c, lapply(objs, slot, "subproblems"))
+              slot(ans, "nodes")  <- do.call(c, lapply(objs, slot, "nodes"))
+
+              ## This creates new node.labels (that are free of duplicates).
+              new_nl  <- node.labels(slot(ans, "nodes"))
+              ## Propagating these new labels into the ArcInfo's takes a few steps.
+
+              n_nodes_by_obj  <- vapply(objs, function(obj) nrow(nodeinfo(obj)), integer(1))
+              offsets  <- if (length(objs)>1) c(0L, cumsum(n_nodes_by_obj)[-length(objs)]) else 0L
+              for (ii in 1L: length(objs))
+                  slot(objs[[ii]], "arcs")  <-
+                      revise_ArcInfo_nodelabels(slot(objs[[ii]], "arcs"),
+                                                new_nl,
+                                                offsets[ii]+1L:n_nodes_by_obj[ii])
+
+              slot(ans, "arcs")  <- do.call(c, lapply(objs, slot, "arcs"))
               ans
           })
 
@@ -333,7 +335,7 @@ setMethod("nodeinfo<-", "ANY", function(x, value) stop("Not implemented."))
 
 ## node labels
 setGeneric("node.labels", function(x) standardGeneric("node.labels"))
- setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))
+setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))
 setMethod("node.labels", "NodeInfo",
           function(x) setNames(row.names(x), nm=x[['name']])
           )
@@ -349,25 +351,65 @@ setMethod("node.labels<-", "NodeInfo",
               x
           } 
           )
+##' @title Reset implicit node labels of an ArcInfo object
+##' @param x an ArcInfo object
+##' @param new character; the new node labels (level sets for factors encoding arc start or end nodes)
+##' @param old_positions integer; positions for old levels with new levels vector
+##' @return ArcInfo object with new levels
+##' @author Ben Hansen
+##' @keywords internal
+revise_ArcInfo_nodelabels  <- function(x, new, old_positions=1L:length(new))
+{
+    stopifnot(is(x, "ArcInfo"),
+              validObject(x), # maybe remove after development?
+              is.character(new),
+              is.integer(old_positions),
+              all(1L<=old_positions),
+              all(old_positions<=length(new)),
+              !any(duplicated(old_positions)),
+              length(old_positions)==nlevels(x@matches[['upstream']])
+              )
+    n_old  <- length(old_positions)
+    n_new  <- length(new)
+    oldlevs  <- levels(x@matches[['upstream']])
+    ## we need a temporary level set that extends the old level set
+    ## as necessary in order to match the length of `new`.
+    oldlevs_padded  <- character(n_new)
+    oldlevs_padded[old_positions]  <- oldlevs
+    ## If we're not only renaming but also adding levels, we'll
+    ## need to pad `oldlevs`.  It doesn't matter what the padding is
+    ## so long as it's distinct from the actual old levels.
+    if (n_old < n_new)
+        oldlevs_padded[-old_positions]  <-
+            make.unique(c(oldlevs, new[-old_positions])
+                        )[(n_old+1L):n_new]
+    ## Finally, touch up all the factor levels.
+    x@matches[['upstream']]  <-
+        factor(x@matches[['upstream']],
+               levels=oldlevs_padded,
+               labels = new)
+    x@matches[['downstream']]  <-
+        factor(x@matches[['downstream']],
+               levels=oldlevs_padded,
+               labels = new)
+    x@bookkeeping[['start']]  <-
+        factor(x@bookkeeping[['start']],
+               levels=oldlevs_padded,
+               labels = new)
+    x@bookkeeping[['end']]  <-
+        factor(x@bookkeeping[['end']],
+               levels=oldlevs_padded,
+               labels = new)
+    x
+    }
 setMethod("node.labels<-", "MCFSolutions",
           function(x, value) {
               oldlabels  <- node.labels(x)
               stopifnot(length(oldlabels)==length(value))
               names(value)  <- oldlabels
               node.labels(x@nodes) <- value
-              ## Now have to touch up all the factor levels!
-              x@arcs@matches[['upstream']]  <-
-                  factor(x@arcs@matches[['upstream']], levels=oldlabels,
-                         labels = value[levels(x@arcs@matches[['upstream']])])
-              x@arcs@matches[['downstream']]  <-
-                  factor(x@arcs@matches[['downstream']], levels=oldlabels,
-                         labels = value[levels(x@arcs@matches[['downstream']])])
-              x@arcs@bookkeeping[['start']]  <-
-                  factor(x@arcs@bookkeeping[['start']], levels=oldlabels,
-                         labels = value[levels(x@arcs@bookkeeping[['start']])])
-              x@arcs@bookkeeping[['end']]  <-
-                  factor(x@arcs@bookkeeping[['end']], levels=oldlabels,
-                         labels = value[levels(x@arcs@bookkeeping[['end']])]) 
+              x@arcs  <-
+                  revise_ArcInfo_nodelabels(x@arcs, value)
               x
           } 
           )

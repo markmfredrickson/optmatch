@@ -102,6 +102,10 @@ test_that("Instantiation & validity", {
     expect_equivalent(node.labels(mcf1f@nodes), paste0(node.labels(ni1f), "_") )
 })
 
+expect_setequal(names(getSlots("MCFSolutions")),
+                     c("subproblems", "nodes", "arcs")
+                )# premise of c() method for MCFSolutions
+
 test_that("c() methods", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
@@ -165,6 +169,7 @@ test_that("c() methods", {
                                        flow=1L, capacity=1L,
                                        stringsAsFactors=F)
                )
+    expect_true(validObject(ai1))
     expect_true(validObject(c(ai1, ai1)))
     expect_true(validObject(c(x=ai1, y=ai1, z=ai1)))
     some_levs  <- c(letters[2:5], '(_Sink_)', '(_End_)')    
@@ -179,6 +184,7 @@ test_that("c() methods", {
                                        flow=1L, capacity=1L,
                                        stringsAsFactors=F)
                )
+    expect_true(validObject(ai2))
 
     ai1ai2 <- c(ai1, ai2)
     expect_equal(levels(ai1ai2@matches$groups), c("a", "c"))
@@ -190,11 +196,11 @@ test_that("c() methods", {
 
 
     mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1f, arcs=ai1)
-    expect_error(c(mcf1, mcf1), "uplicates")
-
-
     mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2)
+    expect_true(validObject(mcf1))
+    expect_true(validObject(mcf2))
     
+    expect_error(c(mcf1, mcf1), "uplicates")
     expect_true(validObject(c(mcf1, mcf2)))
     expect_true(validObject(c(y=mcf1, z=mcf2)))
 
