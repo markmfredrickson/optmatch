@@ -65,8 +65,43 @@ test_that("default levels",{
     m <- as.matrix(ism)
     m.el <- edgelist(m, c(rns, cns))
     expect_identical(edgelist(m), m.el)
-    ## (too beat to test this for the other methods)
+
+    el  <- edgelist(ism.el, c(rns, cns))
+    expect_identical(edgelist(ism.el), el)
+
+    df  <- asS3(ism.el)
+    df.el  <- edgelist(df, c(rns, cns))
+    expect_identical(edgelist(df), df.el)
 })
+test_that("revise levels set",{
+    cns <- c("C1", "C2", "C3", "C4")
+    rns <- c("TZ", "TY", "TX", "TW", "TU")
+    ism <- makeInfinitySparseMatrix(1:7,
+                                    cols = c(1, 2, 1, 2, 3, 1, 3),
+                                    rows = c(2, 2, 3, 3, 3, 5, 5),
+                                    colnames = cns,
+                                    rownames = rns)
+    levs_crosswalk  <- setNames(tolower(c(cns, rns)), nm=c(cns, rns))
+    ism.el.r  <- edgelist(ism, levs_crosswalk)
+    expect_is(ism.el.r, "EdgeList")
+    expect_setequal(levels(ism.el.r$"i"), tolower(c(cns, rns)))
+
+    m <- as.matrix(ism)
+    m.el.r  <- edgelist(m, levs_crosswalk)
+    expect_is(m.el.r, "EdgeList")
+    expect_setequal(levels(m.el.r$"i"), tolower(c(cns, rns)))
+
+    el  <- edgelist(ism)
+    el.el.r  <- edgelist(el, levs_crosswalk)
+    expect_is(el.el.r, "EdgeList")
+    expect_setequal(levels(el.el.r$"i"), tolower(c(cns, rns)))
+
+    df  <- asS3(el)
+    df.el.r  <- edgelist(df, levs_crosswalk)    
+    expect_is(df.el.r, "EdgeList")
+    expect_setequal(levels(df.el.r$"i"), tolower(c(cns, rns)))
+})
+
 test_that("remove edges to or from nodes not appearing in y",{
     cns <- c("C1", "C2", "C3", "C4")
     rns <- c("TZ", "TY", "TX", "TW", "TU")

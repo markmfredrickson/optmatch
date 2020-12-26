@@ -28,39 +28,64 @@ setValidity("EdgeList", function(object) {
 t.EdgeList  <- function(x) new("EdgeList", tibble(dist=x[['dist']], i=x[['j']], j=x[['i']]))
 #' @export
 dim.EdgeList  <- base::dim.data.frame
+##' 
+##' If y is a named character vector, then the names should
+##' correspond to whatever in x would otherwise (i.e. if y were NULL)
+##' translate to the levels set of the nodes-representing columns, while
+##' the values themselves give the new levels. 
+##' @title Create EdgeList object
+##' @param x object to convert to edgelist
+##' @param y named character vector giving levels for nodes-representing columns, or NULL
+##' @return EdgeList
+##' @author Ben Hansen
+##' @keywords internal
 setGeneric("edgelist", function(x, y=NULL) { stop("Not implemented.") })
-
-setMethod("edgelist", c(x = "InfinitySparseMatrix"), function(x, y=unlist(dimnames(x))) {
-    elist  <- tibble::tibble(i = factor(x@rownames[x@rows], levels=y),
-                      j = factor(x@colnames[x@cols], levels=y),
-                      dist = x@.Data)
+setMethod("edgelist", c(x = "InfinitySparseMatrix"), function(x, y=NULL) {
+    if (is.null(y))
+        y  <- unlist(dimnames(x), use.names=FALSE)
+    if (is.null(names(y)))
+        names(y)  <- unname(y)
+    elist  <-
+        tibble::tibble(i = factor(x@rownames[x@rows], levels=names(y), labels=unname(y)),
+                       j = factor(x@colnames[x@cols], levels=names(y), labels=unname(y)),
+                       dist = x@.Data
+                       )
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
 })
 
-setMethod("edgelist", c(x = "matrix"), function(x, y=unlist(dimnames(x))) {
+setMethod("edgelist", c(x = "matrix"), function(x, y=NULL) {
     return(edgelist(as.InfinitySparseMatrix(x), y))
 })
 
-setMethod("edgelist", c(x = "EdgeList"), function(x, y=levels(x[['i']])) {
-    if (isTRUE(all.equal(levels(x[['i']]),
-                         y, check.attributes=FALSE)
-               )
-        )
+setMethod("edgelist", c(x = "EdgeList"), function(x, y=NULL) {
+    if (is.null(y) || identical(levels(x[['i']]), y) )
         return(x)
 
-    elist  <- tibble::tibble(i = factor(x[['i']], levels=y),
-                      j = factor(x[['j']], levels=y),
-                      dist = x[['dist']])
+    if (is.null(names(y)))
+        names(y)  <- unname(y)
+    elist  <-
+        tibble::tibble(i = factor(x[['i']], levels=names(y), labels=unname(y)),
+                       j = factor(x[['j']], levels=names(y), labels=unname(y)),
+                       dist = x[['dist']]
+                       )
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
-setMethod("edgelist", c(x = "data.frame"), function(x, y=levels(x[['i']])){
-    stopifnot(ncol(x)==3, setequal(colnames(x), c('i', 'j', 'dist')),
-              is.numeric(x$dist))
-    elist <- tibble::tibble(i = factor(x[['i']], levels=y),
-                     j= factor(x[['j']], levels=y),
-                     dist=x[['dist']])
+setMethod("edgelist", c(x = "data.frame"), function(x, y=NULL){
+    stopifnot(ncol(x)==3,
+              setequal(colnames(x), c('i', 'j', 'dist')),
+              is.numeric(x$dist)
+              )
+    if (is.null(y))
+        y  <- levels(x[['i']])
+    if (is.null(names(y)))
+        names(y)  <- unname(y)
+    elist <-
+        tibble::tibble(i = factor(x[['i']], levels=names(y), labels=unname(y)),
+                       j= factor(x[['j']], levels=names(y), labels=unname(y)),
+                       dist=x[['dist']]
+                       )
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
