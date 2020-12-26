@@ -96,6 +96,8 @@ setValidity("ArcInfo", function(object){
     if (!all(vapply(object@matches, is.factor, logical(1))==TRUE))
         errors  <- c(errors,
                      'All columns of @matches should have type factor.')
+    if (!identical(levels(object@matches[['upstream']]), levels(object@matches[['downstream']])))
+        errors  <- c(errors, "node columns of @matches should have same levels()")
     if (!all(colnames(object@bookkeeping)[1:5]==
              c("groups", "start",  "end",  "flow", "capacity")))
         errors  <- c(errors,
@@ -103,6 +105,12 @@ setValidity("ArcInfo", function(object){
     if (!all(vapply(object@bookkeeping[1:3], is.factor, logical(1))))
         errors  <- c(errors,
                      '@bookkeeping cols 1-3 should have type factor.')
+    if (!identical(levels(object@bookkeeping[['start']]), levels(object@bookkeeping[['end']])))
+        errors  <- c(errors,
+                     "node columns of @bookkeeping should have same levels()")
+    if (!identical(levels(object@matches[['upstream']]), levels(object@bookkeeping[['start']])))
+        errors  <- c(errors,
+                     "node columns of @matches, @bookkeeping should have same levels()")
     if (!all(vapply(object@bookkeeping[c('flow', "capacity")], is.integer, logical(1))))
         errors  <- c(errors,
                      '@bookkeeping cols "flow", "capacity" should have type integer.')
@@ -125,47 +133,35 @@ setValidity("MCFSolutions", function(object){
     errors  <- character(0)
     ## Each of factors object@arcs@matches$upstream, object@arcs@matches$downstream,
     ## object@arcs@bookkeeping$start and object@arcs@bookkeeping$end must have the same
-    ## levels set, namely node.labels(object) (i.e. row.names(object@nodes) ). 
-    if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['upstream']]),
-                                    node.labels(object)
-                                    )
-               )
+    ## levels set, namely node.labels(object) (i.e. row.names(object@nodes) ).  Former
+    ## requirement is enforced within the ArcInfo validity checker; here we confirm
+    ## that this level set matches what's in the nodes table.
+    if (!identical(row.names(nodeinfo(object)),
+                   levels(object@arcs@matches[['upstream']])
+                   )
         )
-        errors  <- c(errors,
-                     paste("Arcs' upstream nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
-    if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['downstream']]),
-                                    node.labels(object)
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Arcs' downstream nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
-    if (length(xtralevs  <- setdiff(levels(object@arcs@bookkeeping[['start']]),
-                                    node.labels(object)
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Bookkeeping arc start nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
-    if (length(xtralevs  <- setdiff(levels(object@arcs@bookkeeping[['end']]),
-                                    node.labels(object)
-                                    )
-               )
-        )
-        errors  <- c(errors,
-                     paste("Bookkeeping arcs' end nodes not listed in nodes table, e.g.",
-                           paste(head(xtralevs,2), collapse=", "), "."
-                           )
-                     )
+        {
+            if (length(xtralevs  <- setdiff(node.labels(object),
+                                            levels(object@arcs@matches[['upstream']])
+                                            )
+                       )
+                )
+                errors  <- c(errors,
+                             paste("@nodes lists nodes not in the levels of @arcs's nodes columns, e.g.",
+                                   paste(head(xtralevs,2), collapse=", "), "."
+                                   )
+                             )
+            if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['upstream']]),
+                                            node.labels(object)
+                                            )
+                       )
+                )
+                errors  <- c(errors,
+                             paste("@arcs's nodes columns have levels not appearing in @nodes",
+                                   paste(head(xtralevs,2), collapse=", "), "."
+                                   )
+                             )
+        }
     ## Nodes table must have groups column
     if (!any(colnames(object@nodes)=="groups"))
         errors  <- c(errors,

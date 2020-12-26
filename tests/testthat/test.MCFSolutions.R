@@ -153,28 +153,40 @@ test_that("c() methods", {
     expect_named(node.labels(ni1ni2), c("b", "c", "d", "(_Sink_)", "(_End_)", letters[2:5], "(_Sink_)", "(_End_)") )
     expect_false( any(duplicated(node.labels(ni1ni2))) )
 
+    some_levs  <- c(letters[2:4], '(_Sink_)', "(_End_)")
     ai1  <- new("ArcInfo",
-               matches=data.frame(groups = factor('a'), upstream = factor('b'),
-                                  downstream = factor(c('c','d')), stringsAsFactors=F),
-               bookkeeping=data.frame(groups= factor('a'), start = factor(c('c','d')),
-                                      end= factor('(_Sink_)'), flow=1L,
-                                      capacity=1L, stringsAsFactors=F)
+                matches=data.frame(groups = factor('a'),
+                                   upstream = factor('b', levels=some_levs),
+                                   downstream = factor(c('c','d'), levels=some_levs),
+                                   stringsAsFactors=F),
+                bookkeeping=data.frame(groups = factor('a'),
+                                       start = factor(c('c','d'), levels=some_levs),
+                                       end = factor('(_Sink_)', levels=some_levs),
+                                       flow=1L, capacity=1L,
+                                       stringsAsFactors=F)
                )
     expect_true(validObject(c(ai1, ai1)))
     expect_true(validObject(c(x=ai1, y=ai1, z=ai1)))
+    some_levs  <- c(letters[2:5], '(_Sink_)', '(_End_)')    
     ai2  <- new("ArcInfo",
-               matches=data.frame(groups = factor('c'), upstream = factor('b'),
-                                  downstream = factor(c('c','d', 'e')), stringsAsFactors=F),
-               bookkeeping=data.frame(groups = factor('c'), start = factor(c('c','d')),
-                                      end = factor('(_Sink_)'), flow=1L,
-                                      capacity=1L, stringsAsFactors=F)
+                matches=data.frame(groups = factor('c'),
+                                   upstream = factor('b', levels=some_levs),
+                                   downstream = factor(c('c','d', 'e'), levels=some_levs),
+                                   stringsAsFactors = F),
+                bookkeeping=data.frame(groups = factor('c'),
+                                       start = factor(c('c','d'), levels=some_levs),
+                                       end = factor('(_Sink_)', levels=some_levs),
+                                       flow=1L, capacity=1L,
+                                       stringsAsFactors=F)
                )
 
     ai1ai2 <- c(ai1, ai2)
     expect_equal(levels(ai1ai2@matches$groups), c("a", "c"))
-    expect_equal(levels(ai1ai2@matches$upstream), "b")
-    expect_equal(levels(ai1ai2@matches$downstream), c("c", "d", "e"))
-    expect_equal(levels(ai1ai2@bookkeeping$end), "(_Sink_)")
+    expect_setequal(unique(as.character(ai1ai2@matches$upstream)), "b")
+    expect_setequal(unique(as.character(ai1ai2@matches$downstream)),
+                    c("c", "d", "e")
+                    )
+    expect_setequal(unique(as.character(ai1ai2@bookkeeping$end)), "(_Sink_)")
 
 
     mcf1  <- new("MCFSolutions", subproblems=spi1, nodes=ni1f, arcs=ai1)
@@ -304,13 +316,18 @@ test_that("filtering on groups/subproblem field", {
     expect_silent(ni12a  <- filter_by_subproblem(ni12, groups=c("b","c")))
     expect_is(ni12a, "NodeInfo")
     expect_equal(nrow(ni12a), 8L)
-    
+
+    some_levs  <- c(letters[2:4], '(_Sink_)', '(_End_)')
     ai1  <- new("ArcInfo",
-               matches=data.frame(groups = factor('a'), upstream = factor('b'),
-                                  downstream = factor(c('c','d')), stringsAsFactors=F),
-               bookkeeping=data.frame(groups= factor('a'), start = factor(c('c','d')),
-                                      end= factor('(_Sink_)'), flow=1L,
-                                      capacity=1L, stringsAsFactors=F)
+                matches=data.frame(groups = factor('a'),
+                                   upstream = factor('b', levels=some_levs),
+                                   downstream = factor(c('c','d'), levels=some_levs),
+                                   stringsAsFactors=F),
+                bookkeeping=data.frame(groups = factor('a'),
+                                       start = factor(c('c','d'), levels=some_levs),
+                                       end = factor('(_Sink_)', levels=some_levs),
+                                       flow=1L, capacity=1L,
+                                       stringsAsFactors=F)
                )
     expect_error(filter_by_subproblem(ai1, groups="a"), "implemented")
 
