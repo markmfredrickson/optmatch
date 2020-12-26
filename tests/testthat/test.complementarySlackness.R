@@ -81,12 +81,12 @@ make_known_optimal_fullm <- function(flipped=FALSE)
                      groups = factor(rep("b", 7))))
     arcs <- new("ArcInfo",
                 matches=data.frame(
-                    groups="b",
+                    groups=factor("b"),
                     upstream=factor(c(1, 2, 3),levels=node.labels(nodes)),
                     downstream=factor(c(4, 4, 5),levels=node.labels(nodes))
                 ),
                 bookkeeping=data.frame(
-                    groups="b",
+                    groups=factor("b"),
                     start=factor(c(1, 2, 3, 4, 5, 4, 5),levels=node.labels(nodes)), 
                     end=factor(c(7, 7, 7, 7, 7, 6, 6),levels=node.labels(nodes)),
                     flow=as.integer(c(1, 1, 1, 1, 0, 1, 1)),
