@@ -39,6 +39,15 @@
 #' returned by \code{match_on}. This argument can reduce the processing time
 #' needed to compute sparse distance matrices.
 #'
+#' When covariates provided to \code{match_on} contain missing values, by default 
+#' \code{match_on} will (1) create a matrix of distances between observations which 
+#' have only valid values for **all** covariates and then (2) append a matrix of Inf values 
+#' for distances between observations that have **any** missing values on any of the covariates. 
+#' This means that no matches will be possible between observations that have any missing 
+#' values and any other observation in the dataset. It also means that the distance matrices returned
+#' by \code{match_on} will have Number of Treated rows and Number of Control columns regardless of the
+#' amoung of missing data in the covariates.
+#' 
 #' Details for each particular first type of argument follow:
 #'
 #' @param x An object defining how to create the distances. All methods require
