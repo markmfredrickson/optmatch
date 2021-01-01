@@ -77,23 +77,22 @@ pairmatch_nodeinfo  <- function(edges) {
     new("NodeInfo", adf)
 }
 test_that("Hinting decreases runtimes",{
-  v <- c(1, Inf, 2,
-         2, 1, Inf,
-         3, 2, 1)
-  suppressWarnings(v  <- as.integer(v))
-  # the clear match to make: 
-  # A:D, B:E, C:F
-  m <- matrix(v, nrow = 3, ncol = 3)
-  colnames(m) <- c("A", "B", "C")
-  rownames(m) <- c("D", "E", "F")
+  N <- 100
+  X <- data.frame(X1 = rnorm(N), 
+                  X2 = rnorm(N, mean = runif(N, -5, 5)), 
+                  X3 = as.factor(sample(letters[1:5], N, replace = T)))
+  m <- match_on(x = Z ~ X1 + X2 + X3, data = DATA)
+  if (nrow(m) > ncol(m)) m <- t(m)
+  ff <- nrow(m)/ncol(m)
   pm <- edgelist(m)
-
-  t0  <- system.time(res <- fmatch(pm, 2, 2,
-                                   node_info=pairmatch_nodeinfo(pm))
+  pm$dist <- as.integer(100*pm$dist)
+  nodes_dummy <- pairmatch_nodeinfo(pm)
+  t0  <- system.time(res0 <- fmatch(pm, 1, 1, 1, f=ff,
+                                   node_info=nodes_dummy)
                      )
-  expect_false(is.null(mcfs0  <-  res$MCFSolution))
+  expect_false(is.null(mcfs0  <-  res0$MCFSolution))
   n0  <-  mcfs0@nodes
-  t1  <- system.time(fmatch(pm, 2, 2, node_info=n0))
-#  expect_gt(t0['elapsed'], #to be honest I don't consistently see any advantage for 
-#            t1['elapsed']) #hinting. 
+  t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0))
+  expect_gt(t0['elapsed'], 
+            t1['elapsed'])
 })
