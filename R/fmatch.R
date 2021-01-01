@@ -132,7 +132,13 @@ fmatch <- function(distance, max.row.units, max.col.units,
        (nt * mxc < n.mc) #max.col.units too low
       )
   {
-    return(cbind(distance, solution = rep(-1L, narcs)))
+    return(
+      data.frame(distance,
+                 solution = rep(-1L, narcs),
+                 check.names=FALSE,
+                 row.names=NULL
+                )
+          )
       }
 
   ##  Min-Cost-Flow representation of problem  ####
@@ -221,7 +227,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## Material used to create s3 optmatch object:
   feas <- fop$feasible1
   x <- feas * fop$x1 - (1 - feas)
-  obj <-cbind(distance, solution = x[seq(from=min(1L, narcs), to=narcs)])
+  obj <-data.frame(distance,
+                   solution = x[seq.int(from=min(1L, narcs), to=narcs)],
+                   check.names=FALSE,
+                   row.names=NULL)
 
   #### Recover node prices, store in nodes table ##
   ## In full matching, each upstream (row) or downstream (column) node starts
