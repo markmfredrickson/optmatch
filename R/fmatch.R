@@ -63,7 +63,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                  )# This also removes arcs to/from nodes not in subproblem.
   if (!is.integer(distance[['dist']])) {
       tdist  <- as.integer(distance[['dist']])
-      if (isFALSE(all.equal(distance[['dist']],tdist))) stop("distance should be integer")
+      if (!isTRUE(all.equal(distance[['dist']],tdist))) stop("distance should be integer")
       distance  <- edgelist(data.frame(i=distance[['i']], j=distance[['j']],
                                        dist=tdist),
                             c(row.units, col.units)
