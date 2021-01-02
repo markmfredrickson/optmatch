@@ -77,10 +77,14 @@ pairmatch_nodeinfo  <- function(edges) {
     new("NodeInfo", adf)
 }
 test_that("Hinting decreases runtimes",{
-  N <- 100
+  N <- 1000
   X <- data.frame(X1 = rnorm(N), 
                   X2 = rnorm(N, mean = runif(N, -5, 5)), 
                   X3 = as.factor(sample(letters[1:5], N, replace = T)))
+  mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+  coefs <- runif(dim(mm)[2], -2, 2)
+  logits <- as.vector(coefs %*% t(mm)) 
+  DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)  
   m <- match_on(x = Z ~ X1 + X2 + X3, data = DATA)
   if (nrow(m) > ncol(m)) m <- t(m)
   ff <- nrow(m)/ncol(m)
