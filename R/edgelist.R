@@ -72,9 +72,37 @@ setMethod("edgelist", c(x = "EdgeList"), function(x, y=NULL) {
     ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
+setMethod("edgelist", c(x = "tbl_df"), function(x, y=NULL) {
+    stopifnot(ncol(x)==3,
+              setequal(colnames(x), c('i', 'j', 'dist')),
+              is.factor(x$i) || !is.null(y), 
+              is.numeric(x$dist)
+              )
+    
+    ccs <- complete.cases(x)# to remove rows involving i/j not in y
+    
+    if (identical(colnames(x), c('i', 'j', 'dist')) && 
+        is.factor(x$i) && is.factor(x$j) && is.numeric(x$dist) && 
+        (is.null(y) || identical(levels(x[['i']]), y)) &&
+        identical(levels(x$i), levels(x$j)) & 
+        all(ccs)
+        )
+        return(new("EdgeList", x))
+    if (is.null(y))
+        y  <- levels(x[['i']])
+    if (is.null(names(y)))
+        names(y)  <- unname(y)
+    elist <-
+        tibble::tibble(i = factor(x[['i']], levels=names(y), labels=unname(y)),
+                       j= factor(x[['j']], levels=names(y), labels=unname(y)),
+                       dist=x[['dist']]
+        )
+    new("EdgeList", elist[ccs,])    
+    })
 setMethod("edgelist", c(x = "data.frame"), function(x, y=NULL){
     stopifnot(ncol(x)==3,
               setequal(colnames(x), c('i', 'j', 'dist')),
+              is.factor(x$i) || !is.null(y), 
               is.numeric(x$dist)
               )
     if (is.null(y))
