@@ -566,6 +566,19 @@ test_that("non-default standardization scale", {
   expect_is(result.glm4, "matrix")
 })
 
+test_that("standardization scale with svyglm",{
+  if (require("survey"))
+  {
+    data(api)
+    d<-svydesign(id=~1, weights=~pw, data=apistrat)
+    sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
+        family=quasibinomial())
+    s_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y, 
+                                            svydesign_ = sglm$'survey.design')
+    expect_true(is.numeric(s_sglm))
+    expect_gt(s_sglm, 0)
+  }
+})
 test_that("Building exactMatch from formula with strata", {
 
   d <- data.frame(x = rnorm(8),

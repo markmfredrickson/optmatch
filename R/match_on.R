@@ -171,21 +171,43 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' ordinary standard deviation but rather the robust alternative 
 #' provided by \code{stats::mad}. 
 #' 
+#' If the \code{svydesign_} parameter is non-NULL, the function 
+#' attempts to perform standardization using its implicit weights. 
+#' 
 #' @param x numeric variable
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
-#' @param standardizer function or numeric of length 1
+#' @param standardizer function, or numeric of length 1
+#' @param svydesign_ object of class svydesign, or NULL
 #' @value numeric of length 1
+#'
 #' @keywords internal
-match_on_szn_scale <- function(x, trtgrp=z, standardizer = mad) {
-  if (is.function(standardizer)) {
-    sqrt(((sum(!trtgrp) - 1) * standardizer(x[!trtgrp])^2 +
-          (sum(!!trtgrp) - 1) * standardizer(x[!!trtgrp])^2) / (length(x) - 2))
-  } else if (is.numeric(standardizer)) {
-    sqrt(((sum(!trtgrp) - 1) * standardizer^2 +
-          (sum(!!trtgrp) - 1) * standardizer^2) / (length(x) - 2))
-  } else {
-    stop("Invalid standardizer")
-  }
+match_on_szn_scale <- function(x, trtgrp, standardizer = stats::mad, svydesign_=NULL) 
+    {
+    stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
+              is.function(standardizer) || is.numeric(standardizer))
+    if (is.numeric(standardizer))
+    {
+        if (length(standardizer)>1) 
+            warning("Multiple element standardizer, only the first is used")
+        return(standardizer)
+    }
+    n_t <- sum(!trtgrp)
+    n <- length(x)
+    n_c <- n - n_t
+    if (is.null(svydesign_)){
+       s2_t <- standardizer(x[!trtgrp])^2
+       s2_c <- standardizer(x[as.logical(trtgrp)])^2
+    } else {
+        des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
+        des_t <- subset(des, trtgrp)
+        des_c <- subset(des, !trtgrp)
+        ## to do: adjust standardizer based on user-provided value
+        s2_t <- svyvar(~x, des_t)[1]
+        s2_c <- svyvar(~x, des_c)[1]
+    }
+    
+    sqrt(((n_t - 1) * s2_t +
+          (n_c - 1) * s2_c) / (n - 2))
 }
 
 #' @details \bold{First argument (\code{x}): \code{bigglm}.} This method works
