@@ -573,10 +573,16 @@ test_that("standardization scale with svyglm",{
     d<-svydesign(id=~1, weights=~pw, data=apistrat)
     sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
         family=quasibinomial())
-    s_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y, 
+    mad_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y,
+                                            standardizer = svy_mad,
                                             svydesign_ = sglm$'survey.design')
-    expect_true(is.numeric(s_sglm))
-    expect_gt(s_sglm, 0)
+    expect_true(is.numeric(mad_sglm))
+    expect_gt(mad_sglm, 0)
+    sd_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y,
+                                            standardizer = svy_sd,
+                                            svydesign_ = sglm$'survey.design')
+    expect_true(is.numeric(sd_sglm))
+    expect_gt(sd_sglm, 0)
   }
 })
 test_that("Building exactMatch from formula with strata", {

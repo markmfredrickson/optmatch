@@ -146,7 +146,8 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    match_on_szn_scale(lp, trtgrp=z, standardization.scale)
+    match_on_szn_scale(lp, trtgrp=z, standardization.scale, 
+                       svydesign_ = x$'survey.design')
   }
   lp.adj <- lp/pooled.sd
 
@@ -184,7 +185,8 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 match_on_szn_scale <- function(x, trtgrp, standardizer = stats::mad, svydesign_=NULL) 
     {
     stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
-              is.function(standardizer) || is.numeric(standardizer))
+              is.function(standardizer) || is.numeric(standardizer)
+              )
     if (is.numeric(standardizer))
     {
         if (length(standardizer)>1) 
@@ -194,21 +196,41 @@ match_on_szn_scale <- function(x, trtgrp, standardizer = stats::mad, svydesign_=
     n_t <- sum(!trtgrp)
     n <- length(x)
     n_c <- n - n_t
-    if (is.null(svydesign_)){
-       s2_t <- standardizer(x[!trtgrp])^2
-       s2_c <- standardizer(x[as.logical(trtgrp)])^2
-    } else {
+    if ('design' %in% names(formals(standardizer)))
+        {
         des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
         des_t <- subset(des, trtgrp)
         des_c <- subset(des, !trtgrp)
-        ## to do: adjust standardizer based on user-provided value
-        s2_t <- svyvar(~x, des_t)[1]
-        s2_c <- svyvar(~x, des_c)[1]
+        s_t <- standardizer(design=des_t)^2
+        s_c <- standardizer(design=des_c)^2  
+        s2_t <- s_t^2
+        s2_c <- s_c^2
     }
+        else {
+       s2_t <- standardizer(x=x[!trtgrp])^2
+       s2_c <- standardizer(x=x[as.logical(trtgrp)])^2
+    } 
     
     sqrt(((n_t - 1) * s2_t +
           (n_c - 1) * s2_c) / (n - 2))
 }
+
+svy_mad <- function(design)
+{# NB: x argument presently ignored!
+        med <- as.vector(svyquantile(~x, design, 0.5))
+        design <- update(design, 
+                        abs_dev=abs( x - med )
+                        )
+        mad <- as.vector(svyquantile(~abs_dev, design, 0.5))
+        constant <- formals(stats::mad)$constant
+        s2_t <- constant * mad
+}
+svy_sd <- function(design)
+{# NB: x argument presently ignored!
+        var_ <- svyvar(~x, design)
+        sqrt(unname(var_)[1])
+}
+
 
 #' @details \bold{First argument (\code{x}): \code{bigglm}.} This method works
 #'   analogously to the \code{glm} method, but with \code{bigglm} objects,
