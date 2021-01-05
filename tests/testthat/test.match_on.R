@@ -543,7 +543,7 @@ test_that("Issue 48: caliper is a universal argument", {
 #   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 # })
 
-test_that("non-default standardization scale", {
+test_that("standardization scale from within match_on", {
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -566,19 +566,19 @@ test_that("non-default standardization scale", {
   expect_is(result.glm4, "matrix")
 })
 
-test_that("standardization scale with svyglm",{
+test_that("standardization_scale with svyglm",{
   if (require("survey"))
   {
     data(api)
     d<-svydesign(id=~1, weights=~pw, data=apistrat)
     sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
         family=quasibinomial())
-    mad_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y,
+    mad_sglm <- standardization_scale(sglm$linear.predictor, trtgrp=sglm$y,
                                             standardizer = svy_mad,
                                             svydesign_ = sglm$'survey.design')
     expect_true(is.numeric(mad_sglm))
     expect_gt(mad_sglm, 0)
-    sd_sglm <- optmatch:::match_on_szn_scale(sglm$linear.predictor, trtgrp=sglm$y,
+    sd_sglm <- standardization_scale(sglm$linear.predictor, trtgrp=sglm$y,
                                             standardizer = svy_sd,
                                             svydesign_ = sglm$'survey.design')
     expect_true(is.numeric(sd_sglm))

@@ -146,7 +146,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    match_on_szn_scale(lp, trtgrp=z, standardization.scale, 
+    standardization_scale(lp, trtgrp=z, standardization.scale, 
                        svydesign_ = x$'survey.design')
   }
   lp.adj <- lp/pooled.sd
@@ -165,27 +165,39 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
 }
 
-#' @title pooled dispersion for a numeric variable
+#' pooled dispersion for a numeric variable
 #' 
 #' Dispersion as pooled across a treatment and a control group. By default, 
 #' the measure of dispersion calculated within each group is not the 
-#' ordinary standard deviation but rather the robust alternative 
-#' provided by \code{stats::mad}. 
+#' ordinary standard deviation as in \code{stats::sd} but rather the robust alternative 
+#' encoded in \code{stats::mad}.  The dispersion measurements are combined
+#' by squaring, averaging with weights proportional to one minus the sizes of
+#' the groups and then taking square roots.  Used in \code{\link{match_on.glm}}. 
 #' 
-#' If the \code{svydesign_} parameter is non-NULL, the function 
-#' attempts to perform standardization using its implicit weights. 
+#' A non-NULL \code{svydesign_} parameter indicates that the dispersion 
+#' calculations are to be made respecting the weighting scheme implicit in
+#' that \code{survey.design2} object. If \code{standardizer} is \code{NULL}, 
+#' one gets a calculation in the style of \code{stats::mad} but with weights,
+#' performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard 
+#' deviations, one would pass a non-\code{NULL} \code{svydesign_} parameter along
+#' with \code{standardizer=optmatch:::svy_sd}.
+#' (More generally, the provided \code{standardizer}
+#' function should accept as a sole argument a \code{survey.design2} object,
+#' with \code{nrows(svydesign_$variables)} equal to the lengths of \code{x} and
+#' \code{trtgrp}.  This object is expected to carry a numeric variable \sQuote{\code{x}},
+#' and the \code{standardizer} function is to return the dispersion of this variable.)
 #' 
 #' @param x numeric variable
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
-#' @param standardizer function, or numeric of length 1
-#' @param svydesign_ object of class svydesign, or NULL
+#' @param standardizer function, \code{NULL} or numeric of length 1
+#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
 #' @value numeric of length 1
-#'
+#' @export
 #' @keywords internal
-match_on_szn_scale <- function(x, trtgrp, standardizer = stats::mad, svydesign_=NULL) 
+standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NULL) 
     {
     stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
-              is.function(standardizer) || is.numeric(standardizer)
+              is.null(standardizer) || is.function(standardizer) || is.numeric(standardizer)
               )
     if (is.numeric(standardizer))
     {
@@ -196,27 +208,29 @@ match_on_szn_scale <- function(x, trtgrp, standardizer = stats::mad, svydesign_=
     n_t <- sum(!trtgrp)
     n <- length(x)
     n_c <- n - n_t
-    if ('design' %in% names(formals(standardizer)))
+    if (is.null(svydesign_))
         {
+	if (is.null(standardizer)) standardizer <- svy_mad
+	s2_t <- standardizer(x[!trtgrp])^2
+	s2_c <- standardizer(x[as.logical(trtgrp)])^2
+    } else {
+        if (is.null(standardizer)) standardizer <- stats::mad
         des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
         des_t <- subset(des, trtgrp)
         des_c <- subset(des, !trtgrp)
-        s_t <- standardizer(design=des_t)^2
-        s_c <- standardizer(design=des_c)^2  
+        s_t <- standardizer(des_t)^2
+        s_c <- standardizer(des_c)^2  
         s2_t <- s_t^2
         s2_c <- s_c^2
-    }
-        else {
-       s2_t <- standardizer(x=x[!trtgrp])^2
-       s2_c <- standardizer(x=x[as.logical(trtgrp)])^2
     } 
     
     sqrt(((n_t - 1) * s2_t +
           (n_c - 1) * s2_c) / (n - 2))
 }
 
+#' @keywords internal
 svy_mad <- function(design)
-{# NB: x argument presently ignored!
+{
         med <- as.vector(svyquantile(~x, design, 0.5))
         design <- update(design, 
                         abs_dev=abs( x - med )
@@ -225,8 +239,9 @@ svy_mad <- function(design)
         constant <- formals(stats::mad)$constant
         s2_t <- constant * mad
 }
+#' @keywords internal
 svy_sd <- function(design)
-{# NB: x argument presently ignored!
+{
         var_ <- svyvar(~x, design)
         sqrt(unname(var_)[1])
 }
@@ -265,7 +280,7 @@ are there missing values in data?")
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    match_on_szn_scale(theps, trtgrp=z, standardizer=standardization.scale)
+    standardization_scale(theps, trtgrp=z, standardizer=standardization.scale)
   }
 
   theps <- as.vector(theps / pooled.sd)
