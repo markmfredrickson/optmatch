@@ -861,6 +861,7 @@ svy_sd <- function(design)
 #' is applied to a svyglm object.  I don't expect that it to be
 #' useful in other contexts, only exporting it for ease of debugging.
 #' @method model.frame svyglm
+#' @keywords internal
 #' @export
 model.frame.svyglm <- function (formula, ...)
 {
