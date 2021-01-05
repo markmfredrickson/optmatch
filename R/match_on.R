@@ -93,11 +93,13 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'
 #'   Optionally these distances are also rescaled. The default is to rescale, by
 #'   the reciprocal of an outlier-resistant variant of the pooled s.d. of
-#'   propensity scores.  (Outlier resistance is obtained by the application of
-#'   \code{mad}, as opposed to \code{sd}, to linear propensity scores in the
-#'   treatment; this can be changed to the actual pooled s.d., or rescaling can
-#'   be skipped entirely, by setting argument \code{standardization.scale} to
-#'   \code{sd} or \code{NULL}, respectively.)  The overall result records
+#'   propensity scores; see \code{\link{standardization_scale}}.  (The 
+#'   \code{standardization.scale} argument of this function can be used to 
+#'   change how this dispersion is calculated, e.g. to calculate an ordinary not 
+#'   an outlier-resistant s.d.; it will be passed down 
+#'   to \code{standardization_scale} as its \code{standardizer} argument.) 
+#'   To skip rescaling, set argument \code{standardization.scale} to 1. 
+#'   The overall result records
 #'   absolute differences between treated and control units on linear, possibly
 #'   rescaled, propensity scores.
 #'
@@ -119,13 +121,13 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'   the \code{caliper} argument, the standard deviation used for the caliper will be
 #'   computed across all strata, not within each strata.
 #'
-#' @param standardization.scale Function for rescaling of \code{scores(x)}, or
+#' @param standardization.scale Scalar, or function for rescaling of \code{scores(x)}, or
 #'   \code{NULL}; defaults to \code{mad}.  (See Details.)
 #' @seealso \code{\link{scores}}
 #' @method match_on glm
 #' @rdname match_on-methods
 #' @export
-match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
 
   stopifnot(all(c('y','data') %in% names(x)))
 
@@ -143,12 +145,10 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   lp <- lp[!is.na(z)]
   z <- z[!is.na(z)]
 
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
+  pooled.sd <- 
     standardization_scale(lp, trtgrp=z, standardization.scale, 
                        svydesign_ = x$'survey.design')
-  }
+
   lp.adj <- lp/pooled.sd
 
   if (!is.null(attr(terms(formula(x), special = "strata", data = data),
@@ -165,88 +165,6 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
 }
 
-#' pooled dispersion for a numeric variable
-#' 
-#' Dispersion as pooled across a treatment and a control group. By default, 
-#' the measure of dispersion calculated within each group is not the 
-#' ordinary standard deviation as in \code{stats::sd} but rather the robust alternative 
-#' encoded in \code{stats::mad}.  The dispersion measurements are combined
-#' by squaring, averaging with weights proportional to one minus the sizes of
-#' the groups and then taking square roots.  Used in \code{\link{match_on.glm}}. 
-#' 
-#' A non-NULL \code{svydesign_} parameter indicates that the dispersion 
-#' calculations are to be made respecting the weighting scheme implicit in
-#' that \code{survey.design2} object. If \code{standardizer} is \code{NULL}, 
-#' one gets a calculation in the style of \code{stats::mad} but with weights,
-#' performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard 
-#' deviations, one would pass a non-\code{NULL} \code{svydesign_} parameter along
-#' with \code{standardizer=optmatch:::svy_sd}.
-#' (More generally, the provided \code{standardizer}
-#' function should accept as a sole argument a \code{survey.design2} object,
-#' with \code{nrows(svydesign_$variables)} equal to the lengths of \code{x} and
-#' \code{trtgrp}.  This object is expected to carry a numeric variable \sQuote{\code{x}},
-#' and the \code{standardizer} function is to return the dispersion of this variable.)
-#' 
-#' @param x numeric variable
-#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
-#' @param standardizer function, \code{NULL} or numeric of length 1
-#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
-#' @value numeric of length 1
-#' @export
-#' @keywords internal
-standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NULL) 
-    {
-    stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
-              is.null(standardizer) || is.function(standardizer) || is.numeric(standardizer)
-              )
-    if (is.numeric(standardizer))
-    {
-        if (length(standardizer)>1) 
-            warning("Multiple element standardizer, only the first is used")
-        return(standardizer)
-    }
-    n_t <- sum(!trtgrp)
-    n <- length(x)
-    n_c <- n - n_t
-    if (is.null(svydesign_))
-        {
-	if (is.null(standardizer)) standardizer <- svy_mad
-	s2_t <- standardizer(x[!trtgrp])^2
-	s2_c <- standardizer(x[as.logical(trtgrp)])^2
-    } else {
-        if (is.null(standardizer)) standardizer <- stats::mad
-        des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
-        des_t <- subset(des, trtgrp)
-        des_c <- subset(des, !trtgrp)
-        s_t <- standardizer(des_t)^2
-        s_c <- standardizer(des_c)^2  
-        s2_t <- s_t^2
-        s2_c <- s_c^2
-    } 
-    
-    sqrt(((n_t - 1) * s2_t +
-          (n_c - 1) * s2_c) / (n - 2))
-}
-
-#' @keywords internal
-svy_mad <- function(design)
-{
-        med <- as.vector(svyquantile(~x, design, 0.5))
-        design <- update(design, 
-                        abs_dev=abs( x - med )
-                        )
-        mad <- as.vector(svyquantile(~abs_dev, design, 0.5))
-        constant <- formals(stats::mad)$constant
-        s2_t <- constant * mad
-}
-#' @keywords internal
-svy_sd <- function(design)
-{
-        var_ <- svyvar(~x, design)
-        sqrt(unname(var_)[1])
-}
-
-
 #' @details \bold{First argument (\code{x}): \code{bigglm}.} This method works
 #'   analogously to the \code{glm} method, but with \code{bigglm} objects,
 #'   created by the \code{bigglm} function from package \sQuote{biglm}, which can
@@ -255,7 +173,7 @@ svy_sd <- function(design)
 #' @method match_on bigglm
 #' @rdname match_on-methods
 #' @export
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -277,11 +195,8 @@ are there missing values in data?")
 
   Data <-  model.frame(x$terms, data = data)
   z <- Data[, 1]
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
+  pooled.sd <- 
     standardization_scale(theps, trtgrp=z, standardizer=standardization.scale)
-  }
 
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
@@ -859,4 +774,95 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
 ## @author Ben B Hansen
 contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
   contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
+}
+
+#' pooled dispersion for a numeric variable
+#' 
+#' Dispersion as pooled across a treatment and a control group. By default, 
+#' the measure of dispersion calculated within each group is not the 
+#' ordinary standard deviation as in \code{stats::sd} but rather the robust alternative 
+#' encoded in \code{stats::mad}.  The dispersion measurements are combined
+#' by squaring, averaging with weights proportional to one minus the sizes of
+#' the groups and then taking square roots.  Used in \code{\link{match_on.glm}}. 
+#' 
+#' A non-NULL \code{svydesign_} parameter indicates that the dispersion 
+#' calculations are to be made respecting the weighting scheme implicit in
+#' that \code{survey.design2} object. If \code{standardizer} is \code{NULL}, 
+#' one gets a calculation in the style of \code{stats::mad} but with weights,
+#' performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard 
+#' deviations, one would pass a non-\code{NULL} \code{svydesign_} parameter along
+#' with \code{standardizer=optmatch:::svy_sd}.
+#' (More generally, the provided \code{standardizer}
+#' function should accept as a sole argument a \code{survey.design2} object,
+#' with \code{nrows(svydesign_$variables)} equal to the lengths of \code{x} and
+#' \code{trtgrp}.  This object is expected to carry a numeric variable \sQuote{\code{x}},
+#' and the \code{standardizer} function is to return the dispersion of this variable.)
+#' 
+#' @param x numeric variable
+#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param standardizer function, \code{NULL} or numeric of length 1
+#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
+#' @value numeric of length 1
+#' @export
+#' @keywords internal
+standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NULL) 
+    {
+    stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
+              is.null(standardizer) || is.function(standardizer) || is.numeric(standardizer)
+              )
+    if (is.numeric(standardizer))
+    {
+        if (length(standardizer)>1) 
+            warning("Multiple element standardizer, only the first is used")
+        return(standardizer)
+    }
+    n_t <- sum(!trtgrp)
+    n <- length(x)
+    n_c <- n - n_t
+    if (is.null(svydesign_))
+        {
+	if (is.null(standardizer)) standardizer <- stats::mad
+	s2_t <- standardizer(x[!trtgrp])^2
+	s2_c <- standardizer(x[as.logical(trtgrp)])^2
+    } else {
+        if (is.null(standardizer)) standardizer <- svy_mad
+        des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
+        des_t <- subset(des, trtgrp)
+        des_c <- subset(des, !trtgrp)
+        s_t <- standardizer(des_t)^2
+        s_c <- standardizer(des_c)^2  
+        s2_t <- s_t^2
+        s2_c <- s_c^2
+    } 
+    
+    sqrt(((n_t - 1) * s2_t +
+          (n_c - 1) * s2_c) / (n - 2))
+}
+
+#' @keywords internal
+svy_mad <- function(design)
+{
+        med <- as.vector(svyquantile(~x, design, 0.5))
+        design <- update(design, 
+                        abs_dev=abs( x - med )
+                        )
+        mad <- as.vector(svyquantile(~abs_dev, design, 0.5))
+        constant <- formals(stats::mad)$constant
+        s2_t <- constant * mad
+}
+#' @keywords internal
+svy_sd <- function(design)
+{
+        var_ <- svyvar(~x, design)
+        sqrt(unname(var_)[1])
+}
+
+#' This method quells a warning when \code{optmatch::scores()}
+#' is applied to a svyglm object.  I don't expect that it to be
+#' useful in other contexts, only exporting it for ease of debugging.
+#' @method model.frame svyglm
+#' @export
+model.frame.svyglm <- function (formula, ...)
+{
+model.frame(formula$survey.design, ...)
 }
