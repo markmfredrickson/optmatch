@@ -179,7 +179,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' @param x numeric variable
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
 #' @param standardizer function or numeric of length 1
-#' @value numeric of length 1
+#' @return numeric of length 1
 #' @keywords internal
 match_on_szn_scale <- function(x, trtgrp=z, standardizer = mad) {
   if (is.function(standardizer)) {
