@@ -226,10 +226,10 @@ Details for each particular first type of argument follow:
   separately by stratum.
 
   A unit with NA treatment status (\code{Z}) is ignored and will not be included in the distance output.
- Missing values in variables on the right hand side of the formula are handled as follows. By default
-\code{match_on} will (1) create a matrix of distances between observations which
-have only valid values for **all** covariates and then (2) append matrices of Inf values
-for distances between observations either of which has a missing values on any of the right-hand-side variables.
+ Missing values in variables on the right hand side of the formula are handled as follows. By default 
+\code{match_on} will (1) create a matrix of distances between observations which 
+have only valid values for **all** covariates and then (2) append matrices of Inf values 
+for distances between observations either of which has a missing values on any of the right-hand-side variables. 
 (I.e., observations with missing values are retained in the output, but
 matches involving them are forbidden.)
 
