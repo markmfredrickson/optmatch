@@ -83,7 +83,9 @@ test_that("match_on with svyglm (survey package) objects", {
     expect_silent(res.svy0 <- match_on(sglm, data=test.data, standardization.scale=1))
     expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))    
     expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))   
-    ##comparisons to glm -- not currently passing, temporarily disabled
+    ## Comparisons to glm: currently failing, disabled pending investigation.
+    ## First step: figure out whether sglm/aglm are returning the same
+    ## linear predictors.
     if (FALSE)
       {aglm <- glm(Z ~ X1 + X2, test.data, family = binomial())
     res.glm0 <- match_on(aglm, data=test.data, standardization.scale=1)

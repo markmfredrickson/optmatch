@@ -1,3 +1,8 @@
+* The meaning of one of `match_on.glm()`'s arguments has
+  changed slightly: to circumvent scale standardization when matching on
+  a propensity score or other index, you should now pass
+  `standardization.scale=1`, not `standardization.scale=NULL`. (#194)
+
 CHANGES IN OPTMATCH VERSION 0.9-12
 
 * Fixed a bug causing summary.optmatch() to fail b/c of NAs in the treatment
