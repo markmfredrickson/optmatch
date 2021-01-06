@@ -151,7 +151,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    match_on_szn_scale(lp, z, standardization.scale)
+    match_on_szn_scale(lp, trtgrp=z, standardization.scale)
   }
   lp.adj <- lp/pooled.sd
 
@@ -165,16 +165,29 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
     }
   }
 
+
   match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
 }
 
-match_on_szn_scale <- function(x, Tx, standardizer = mad, ...) {
+#' @title pooled dispersion for a numeric variable
+#' 
+#' Dispersion as pooled across a treatment and a control group. By default, 
+#' the measure of dispersion calculated within each group is not the 
+#' ordinary standard deviation but rather the robust alternative 
+#' provided by \code{stats::mad}. 
+#' 
+#' @param x numeric variable
+#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param standardizer function or numeric of length 1
+#' @value numeric of length 1
+#' @keywords internal
+match_on_szn_scale <- function(x, trtgrp=z, standardizer = mad) {
   if (is.function(standardizer)) {
-    sqrt(((sum(!Tx) - 1) * standardizer(x[!Tx])^2 +
-          (sum(!!Tx) - 1) * standardizer(x[!!Tx])^2) / (length(x) - 2))
+    sqrt(((sum(!trtgrp) - 1) * standardizer(x[!trtgrp])^2 +
+          (sum(!!trtgrp) - 1) * standardizer(x[!!trtgrp])^2) / (length(x) - 2))
   } else if (is.numeric(standardizer)) {
-    sqrt(((sum(!Tx) - 1) * standardizer^2 +
-          (sum(!!Tx) - 1) * standardizer^2) / (length(x) - 2))
+    sqrt(((sum(!trtgrp) - 1) * standardizer^2 +
+          (sum(!!trtgrp) - 1) * standardizer^2) / (length(x) - 2))
   } else {
     stop("Invalid standardizer")
   }
@@ -213,7 +226,7 @@ are there missing values in data?")
   pooled.sd <- if (is.null(standardization.scale)) {
     1
   } else {
-    match_on_szn_scale(theps, z, standardizer=standardization.scale,...)
+    match_on_szn_scale(theps, trtgrp=z, standardizer=standardization.scale)
   }
 
   theps <- as.vector(theps / pooled.sd)
