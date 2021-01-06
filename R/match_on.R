@@ -41,9 +41,7 @@
 #' 
 #' Details for each particular first type of argument follow:
 #'
-#' @param x A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details. (All methods require
-#'   some form of names: e.g. \code{names} for vectors or \code{rownames} for
-#'   matrix like objects.)
+#' @param x A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details. 
 #' @param within A valid distance specification, such as the result of
 #'   \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #'   which distances to create. Including this argument can significantly speed
