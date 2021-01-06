@@ -13,7 +13,7 @@ fullmatch(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
-  method = "RELAX-IV",
+  solver = "RELAX-IV",
   ...
 )
 
@@ -25,7 +25,7 @@ full(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
-  method = "RELAX-IV",
+  solver = "RELAX-IV",
   ...
 )
 }
@@ -120,11 +120,15 @@ is considered to be a character vector of names. Useful to pass if you want to
 combine a match (using, e.g., \code{cbind}) with the data that were used to
 generate it (for example, in a propensity score matching).}
 
-\item{method}{Choose which algorithm to use. Choices include "RELAX-IV" (default),
-"CycleCancellingRunner", "CapacityScalingRunner", "CostScalingRunner",
-"NetworkSimplexRunner". The last four are from the LEMON graph library. See this
-site for details on their differences:
-\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}.}
+\item{solver}{Choose which solver to use. Currently implemented are RELAX-IV
+  and LEMON. To use RELAX-IV (the default), pass string "RELAX-IV".
+
+To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
+LEMON will use, pass the function \link{LEMON} with argument for the
+algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
+"NetworkSimplex". See this site for details on their differences:
+\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. NetworkSimplex is
+the default.}
 
 \item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within})
 or to specific methods.}

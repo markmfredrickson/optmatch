@@ -697,15 +697,17 @@ test_that("LEMON solvers", {
   data("nuclearplants")
   f1 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants)
   f2 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
-                  method = "RELAX-IV")
+                  solver = "RELAX-IV")
   f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
-                  method = "CycleCancellingRunner")
+                  solver = "LEMON")
   f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
-                  method = "CapacityScalingRunner")
+                  solver = LEMON("CycleCancelling"))
   f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
-                  method = "CostScalingRunner")
+                  solver = LEMON("CapacityScaling"))
   f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
-                  method = "NetworkSimplexRunner")
+                  solver = LEMON("CostScaling"))
+  f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+                  solver = LEMON("NetworkSimplex"))
 
   match_equal(f1, f2)
   match_equal(f1, f3)

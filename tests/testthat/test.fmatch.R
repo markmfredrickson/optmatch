@@ -10,7 +10,7 @@ test_that("fmatch accepts DistanceSpecifications", {
          3, 2, 1)
 
   # and doesn't accept other things...
-  expect_error(fmatch(v, 2, 2, method = "RELAX-IV"))
+  expect_error(fmatch(v, 2, 2, solver = "RELAX-IV"))
 
   # the goal of this matrix is that there is a clear match to make
   # A:D, B:E, C:F
@@ -19,7 +19,7 @@ test_that("fmatch accepts DistanceSpecifications", {
   rownames(m) <- c("D", "E", "F")
   pm <- prepareMatching(m)
 
-  res <- fmatch(pm, 2, 2, method = "RELAX-IV")
+  res <- fmatch(pm, 2, 2, solver = "RELAX-IV")
 
   expect_equal(dim(res), c(7,4)) # seven non-Inf entries
 
@@ -30,7 +30,7 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   M <- as.InfinitySparseMatrix(m)
   pM <- prepareMatching(M)
-  res.ism <- fmatch(pM, 2, 2, method = "RELAX-IV")
+  res.ism <- fmatch(pM, 2, 2, solver = "RELAX-IV")
   expect_identical(res$solution, res.ism$solution)
 })
 
@@ -86,14 +86,16 @@ test_that("LEMON solvers", {
 
   expect_error(fmatch(pm, 2, 2))
 
-  f_relax <- fmatch(pm, 2, 2, method = "RELAX-IV")
+  f_relax <- fmatch(pm, 2, 2, solver = "RELAX-IV")
   # CycleCancellingRunner CapacityScalingRunner CostScalingRunner NetworkSimplexRunner
-  f_cycle = fmatch(pm, 2, 2, method = "CycleCancellingRunner")
-  f_capac = fmatch(pm, 2, 2, method = "CapacityScalingRunner")
-  f_costs = fmatch(pm, 2, 2, method = "CostScalingRunner")
-  f_netwo = fmatch(pm, 2, 2, method = "NetworkSimplexRunner")
+  f_lemon = fmatch(pm, 2, 2, solver = "LEMON")
+  f_cycle = fmatch(pm, 2, 2, solver = LEMON("CycleCancelling"))
+  f_capac = fmatch(pm, 2, 2, solver = LEMON("CapacityScaling"))
+  f_costs = fmatch(pm, 2, 2, solver = LEMON("CostScaling"))
+  f_netwo = fmatch(pm, 2, 2, solver = LEMON("NetworkSimplex"))
 
   expect_identical(f_relax, f_cycle)
+  expect_identical(f_relax, f_lemon)
   expect_identical(f_relax, f_capac)
   expect_identical(f_relax, f_costs)
   expect_identical(f_relax, f_netwo)

@@ -1,13 +1,21 @@
-#' @importFrom rlemon CycleCancellingRunner CapacityScalingRunner CostScalingRunner NetworkSimplexRunner
+#' @importFrom rlemon mincostflow
 fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
-                   method)
+                   solver)
 {
-  stopifnot(method %in% c("RELAX-IV",
-                          "CycleCancellingRunner",
-                          "CapacityScalingRunner",
-                          "CostScalingRunner",
-                          "NetworkSimplexRunner"))
+  # Allow both character entries (solver = "LEMON") and functions (solver =
+  # LEMON("NetworkSimplex")) a la the family argument in glm.
+  if (grepl("^LEMON", solver)) {
+    if (solver == "LEMON") {
+      solver <- LEMON()
+    }
+    s <- strsplit(solver, "\\.")[[1]]
+    solver <- s[1]
+    algorithm <- s[2]
+  }
+  else if (solver != "RELAX-IV") {
+    stop("Invalid solver. Valid solvers are 'RELAX-IV' and 'LEMON'")
+  }
 
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -94,7 +102,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # supply
   b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
 
-  if (method == "RELAX-IV") {
+  if (solver == "RELAX-IV") {
 
     # If the user specifies using the old version of the relax algorithm. The `if` will be
     # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
@@ -138,15 +146,15 @@ fmatch <- function(distance, max.row.units, max.col.units,
                                (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
     x <- feas * fop$x1 - (1 - feas)
-  } else {
-    method <- eval(parse(text = method))
-    # as.numeric here is only to get `identical` to pass. Not necessary in long-run.
-    x <- as.numeric(method(arcSources = as.integer(startn - 1),
-                           arcTargets = as.integer(endn - 1),
-                           arcCapacities = as.integer(ucap),
-                           arcCosts = as.integer(dists),
-                           nodeSupplies = as.integer(b),
-                           numNodes = as.integer(nc + nt + 2))[[1]])
+  } else if (solver == "LEMON") {
+    lout <- rlemon::mincostflow(arcSources = as.integer(startn - 1),
+                                arcTargets = as.integer(endn - 1),
+                                arcCapacities = as.integer(ucap),
+                                arcCosts = as.integer(dists),
+                                nodeSupplies = as.integer(b),
+                                numNodes = as.integer(nc + nt + 2),
+                                algorithm = algorithm)
+    x <- as.numeric(lout[[1]])
   }
   ans <- numeric(narcs)
   ans <- x[1:narcs]

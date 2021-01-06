@@ -151,11 +151,15 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param method Choose which algorithm to use. Choices include "RELAX-IV" (default),
-#'  "CycleCancellingRunner", "CapacityScalingRunner", "CostScalingRunner",
-#'  "NetworkSimplexRunner". The last four are from the LEMON graph library. See this
-#'  site for details on their differences:
-#'  \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}.
+#' @param solver Choose which solver to use. Currently implemented are RELAX-IV
+#'   and LEMON. To use RELAX-IV (the default), pass string "RELAX-IV".
+#'
+#' To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
+#' LEMON will use, pass the function \link{LEMON} with argument for the
+#' algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
+#' "NetworkSimplex". See this site for details on their differences:
+#' \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. NetworkSimplex is
+#' the default.
 #'
 #' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within})
 #' or to specific methods.
@@ -184,7 +188,7 @@ fullmatch <- function(x,
                       mean.controls = NULL,
                       tol = .001,
                       data = NULL,
-                      method = "RELAX-IV",
+                      solver = "RELAX-IV",
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -216,7 +220,7 @@ fullmatch.default <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
-                              method = "RELAX-IV",
+                              solver = "RELAX-IV",
                               within = NULL,
                               ...) {
 
@@ -243,6 +247,7 @@ fullmatch.default <- function(x,
                    mean.controls=mean.controls,
                    tol=tol,
                    data=mfd,
+                   solver=solver,
                    ...)
   if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
@@ -257,7 +262,7 @@ fullmatch.numeric <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
-                              method = "RELAX-IV",
+                              solver = "RELAX-IV",
                               z,
                               within = NULL,
                               ...) {
@@ -270,6 +275,7 @@ fullmatch.numeric <- function(x,
                    mean.controls=mean.controls,
                    tol=tol,
                    data=data,
+                   solver=solver,
                    ...)
   if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
@@ -284,7 +290,7 @@ fullmatch.matrix <- function(x,
                              mean.controls = NULL,
                              tol = .001,
                              data = NULL,
-                             method = "RELAX-IV",
+                             solver = "RELAX-IV",
                              within = NULL,
                              ...) {
 
@@ -457,7 +463,7 @@ fullmatch.matrix <- function(x,
 
   # a helper to handle a single matching problem. all args required.
   # input error checking happens in the public fullmatch function.
-  .fullmatch <- function(d, mnctl, mxctl, omf, method) {
+  .fullmatch <- function(d, mnctl, mxctl, omf, solver) {
 
     # if the subproblem is completely empty, short circuit
     if (length(d) == 0 || all(is.infinite(d))) {
@@ -495,7 +501,7 @@ fullmatch.matrix <- function(x,
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
-                        method = method,
+                        solver = solver,
                         omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
 
     return(temp)
@@ -503,11 +509,11 @@ fullmatch.matrix <- function(x,
 
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
-  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, method) {
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, solver) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
     if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, method)
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, solver)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -517,7 +523,7 @@ fullmatch.matrix <- function(x,
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control
-      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, method))
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, solver))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
       trial.ss <- stratumStructure(tmp2.optmatch)
       treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
@@ -526,7 +532,7 @@ fullmatch.matrix <- function(x,
       if(num.controls == 0) {
         # infeasible anyways
         if (!exists("tmp")) {
-          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, method)
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, solver)
         }
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
         return(tmp)
@@ -535,11 +541,11 @@ fullmatch.matrix <- function(x,
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, method))
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, solver))
     } else {
       # subproblem is infeasible, but we can't try to fix because no max.controls
       if (!exists("tmp")) {
-        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, method)
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, solver)
       }
 
       new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -556,9 +562,9 @@ fullmatch.matrix <- function(x,
   }
 
   if (options()$fullmatch_try_recovery) {
-    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, method, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, solver, SIMPLIFY = FALSE)
   } else {
-    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, method, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, solver, SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
