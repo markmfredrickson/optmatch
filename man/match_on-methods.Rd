@@ -20,7 +20,7 @@ match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
   caliper = NULL,
   exclude = NULL,
   data = NULL,
-  standardization.scale = mad,
+  standardization.scale = NULL,
   ...
 )
 
@@ -30,7 +30,7 @@ match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
   caliper = NULL,
   exclude = NULL,
   data = NULL,
-  standardization.scale = mad,
+  standardization.scale = NULL,
   ...
 )
 
@@ -85,7 +85,7 @@ function on an existing distance specification.}
 
 \item{...}{Other arguments for methods.}
 
-\item{standardization.scale}{Function for rescaling of \code{scores(x)}, or
+\item{standardization.scale}{Scalar, or function for rescaling of \code{scores(x)}, or
 \code{NULL}; defaults to \code{mad}.  (See Details.)}
 
 \item{subset}{A subset of the data to use in creating the distance
@@ -156,11 +156,13 @@ Details for each particular first type of argument follow:
 
   Optionally these distances are also rescaled. The default is to rescale, by
   the reciprocal of an outlier-resistant variant of the pooled s.d. of
-  propensity scores.  (Outlier resistance is obtained by the application of
-  \code{mad}, as opposed to \code{sd}, to linear propensity scores in the
-  treatment; this can be changed to the actual pooled s.d., or rescaling can
-  be skipped entirely, by setting argument \code{standardization.scale} to
-  \code{sd} or \code{NULL}, respectively.)  The overall result records
+  propensity scores; see \code{\link{standardization_scale}}.  (The 
+  \code{standardization.scale} argument of this function can be used to 
+  change how this dispersion is calculated, e.g. to calculate an ordinary not 
+  an outlier-resistant s.d.; it will be passed down 
+  to \code{standardization_scale} as its \code{standardizer} argument.) 
+  To skip rescaling, set argument \code{standardization.scale} to 1. 
+  The overall result records
   absolute differences between treated and control units on linear, possibly
   rescaled, propensity scores.
 
