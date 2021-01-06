@@ -38,12 +38,10 @@
 #' \code{Inf} in \code{within} will be \code{Inf} in the distance matrix
 #' returned by \code{match_on}. This argument can reduce the processing time
 #' needed to compute sparse distance matrices.
-#'
+#' 
 #' Details for each particular first type of argument follow:
 #'
-#' @param x An object defining how to create the distances. All methods require
-#'   some form of names (e.g. \code{names} for vectors or \code{rownames} for
-#'   matrix like objects)
+#' @param x A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details. 
 #' @param within A valid distance specification, such as the result of
 #'   \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #'   which distances to create. Including this argument can significantly speed
@@ -119,6 +117,13 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'   the \code{caliper} argument, the standard deviation used for the caliper will be
 #'   computed across all strata, not within each strata.
 #'
+#'   If data used to fit the glm have missing values in the left-hand side
+#'   (dependent) variable, these observations are omitted from the output of
+#'   match_on.  If there are observations with missing values in right hand
+#'   side (independent) variables, then a re-fit of the model after imputing
+#'   these variables using a simple scheme and adding indicator variables of
+#'   missingness will be attempted, via the \code{\link{scores}} function. 
+#'
 #' @param standardization.scale Function for rescaling of \code{scores(x)}, or
 #'   \code{NULL}; defaults to \code{mad}.  (See Details.)
 #' @seealso \code{\link{scores}}
@@ -174,7 +179,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' @param x numeric variable
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
 #' @param standardizer function or numeric of length 1
-#' @value numeric of length 1
+#' @return numeric of length 1
 #' @keywords internal
 match_on_szn_scale <- function(x, trtgrp=z, standardizer = mad) {
   if (is.function(standardizer)) {
@@ -251,8 +256,8 @@ are there missing values in data?")
 #'   (1 representing treated units and 0 control units) or logical
 #'   (\code{TRUE} for treated, \code{FALSE} for controls). (Earlier versions of
 #'   the software accepted factor variables and other types of numeric variable; you
-#'   may have to update existing scripts to get them to run.) A unit with NA
-#'   treatment status is ignored and will not be included in the distance output.
+#'   may have to update existing scripts to get them to run.)
+#'
 #'
 #'   As an alternative to specifying a \code{within} argument, when \code{x} is
 #'   a formula, the \code{strata} command can be used inside the formula to specify
@@ -261,8 +266,16 @@ are there missing values in data?")
 #'   not use both methods (\code{within} and \code{strata} simultaneously. Note
 #'   that when combining with the \code{caliper} argument, the standard
 #'   deviation used for the caliper will be computed across all strata, not
-#'   within each strata.
+#'   separately by stratum.
 #'
+#'   A unit with NA treatment status (\code{Z}) is ignored and will not be included in the distance output.
+#'  Missing values in variables on the right hand side of the formula are handled as follows. By default 
+#' \code{match_on} will (1) create a matrix of distances between observations which 
+#' have only valid values for **all** covariates and then (2) append matrices of Inf values 
+#' for distances between observations either of which has a missing values on any of the right-hand-side variables. 
+#' (I.e., observations with missing values are retained in the output, but
+#' matches involving them are forbidden.)
+#' 
 #' @param subset A subset of the data to use in creating the distance
 #'   specification.
 #' @param method A string indicating which method to use in computing the
