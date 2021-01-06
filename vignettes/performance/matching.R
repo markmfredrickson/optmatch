@@ -21,7 +21,7 @@ benchmark.matching.sparse.strat <- profr(result.matching.sparse.strat <-
 
 gc()
 benchmark.matching.pairmatch <- profr(result.matching.pairmatch <-
-  fullmatch(result.dense))
+  pairmatch(result.dense))
 
 
 save(file = "matching.rda",

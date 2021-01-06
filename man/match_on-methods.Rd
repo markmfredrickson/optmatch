@@ -62,9 +62,7 @@ match_on(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 \method{match_on}{matrix}(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...)
 }
 \arguments{
-\item{x}{An object defining how to create the distances. All methods require
-some form of names (e.g. \code{names} for vectors or \code{rownames} for
-matrix like objects)}
+\item{x}{A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details.}
 
 \item{within}{A valid distance specification, such as the result of
 \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
@@ -182,6 +180,13 @@ Details for each particular first type of argument follow:
   the \code{caliper} argument, the standard deviation used for the caliper will be
   computed across all strata, not within each strata.
 
+  If data used to fit the glm have missing values in the left-hand side
+  (dependent) variable, these observations are omitted from the output of
+  match_on.  If there are observations with missing values in right hand
+  side (independent) variables, then a re-fit of the model after imputing
+  these variables using a simple scheme and adding indicator variables of
+  missingness will be attempted, via the \code{\link{scores}} function.
+
 \bold{First argument (\code{x}): \code{bigglm}.} This method works
   analogously to the \code{glm} method, but with \code{bigglm} objects,
   created by the \code{bigglm} function from package \sQuote{biglm}, which can
@@ -208,8 +213,8 @@ Details for each particular first type of argument follow:
   (1 representing treated units and 0 control units) or logical
   (\code{TRUE} for treated, \code{FALSE} for controls). (Earlier versions of
   the software accepted factor variables and other types of numeric variable; you
-  may have to update existing scripts to get them to run.) A unit with NA
-  treatment status is ignored and will not be included in the distance output.
+  may have to update existing scripts to get them to run.)
+
 
   As an alternative to specifying a \code{within} argument, when \code{x} is
   a formula, the \code{strata} command can be used inside the formula to specify
@@ -218,7 +223,15 @@ Details for each particular first type of argument follow:
   not use both methods (\code{within} and \code{strata} simultaneously. Note
   that when combining with the \code{caliper} argument, the standard
   deviation used for the caliper will be computed across all strata, not
-  within each strata.
+  separately by stratum.
+
+  A unit with NA treatment status (\code{Z}) is ignored and will not be included in the distance output.
+ Missing values in variables on the right hand side of the formula are handled as follows. By default
+\code{match_on} will (1) create a matrix of distances between observations which
+have only valid values for **all** covariates and then (2) append matrices of Inf values
+for distances between observations either of which has a missing values on any of the right-hand-side variables.
+(I.e., observations with missing values are retained in the output, but
+matches involving them are forbidden.)
 
 \bold{First argument (\code{x}): \code{function}.} The passed function
   must take arguments: \code{index}, \code{data}, and \code{z}. The

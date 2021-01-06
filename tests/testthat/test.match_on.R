@@ -543,7 +543,7 @@ test_that("Issue 48: caliper is a universal argument", {
 #   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 # })
 
-test_that("numeric standardization scale", {
+test_that("non-default standardization scale", {
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -553,8 +553,17 @@ test_that("numeric standardization scale", {
 
   test.glm <- glm(Z ~ X1 + X2 + B, family = binomial()) # the coefs should be zero or so
 
-  result.glm <- match_on(test.glm, standardization.scale=1)
-  expect_is(result.glm, "matrix")
+  expect_silent(result.glm0 <- match_on(test.glm))
+  expect_is(result.glm0, "matrix")
+
+  expect_silent(result.glm1 <- match_on(test.glm, standardization.scale=mad))
+  expect_equivalent(result.glm1, result.glm0)
+  
+  expect_silent(result.glm2 <- match_on(test.glm, standardization.scale=sd))
+  expect_is(result.glm2, "matrix")
+  
+  expect_silent(result.glm4 <- match_on(test.glm, standardization.scale=1))
+  expect_is(result.glm4, "matrix")
 })
 
 test_that("Building exactMatch from formula with strata", {
