@@ -865,5 +865,7 @@ svy_sd <- function(design)
 #' @export
 model.frame.svyglm <- function (formula, ...)
 {
-model.frame(formula$survey.design, ...)
+    ans <- model.frame(formula$survey.design, ...)
+    attr(ans, "terms") <- terms(formula)
+    ans
 }
