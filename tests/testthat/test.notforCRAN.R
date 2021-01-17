@@ -97,8 +97,12 @@ if (FALSE) {
     {
         aglm <- glm(Z ~ X1 + X2, test.data, family = binomial())
     res.glm0 <- match_on(aglm, data=test.data, standardization.scale=1)
-    res.glm1 <- match_on(aglm, data=test.data, standardization.scale=stats::sd)
-    res.glm2 <- match_on(aglm, data=test.data, standardization.scale=stats::mad)
+        res.glm1 <- match_on(aglm, data=test.data, standardization.scale=stats::sd)
+        mad_lo  <- function(x) {
+            ctr  <- quantile(x, probs=0.5, type=1)
+            stats::mad(x, center=ctr, low=TRUE)
+                       }
+    res.glm2 <- match_on(aglm, data=test.data, standardization.scale=mad_lo)
 
     expect_equivalent(res.svy0, res.glm0)
     expect_equivalent(res.svy1, res.glm1)

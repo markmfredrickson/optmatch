@@ -570,19 +570,36 @@ test_that("standardization_scale with svyglm",{
   if (require("survey"))
   {
     data(api)
-    d<-svydesign(id=~1, weights=~pw, data=apistrat)
+    d<-svydesign(id=~1, probs=1, data=apistrat)
     sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
-        family=quasibinomial())
-    mad_sglm <- standardization_scale(sglm$linear.predictor, trtgrp=sglm$y,
-                                            standardizer = svy_mad,
-                                            svydesign_ = sglm$'survey.design')
-    expect_true(is.numeric(mad_sglm))
-    expect_gt(mad_sglm, 0)
-    sd_sglm <- standardization_scale(sglm$linear.predictor, trtgrp=sglm$y,
-                                            standardizer = svy_sd,
-                                            svydesign_ = sglm$'survey.design')
-    expect_true(is.numeric(sd_sglm))
-    expect_gt(sd_sglm, 0)
+                   family=quasibinomial())
+    aglm  <- glm(sch.wide~ell+meals+mobility,data=apistrat,
+                 family=binomial)
+    expect_equivalent(sglm$linear.predictors, aglm$linear.predictors)
+    sd_sglm <- standardization_scale(sglm$linear.predictor,
+                                     trtgrp=sglm$y,
+                                     standardizer = svy_sd,
+                                     svydesign_ = sglm$'survey.design')
+    sd_aglm <- standardization_scale(aglm$linear.predictor,
+                                     trtgrp=aglm$y,
+                                     standardizer = stats::sd)
+    expect_equivalent(sd_sglm, sd_aglm)
+
+    d_w<-svydesign(id=~1, weights=~pw, data=apistrat)
+    sglm_w <- svyglm(sch.wide~ell+meals+mobility, design=d_w,
+                   family=quasibinomial())
+    mad_sglm_w <- standardization_scale(sglm_w$linear.predictor,
+                                      trtgrp=sglm_w$y,
+                                      standardizer = svy_mad,
+                                      svydesign_ = sglm_w$'survey.design')
+    expect_true(is.numeric(mad_sglm_w))
+    expect_gt(mad_sglm_w, 0)
+    sd_sglm_w <- standardization_scale(sglm_w$linear.predictor,
+                                     trtgrp=sglm_w$y,
+                                     standardizer = svy_sd,
+                                     svydesign_ = sglm_w$'survey.design')
+    expect_true(is.numeric(sd_sglm_w))
+    expect_gt(sd_sglm_w, 0)
   }
 })
 test_that("Building exactMatch from formula with strata", {
