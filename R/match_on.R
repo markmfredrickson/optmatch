@@ -816,25 +816,24 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
             warning("Multiple element standardizer, only the first is used")
         return(standardizer)
     }
-    n_t <- sum(!trtgrp)
+    n_c <- sum(!trtgrp)
     n <- length(x)
-    n_c <- n - n_t
+    n_t <- n - n_c
     if (is.null(svydesign_))
         {
 	if (is.null(standardizer)) standardizer <- stats::mad
-	s2_t <- standardizer(x[!trtgrp])^2
-	s2_c <- standardizer(x[as.logical(trtgrp)])^2
+	s_c <- standardizer(x[!trtgrp])
+	s_t <- standardizer(x[as.logical(trtgrp)])
     } else {
         if (is.null(standardizer)) standardizer <- svy_mad
         des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
         des_t <- subset(des, trtgrp)
         des_c <- subset(des, !trtgrp)
-        s_t <- standardizer(des_t)^2
-        s_c <- standardizer(des_c)^2  
-        s2_t <- s_t^2
-        s2_c <- s_c^2
+        s_t <- standardizer(des_t)
+        s_c <- standardizer(des_c)
     } 
-    
+    s2_t <- s_t^2
+    s2_c <- s_c^2    
     sqrt(((n_t - 1) * s2_t +
           (n_c - 1) * s2_c) / (n - 2))
 }
