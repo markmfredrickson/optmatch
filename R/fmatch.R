@@ -1,4 +1,4 @@
-#' @importFrom rlemon mincostflow
+#' @importFrom rlemon MinCostFlow
 fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
                    solver)
@@ -147,7 +147,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
     x <- feas * fop$x1 - (1 - feas)
   } else if (solver == "LEMON") {
-    lout <- rlemon::mincostflow(arcSources = as.integer(startn - 1),
+    lout <- rlemon::MinCostFlow(arcSources = as.integer(startn - 1),
                                 arcTargets = as.integer(endn - 1),
                                 arcCapacities = as.integer(ucap),
                                 arcCosts = as.integer(dists),
