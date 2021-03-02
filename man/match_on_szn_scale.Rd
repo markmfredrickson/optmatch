@@ -9,7 +9,7 @@ the measure of dispersion calculated within each group is not the
 ordinary standard deviation but rather the robust alternative 
 provided by \code{stats::mad}.}
 \usage{
-match_on_szn_scale(x, trtgrp = z, standardizer = mad)
+match_on_szn_scale(x, trtgrp, standardizer = mad)
 }
 \arguments{
 \item{x}{numeric variable}
