@@ -181,7 +181,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' @param standardizer function or numeric of length 1
 #' @return numeric of length 1
 #' @keywords internal
-match_on_szn_scale <- function(x, trtgrp=z, standardizer = mad) {
+match_on_szn_scale <- function(x, trtgrp, standardizer = mad) {
   if (is.function(standardizer)) {
     sqrt(((sum(!trtgrp) - 1) * standardizer(x[!trtgrp])^2 +
           (sum(!!trtgrp) - 1) * standardizer(x[!!trtgrp])^2) / (length(x) - 2))
