@@ -103,12 +103,12 @@ test_that("Math Ops", {
   # TODO, make up temp matrices for sub and div
 
   # dense + sparse => sparse
-  Aq = A + q
+  Aq <- A + q
   expect_is(Aq, "InfinitySparseMatrix")
   expect_equivalent(as.matrix(Aq), m + q)
 
   # make sure it works the other direction (and with mult)
-  qA = q * A
+  qA <- q * A
   expect_is(qA, "InfinitySparseMatrix")
   expect_equivalent(as.matrix(qA), q * m)
 
@@ -119,7 +119,7 @@ test_that("Math Ops", {
   colnames(q) <- paste("C", 1:2, sep = "")
   rownames(q) <- paste("T", 1:2, sep = "")
 
-  Aq = A + q
+  Aq <- A + q
   expect_equal(colnames(Aq), c("C1", "C2"))
   expect_equal(rownames(Aq), c("T1", "T2"))
 

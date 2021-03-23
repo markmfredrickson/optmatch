@@ -304,7 +304,7 @@ test_that("#123: Supporting NA's in treatment, pairmatch.formula", {
 test_that("#123: Supporting NA's in treatment, pairmatch.numeric", {
   z <- rep(0:1, each = 5)
   x <- rnorm(10)
-  fac=rep(c(rep("a",2), rep("b",3)),2)
+  fac <- rep(c(rep("a",2), rep("b",3)),2)
   names(z) <- names(x) <- names(fac) <- 1:10
   expect_warning(p <- pairmatch(x, z = z))
   expect_true(all(!is.na(p)))
