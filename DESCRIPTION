@@ -39,6 +39,7 @@ Enhances:
     haven
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
+BugReports: https://github.com/markmfredrickson/optmatch/issues
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
