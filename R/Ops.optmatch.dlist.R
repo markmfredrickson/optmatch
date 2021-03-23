@@ -79,7 +79,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
 
     if (nchar(.Method[1]) )
       {
-      for (j in 1:length(e1))
+      for (j in seq_along(e1))
         {
           left <- e1[[j]]
           if (!unary) {
@@ -101,7 +101,7 @@ Ops.optmatch.dlist <- function (e1, e2=NULL)
     {
       if (nchar(.Method[2]))
         {
-      for (j in 1:length(e2))
+      for (j in seq_along(e2))
         {
           right <- e2[[j]]
           left <- e1
@@ -148,7 +148,7 @@ as.matrix.optmatch.dlist <- function(x, ...) {
   xdim <- dim(x)
   tmp <- matrix(Inf, nrow = xdim[1], ncol = xdim[2], dimnames = dimnames(x))
 
-  for (i in 1:length(x)) {
+  for (i in seq_along(x)) {
     submatrix <- x[[i]]
     subrows <- rownames(submatrix)
     subcols <- colnames(submatrix)

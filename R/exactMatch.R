@@ -118,7 +118,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
 
   cols <- unlist(csForTs)
   tmp <- sapply(csForTs, length)
-  rows <- rep(1:(length(csForTs)), tmp)
+  rows <- rep(seq_along(csForTs), tmp)
 
   rns <- nms[treatment]
   cns <- nms[!treatment]
@@ -199,8 +199,8 @@ antiExactMatch <- function(x, z) {
   controlnms <- nms[!z]
   treatednms <- nms[z]
 
-  cid <- 1:length(controlnms)
-  tid <- 1:length(treatednms)
+  cid <- seq_along(controlnms)
+  tid <- seq_along(treatednms)
 
   names(cid) <- controlnms
   names(tid) <- treatednms

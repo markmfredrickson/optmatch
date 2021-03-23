@@ -43,10 +43,10 @@ distUnion <- function(...) {
   utreated  <- unique(unlist(treateds))
   ucontrols <- unique(unlist(controls))
 
-  tmap <- 1:length(utreated)
+  tmap <- seq_along(utreated)
   names(tmap) <- utreated
 
-  cmap <- 1:length(ucontrols)
+  cmap <- seq_along(ucontrols)
   names(cmap) <- ucontrols
 
   updated.isms <- lapply(isms, function(i) {

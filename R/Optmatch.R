@@ -70,7 +70,7 @@ makeOptmatch <- function(distance,
 
   grpnames <- names(matching)
   if (is.null(grpnames)) {
-    grpnames <- 1:(length(matching))
+    grpnames <- seq_along(matching)
   }
 
   optmatch.obj <- Reduce(mapply(function(label, groups) {
@@ -329,7 +329,7 @@ c.optmatch <- function(...) {
     stop("Observation names duplicated. Optmatch objects to be combined must have unique names.")
   }
 
-  for (i in 1:length(objs)) {
+  for (i in seq_along(objs)) {
     # Match names
     levels(objs[[i]]) <- paste0(i - 1, ".",
                                 levels(objs[[i]]))
