@@ -212,10 +212,10 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
       tmp <- interaction(model.frame(sformula, data = data, na.action = na.pass))
       for (l in levels(tmp)) {
         idx <- tmp == l & !is.na(tmp)
-        modmat[idx, expanded.NAs] <- sapply(modmat[expanded.NAs][idx, , drop = FALSE], fill.column.numeric, simplify = F)
+        modmat[idx, expanded.NAs] <- sapply(modmat[expanded.NAs][idx, , drop = FALSE], fill.column.numeric, simplify = FALSE)
       }
     } else {
-      modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = F)
+      modmat[expanded.NAs] <- sapply(modmat[expanded.NAs], fill.column.numeric, simplify = FALSE)
     }
     result <- cbind(modmat, NA.columns)
   }

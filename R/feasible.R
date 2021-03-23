@@ -328,7 +328,7 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
 #' generated.
 #' @export
 maxCaliper <- function(scores, z, widths, structure = NULL, exact = TRUE) {
-  widths <- sort(widths, decreasing = T)
+  widths <- sort(widths, decreasing = TRUE)
 
   f <- caliperUpperBound
   if (exact) { f <- caliperSize}
