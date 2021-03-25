@@ -113,7 +113,7 @@ makeOptmatch <- function(distance,
 
   class(optmatch.obj) <- c("optmatch", "factor")
 
-  tmp <- sapply(solutions, function(x) { x$err })
+  tmp <- vapply(solutions, function(x) { x$err }, numeric(1))
   names(tmp) <- grpnames
   attr(optmatch.obj, "exceedances") <- tmp
 
