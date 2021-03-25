@@ -232,8 +232,6 @@ print.summary.BlockedInfinitySparseMatrix <- function(x, ...) {
   if (!attr(x, "printAllBlocks")) {
     if (attr(x, "blockStructure")) {
       cat("Block structure:\n")
-      blocksummary <- matrix(unlist(lapply(x[blockentries], "[", "total")),
-                             byrow=TRUE, ncol=4)
       blocksummary <- cbind(sapply(sapply(sapply(x[blockentries], "[", "matchable"), "[", "treatment"), length),
                             sapply(sapply(sapply(x[blockentries], "[", "matchable"), "[", "control"), length),
                             sapply(sapply(sapply(x[blockentries], "[", "unmatchable"), "[", "treatment"), length),
