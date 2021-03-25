@@ -220,7 +220,7 @@ caliperSize <- function(scores, z, width, structure = NULL) {
   }
 
   # structure is supplied. split up the problem in to blocks and solve those
-  results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperSize(x$scores, x$z, width) })
+  results <- vapply(split(data.frame(scores, z), structure), function(x) { caliperSize(x$scores, x$z, width) }, numeric(1))
   return(results)
 
 }
@@ -298,7 +298,7 @@ caliperUpperBound <- function(scores, z, width, structure = NULL) {
   }
 
   # structure is not null if we get this far
-  results <- sapply(split(data.frame(scores, z), structure), function(x) { caliperUpperBound(x$scores, x$z, width) })
+  results <- vapply(split(data.frame(scores, z), structure), function(x) { caliperUpperBound(x$scores, x$z, width) }, numeric(1))
   return(sum(results))
 }
 

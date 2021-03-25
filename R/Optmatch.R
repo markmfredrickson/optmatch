@@ -82,7 +82,7 @@ makeOptmatch <- function(distance,
 
   optmatch.obj <- as.factor(optmatch.obj)
   subproblems <- as.factor(unlist(mapply(function(label, group) { rep(label, length(group)) }, grpnames, matching)))
-  names(optmatch.obj) <- names(subproblems) <- unlist(sapply(matching, names))
+  names(optmatch.obj) <- names(subproblems) <- unlist(lapply(matching, names))
 
 
   # we try to get the order as row names, straight names, and finally from the
