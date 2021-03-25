@@ -112,12 +112,12 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     which(t == xC)
   })
 
-  if (all(sapply(csForTs, function(x) length(x) == 0))) {
+  if (all(vapply(csForTs, function(x) length(x) == 0, logical(1)))) {
     stop("There is no overlap of value between treatment and control groups.")
   }
 
   cols <- unlist(csForTs)
-  tmp <- sapply(csForTs, length)
+  tmp <- vapply(csForTs, length, numeric(1))
   rows <- rep(seq_along(csForTs), tmp)
 
   rns <- nms[treatment]

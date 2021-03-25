@@ -360,7 +360,7 @@ c.optmatch <- function(...) {
               "max.controls",
               "call",
               "omit.fraction")) {
-    attr(out, a) <- unlist(sapply(objs, attr, a))
+    attr(out, a) <- unlist(lapply(objs, attr, a))
   }
 
   # attributes which will be sublists
