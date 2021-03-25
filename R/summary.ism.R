@@ -91,7 +91,7 @@ summary.InfinitySparseMatrix <- function(object, ..., distanceSummary=TRUE) {
   mcontrol  <- 1:dim(object)[2] %in% sort(unique(colsfinite))
 
   if (distanceSummary & length(datafinite)) {
-    distances <- summary(sapply(split(datafinite, rowsfinite), min))
+    distances <- summary(vapply(split(datafinite, rowsfinite), min, numeric(1)))
   } else {
     distances <- NULL
   }
@@ -193,7 +193,7 @@ print.summary.InfinitySparseMatrix <- function(x, ...) {
             "\n"))
   cat("\n")
 
-  numunmatch <- sapply(x$unmatchable, length)
+  numunmatch <- vapply(x$unmatchable, length, numeric(1))
   for (i in 1:2) {
     if (numunmatch[i] > 0) {
       cat(paste0(numunmatch[i], " unmatchable ", names(numunmatch)[i],
@@ -232,10 +232,18 @@ print.summary.BlockedInfinitySparseMatrix <- function(x, ...) {
   if (!attr(x, "printAllBlocks")) {
     if (attr(x, "blockStructure")) {
       cat("Block structure:\n")
-      blocksummary <- cbind(sapply(sapply(sapply(x[blockentries], "[", "matchable"), "[", "treatment"), length),
-                            sapply(sapply(sapply(x[blockentries], "[", "matchable"), "[", "control"), length),
-                            sapply(sapply(sapply(x[blockentries], "[", "unmatchable"), "[", "treatment"), length),
-                            sapply(sapply(sapply(x[blockentries], "[", "unmatchable"), "[", "control"), length))
+      blocksummary <- cbind(vapply(x[blockentries],
+                                   function(k) { length(k$matchable$treatment) },
+                                   numeric(1)),
+                            vapply(x[blockentries],
+                                   function(k) { length(k$matchable$control) },
+                                   numeric(1)),
+                            vapply(x[blockentries],
+                                   function(k) { length(k$unmatchable$treatment) },
+                                   numeric(1)),
+                            vapply(x[blockentries],
+                                   function(k) { length(k$unmatchable$control) },
+                                   numeric(1)))
       rownames(blocksummary) <- paste0("`",attr(x, "blocknames"),"`")
       colnames(blocksummary) <- c("Matchable Txt",
                                   "Matchable Ctl",
