@@ -472,7 +472,7 @@ fullmatch.matrix <- function(x,
       cells.b <- rep(NA, x[2])
       names(cells.a) <- rownames(d)
       names(cells.b) <- colnames(d)
-      tmp <- list(cells = c(cells.a, cells.b), maxerr = -1)
+      tmp <- list(cells = c(cells.a, cells.b), err = -1)
       return(tmp)
     }
 

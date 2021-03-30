@@ -391,7 +391,7 @@ if (length(vars)>0)
   mdms <- split(zzz,ss)
   NMFLG <- FALSE
 
-  for (ii in (1:length(ans)))
+  for (ii in (seq_along(ans)))
   {
     dn1 <- names(mdms[[ii]])[mdms[[ii]]]
     dn2 <- names(mdms[[ii]])[!mdms[[ii]]]
