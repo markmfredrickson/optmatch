@@ -147,8 +147,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
     x <- feas * fop$x1 - (1 - feas)
   } else if (solver == "LEMON") {
-    lout <- rlemon::MinCostFlow(arcSources = as.integer(startn - 1),
-                                arcTargets = as.integer(endn - 1),
+    lout <- rlemon::MinCostFlow(arcSources = as.integer(startn),
+                                arcTargets = as.integer(endn),
                                 arcCapacities = as.integer(ucap),
                                 arcCosts = as.integer(dists),
                                 nodeSupplies = as.integer(b),
