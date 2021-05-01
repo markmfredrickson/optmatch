@@ -420,8 +420,17 @@ setMethod("[", "InfinitySparseMatrix",
 
               makelogical <- function(index, rowcol) {
                 switch(class(index),
-                       "numeric" = (1:dim(x)[rowcol]) %in% index,
-                       "integer" = (1:dim(x)[rowcol]) %in% index,
+                       "numeric" = ,
+                       "integer" = {
+                         if (any(index < 0)) {
+                           if (any(index >= 0)) {
+                             stop("Cannot mix positive and negative subscripts")
+                           }
+                           !((1:dim(x)[rowcol]) %in% abs(index))
+                         } else {
+                           (1:dim(x)[rowcol]) %in% index
+                         }
+                       },
                        "character" = dimnames(x)[[rowcol]] %in% index,
                        "logical" = index,
                        "NULL" = rep(TRUE, dim(x)[rowcol]),

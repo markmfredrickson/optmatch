@@ -627,6 +627,20 @@ test_that("ISM indexing", {
   m2@call <- NULL
   expect_equal(m, m2)
 
+  # Strings
+  expect_equal(dim(m["A", "W"]), c(1,1))
+  expect_equal(dim(m[c("A", "B"), "W"]), c(2,1))
+
+  # Logical
+  expect_equal(dim(m[rep(c(TRUE, FALSE), times = 5), ]), c(5, 22))
+
+  # Negative indices
+  expect_equal(dim(m[-1, -1]), dim(m) - 1)
+  expect_equal(dim(m[-c(1,3,5),]), dim(m) - c(3,0))
+
+  # Error on mixture of signs
+  expect_error(m[c(-1,2)], "mix")
+
   # Warning whenever `drop` is presented.
   expect_warning(m[1:3, 1:3, drop = TRUE])
   expect_warning(m[1:3, 1:3, drop = FALSE])
