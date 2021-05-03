@@ -444,6 +444,39 @@ setMethod("[", "InfinitySparseMatrix",
             }
           })
 
+setMethod("[<-", "InfinitySparseMatrix",
+          function(x, i, j, value) {
+            if (length(sys.call(1)) < 5) {
+              # handles x[i] <- ...
+              stopifnot(is.numeric(i))
+              x@.Data[i] <- value
+              return(x)
+            }
+
+            if (missing(i)) i <- seq_len(nrow(x))
+            if (missing(j)) j <- seq_len(ncol(x))
+
+            # Create a list of all coordinates to be updated
+            updateEntries <- expand.grid(i, j)
+            if (expand.grid %% value != 0) {
+              warning("number of items to replace is not a multiple of replacement length")
+            }
+            updateEntries <- cbind(updateEntries, as.vector(value))
+
+            for (r in seq_len(nrow(updateEntries))) {
+              datalocation <- x@rows == updateEntries[r,1] &
+                              x@cols == updateEntries[r,2]
+              if (any(datalocation)) {
+                x@.Data[datalocation] <- updateEntries[r,3]
+              } else {
+                x@rows <- c(x@rows, as.integer(updateEntries[r,1]))
+                x@cols <- c(x@cols, as.integer(updateEntries[r,2]))
+                x@.Data <- c(x@.Data, as.integer(updateEntries[r,3]))
+              }
+            }
+            return(x)
+          })
+
 
 
 ##' This matches the syntax and semantics of
