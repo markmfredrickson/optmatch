@@ -114,7 +114,9 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
                                        list(treatment = rns, control = cns)))
   } else {
-      res <- replace(within, seq_along(within), dists)
+    # using `replace` will cause issues down the road with `[<-`
+    res <- within
+    res@.Data <- dists
   }
   return(res)
 }
