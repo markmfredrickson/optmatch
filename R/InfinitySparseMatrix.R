@@ -446,7 +446,8 @@ setMethod("[", "InfinitySparseMatrix",
 
 setMethod("[<-", "InfinitySparseMatrix",
           function(x, i, j, value) {
-            if (length(sys.call(1)) < 5) {
+            s <- sys.calls() # look at calling function to determine [X,X] vs [X]
+            if (length(s[[length(s)-1]]) < 5) {
               # handles x[i] <- ...
               if (is.logical(i)) {
                 i <- which(i)
