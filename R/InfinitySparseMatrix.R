@@ -444,6 +444,10 @@ setMethod("[", "InfinitySparseMatrix",
             }
           })
 
+
+##' @param value replacement values
+##' @rdname ism.subset
+##' @export
 setMethod("[<-", "InfinitySparseMatrix",
           function(x, i, j, value) {
             s <- sys.calls() # look at calling function to determine [X,X] vs [X]
