@@ -464,7 +464,7 @@ setMethod("[<-", "InfinitySparseMatrix",
                      "numeric" = ,
                      "integer" = index,
                      "character" = which(dimnames(x)[[rowcol]] %in% index),
-                     "logical" = whihc(index),
+                     "logical" = which(index),
                      "NULL" = seq_len(dim(x)[rowcol]),
                      stop("Unrecognized class"))
             }
@@ -481,14 +481,30 @@ setMethod("[<-", "InfinitySparseMatrix",
             updateEntries <- cbind(updateEntries, as.vector(value))
 
             for (r in seq_len(nrow(updateEntries))) {
+              # determine position in @.Data/@rows/@cols for replacement
               datalocation <- x@rows == updateEntries[r,1] &
                               x@cols == updateEntries[r,2]
-              if (any(datalocation)) {
-                x@.Data[datalocation] <- updateEntries[r,3]
+
+              # Different steps depending on finite/infinite status of
+              # replacement and current value
+
+              # Replacement Inf, current Inf is ignored
+
+              # Replacement Inf, current finite, delete it
+              if (is.infinite(updateEntries[r, 3])) {
+                x@rows <- x@rows[!datalocation]
+                x@cols <- x@cols[!datalocation]
+                x@.Data <- x@.Data[!datalocation]
               } else {
-                x@rows <- c(x@rows, as.integer(updateEntries[r,1]))
-                x@cols <- c(x@cols, as.integer(updateEntries[r,2]))
-                x@.Data <- c(x@.Data, as.integer(updateEntries[r,3]))
+                if (any(datalocation)) {
+                  # Replacement finite, current finite, replace it
+                  x@.Data[datalocation] <- updateEntries[r,3]
+                } else {
+                  # Replacement finite, current Inf, add new entry
+                  x@rows <- c(x@rows, as.integer(updateEntries[r,1]))
+                  x@cols <- c(x@cols, as.integer(updateEntries[r,2]))
+                  x@.Data <- c(x@.Data, as.integer(updateEntries[r,3]))
+                }
               }
             }
             return(x)

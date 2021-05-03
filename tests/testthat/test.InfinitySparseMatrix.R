@@ -696,20 +696,40 @@ test_that("ISM subset replacement", {
   a[2,] <- c(-30, -40)
   expect_equal(as.vector(as.matrix(a)), c(20, -30, 2, 40, -40, 5))
 
+  a[,1] <- c(5,6,7)
+  expect_equal(as.vector(as.matrix(a)), c(5, 6, 7, 40, -40, 5))
+
   a[1:2, 1:2] <- c(1,2,3,4)
-  expect_equal(as.vector(as.matrix(a)), c(1, 2, 2, 3, 4, 5))
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 7, 3, 4, 5))
 
   a[1:2, 1:2] <- matrix(c(8,7,6,5), nrow = 2)
-  expect_equal(as.vector(as.matrix(a)), c(8, 7, 2, 6, 5, 5))
+  expect_equal(as.vector(as.matrix(a)), c(8, 7, 7, 6, 5, 5))
 
   a[1,1:2] <- c(Inf, Inf)
-  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 2, Inf, 5, 5))
+  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 7, Inf, 5, 5))
+  expect_length(a@.Data, 4)
+
+  # Logical indexing
+  a[c(TRUE, TRUE, FALSE), c(FALSE, TRUE)] <- 1:2
+  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 7, 1, 2, 5))
 
   # Inf replacement
   a[, 1] <- Inf
-  expect_equal(as.vector(as.matrix(a)), c(Inf, Inf, Inf, Inf, 5, 5))
+  expect_equal(as.vector(as.matrix(a)), c(Inf, Inf, Inf, 1, 2, 5))
 
   expect_error(a[, 1] <- 1:2, "length")
   expect_error(a[1:3, 1:2] <- matrix(c(8,7,6,5), nrow = 2), "length")
+
+  # String indexing
+  data(nuclearplants)
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
+
+  m["A",] <- Inf
+  expect_true(all(m@rows > 1))
+
+  m["A", "H"] <- 10
+  expect_true(sum(m@rows == 1) == 1)
+
+
 
 })
