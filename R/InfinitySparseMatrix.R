@@ -450,6 +450,8 @@ setMethod("[", "InfinitySparseMatrix",
 ##' @export
 setMethod("[<-", "InfinitySparseMatrix",
           function(x, i, j, value) {
+#            if (is(x, "BlockedInfinitySparseMatrix")) x <- as.InfinitySparseMatrix(x)
+
             s <- sys.calls() # look at calling function to determine [X,X] vs [X]
             if (length(s[[length(s)-1]]) < 5) {
               # handles x[i] <- ...
@@ -495,6 +497,14 @@ setMethod("[<-", "InfinitySparseMatrix",
             updateEntries <- cbind(updateEntries, as.vector(value))
 
             for (r in seq_len(nrow(updateEntries))) {
+              if (is(x, "BlockedInfinitySparseMatrix")) {
+                rowgroups <- x@groups[x@rownames]
+                colgroups <- x@groups[x@colnames]
+                # If we're trying to replace a cross-group term in BISM, conver to ISM
+                if (rowgroups[updateEntries[r, 1]] != colgroups[updateEntries[r, 2]]) {
+                  x <- as.InfinitySparseMatrix(x)
+                }
+              }
               # determine position in @.Data/@rows/@cols for replacement
               datalocation <- x@rows == updateEntries[r,1] &
                               x@cols == updateEntries[r,2]

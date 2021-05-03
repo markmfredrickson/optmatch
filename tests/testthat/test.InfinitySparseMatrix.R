@@ -735,7 +735,22 @@ test_that("ISM subset replacement", {
 
   m["A", "H"] <- 10
   expect_true(sum(m@rows == 1) == 1)
+})
 
+test_that("BISM subset replacement", {
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1,
+                within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_is(m, "BlockedInfinitySparseMatrix")
+
+  # Replacing element that is entirely within a group
+  m[1,1] <- 4
+  expect_is(m, "BlockedInfinitySparseMatrix")
+
+  m[8:10, 18:19] <- 3
+  expect_is(m, "InfinitySparseMatrix")
+  expect_false(is(m, "BlockedInfinitySparseMatrix"))
+  expect_true(all(m[8:10, 18:19] == 3))
 
 
 })
