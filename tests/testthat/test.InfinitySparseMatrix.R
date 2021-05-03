@@ -678,3 +678,38 @@ test_that("BISM indexing", {
   m3 <- m[8:9, 5:6]
   expect_true(all(is.infinite(m3)))
 })
+
+test_that("ISM subset replacement", {
+
+  a <- as.InfinitySparseMatrix(matrix(c(1, Inf, 2, 3, 4, 5), nrow = 3, ncol = 2))
+
+  a[2,2] <- 10
+  expect_equal(as.vector(as.matrix(a)), c(1, Inf, 2, 3, 10, 5))
+  expect_true(all(as.matrix(a) == c(1, Inf, 2, 3, 10, 5)))
+
+  a[1,1:2] <- c(20,40)
+  expect_equal(as.vector(as.matrix(a)), c(20, Inf, 2, 40, 10, 5))
+
+  a[2,1:2] <- c(-10, -20)
+  expect_equal(as.vector(as.matrix(a)), c(20, -10, 2, 40, -20, 5))
+
+  a[2,] <- c(-30, -40)
+  expect_equal(as.vector(as.matrix(a)), c(20, -30, 2, 40, -40, 5))
+
+  a[1:2, 1:2] <- c(1,2,3,4)
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 2, 3, 4, 5))
+
+  a[1:2, 1:2] <- matrix(c(8,7,6,5), nrow = 2)
+  expect_equal(as.vector(as.matrix(a)), c(8, 7, 2, 6, 5, 5))
+
+  a[1,1:2] <- c(Inf, Inf)
+  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 2, Inf, 5, 5))
+
+  # Inf replacement
+  a[, 1] <- Inf
+  expect_equal(as.vector(as.matrix(a)), c(Inf, Inf, Inf, Inf, 5, 5))
+
+  expect_error(a[, 1] <- 1:2, "length")
+  expect_error(a[1:3, 1:2] <- matrix(c(8,7,6,5), nrow = 2), "length")
+
+})
