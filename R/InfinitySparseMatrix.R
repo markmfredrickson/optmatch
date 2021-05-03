@@ -474,8 +474,8 @@ setMethod("[<-", "InfinitySparseMatrix",
 
             # Create a list of all coordinates to be updated
             updateEntries <- expand.grid(numi, numj)
-            if (expand.grid %% value != 0) {
-              warning("number of items to replace is not a multiple of replacement length")
+            if (nrow(updateEntries) %% length(value) != 0) {
+              stop("number of items to replace is not a multiple of replacement length")
             }
             updateEntries <- cbind(updateEntries, as.vector(value))
 
