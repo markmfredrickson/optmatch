@@ -720,6 +720,12 @@ test_that("ISM subset replacement", {
   expect_error(a[, 1] <- 1:2, "length")
   expect_error(a[1:3, 1:2] <- matrix(c(8,7,6,5), nrow = 2), "length")
 
+  a[,-2] <- 1:3
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 3, 1, 2, 5))
+  a[-c(1,2),] <- c(10, 20)
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 10, 1, 2, 20))
+
+
   # String indexing
   data(nuclearplants)
   m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
