@@ -448,7 +448,9 @@ setMethod("[<-", "InfinitySparseMatrix",
           function(x, i, j, value) {
             if (length(sys.call(1)) < 5) {
               # handles x[i] <- ...
-              stopifnot(is.numeric(i))
+              if (is.logical(i)) {
+                i <- which(i)
+              }
               x@.Data[i] <- value
               return(x)
             }
@@ -456,8 +458,22 @@ setMethod("[<-", "InfinitySparseMatrix",
             if (missing(i)) i <- seq_len(nrow(x))
             if (missing(j)) j <- seq_len(ncol(x))
 
+            makenumeric <- function(index, rowcol) {
+              switch(class(index),
+                     "numeric" = ,
+                     "integer" = index,
+                     "character" = which(dimnames(x)[[rowcol]] %in% index),
+                     "logical" = whihc(index),
+                     "NULL" = seq_len(dim(x)[rowcol]),
+                     stop("Unrecognized class"))
+            }
+
+            numi <- makenumeric(i, 1)
+            numj <- makenumeric(j, 2)
+
+
             # Create a list of all coordinates to be updated
-            updateEntries <- expand.grid(i, j)
+            updateEntries <- expand.grid(numi, numj)
             if (expand.grid %% value != 0) {
               warning("number of items to replace is not a multiple of replacement length")
             }
