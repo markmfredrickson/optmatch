@@ -663,3 +663,18 @@ test_that("ISM indexing", {
     expect_equal(m[drop = FALSE], m[])
   })
 })
+
+test_that("BISM indexing", {
+
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1,
+                within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_is(m[1,1], "InfinitySparseMatrix")
+
+  m2 <- m[5:10, 18:22]
+  expect_is(m2, "InfinitySparseMatrix")
+  expect_equal(dim(m2), c(6,5))
+
+  m3 <- m[8:9, 5:6]
+  expect_true(all(is.infinite(m3)))
+})
