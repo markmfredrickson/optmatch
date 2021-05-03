@@ -521,7 +521,7 @@ setMethod("[<-", "InfinitySparseMatrix",
                 }
               }
             }
-            return(x)
+            return(sort(x))
           })
 
 
