@@ -15,20 +15,23 @@ standardization_scale(x, trtgrp, standardizer = NULL, svydesign_ = NULL)
 
 \item{svydesign_}{ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.}
 }
+\value{
+numeric of length 1
+}
 \description{
-Dispersion as pooled across a treatment and a control group. By default, 
-the measure of dispersion calculated within each group is not the 
-ordinary standard deviation as in \code{stats::sd} but rather the robust alternative 
+Dispersion as pooled across a treatment and a control group. By default,
+the measure of dispersion calculated within each group is not the
+ordinary standard deviation as in \code{stats::sd} but rather the robust alternative
 encoded in \code{stats::mad}.  The dispersion measurements are combined
 by squaring, averaging with weights proportional to one minus the sizes of
 the groups and then taking square roots.  Used in \code{\link{match_on.glm}}.
 }
 \details{
-A non-NULL \code{svydesign_} parameter indicates that the dispersion 
+A non-NULL \code{svydesign_} parameter indicates that the dispersion
 calculations are to be made respecting the weighting scheme implicit in
-that \code{survey.design2} object. If \code{standardizer} is \code{NULL}, 
+that \code{survey.design2} object. If \code{standardizer} is \code{NULL},
 one gets a calculation in the style of \code{stats::mad} but with weights,
-performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard 
+performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard
 deviations, one would pass a non-\code{NULL} \code{svydesign_} parameter along
 with \code{standardizer=optmatch:::svy_sd}.
 (More generally, the provided \code{standardizer}

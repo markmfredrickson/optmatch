@@ -839,7 +839,7 @@ contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
 #' @param standardizer function, \code{NULL} or numeric of length 1
 #' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
-#' @value numeric of length 1
+#' @return numeric of length 1
 #' @export
 #' @keywords internal
 standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NULL)
@@ -880,7 +880,7 @@ svy_mad <- function(design)
 {
         med <- as.vector(svyquantile(~x, design, 0.5))
         design <- update(design,
-                        abs_dev=abs( x - med )
+                        abs_dev=abs( design$variable$x - med )
                         )
         mad <- as.vector(svyquantile(~abs_dev, design, 0.5))
         constant <- formals(stats::mad)$constant

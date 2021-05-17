@@ -83,8 +83,8 @@ function on an existing distance specification.}
 
 \item{...}{Other arguments for methods.}
 
-\item{standardization.scale}{Scalar, or function for rescaling of \code{scores(x)}, or
-\code{NULL}; defaults to \code{mad}.  (See Details.)}
+\item{standardization.scale}{Function for rescaling of \code{scores(x)}, or
+\code{NULL}; defaults to \code{mad}. (See Details.)}
 
 \item{subset}{A subset of the data to use in creating the distance
 specification.}
@@ -154,12 +154,12 @@ Details for each particular first type of argument follow:
 
   Optionally these distances are also rescaled. The default is to rescale, by
   the reciprocal of an outlier-resistant variant of the pooled s.d. of
-  propensity scores; see \code{\link{standardization_scale}}.  (The 
-  \code{standardization.scale} argument of this function can be used to 
-  change how this dispersion is calculated, e.g. to calculate an ordinary not 
-  an outlier-resistant s.d.; it will be passed down 
-  to \code{standardization_scale} as its \code{standardizer} argument.) 
-  To skip rescaling, set argument \code{standardization.scale} to 1. 
+  propensity scores; see \code{\link{standardization_scale}}.  (The
+  \code{standardization.scale} argument of this function can be used to
+  change how this dispersion is calculated, e.g. to calculate an ordinary not
+  an outlier-resistant s.d.; it will be passed down
+  to \code{standardization_scale} as its \code{standardizer} argument.)
+  To skip rescaling, set argument \code{standardization.scale} to 1.
   The overall result records
   absolute differences between treated and control units on linear, possibly
   rescaled, propensity scores.
@@ -228,10 +228,10 @@ Details for each particular first type of argument follow:
   separately by stratum.
 
   A unit with NA treatment status (\code{Z}) is ignored and will not be included in the distance output.
- Missing values in variables on the right hand side of the formula are handled as follows. By default 
-\code{match_on} will (1) create a matrix of distances between observations which 
-have only valid values for **all** covariates and then (2) append matrices of Inf values 
-for distances between observations either of which has a missing values on any of the right-hand-side variables. 
+ Missing values in variables on the right hand side of the formula are handled as follows. By default
+\code{match_on} will (1) create a matrix of distances between observations which
+have only valid values for **all** covariates and then (2) append matrices of Inf values
+for distances between observations either of which has a missing values on any of the right-hand-side variables.
 (I.e., observations with missing values are retained in the output, but
 matches involving them are forbidden.)
 
