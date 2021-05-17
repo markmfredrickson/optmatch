@@ -1,7 +1,7 @@
 * Fixed a bug causing `match_on()`, `scores()` to misinterpret propensity
   or other scores fitted with `survey::svyglm()` (#194)
-*  boxplot() now understand survey objects, e.g.
-  propensity score models fitted with case weights via svyglm() (#194)
+* `boxplot()` gains a method for `svyglm` objects, e.g. propensity
+  score models fitted with case weights via `survey::svyglm()` (#194)
 * The meaning of one of `match_on.glm()`'s arguments has
   changed slightly: to circumvent scale standardization when matching on
   a propensity score or other index, you should now pass
