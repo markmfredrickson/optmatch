@@ -22,8 +22,7 @@ Imports:
     digest,
     stats,
     methods,
-    graphics,
-    survey
+    graphics
 Suggests:
     boot,
     biglm,
@@ -37,7 +36,8 @@ Suggests:
     xtable
 Enhances:
     CBPS,
-    haven
+    haven,
+    survey
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
