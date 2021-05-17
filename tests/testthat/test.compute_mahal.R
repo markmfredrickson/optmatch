@@ -46,7 +46,7 @@ make.data <- function(k) {
                   Sigma = matrix(c(1, 0.25, 0.25,
                       0.25, 1, 0.25,
                       0.25, 1, 0.25), nrow = 3))
-    rownames(x) <- paste('v', 1:nrow(x), sep='')
+    rownames(x) <- paste('v', seq_len(nrow(x)), sep='')
 
     # top 10% assigned to treatment
     tmp <- rowSums(x)

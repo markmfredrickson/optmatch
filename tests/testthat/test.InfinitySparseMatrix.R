@@ -103,12 +103,12 @@ test_that("Math Ops", {
   # TODO, make up temp matrices for sub and div
 
   # dense + sparse => sparse
-  Aq = A + q
+  Aq <- A + q
   expect_is(Aq, "InfinitySparseMatrix")
   expect_equivalent(as.matrix(Aq), m + q)
 
   # make sure it works the other direction (and with mult)
-  qA = q * A
+  qA <- q * A
   expect_is(qA, "InfinitySparseMatrix")
   expect_equivalent(as.matrix(qA), q * m)
 
@@ -119,7 +119,7 @@ test_that("Math Ops", {
   colnames(q) <- paste("C", 1:2, sep = "")
   rownames(q) <- paste("T", 1:2, sep = "")
 
-  Aq = A + q
+  Aq <- A + q
   expect_equal(colnames(Aq), c("C1", "C2"))
   expect_equal(rownames(Aq), c("T1", "T2"))
 
@@ -212,8 +212,8 @@ test_that("Math ops with vectors", {
 
   # R 3.7 changed the behavior of c%%Inf. See #179.
   # Checking only for equality of finite entries
-  vmodA = as.matrix(v%%A)
-  vintdivA = as.matrix(v%/%A)
+  vmodA <- as.matrix(v%%A)
+  vintdivA <- as.matrix(v%/%A)
   expect_warning({
     expect_true(all(vmodA[is.finite(vmodA)] == (v%%m)[is.finite(m)], na.rm = TRUE))
     expect_true(all(vintdivA[is.finite(vintdivA)] == (v%/%m)[is.finite(m)], na.rm = TRUE))
@@ -598,4 +598,159 @@ test_that("rbinds involving BISMs", {
 
     expect_true(all(rownames(rbind(bismA, bismB)) %in% c(2, 3, 5, 6)))
     expect_true(all(colnames(cbind(t(bismA),t(bismB))) %in% c(2, 3, 5, 6)))
+})
+
+test_that("ISM indexing", {
+
+  data(nuclearplants)
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
+
+  # [X, X]
+  expect_equal(dim(m[1:3,2:3]), c(3,2))
+  expect_equal(dim(m[3:2,4:2]), c(2,3))
+  expect_equal(dim(m[c("A", "C"), c(4,7,1,2:4)]), c(2, 5))
+
+  # [X]
+  expect_equal(length(m[1:3]), 3)
+  expect_equal(length(m[c("A", "a")]), 2)
+
+  # [X,] or [,X]
+  expect_equal(dim(m[1:3, ]), c(3, 22))
+  expect_equal(dim(m[, 5:3]), c(10, 3))
+
+  # []
+  expect_equal(m, m[])
+
+  # [,]
+  m2 <- m[,]
+  m@call <- NULL
+  m2@call <- NULL
+  expect_equal(m, m2)
+
+  # Strings
+  expect_equal(dim(m["A", "W"]), c(1,1))
+  expect_equal(dim(m[c("A", "B"), "W"]), c(2,1))
+
+  # Logical
+  expect_equal(dim(m[rep(c(TRUE, FALSE), times = 5), ]), c(5, 22))
+
+  # Negative indices
+  expect_equal(dim(m[-1, -1]), dim(m) - 1)
+  expect_equal(dim(m[-c(1,3,5),]), dim(m) - c(3,0))
+
+  # Error on mixture of signs
+  expect_error(m[c(-1,2)], "mix")
+
+  # Warning whenever `drop` is presented.
+  expect_warning(m[1:3, 1:3, drop = TRUE])
+  expect_warning(m[1:3, 1:3, drop = FALSE])
+  expect_warning(m[1:3,, drop = FALSE])
+  expect_warning(m[1:3, drop = FALSE])
+
+  # Ignoring drop
+  expect_warning({
+    expect_equal(m[1:3, 2:3, drop = TRUE ], m[1:3, 2:3])
+    expect_equal(m[1:3, 2:3, drop = FALSE], m[1:3, 2:3])
+    expect_equal(m[1:3, , drop = TRUE ], m[1:3, ])
+    expect_equal(m[1:3, , drop = FALSE], m[1:3, ])
+    expect_equal(m[, 1:3, drop = TRUE ], m[, 1:3])
+    expect_equal(m[, 1:3, drop = FALSE], m[, 1:3])
+    expect_equal(m[, , drop = TRUE ], m[, ])
+    expect_equal(m[, , drop = FALSE], m[, ])
+    expect_equal(m[, drop = TRUE ], m[, ])
+    expect_equal(m[, drop = FALSE], m[, ])
+    expect_equal(m[drop = TRUE ], m[])
+    expect_equal(m[drop = FALSE], m[])
+  })
+})
+
+test_that("BISM indexing", {
+
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1,
+                within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_is(m[1,1], "InfinitySparseMatrix")
+
+  m2 <- m[5:10, 18:22]
+  expect_is(m2, "InfinitySparseMatrix")
+  expect_equal(dim(m2), c(6,5))
+
+  m3 <- m[8:9, 5:6]
+  expect_true(all(is.infinite(m3)))
+})
+
+test_that("ISM subset replacement", {
+
+  a <- as.InfinitySparseMatrix(matrix(c(1, Inf, 2, 3, 4, 5), nrow = 3, ncol = 2))
+
+  a[2,2] <- 10
+  expect_equal(as.vector(as.matrix(a)), c(1, Inf, 2, 3, 10, 5))
+  expect_true(all(as.matrix(a) == c(1, Inf, 2, 3, 10, 5)))
+
+  a[1,1:2] <- c(20,40)
+  expect_equal(as.vector(as.matrix(a)), c(20, Inf, 2, 40, 10, 5))
+
+  a[2,1:2] <- c(-10, -20)
+  expect_equal(as.vector(as.matrix(a)), c(20, -10, 2, 40, -20, 5))
+
+  a[2,] <- c(-30, -40)
+  expect_equal(as.vector(as.matrix(a)), c(20, -30, 2, 40, -40, 5))
+
+  a[,1] <- c(5,6,7)
+  expect_equal(as.vector(as.matrix(a)), c(5, 6, 7, 40, -40, 5))
+
+  a[1:2, 1:2] <- c(1,2,3,4)
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 7, 3, 4, 5))
+
+  a[1:2, 1:2] <- matrix(c(8,7,6,5), nrow = 2)
+  expect_equal(as.vector(as.matrix(a)), c(8, 7, 7, 6, 5, 5))
+
+  a[1,1:2] <- c(Inf, Inf)
+  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 7, Inf, 5, 5))
+  expect_length(a@.Data, 4)
+
+  # Logical indexing
+  a[c(TRUE, TRUE, FALSE), c(FALSE, TRUE)] <- 1:2
+  expect_equal(as.vector(as.matrix(a)), c(Inf, 7, 7, 1, 2, 5))
+
+  # Inf replacement
+  a[, 1] <- Inf
+  expect_equal(as.vector(as.matrix(a)), c(Inf, Inf, Inf, 1, 2, 5))
+
+  expect_error(a[, 1] <- 1:2, "length")
+  expect_error(a[1:3, 1:2] <- matrix(c(8,7,6,5), nrow = 2), "length")
+
+  a[,-2] <- 1:3
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 3, 1, 2, 5))
+  a[-c(1,2),] <- c(10, 20)
+  expect_equal(as.vector(as.matrix(a)), c(1, 2, 10, 1, 2, 20))
+
+
+  # String indexing
+  data(nuclearplants)
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
+
+  m["A",] <- Inf
+  expect_true(all(m@rows > 1))
+
+  m["A", "H"] <- 10
+  expect_true(sum(m@rows == 1) == 1)
+})
+
+test_that("BISM subset replacement", {
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1,
+                within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_is(m, "BlockedInfinitySparseMatrix")
+
+  # Replacing element that is entirely within a group
+  m[1,1] <- 4
+  expect_is(m, "BlockedInfinitySparseMatrix")
+
+  m[8:10, 18:19] <- 3
+  expect_is(m, "InfinitySparseMatrix")
+  expect_false(is(m, "BlockedInfinitySparseMatrix"))
+  expect_true(all(m[8:10, 18:19] == 3))
+
+
 })

@@ -51,12 +51,12 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
       omit.fraction <- NULL
     }
   }
-  
+
   if (floor(min.cpt) > ceiling(max.cpt) | ceiling(1/min.cpt) < floor(1/max.cpt))
   {
-    ans <- rep("NA",length(rownames)+length(colnames))
+    ans <- rep(NA,length(rownames)+length(colnames))
       names(ans) <- c(rownames, colnames)
-      return(list(cells=ans, maxerr=NULL, distance=NULL))
+      return(list(cells=ans, err=NA, distance=NULL))
   }
 
   # the next block of code, the dm <- ... is commented out as

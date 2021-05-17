@@ -149,7 +149,7 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
     if (!hasMethod(m, klass)) {
       # skip the FUN = ... in the call stack
       if (stopOnProblem) {
-        stop(paste("Invalid distance: object must have a", m, "method."), call. = F)
+        stop(paste("Invalid distance: object must have a", m, "method."), call. = FALSE)
       } else {
         return(FALSE)
       }

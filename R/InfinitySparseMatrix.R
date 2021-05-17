@@ -350,6 +350,7 @@ function(e1, e2) {
 ##' @param ... Other arguments are ignored.
 ##' @return An InfinitySparseMatrix with only the selected elements.
 ##' @author Mark Fredrickson
+##' @rdname ism.subset
 ##' @export
 subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
 
@@ -392,6 +393,147 @@ discardOthers <- function(x, index) {
 
   return(y)
 }
+
+##' @param i Row indices.
+##' @param j Col indices.
+##' @param drop Ignored.
+##' @rdname ism.subset
+##' @export
+setMethod("[", "InfinitySparseMatrix",
+          function(x, i, j =NULL, ..., drop = TRUE) {
+            if ( "drop" %in% names(match.call())) {
+              warning("'drop' argument ignored for InfinitySparseMatrix object subsetting ")
+            }
+            # Handles [X] cases
+            if (nargs() < 3) {
+              if (missing(i)) {
+                return(x)
+              }
+              return(x@.Data[i, ...])
+            } else {
+              # At this point we have two arguments, but one could be
+              # null (e.g. [X,] or [,X], as opposed to [X])
+
+              # when missing, replace with NULL to be handled below
+              if (missing(i)) i <- NULL
+              if (missing(j)) j <- NULL
+
+              makelogical <- function(index, rowcol) {
+                switch(class(index),
+                       "numeric" = ,
+                       "integer" = {
+                         if (any(index < 0)) {
+                           if (any(index >= 0)) {
+                             stop("Cannot mix positive and negative subscripts")
+                           }
+                           !((1:dim(x)[rowcol]) %in% abs(index))
+                         } else {
+                           (1:dim(x)[rowcol]) %in% index
+                         }
+                       },
+                       "character" = dimnames(x)[[rowcol]] %in% index,
+                       "logical" = index,
+                       "NULL" = rep(TRUE, dim(x)[rowcol]),
+                       stop("Unrecognized class"))
+              }
+
+              subi <- makelogical(i, 1)
+              subj <- makelogical(j, 2)
+
+              subset(x, subset=subi, select=subj)
+            }
+          })
+
+
+##' @param value replacement values
+##' @rdname ism.subset
+##' @export
+setMethod("[<-", "InfinitySparseMatrix",
+          function(x, i, j, value) {
+#            if (is(x, "BlockedInfinitySparseMatrix")) x <- as.InfinitySparseMatrix(x)
+
+            s <- sys.calls() # look at calling function to determine [X,X] vs [X]
+            if (length(s[[length(s)-1]]) < 5) {
+              # handles x[i] <- ...
+              if (is.logical(i)) {
+                i <- which(i)
+              }
+              x@.Data[i] <- value
+              return(x)
+            }
+
+            if (missing(i)) i <- seq_len(nrow(x))
+            if (missing(j)) j <- seq_len(ncol(x))
+
+            makenumeric <- function(index, rowcol) {
+              switch(class(index),
+                     "numeric" = ,
+                     "integer" = {
+                       if (any(index < 0)) {
+                         if (any(index >= 0)) {
+                           stop("Cannot mix positive and negative subscripts")
+                         }
+                         which(!((1:dim(x)[rowcol]) %in% abs(index)))
+                       } else {
+                         index
+                       }
+                     },
+
+                     "character" = which(dimnames(x)[[rowcol]] %in% index),
+                     "logical" = which(index),
+                     "NULL" = seq_len(dim(x)[rowcol]),
+                     stop("Unrecognized class"))
+            }
+
+            numi <- makenumeric(i, 1)
+            numj <- makenumeric(j, 2)
+
+
+            # Create a list of all coordinates to be updated
+            updateEntries <- expand.grid(numi, numj)
+            if (nrow(updateEntries) %% length(value) != 0) {
+              stop("number of items to replace is not a multiple of replacement length")
+            }
+            updateEntries <- cbind(updateEntries, as.vector(value))
+
+            for (r in seq_len(nrow(updateEntries))) {
+              if (is(x, "BlockedInfinitySparseMatrix")) {
+                rowgroups <- x@groups[x@rownames]
+                colgroups <- x@groups[x@colnames]
+                # If we're trying to replace a cross-group term in BISM, conver to ISM
+                if (rowgroups[updateEntries[r, 1]] != colgroups[updateEntries[r, 2]]) {
+                  x <- as.InfinitySparseMatrix(x)
+                }
+              }
+              # determine position in @.Data/@rows/@cols for replacement
+              datalocation <- x@rows == updateEntries[r,1] &
+                              x@cols == updateEntries[r,2]
+
+              # Different steps depending on finite/infinite status of
+              # replacement and current value
+
+              # Replacement Inf, current Inf is ignored
+
+              # Replacement Inf, current finite, delete it
+              if (is.infinite(updateEntries[r, 3])) {
+                x@rows <- x@rows[!datalocation]
+                x@cols <- x@cols[!datalocation]
+                x@.Data <- x@.Data[!datalocation]
+              } else {
+                if (any(datalocation)) {
+                  # Replacement finite, current finite, replace it
+                  x@.Data[datalocation] <- updateEntries[r,3]
+                } else {
+                  # Replacement finite, current Inf, add new entry
+                  x@rows <- c(x@rows, as.integer(updateEntries[r,1]))
+                  x@cols <- c(x@cols, as.integer(updateEntries[r,2]))
+                  x@.Data <- c(x@.Data, as.integer(updateEntries[r,3]))
+                }
+              }
+            }
+            return(sort(x))
+          })
+
 
 
 ##' This matches the syntax and semantics of
