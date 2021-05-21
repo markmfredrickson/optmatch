@@ -22,6 +22,7 @@ Imports:
     digest,
     dplyr,
     stats,
+    tibble,
     methods,
     graphics
 Suggests:
