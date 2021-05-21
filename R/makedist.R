@@ -115,7 +115,9 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
                                        list(treatment = rns, control = cns)))
   } else {
-      res <- replace(within, 1:length(within), dists)
+    # using `replace` will cause issues down the road with `[<-`
+    res <- within
+    res@.Data <- dists
   }
   return(res)
 }
@@ -168,7 +170,7 @@ if (length(vars)>0)
   mdms <- split(zzz,ss)
   NMFLG <- FALSE
 
-  for (ii in (1:length(ans)))
+  for (ii in (seq_along(ans)))
   {
     dn1 <- names(mdms[[ii]])[mdms[[ii]]]
     dn2 <- names(mdms[[ii]])[!mdms[[ii]]]

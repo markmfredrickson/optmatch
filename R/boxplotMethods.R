@@ -63,3 +63,24 @@ are there missing values in data?")
   }
   boxplot(linear.score ~ dependent.variable, xlab=xlab, ylab=ylab,main=main, varwidth=varwidth, horizontal=horizontal,...)
   }
+#' @export
+#' @importFrom graphics boxplot
+#' @importFrom survey svyboxplot
+boxplot.svyglm <- function(x, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE, horizontal=FALSE, ...)
+{
+
+    dependent.variable <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
+    dependent.variable  <- as.factor(dependent.variable)
+        linear.score <- x$linear.predictors
+    if (horizontal) { #switch default axis labelings
+      if (missing(xlab)) {
+          xlab <- # default value of ylab
+              expression(paste(X, symbol("\242"), hat(beta)))
+      }
+      if (missing(ylab)) {
+          ylab <- # default value of xlab
+              "Group"
+      }
+    }
+    survey::svyboxplot(linear.score ~ dependent.variable, design=x$survey.design, main=main, varwidth=varwidth, horizontal=horizontal, ...)
+}

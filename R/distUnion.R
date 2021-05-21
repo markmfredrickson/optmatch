@@ -31,7 +31,7 @@
 distUnion <- function(...) {
   arglst <- list(...)
 
-  if (!all(sapply(arglst, validDistanceSpecification))) {
+  if (!all(vapply(arglst, validDistanceSpecification, logical(1)))) {
     stop("All arguments must be valid distance specifications")
   }
 
@@ -43,10 +43,10 @@ distUnion <- function(...) {
   utreated  <- unique(unlist(treateds))
   ucontrols <- unique(unlist(controls))
 
-  tmap <- 1:length(utreated)
+  tmap <- seq_along(utreated)
   names(tmap) <- utreated
 
-  cmap <- 1:length(ucontrols)
+  cmap <- seq_along(ucontrols)
   names(cmap) <- ucontrols
 
   updated.isms <- lapply(isms, function(i) {
@@ -58,8 +58,8 @@ distUnion <- function(...) {
   })
 
 
-  pairs <- matrix(c(unlist(sapply(updated.isms, function(i) { i@cols })),
-                    unlist(sapply(updated.isms, function(i) { i@rows }))),
+  pairs <- matrix(c(unlist(lapply(updated.isms, function(i) { i@cols })),
+                    unlist(lapply(updated.isms, function(i) { i@rows }))),
                   ncol = 2)
 
   dups <- duplicated(pairs)
@@ -67,11 +67,11 @@ distUnion <- function(...) {
   pairs <- pairs[!dups, ]
 
   unionism <- makeInfinitySparseMatrix(
-      unlist(sapply(updated.isms, function(i) { i@.Data }))[!dups],
+      unlist(lapply(updated.isms, function(i) { i@.Data }))[!dups],
       cols = pairs[, 1],
       rows = pairs[, 2],
       ucontrols,
       utreated)
-  
+
   return(unionism)
 }

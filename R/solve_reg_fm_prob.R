@@ -91,7 +91,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
   {
     ans <- rep(NA_integer_, nrows + ncols)
     names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, maxerr=NULL, distance=NULL))
+    return(list(cells=ans, maxerr=NA_real_, distance=NULL))
   }
     
 

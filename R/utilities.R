@@ -70,7 +70,7 @@ setMethod("toZ", "factor", function(x) {
 #'   \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
 #'   \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
 #' @return Hash on the distance object with a null \code{call}
-#' @import digest
+#' @importFrom digest digest
 #' @keywords internal
 dist_digest <- function(dist) {
   if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {

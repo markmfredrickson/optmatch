@@ -139,8 +139,8 @@ stratumStructure.default <- function(stratum,trtgrp,min.controls=0,max.controls=
                dnn="stratum treatment:control ratios")
 
   tnn <- as.numeric(unlist(strsplit(names(ans), ":", fixed=FALSE)))
-  i.ctl <- 2*(1:length(ans))
-  i.tx <- 2*(1:length(ans))-1
+  i.ctl <- 2*(seq_along(ans))
+  i.tx <- 2*(seq_along(ans))-1
   txnms <- as.character(tnn[i.tx])
   txnms[tnn[i.tx]==max.tx] <-
     paste(max.tx,"+", sep="")

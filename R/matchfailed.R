@@ -20,8 +20,8 @@ matchfailed <- function(x) {
 #' @keywords internal
 subproblemSuccess <- function(x) {
   grps <- attr(x, "subproblem")
-  failed <- sapply(split(x, grps), function(x) {
+  failed <- vapply(split(x, grps), function(x) {
     all(is.na(x) | grepl("\\.NA$", x))
-  })
+  }, logical(1))
   return(!failed)
 }

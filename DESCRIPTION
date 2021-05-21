@@ -24,7 +24,8 @@ Imports:
     stats,
     tibble,
     methods,
-    graphics
+    graphics,
+    survey
 Suggests:
     boot,
     biglm,
@@ -41,6 +42,7 @@ Enhances:
     haven
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
+BugReports: https://github.com/markmfredrickson/optmatch/issues
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
