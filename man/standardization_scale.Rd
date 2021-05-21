@@ -15,6 +15,9 @@ standardization_scale(x, trtgrp, standardizer = NULL, svydesign_ = NULL)
 
 \item{svydesign_}{ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.}
 }
+\value{
+numeric of length 1
+}
 \description{
 Dispersion as pooled across a treatment and a control group. By default, 
 the measure of dispersion calculated within each group is not the 
