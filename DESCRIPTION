@@ -33,6 +33,7 @@ Suggests:
     arm,
     knitr,
     rmarkdown,
+    markdown,
     pander,
     xtable
 Enhances:
