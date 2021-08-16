@@ -16,3 +16,6 @@ tests/testthat/test.notforCRAN.R
 man-roxygen
 README.md
 .github
+^revdep$
+cran-comments.md
+^CRAN-RELEASE$

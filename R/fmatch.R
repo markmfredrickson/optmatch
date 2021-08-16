@@ -67,7 +67,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   # startn indicates where each arc starts (using ID num)
   # endn indicates where each arc ends (using ID num)
   # nodes 1:nt are the treated units
-  # nodes (nt + 1):nc are the control units
+  # nodes (nt + 1):(nt + nc) are the control units
   # we use the levels of the treated and control factors to generate the ID numbers
   # the capacity of these arcs is 1
 
@@ -76,22 +76,52 @@ fmatch <- function(distance, max.row.units, max.col.units,
   endn <- nt + as.numeric(distance$control)
   ucap <- rep(1, narcs)
 
-  # Add entries for "end" and "sink" nodes
-  # "end" is node nt+nc+1; "sink" is node nt+nc+2
-  dists <- c(dists, rep(0, nc + nt), rep(0, nc))
-  startn <- c(startn, 1:(nt + nc), nt + 1:nc)
-  endn <- c(endn, rep(nt + nc + 1, nc + nt), rep(nt + nc + 2, nc))
-  ucap <- c(ucap, rep(mxc - mnc, nt), rep(mxr - 1, nc), rep(1, nc))
+  # Add entries for "end", "sink", and "buffer" nodes.
+  # "end" is node nt+nc+1; "sink" is node nt+nc+2; "buffer" is node nt + nc + 3
+  treatedIds <- 1:nt
+  controlIds <- (nt + 1):(nt + nc)
+  endId    <- nt + nc + 1
+  sinkId   <- nt + nc + 2
+  bufferId <- nt + nc + 3
+
+  dists <- c(dists,
+             rep(0, nt), # t to end
+             rep(0, nc), # c to buffer
+             rep(0, 1),  # buffer to end 
+             rep(0, nc)) # c to sink
+
+  startn <- c(startn,
+              treatedIds, # t to end
+              controlIds, # c to buffer
+              bufferId,     # buffer to end
+              controlIds) # c to sink
+
+  endn <- c(endn,
+            rep(endId, nt),    # t to end
+            rep(bufferId, nc), # c to buffer
+            endId,             # buffer to tend
+            rep(sinkId, nc))   # c to sink
+
+  k_minus_v <- getOption("opmatch_k_v", default = (mxc * nt - round(f * nc))) # for now, not part of the interface
+  ucap <- c(ucap,
+            rep(mxc - mnc, nt), # t to end
+            rep(mxr - 1, nc),   # c to buffer
+            k_minus_v,            # buffer to end 
+            rep(1, nc))         # c to sink
 
   # supply
-  b <- c(rep(mxc, nt), rep(0, nc), -(mxc * nt - round(f * nc)), -round(f * nc))
+  b <- c(rep(mxc, nt), # treated nodes
+         rep(0, nc),   # control
+         -(mxc * nt - round(f * nc)), # end
+         -round(f * nc), # sink
+         0)              # buffer)
 
   # If the user specifies using the old version of the relax algorithm. The `if` will be
   # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
   # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
   if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
     fop <- .Fortran("relaxalgold",
-                    as.integer(nc + nt + 2),
+                    as.integer(nc + nt + 3),
                     as.integer(length(startn)),
                     as.integer(startn),
                     as.integer(endn),
@@ -107,7 +137,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                     PACKAGE = "optmatch")
   } else {
     fop <- .Fortran("relaxalg",
-                    as.integer(nc + nt + 2),
+                    as.integer(nc + nt + 3),
                     as.integer(length(startn)),
                     as.integer(startn),
                     as.integer(endn),
