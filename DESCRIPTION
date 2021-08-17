@@ -23,7 +23,7 @@ Imports:
     stats,
     methods,
     graphics,
-    survey
+    survey (>= 4.1-1)
 Suggests:
     boot,
     biglm,
