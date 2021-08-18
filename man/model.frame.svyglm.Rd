@@ -3,14 +3,12 @@
 \name{model.frame.svyglm}
 \alias{model.frame.svyglm}
 \title{This method quells a warning when \code{optmatch::scores()}
-is applied to a svyglm object.  I don't expect that it to be
-useful in other contexts, only exporting it for ease of debugging.}
+is applied to a svyglm object.}
 \usage{
 \method{model.frame}{svyglm}(formula, ...)
 }
 \description{
 This method quells a warning when \code{optmatch::scores()}
-is applied to a svyglm object.  I don't expect that it to be
-useful in other contexts, only exporting it for ease of debugging.
+is applied to a svyglm object.
 }
 \keyword{internal}

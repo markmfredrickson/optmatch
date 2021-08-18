@@ -857,11 +857,9 @@ svy_sd <- function(design)
 }
 
 #' This method quells a warning when \code{optmatch::scores()}
-#' is applied to a svyglm object.  I don't expect that it to be
-#' useful in other contexts, only exporting it for ease of debugging.
+#' is applied to a svyglm object.  
 #' @method model.frame svyglm
 #' @keywords internal
-#' @export
 model.frame.svyglm <- function (formula, ...)
 {
     ans <- get_all_vars(formula, formula[["survey.design"]][["variables"]])
