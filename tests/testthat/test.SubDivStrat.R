@@ -66,3 +66,9 @@ test_that("NA for unmatched items", {
   expect_equal(length(res$cells), 5)
 
 })
+
+test_that("NA is true, not string", {
+  expect_warning(f1 <- fullmatch(pr ~ cost, min = 10, data = nuclearplants,
+                                 within = exactMatch(pr ~ pt, data = nuclearplants)))
+  expect_true(all(is.na(f1)))
+})

@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.9-12
+Version: 0.9-14
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
     oriented to matching of treatment and control groups in observational
@@ -22,7 +22,8 @@ Imports:
     digest,
     stats,
     methods,
-    graphics
+    graphics,
+    survey
 Suggests:
     boot,
     biglm,
@@ -32,6 +33,7 @@ Suggests:
     arm,
     knitr,
     rmarkdown,
+    markdown,
     pander,
     xtable
 Enhances:
@@ -39,6 +41,7 @@ Enhances:
     haven
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
+BugReports: https://github.com/markmfredrickson/optmatch/issues
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'

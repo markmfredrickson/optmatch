@@ -559,7 +559,7 @@ test_that("equality of matches", {
   expect_false(compare_optmatch(f3,f5))
 
   # Re-ordering
-  nuclearplants2 <- nuclearplants[sample(1:nrow(nuclearplants)),]
+  nuclearplants2 <- nuclearplants[sample(seq_len(nrow(nuclearplants))),]
 
   f6 <- fullmatch(pr ~ cost, data=nuclearplants2)
   # f1, f2, f6 are all the same, but f6 has a different order
@@ -578,7 +578,7 @@ test_that("equality of matches", {
   expect_true(compare_optmatch(b1, b2))
 
   # Make some wonky observation names
-  row.names(nuclearplants) <- sapply(1:nrow(nuclearplants), function(x)
+  row.names(nuclearplants) <- sapply(seq_len(nrow(nuclearplants)), function(x)
     paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
 
   w1 <- fullmatch(pr ~ cost, data=nuclearplants)

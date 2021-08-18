@@ -112,13 +112,13 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     which(t == xC)
   })
 
-  if (all(sapply(csForTs, function(x) length(x) == 0))) {
+  if (all(vapply(csForTs, function(x) length(x) == 0, logical(1)))) {
     stop("There is no overlap of value between treatment and control groups.")
   }
 
   cols <- unlist(csForTs)
-  tmp <- sapply(csForTs, length)
-  rows <- rep(1:(length(csForTs)), tmp)
+  tmp <- vapply(csForTs, length, numeric(1))
+  rows <- rep(seq_along(csForTs), tmp)
 
   rns <- nms[treatment]
   cns <- nms[!treatment]
@@ -199,8 +199,8 @@ antiExactMatch <- function(x, z) {
   controlnms <- nms[!z]
   treatednms <- nms[z]
 
-  cid <- 1:length(controlnms)
-  tid <- 1:length(treatednms)
+  cid <- seq_along(controlnms)
+  tid <- seq_along(treatednms)
 
   names(cid) <- controlnms
   names(tid) <- treatednms

@@ -70,7 +70,7 @@ makeOptmatch <- function(distance,
 
   grpnames <- names(matching)
   if (is.null(grpnames)) {
-    grpnames <- 1:(length(matching))
+    grpnames <- seq_along(matching)
   }
 
   optmatch.obj <- Reduce(mapply(function(label, groups) {
@@ -82,7 +82,7 @@ makeOptmatch <- function(distance,
 
   optmatch.obj <- as.factor(optmatch.obj)
   subproblems <- as.factor(unlist(mapply(function(label, group) { rep(label, length(group)) }, grpnames, matching)))
-  names(optmatch.obj) <- names(subproblems) <- unlist(sapply(matching, names))
+  names(optmatch.obj) <- names(subproblems) <- unlist(lapply(matching, names))
 
 
   # we try to get the order as row names, straight names, and finally from the
@@ -113,7 +113,7 @@ makeOptmatch <- function(distance,
 
   class(optmatch.obj) <- c("optmatch", "factor")
 
-  tmp <- sapply(solutions, function(x) { x$err })
+  tmp <- vapply(solutions, function(x) { x$err }, numeric(1))
   names(tmp) <- grpnames
   attr(optmatch.obj, "exceedances") <- tmp
 
@@ -329,7 +329,7 @@ c.optmatch <- function(...) {
     stop("Observation names duplicated. Optmatch objects to be combined must have unique names.")
   }
 
-  for (i in 1:length(objs)) {
+  for (i in seq_along(objs)) {
     # Match names
     levels(objs[[i]]) <- paste0(i - 1, ".",
                                 levels(objs[[i]]))
@@ -360,7 +360,7 @@ c.optmatch <- function(...) {
               "max.controls",
               "call",
               "omit.fraction")) {
-    attr(out, a) <- unlist(sapply(objs, attr, a))
+    attr(out, a) <- unlist(lapply(objs, attr, a))
   }
 
   # attributes which will be sublists
