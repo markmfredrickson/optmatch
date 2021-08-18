@@ -879,11 +879,11 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
 #' @importFrom survey svyquantile
 svy_mad <- function(design)
 {
-        med <- as.vector(survey::svyquantile(~x, design, 0.5))$x[1]
-        design <- update(design,
-                        abs_dev=abs( design$variable$x - med)
+        med <- svyquantile(~x, design, 0.5)[[1]][1]
+        design <- update(design, 
+                       abs_dev=abs( design$variable$x - med)
                         )
-        mad <- as.vector(survey::svyquantile(~abs_dev, design, 0.5))$abs_dev[1]
+        mad <- svyquantile(~abs_dev, design, 0.5)[[1]][1]
         constant <- formals(stats::mad)$constant
         s2_t <- constant * mad
 }
