@@ -880,6 +880,7 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
 svy_mad <- function(design)
 {
         med <- svyquantile(~x, design, 0.5)[[1]][1]
+
         design <- update(design,
                         abs_dev=abs( design$variable$x - med )
                         )

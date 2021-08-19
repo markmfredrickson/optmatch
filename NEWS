@@ -1,3 +1,6 @@
+CHANGES IN OPTMATCH VERSION 0.9-15
+* Small bug fix related to survey::mad and survey::med interface
+
 CHANGES IN OPTMATCH VERSION 0.9-14
 
 * Bug fix: `within=` arguments to `match_on()`, or functions calling
