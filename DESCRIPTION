@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.9-15
+Version: 0.9-16
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
     oriented to matching of treatment and control groups in observational
@@ -23,7 +23,7 @@ Imports:
     stats,
     methods,
     graphics,
-    survey (>= 4.1-1)
+    survey
 Suggests:
     boot,
     biglm,
