@@ -103,6 +103,8 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   # defensive programming
   x <- as.factor(x)
   treatment <- toZ(treatment)
+  thedim <- table(treatment)
+  thedim <- as.vector(thedim[c("TRUE", "FALSE")])
 
   # the upper level is the treatment condition
   xT <- x[treatment]
@@ -120,11 +122,11 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   tmp <- vapply(csForTs, length, numeric(1))
   rows <- rep(seq_along(csForTs), tmp)
 
-  rns <- nms[treatment]
-  cns <- nms[!treatment]
+  rns <- nms[!is.na(treatment) & treatment]
+  cns <- nms[!is.na(treatment) & !treatment]
 
   tmp <- makeInfinitySparseMatrix(rep(0, length(rows)), cols = cols, rows =
-    rows, rownames = rns, colnames = cns)
+    rows, rownames = rns, colnames = cns, dimension = thedim)
 
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- x
@@ -137,8 +139,9 @@ setMethod(exactMatch, "vector", function(x, treatment) {
 setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.action = NULL, ...) {
   # lifted pretty much verbatim from lm()
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("data", "subset", "na.action"), names(mf), 0L)
+  m <- match(c("data", "subset"), names(mf), 0L)
   mf <- mf[c(1L, m)]
+  mf$na.action <- "na.pass"
   mf$drop.unused.levels <- TRUE
   mf$formula <- x
   mf[[1L]] <- as.name("model.frame")
@@ -185,6 +188,8 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
 #' @example inst/examples/antiExactMatch.R
 antiExactMatch <- function(x, z) {
   z <- toZ(z)
+  thedim <- table(z)
+  thedim <- as.vector(thedim[c("TRUE", "FALSE")])
   x <- as.factor(x)
 
   if (is.null(names(x)) && is.null(names(z))) {
@@ -218,7 +223,8 @@ antiExactMatch <- function(x, z) {
                                   rows = rowcols$rows,
                                   cols = rowcols$cols,
                                   rownames = treatednms,
-                                  colnames = controlnms)
+                                  colnames = controlnms,
+                                  dimension = thedim)
 
   return(ret)
 }

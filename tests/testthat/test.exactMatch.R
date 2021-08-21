@@ -263,3 +263,44 @@ test_that("#149: exactMatch fails on unique RHS values", {
   names(t) <- names(x) <- letters[1:6]
   expect_error(exactMatch(x, t), "no overlap")
 })
+
+test_that("#206: maintain dimension if x has NAs", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     b = rep(0:1, times = 5))
+
+  m <- match_on(z ~ b, data = data)
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+  
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))
+  
+
+  data$b[1] <- NA
+
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))
+
+  data$b[c(2,4,6,7)] <- NA
+
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))  
+})
