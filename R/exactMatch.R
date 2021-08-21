@@ -100,6 +100,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     }
   }
 
+  x_is_numeric <- is.numeric(x)
   # defensive programming
   x <- as.factor(x)
   treatment <- toZ(treatment)
@@ -114,8 +115,10 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     which(t == xC)
   })
 
-  if (all(vapply(csForTs, function(x) length(x) == 0, logical(1)))) {
-    stop("There is no overlap of value between treatment and control groups.")
+  if (x_is_numeric &&
+      all(vapply(csForTs, function(x) length(x) == 0, logical(1)))
+      ) {
+    stop("Suspicious grouping variable: numeric;\n no overlap of value between treatment and control.\n (If this was intended, convert it to factor or character first.)")
   }
 
   cols <- unlist(csForTs)

@@ -258,10 +258,14 @@ test_that("#149: exactMatch fails on unique RHS values", {
   names(t) <- names(x) <- letters[1:6]
 
   expect_error(exactMatch(x, t), "no overlap")
-
+  # if x is factor, let it go
+  expect_silent(exactMatch(as.factor(x), t))
+  
   x <- c(1, 1, 2, 3, 4, 4)
   names(t) <- names(x) <- letters[1:6]
   expect_error(exactMatch(x, t), "no overlap")
+  # if x is factor, again let it go
+  expect_silent(exactMatch(as.factor(x), t))
 })
 
 test_that("#206: maintain dimension if x has NAs", {
