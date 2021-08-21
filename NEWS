@@ -1,3 +1,7 @@
+CHANGES IN OPTMATCH VERSION 0.9-16
+* Continuation of v0.9-15's refinement of support for glm's
+  created by `survey::svyglm()` (#194)
+
 CHANGES IN OPTMATCH VERSION 0.9-15
 * Small bug fix related to survey::mad and survey::med interface
 
