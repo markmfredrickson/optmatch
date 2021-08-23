@@ -1,5 +1,7 @@
 CHANGES IN OPTMATCH VERSION 0.9-16
 * Bug fix: integer overflow issue arising with large problems (#209)
+* Minor refinement of support for glms from `survey::svyglm()` (#194)
+
 
 CHANGES IN OPTMATCH VERSION 0.9-15
 * Small bug fix related to survey::mad and survey::med interface
