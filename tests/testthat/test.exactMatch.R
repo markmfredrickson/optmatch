@@ -146,6 +146,8 @@ test_that("Contains grouping information", {
 
   # the grouping factor must have names
   expect_equal(length(names(res.em@groups)), 16)
+  # ... and those names should match the dimnames of the BISM
+  expect_setequal(names(res.em@groups), unlist(dimnames(res.em)))
 
   # the names of the strata should be used as names of the subprobs list
   expect_equal(names(findSubproblems(res.em)), letters[1:4])
@@ -232,24 +234,30 @@ test_that("#123: exactmatch accepts NA treatment", {
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   data$z[1] <- NA
 
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   data$z[c(2,4,6,7)] <- NA
 
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 })
 
 test_that("#149: exactMatch fails on unique RHS values", {
@@ -275,9 +283,11 @@ test_that("#206: maintain dimension if x has NAs", {
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
-  
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
+
   a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
   expect_equal(dim(m), dim(a))
   expect_equal(rownames(m), rownames(a))
@@ -288,8 +298,10 @@ test_that("#206: maintain dimension if x has NAs", {
 
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
   expect_equal(dim(m), dim(a))
@@ -300,8 +312,10 @@ test_that("#206: maintain dimension if x has NAs", {
 
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
   expect_equal(dim(m), dim(a))

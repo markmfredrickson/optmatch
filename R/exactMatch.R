@@ -89,6 +89,11 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     stop("Splitting vector and treatment vector must be same length")
   }
 
+  # knock out any treatment NAs
+  treatment_observed  <- !is.na(treatment)
+  treatment  <- treatment[treatment_observed]
+  x  <- x[treatment_observed]
+
   # ham-handed way of saying, use x's names or use treatments's name
   # which ever is not null
   nms <- names(x)
@@ -100,8 +105,8 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     }
   }
 
-  x_is_numeric <- is.numeric(x)
   # defensive programming
+  x_was_numeric <- is.numeric(x)
   x <- as.factor(x)
   treatment <- toZ(treatment)
   thedim <- table(treatment)
@@ -115,7 +120,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     which(t == xC)
   })
 
-  if (x_is_numeric &&
+  if (x_was_numeric &&
       all(vapply(csForTs, function(x) length(x) == 0, logical(1)))
       ) {
     stop("Suspicious grouping variable: numeric;\n no overlap of value between treatment and control.\n (If this was intended, convert it to factor or character first.)")
@@ -125,8 +130,8 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   tmp <- vapply(csForTs, length, numeric(1))
   rows <- rep(seq_along(csForTs), tmp)
 
-  rns <- nms[!is.na(treatment) & treatment]
-  cns <- nms[!is.na(treatment) & !treatment]
+  rns <- nms[treatment]
+  cns <- nms[!treatment]
 
   tmp <- makeInfinitySparseMatrix(rep(0, length(rows)), cols = cols, rows =
     rows, rownames = rns, colnames = cns, dimension = thedim)
