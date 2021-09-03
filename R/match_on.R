@@ -880,8 +880,9 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
 svy_mad <- function(design)
 {
         med <- svyquantile(~x, design, 0.5)[[1]][1]
-        design <- update(design, 
-                       abs_dev=abs( design$variable$x - med)
+
+        design <- update(design,
+                        abs_dev=abs( design$variable$x - med )
                         )
         mad <- svyquantile(~abs_dev, design, 0.5)[[1]][1]
         constant <- formals(stats::mad)$constant
@@ -896,14 +897,12 @@ svy_sd <- function(design)
 }
 
 #' This method quells a warning when \code{optmatch::scores()}
-#' is applied to a svyglm object.  I don't expect that it to be
-#' useful in other contexts, only exporting it for ease of debugging.
+#' is applied to a svyglm object.  
 #' @method model.frame svyglm
 #' @keywords internal
-#' @export
 model.frame.svyglm <- function (formula, ...)
 {
-    ans <- model.frame(formula$survey.design, ...)
+    ans <- get_all_vars(formula, formula[["survey.design"]][["variables"]])
     attr(ans, "terms") <- terms(formula)
     ans
 }
