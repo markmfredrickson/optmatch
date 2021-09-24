@@ -637,6 +637,19 @@ test_that("symmetry w.r.t. structural requirements (#132)",{
 
 })
 
+test_that("Edge case of only (1,1)-subproblems (#211)",
+{
+    data  <- data.frame(z=rep(0:1, 2), x=rnorm(4),
+                        fac=rep(c("a", "b"), each=2)
+                        )
+    data_sm  <- subset(data, fac=="a")
+    expect_silent(f1  <- fullmatch(setNames(data_sm$x, rownames(data_sm)),
+                                   z=data_sm$z, 
+                                   data = data_sm
+                                   )
+                  )
+    expect_silent(f2  <- fullmatch(z~x+strata(fac), data = data))    
+})
 test_that("Problems w/ fewer controls than treatment don't break mean.controls", {
 
     data <- data.frame(z = c(rep(0,10), rep(1,5)),
