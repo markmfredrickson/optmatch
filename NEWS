@@ -1,3 +1,7 @@
+CHANGES IN OPTMATCH VERSION 0.9-17
+* Observations with NAs in a blocking variable are now retained, although
+  marked as unmatchable (#206).  And similarly for observations with NAs
+  in a scalar matching variable (#189).
 * Minor bug fix(es) incl. #211
 
 CHANGES IN OPTMATCH VERSION 0.9-16
