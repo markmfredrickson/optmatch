@@ -140,7 +140,7 @@ void ginv_square(double * square_mat, int n) {
       * work = Calloc(work_size, double);
 
     F77_CALL(dgesdd)(&jobz, &n, &n, square_mat, &n, s, u, &n, vt, &n,
-		     work, &work_size, iwork, &info);
+		     work, &work_size, iwork, &info FCONE);
     Free(work);
     Free(iwork);
 
@@ -176,7 +176,7 @@ void ginv_square(double * square_mat, int n) {
 
     F77_CALL(dgemm)(&transa, &transb, &n, &n, &n,
 		    &alpha, vt, &n, u, &n,
-		    &beta, square_mat, &n);
+		    &beta, square_mat, &n FCONE FCONE);
     Free(u);
     Free(vt);
     Free(s);
@@ -199,7 +199,7 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
 
   F77_CALL(dgemm)(&transa, &transb, &nr, &nc, &nc,
 		  &alpha, recentered, &nr, icov, &nc,
-		  &beta, mat_mult, &nr);
+		  &beta, mat_mult, &nr FCONE FCONE);
 
   for(int i = 0; i < nr * nc; i++)
     mat_mult[i] *= recentered[i];
