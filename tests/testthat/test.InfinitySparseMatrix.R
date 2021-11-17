@@ -274,6 +274,15 @@ test_that("Subsetting", {
   expect_equal(res.sub@.Data, c(1, 2))
   expect_equal(res.sub@cols, c(1,2))
   expect_equal(res.sub@rows, c(1,1))
+  expect_equal(dim(res.sub), c(1,2))
+
+  # #204 subseting without row/col names works with Infs
+  A <- as.InfinitySparseMatrix(matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2))
+  res.sub <- subset(A, c(TRUE, TRUE), c(TRUE, FALSE))
+  expect_equal(res.sub@.Data, c(1))
+  expect_equal(res.sub@cols, c(1))
+  expect_equal(res.sub@rows, c(1))
+  expect_equal(dim(res.sub), c(2,1))
 
 })
 
