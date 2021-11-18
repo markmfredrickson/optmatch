@@ -12,9 +12,7 @@ Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
     Dimitri P. Bertsekas <dimitrib@mit.edu> and Paul Tseng
 Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
 LazyData: true
-Depends:
-    R (>= 2.15.1),
-    survival
+Depends: R (>= 2.15.1)
 LinkingTo: Rcpp
 Imports:
     Rcpp,
@@ -38,7 +36,8 @@ Suggests:
     xtable
 Enhances:
     CBPS,
-    haven
+    haven,
+    survival
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
@@ -73,6 +72,7 @@ Collate:
     'print.optmatch.dlist.R'
     'relaxinfo.R'
     'scores.R'
+    'strata.R'
     'stratumStructure.R'
     'subDivStrat.R'
     'summary.ism.R'
