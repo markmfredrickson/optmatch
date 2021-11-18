@@ -340,7 +340,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
   }
 
   # we want to use our own contrasts creating function
-  isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
+  isF <- colnames(mf)[vapply(mf, is.factor, logical(1))]
   c.arg <- lapply(isF, function(fname) {
     if (nlevels(mf[[fname]]) < 2) {
       return(NULL)
@@ -422,7 +422,7 @@ makeWithinFromStrata <- function(x, data)
 {
   xs <- findStrata(x, data)
 
-  em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
+  em <- unlist(lapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
   lhs <- paste(xs$newx[[2]], collapse="")
   within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
@@ -897,7 +897,7 @@ svy_sd <- function(design)
 }
 
 #' This method quells a warning when \code{optmatch::scores()}
-#' is applied to a svyglm object.  
+#' is applied to a svyglm object.
 #' @method model.frame svyglm
 #' @keywords internal
 model.frame.svyglm <- function (formula, ...)

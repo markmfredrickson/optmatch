@@ -112,7 +112,7 @@ test_that("Matched distances", {
   res.multiple <- matched.distances(match.multiple, dist.multiple, preserve.unit.names = T)
   expect_equal(length(res.multiple), 4) # 4 matches, four item list
   expect_equal(as.vector(unlist(res.multiple)), c(1, 99, 3, 4, 5))
-  expect_equal(as.vector(unlist(sapply(res.multiple, names))), c("f", "g", "h", "i", "j"))
+  expect_equal(as.vector(unlist(lapply(res.multiple, names))), c("f", "g", "h", "i", "j"))
 
 
 })
@@ -578,8 +578,14 @@ test_that("equality of matches", {
   expect_true(compare_optmatch(b1, b2))
 
   # Make some wonky observation names
-  row.names(nuclearplants) <- sapply(seq_len(nrow(nuclearplants)), function(x)
-    paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
+  row.names(nuclearplants) <-
+    vapply(seq_len(nrow(nuclearplants)),
+           function(x) {
+             paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl",
+                                    "")[[1]], 10, TRUE),
+                    collapse="")
+           }, character(1)
+           )
 
   w1 <- fullmatch(pr ~ cost, data=nuclearplants)
   w2 <- fullmatch(pr ~ cost, data=nuclearplants, max=10)

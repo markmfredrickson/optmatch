@@ -791,7 +791,7 @@ subdim.BlockedInfinitySparseMatrix <- function(x) {
       cidx <- x@cols %in% col.members
       any(ridx & cidx)
   },
-  TRUE)
+  logical(1))
   out <- out[filt]
   out.cnms <- names(out)
   out <- as.data.frame(out)
