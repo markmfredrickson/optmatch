@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - remove_survival_strata
   pull_request:
     branches:
       - master
