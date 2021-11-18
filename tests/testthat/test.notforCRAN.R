@@ -88,8 +88,8 @@ if (FALSE) {
     test.design <- svydesign(~1, probs=1, data=test.data)
     sglm <- svyglm(Z ~ X1 + X2, test.design, family = binomial())
     expect_silent(res.svy0 <- match_on(sglm, data=test.data, standardization.scale=1))
-    expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))    
-    expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))   
+    expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))
+    expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))
     ## Comparisons to glm: currently failing, disabled pending investigation.
     ## First step: figure out whether sglm/aglm are returning the same
     ## linear predictors.
@@ -111,3 +111,18 @@ if (FALSE) {
 }
 }
 ###)
+
+test_that("cox model testing", {
+  # this is the test case from:
+  # https://github.com/markmfredrickson/optmatch/issues/44
+
+  if (require(survival)) {
+    coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
+    names(coxps) <- row.names(heart)
+    coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
+    expect_true(max(coxmoA) <= 1)
+
+    coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
+    expect_true(max(coxmoC) <= 1)
+  }
+})

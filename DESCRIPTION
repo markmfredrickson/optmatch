@@ -36,8 +36,7 @@ Suggests:
     xtable
 Enhances:
     CBPS,
-    haven,
-    survival
+    haven
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues

@@ -498,18 +498,7 @@ test_that("Issue #44", {
   res.cal.w <- match_on(scores, z = z, within = www, caliper = 1)
   expect_equal(max(res.cal.w), 1)
 
-  # this is the test case from:
-  # https://github.com/markmfredrickson/optmatch/issues/44
 
-  if (require(survival)) {
-    coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
-    names(coxps) <- row.names(heart)
-    coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
-    expect_true(max(coxmoA) <= 1)
-
-    coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
-    expect_true(max(coxmoC) <= 1)
-  }
 })
 
 test_that("Issue 48: caliper is a universal argument", {
