@@ -300,15 +300,21 @@ test_that("optmatch_same_distance", {
                  "infeasible")
 
   expect_true(optmatch_same_distance(f1, res.b))
+  expect_true(optmatch_same_distance(res.b, f1))
   expect_true(optmatch_same_distance(f2, res.b2))
+  expect_true(optmatch_same_distance(res.b2, f2))
   expect_true(optmatch_same_distance(f3, res.b))
+  expect_true(optmatch_same_distance(res.b, f3))
 
   expect_true(!optmatch_same_distance(f1, res.b2))
   expect_true(!optmatch_same_distance(f2, res.b))
   expect_true(!optmatch_same_distance(f3, res.b2))
 
-  expect_error(optmatch_same_distance(res.b, res.b), "obj must be an optmatch object")
-  expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "newdist must be a valid distance")
+  expect_true(optmatch_same_distance(f1, f3))
+  expect_true(!optmatch_same_distance(f1, f2))
+
+  expect_true(optmatch_same_distance(res.b, res.b))
+  expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "both arguments")
 })
 
 
