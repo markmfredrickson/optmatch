@@ -1,8 +1,9 @@
 CHANGES IN OPTMATCH VERSION 0.9-17
+* Fix to FORTRAN to conform with Writing R Extensions §6.6.2.
 * Observations with NAs in a blocking variable are now retained, although
   marked as unmatchable (#206).  And similarly for observations with NAs
   in a scalar matching variable (#189).
-* Minor bug fix(es) incl. #211
+* Minor bug fix(es) incl. #211, #204
 
 CHANGES IN OPTMATCH VERSION 0.9-16
 * Bug fix: integer overflow issue arising with large problems (#209)
