@@ -3,7 +3,7 @@ Version: 0.9-17
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
     oriented to matching of treatment and control groups in observational
-    studies. Routines are provided to generate distances from generalised linear models (propensity
+    studies (Hansen and Klopfer 2006 <doi:10.1198/106186006X137047>). Routines are provided to generate distances from generalised linear models (propensity
     score matching), formulas giving variables on which to limit matched distances, stratified or
     exact matching directives, or calipers, alone or in combination.
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
