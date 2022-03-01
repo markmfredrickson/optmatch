@@ -619,7 +619,7 @@ fullmatch.matrix <- function(x,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- dist_digest(x)
+  attr(mout, "hashed.distance") <- hash_dist(x)
 
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl

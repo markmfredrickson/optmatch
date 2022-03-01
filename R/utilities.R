@@ -71,33 +71,33 @@ setMethod("toZ", "factor", function(x) {
 #'   \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
 #' @return Hash on the distance object with a null \code{call}
 #' @keywords internal
-#' @rdname dist_digest
-dist_digest <- function(dist) {
-  UseMethod("dist_digest")
+#' @rdname hash_dist
+hash_dist <- function(dist) {
+  UseMethod("hash_dist")
 }
 
-#' @rdname dist_digest
-dist_digest.DenseMatrix <- function(dist)  {
-  dist_digest(dist@.Data)
+#' @rdname hash_dist
+hash_dist.DenseMatrix <- function(dist)  {
+  hash_dist(dist@.Data)
 }
 
-#' @rdname dist_digest
-dist_digest.matrix <- function(dist)  {
+#' @rdname hash_dist
+hash_dist.matrix <- function(dist)  {
   sum(dist[is.finite(dist)]) + nrow(dist) + ncol(dist)
 }
 
-#' @rdname dist_digest
-dist_digest.InfinitySparseMatrix <- function(dist) {
+#' @rdname hash_dist
+hash_dist.InfinitySparseMatrix <- function(dist) {
   sum(dist@.Data) + sum(dist@rows) + sum(dist@cols)
 }
 
-#' @rdname dist_digest
-dist_digest.BlockedInfinitySparseMatrix <- function(dist) {
-  dist_digest(as.InfinitySparseMatrix(dist))
+#' @rdname hash_dist
+hash_dist.BlockedInfinitySparseMatrix <- function(dist) {
+  hash_dist(as.InfinitySparseMatrix(dist))
 }
 
-#' @rdname dist_digest
-dist_digest.optmatch.dlist <- function(dist) {
+#' @rdname hash_dist
+hash_dist.optmatch.dlist <- function(dist) {
   warning("optmatch.dlist objects are deprecated")
   1
 }

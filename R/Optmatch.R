@@ -218,12 +218,12 @@ optmatch_same_distance <- function(x, y) {
   if (is(x, "optmatch")) {
     x <- attr(x, "hashed.distance")
   } else {
-    x <- dist_digest(x)
+    x <- hash_dist(x)
   }
   if (is(y, "optmatch")) {
     y <- attr(y, "hashed.distance")
   } else {
-    y <- dist_digest(y)
+    y <- hash_dist(y)
   }
   return(x == y)
 }
