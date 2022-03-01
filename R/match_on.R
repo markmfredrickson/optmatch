@@ -876,24 +876,31 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
 }
 
 #' @keywords internal
-#' @importFrom survey svyquantile
 svy_mad <- function(design)
 {
-        med <- svyquantile(~x, design, 0.5)[[1]][1]
+  if (requireNamespace("survey", quietly = TRUE)) {
+        med <- survey::svyquantile(~x, design, 0.5)[[1]][1]
 
         design <- update(design,
                         abs_dev=abs( design$variable$x - med )
                         )
-        mad <- svyquantile(~abs_dev, design, 0.5)[[1]][1]
+        mad <- survey::svyquantile(~abs_dev, design, 0.5)[[1]][1]
         constant <- formals(stats::mad)$constant
         s2_t <- constant * mad
+        return(s2_t)
+  } else {
+    stop("'survey' package must be installed")
+  }
 }
 #' @keywords internal
-#' @importFrom survey svyvar
 svy_sd <- function(design)
 {
+  if (requireNamespace("survey", quietly = TRUE)) {
         var_ <- survey::svyvar(~x, design)
-        sqrt(unname(var_)[1])
+        return(sqrt(unname(var_)[1]))
+  } else {
+    stop("'survey' package must be installed")
+  }
 }
 
 #' This method quells a warning when \code{optmatch::scores()}
