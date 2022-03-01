@@ -70,16 +70,36 @@ setMethod("toZ", "factor", function(x) {
 #'   \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
 #'   \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
 #' @return Hash on the distance object with a null \code{call}
-#' @importFrom digest digest
 #' @keywords internal
+#' @rdname dist_digest
 dist_digest <- function(dist) {
-  if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {
-    csave <- attr(dist, "call")
-    attr(dist, "call") <- NULL
-    out <- digest::digest(dist)
-    return(out)
-  }
-  stop("Must pass distance object")
+  UseMethod("dist_digest")
+}
+
+#' @rdname dist_digest
+dist_digest.DenseMatrix <- function(dist)  {
+  dist_digest(dist@.Data)
+}
+
+#' @rdname dist_digest
+dist_digest.matrix <- function(dist)  {
+  sum(dist[is.finite(dist)]) + nrow(dist) + ncol(dist)
+}
+
+#' @rdname dist_digest
+dist_digest.InfinitySparseMatrix <- function(dist) {
+  sum(dist@.Data) + sum(dist@rows) + sum(dist@cols)
+}
+
+#' @rdname dist_digest
+dist_digest.BlockedInfinitySparseMatrix <- function(dist) {
+  dist_digest(as.InfinitySparseMatrix(dist))
+}
+
+#' @rdname dist_digest
+dist_digest.optmatch.dlist <- function(dist) {
+  # to do!
+  1
 }
 
 #' (Internal) If the x argument does not exist for

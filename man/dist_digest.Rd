@@ -2,11 +2,26 @@
 % Please edit documentation in R/utilities.R
 \name{dist_digest}
 \alias{dist_digest}
+\alias{dist_digest.DenseMatrix}
+\alias{dist_digest.matrix}
+\alias{dist_digest.InfinitySparseMatrix}
+\alias{dist_digest.BlockedInfinitySparseMatrix}
+\alias{dist_digest.optmatch.dlist}
 \title{(Internal) Remove the call before digesting a distance so things
 like omitting caliper and calling caliper=NULL give the same digest
 #}
 \usage{
 dist_digest(dist)
+
+\method{dist_digest}{DenseMatrix}(dist)
+
+\method{dist_digest}{matrix}(dist)
+
+\method{dist_digest}{InfinitySparseMatrix}(dist)
+
+\method{dist_digest}{BlockedInfinitySparseMatrix}(dist)
+
+\method{dist_digest}{optmatch.dlist}(dist)
 }
 \arguments{
 \item{dist}{Distance object to hash. Must be one of
