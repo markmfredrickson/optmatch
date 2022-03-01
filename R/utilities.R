@@ -60,7 +60,7 @@ setMethod("toZ", "character", function(x) {
 
 setMethod("toZ", "factor", function(x) {
   stop(paste("Factor treatment indicators no longer supported.\n",
-             "Convert into a numeric or logical vector."))
+            "Convert into a numeric or logical vector."))
 })
 
 #' (Internal) Remove the call before digesting a distance so things
@@ -98,7 +98,7 @@ dist_digest.BlockedInfinitySparseMatrix <- function(dist) {
 
 #' @rdname dist_digest
 dist_digest.optmatch.dlist <- function(dist) {
-  # to do!
+  warning("optmatch.dlist objects are deprecated")
   1
 }
 
