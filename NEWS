@@ -1,3 +1,6 @@
+CHANGES IN OPTMATCH VERSION 0.9-18
+* Version number increase related to being removed due to broken dependencies.
+
 CHANGES IN OPTMATCH VERSION 0.9-17
 * Fix to FORTRAN to conform with Writing R Extensions §6.6.2.
 * Observations with NAs in a blocking variable are now retained, although
