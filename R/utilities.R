@@ -63,8 +63,7 @@ setMethod("toZ", "factor", function(x) {
             "Convert into a numeric or logical vector."))
 })
 
-#' (Internal) Remove the call before digesting a distance so things
-#' like omitting caliper and calling caliper=NULL give the same digest
+#' (Internal) Hashing functions for various distance objects
 #' #
 #' @param dist Distance object to hash. Must be one of
 #'   \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},

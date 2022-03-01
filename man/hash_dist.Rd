@@ -7,8 +7,7 @@
 \alias{hash_dist.InfinitySparseMatrix}
 \alias{hash_dist.BlockedInfinitySparseMatrix}
 \alias{hash_dist.optmatch.dlist}
-\title{(Internal) Remove the call before digesting a distance so things
-like omitting caliper and calling caliper=NULL give the same digest
+\title{(Internal) Hashing functions for various distance objects
 #}
 \usage{
 hash_dist(dist)
@@ -32,8 +31,7 @@ hash_dist(dist)
 Hash on the distance object with a null \code{call}
 }
 \description{
-(Internal) Remove the call before digesting a distance so things
-like omitting caliper and calling caliper=NULL give the same digest
+(Internal) Hashing functions for various distance objects
 #
 }
 \keyword{internal}
