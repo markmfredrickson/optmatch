@@ -30,6 +30,7 @@ Suggests:
     testthat (>= 0.11.0),
     roxygen2,
     brglm,
+    RItools,
     arm,
     knitr,
     rmarkdown,
