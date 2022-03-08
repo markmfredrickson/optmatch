@@ -34,7 +34,8 @@ Suggests:
     knitr,
     rmarkdown,
     pander,
-    xtable
+    xtable,
+    rrelaxiv
 Enhances:
     CBPS,
     haven
@@ -71,7 +72,6 @@ Collate:
     'pairmatch.R'
     'print.optmatch.R'
     'print.optmatch.dlist.R'
-    'relaxinfo.R'
     'scores.R'
     'stratumStructure.R'
     'subDivStrat.R'
