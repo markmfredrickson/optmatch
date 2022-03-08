@@ -1,6 +1,6 @@
 ##' @export
 ##' @rdname minmaxctlcap
-maxControlsCap <- function(distance, min.controls = NULL, solver = "RELAX-IV")
+maxControlsCap <- function(distance, min.controls = NULL, solver = "")
 {
   # check if it is valid distance specification,
   # if not through an error message explaining the issue

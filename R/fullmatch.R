@@ -152,8 +152,8 @@ setTryRecovery <- function() {
 #' generate it (for example, in a propensity score matching).
 #'
 #' @param solver Choose which solver to use. Currently implemented are RELAX-IV
-#'   and LEMON. Default of \code{NULL} will use RELAX-IV if installed, otherwise
-#'   will use LEMON.
+#'   and LEMON. Default of \code{""}, a blank string, will use RELAX-IV if the
+#'   rrelaxiv package is installed, otherwise will use LEMON.
 #'
 #' To explicitly use RELAX-IV, pass string "RELAX-IV".
 #'
@@ -191,7 +191,7 @@ fullmatch <- function(x,
                       mean.controls = NULL,
                       tol = .001,
                       data = NULL,
-                      solver = NULL,
+                      solver = "",
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -223,7 +223,7 @@ fullmatch.default <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
-                              solver = NULL,
+                              solver = "",
                               within = NULL,
                               ...) {
 
@@ -265,7 +265,7 @@ fullmatch.numeric <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
-                              solver = NULL,
+                              solver = "",
                               z,
                               within = NULL,
                               ...) {
@@ -293,7 +293,7 @@ fullmatch.matrix <- function(x,
                              mean.controls = NULL,
                              tol = .001,
                              data = NULL,
-                             solver = NULL,
+                             solver = "",
                              within = NULL,
                              ...) {
 
@@ -360,11 +360,6 @@ fullmatch.matrix <- function(x,
       stop("Some elements of the distance matrix are not found in the data argument.")
     }
   }
-
-  # If user doesn't specify solver, NULL causes problems below so set to blank
-  if (is.null(solver)) solver <- ""
-
-
 
   # problems is guaranteed to be a list of DistanceSpecifictions
   # it may only have 1 entry

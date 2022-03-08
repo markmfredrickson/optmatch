@@ -116,9 +116,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if (solver == "RELAX-IV") {
 
-    # If the user specifies using the old version of the relax algorithm. The `if` will be
-    # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
-    # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
     fop <- rrelaxiv::.RELAX_IV(n1 = as.integer(nc + nt + 2),
                                na1 = as.integer(length(startn)),
                                startn1 = as.integer(startn),

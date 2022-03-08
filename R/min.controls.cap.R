@@ -25,15 +25,9 @@
 ##' @param min.controls Optionally, set limits on the minimum number
 ##'   of controls per matched set.  (Only makes sense for
 ##'   \code{maxControlsCap}.)
-#' @param solver Choose which solver to use. Currently implemented are RELAX-IV
-#'   and LEMON. To use RELAX-IV (the default), pass string "RELAX-IV".
-#'
-#' To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
-#' LEMON will use, pass the function \link{LEMON} with argument for the
-#' algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
-#' "NetworkSimplex". See this site for details on their differences:
-#' \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. NetworkSimplex is
-#' the default.
+##' @param solver Choose which solver to use. See \code{help(fullmatch)}
+##' for details.
+##'
 ##' @return For \code{minControlsCap},
 ##'   \code{strictest.feasible.min.controls} and
 ##'   \code{given.max.controls}. For \code{maxControlsCap},
@@ -63,7 +57,7 @@
 ##' @keywords optimize
 ##' @export
 ##' @rdname minmaxctlcap
-minControlsCap <- function(distance, max.controls=NULL, solver = "RELAX-IV")
+minControlsCap <- function(distance, max.controls=NULL, solver = "")
 {
   distance <- as.matrix(distance) # cast ISM to matrix, temporary
   if (!is.list(distance) & !is.matrix(distance))

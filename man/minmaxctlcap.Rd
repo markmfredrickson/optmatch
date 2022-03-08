@@ -5,9 +5,9 @@
 \alias{minControlsCap}
 \title{Set thinning and thickening caps for full matching}
 \usage{
-maxControlsCap(distance, min.controls = NULL, solver = "RELAX-IV")
+maxControlsCap(distance, min.controls = NULL, solver = "")
 
-minControlsCap(distance, max.controls = NULL, solver = "RELAX-IV")
+minControlsCap(distance, max.controls = NULL, solver = "")
 }
 \arguments{
 \item{distance}{Either a matrix of non-negative, numeric
@@ -18,15 +18,8 @@ discrepancies, or a list of such matrices. (See
 of controls per matched set.  (Only makes sense for
 \code{maxControlsCap}.)}
 
-\item{solver}{Choose which solver to use. Currently implemented are RELAX-IV
-  and LEMON. To use RELAX-IV (the default), pass string "RELAX-IV".
-
-To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
-LEMON will use, pass the function \link{LEMON} with argument for the
-algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
-"NetworkSimplex". See this site for details on their differences:
-\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. NetworkSimplex is
-the default.}
+\item{solver}{Choose which solver to use. See \code{help(fullmatch)}
+for details.}
 
 \item{max.controls}{Optionally, set limits on the maximum number
 of controls per matched set.  (Only makes sense for
