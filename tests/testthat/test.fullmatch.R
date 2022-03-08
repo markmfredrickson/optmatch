@@ -695,18 +695,18 @@ test_that("If matching fails, we should give a warning", {
 test_that("LEMON solvers", {
 
   data("nuclearplants")
-  f1 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants)
-  f2 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f1 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants)
+  f2 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = "RELAX-IV")
-  f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = "LEMON")
-  f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CycleCancelling"))
-  f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CapacityScaling"))
-  f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CostScaling"))
-  f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 2, data = nuclearplants,
+  f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("NetworkSimplex"))
 
   match_equal(f1, f2)
