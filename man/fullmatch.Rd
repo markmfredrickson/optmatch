@@ -13,7 +13,7 @@ fullmatch(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
-  solver = "RELAX-IV",
+  solver = NULL,
   ...
 )
 
@@ -25,7 +25,7 @@ full(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
-  solver = "RELAX-IV",
+  solver = NULL,
   ...
 )
 }
@@ -121,7 +121,10 @@ combine a match (using, e.g., \code{cbind}) with the data that were used to
 generate it (for example, in a propensity score matching).}
 
 \item{solver}{Choose which solver to use. Currently implemented are RELAX-IV
-  and LEMON. To use RELAX-IV (the default), pass string "RELAX-IV".
+  and LEMON. Default of \code{NULL} will use RELAX-IV if installed, otherwise
+  will use LEMON.
+
+To explicitly use RELAX-IV, pass string "RELAX-IV".
 
 To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
 LEMON will use, pass the function \link{LEMON} with argument for the

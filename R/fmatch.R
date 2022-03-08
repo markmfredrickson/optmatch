@@ -5,6 +5,14 @@ fmatch <- function(distance, max.row.units, max.col.units,
 {
   # Allow both character entries (solver = "LEMON") and functions (solver =
   # LEMON("NetworkSimplex")) a la the family argument in glm.
+  if (solver == "") {
+    if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+      solver <- "RELAX-IV"
+    } else {
+      solver <- "LEMON"
+    }
+  }
+
   if (grepl("^LEMON", solver)) {
     if (solver == "LEMON") {
       solver <- LEMON()
@@ -12,8 +20,12 @@ fmatch <- function(distance, max.row.units, max.col.units,
     s <- strsplit(solver, "\\.")[[1]]
     solver <- s[1]
     algorithm <- s[2]
+  } else if (solver == "RELAX-IV") {
+    if (!requireNamespace("rrelaxiv", quietly = TRUE)) {
+      stop("To use RELAX-IV solver, install package `rrelaxiv`.")
+    }
   }
-  else if (solver != "RELAX-IV") {
+  else {
     stop("Invalid solver. Valid solvers are 'RELAX-IV' and 'LEMON'")
   }
 
@@ -104,30 +116,25 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   if (solver == "RELAX-IV") {
 
-    if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    # If the user specifies using the old version of the relax algorithm. The `if` will be
+    # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
+    # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
+    fop <- rrelaxiv::.RELAX_IV(n1 = as.integer(nc + nt + 2),
+                               na1 = as.integer(length(startn)),
+                               startn1 = as.integer(startn),
+                               endn1 = as.integer(endn),
+                               c1 = as.integer(dists),
+                               u1 = as.integer(ucap),
+                               b1 = as.integer(b),
+                               rc1 = as.integer(dists), # all dual price =  0, so reduced
+                                                        # cost  is set equal to cost
+                               crash1 = as.integer(0),
+                               large1 = as.integer(.Machine$integer.max/4))
 
-      # If the user specifies using the old version of the relax algorithm. The `if` will be
-      # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
-      # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
-      fop <- rrelaxiv::.RELAX_IV(n1 = as.integer(nc + nt + 2),
-                                 na1 = as.integer(length(startn)),
-                                 startn1 = as.integer(startn),
-                                 endn1 = as.integer(endn),
-                                 c1 = as.integer(dists),
-                                 u1 = as.integer(ucap),
-                                 b1 = as.integer(b),
-                                 rc1 = as.integer(dists), # all dual price =  0, so reduced
-                                                         # cost  is set equal to cost
-                                 crash1 = as.integer(0),
-                                 large1 = as.integer(.Machine$integer.max/4))
+    feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
+                               (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
 
-      feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
-                                 (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
-
-      x <- feas * fop$x1 - (1 - feas)
-    } else {
-      solver <- "LEMON"
-    }
+    x <- feas * fop$x1 - (1 - feas)
   }
   if (solver == "LEMON") {
     lout <- rlemon::MinCostFlow(arcSources = as.integer(startn),
