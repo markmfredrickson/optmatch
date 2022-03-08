@@ -89,6 +89,11 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     stop("Splitting vector and treatment vector must be same length")
   }
 
+  # knock out any treatment NAs
+  treatment_observed  <- !is.na(treatment)
+  treatment  <- treatment[treatment_observed]
+  x  <- x[treatment_observed]
+
   # ham-handed way of saying, use x's names or use treatments's name
   # which ever is not null
   nms <- names(x)
@@ -101,8 +106,11 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   }
 
   # defensive programming
+  x_was_numeric <- is.numeric(x)
   x <- as.factor(x)
   treatment <- toZ(treatment)
+  thedim <- table(treatment)
+  thedim <- as.vector(thedim[c("TRUE", "FALSE")])
 
   # the upper level is the treatment condition
   xT <- x[treatment]
@@ -112,8 +120,10 @@ setMethod(exactMatch, "vector", function(x, treatment) {
     which(t == xC)
   })
 
-  if (all(vapply(csForTs, function(x) length(x) == 0, logical(1)))) {
-    stop("There is no overlap of value between treatment and control groups.")
+  if (x_was_numeric &&
+      all(vapply(csForTs, function(x) length(x) == 0, logical(1)))
+      ) {
+    stop("Suspicious grouping variable: numeric;\n no overlap of value between treatment and control.\n (If this was intended, convert it to factor or character first.)")
   }
 
   cols <- unlist(csForTs)
@@ -124,7 +134,7 @@ setMethod(exactMatch, "vector", function(x, treatment) {
   cns <- nms[!treatment]
 
   tmp <- makeInfinitySparseMatrix(rep(0, length(rows)), cols = cols, rows =
-    rows, rownames = rns, colnames = cns)
+    rows, rownames = rns, colnames = cns, dimension = thedim)
 
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
   tmp@groups <- x
@@ -137,8 +147,9 @@ setMethod(exactMatch, "vector", function(x, treatment) {
 setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.action = NULL, ...) {
   # lifted pretty much verbatim from lm()
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("data", "subset", "na.action"), names(mf), 0L)
+  m <- match(c("data", "subset"), names(mf), 0L)
   mf <- mf[c(1L, m)]
+  mf$na.action <- "na.pass"
   mf$drop.unused.levels <- TRUE
   mf$formula <- x
   mf[[1L]] <- as.name("model.frame")
@@ -185,6 +196,8 @@ setMethod(exactMatch, "formula", function(x, data = NULL, subset = NULL, na.acti
 #' @example inst/examples/antiExactMatch.R
 antiExactMatch <- function(x, z) {
   z <- toZ(z)
+  thedim <- table(z)
+  thedim <- as.vector(thedim[c("TRUE", "FALSE")])
   x <- as.factor(x)
 
   if (is.null(names(x)) && is.null(names(z))) {
@@ -218,7 +231,8 @@ antiExactMatch <- function(x, z) {
                                   rows = rowcols$rows,
                                   cols = rowcols$cols,
                                   rownames = treatednms,
-                                  colnames = controlnms)
+                                  colnames = controlnms,
+                                  dimension = thedim)
 
   return(ret)
 }

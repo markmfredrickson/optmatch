@@ -543,7 +543,7 @@ test_that("Issue 48: caliper is a universal argument", {
 #   expect_true(class(m2)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "DenseMatrix"))
 # })
 
-test_that("non-default standardization scale", {
+test_that("standardization scale from within match_on", {
   n <- 16
   Z <- numeric(n)
   Z[sample.int(n, n/2)] <- 1
@@ -566,6 +566,42 @@ test_that("non-default standardization scale", {
   expect_is(result.glm4, "matrix")
 })
 
+test_that("standardization_scale with svyglm",{
+  if (require("survey"))
+  {
+    data(api)
+    d<-svydesign(id=~1, probs=1, data=apistrat)
+    sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
+                   family=quasibinomial())
+    aglm  <- glm(sch.wide~ell+meals+mobility,data=apistrat,
+                 family=binomial)
+    expect_equivalent(sglm$linear.predictors, aglm$linear.predictors)
+    sd_sglm <- standardization_scale(sglm$linear.predictor,
+                                     trtgrp=sglm$y,
+                                     standardizer = svy_sd,
+                                     svydesign_ = sglm$'survey.design')
+    sd_aglm <- standardization_scale(aglm$linear.predictor,
+                                     trtgrp=aglm$y,
+                                     standardizer = stats::sd)
+    expect_equivalent(sd_sglm, sd_aglm)
+
+    d_w<-svydesign(id=~1, weights=~pw, data=apistrat)
+    sglm_w <- svyglm(sch.wide~ell+meals+mobility, design=d_w,
+                   family=quasibinomial())
+    mad_sglm_w <- standardization_scale(sglm_w$linear.predictor,
+                                      trtgrp=sglm_w$y,
+                                      standardizer = svy_mad,
+                                      svydesign_ = sglm_w$'survey.design')
+    expect_true(is.numeric(mad_sglm_w))
+    expect_gt(mad_sglm_w, 0)
+    sd_sglm_w <- standardization_scale(sglm_w$linear.predictor,
+                                     trtgrp=sglm_w$y,
+                                     standardizer = svy_sd,
+                                     svydesign_ = sglm_w$'survey.design')
+    expect_true(is.numeric(sd_sglm_w))
+    expect_gt(sd_sglm_w, 0)
+  }
+})
 test_that("Building exactMatch from formula with strata", {
 
   d <- data.frame(x = rnorm(8),

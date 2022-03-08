@@ -213,6 +213,7 @@ test_that("NA imputation", {
 
 # test_that("scores with bigglm", {
 # Moved to test.notforCRAN.R
+# also placing scores with survey package tests there
 
 test_that("scores works with *, interaction and strata", {
   data(nuclearplants)

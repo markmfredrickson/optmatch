@@ -112,7 +112,7 @@ test_that("Matched distances", {
   res.multiple <- matched.distances(match.multiple, dist.multiple, preserve.unit.names = T)
   expect_equal(length(res.multiple), 4) # 4 matches, four item list
   expect_equal(as.vector(unlist(res.multiple)), c(1, 99, 3, 4, 5))
-  expect_equal(as.vector(unlist(sapply(res.multiple, names))), c("f", "g", "h", "i", "j"))
+  expect_equal(as.vector(unlist(lapply(res.multiple, names))), c("f", "g", "h", "i", "j"))
 
 
 })
@@ -300,15 +300,21 @@ test_that("optmatch_same_distance", {
                  "infeasible")
 
   expect_true(optmatch_same_distance(f1, res.b))
+  expect_true(optmatch_same_distance(res.b, f1))
   expect_true(optmatch_same_distance(f2, res.b2))
+  expect_true(optmatch_same_distance(res.b2, f2))
   expect_true(optmatch_same_distance(f3, res.b))
+  expect_true(optmatch_same_distance(res.b, f3))
 
   expect_true(!optmatch_same_distance(f1, res.b2))
   expect_true(!optmatch_same_distance(f2, res.b))
   expect_true(!optmatch_same_distance(f3, res.b2))
 
-  expect_error(optmatch_same_distance(res.b, res.b), "obj must be an optmatch object")
-  expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "newdist must be a valid distance")
+  expect_true(optmatch_same_distance(f1, f3))
+  expect_true(!optmatch_same_distance(f1, f2))
+
+  expect_true(optmatch_same_distance(res.b, res.b))
+  expect_error(optmatch_same_distance(f1, as.matrix(res.b)), "both arguments")
 })
 
 
@@ -578,8 +584,14 @@ test_that("equality of matches", {
   expect_true(compare_optmatch(b1, b2))
 
   # Make some wonky observation names
-  row.names(nuclearplants) <- sapply(seq_len(nrow(nuclearplants)), function(x)
-    paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl", "")[[1]], 10, TRUE), collapse=""))
+  row.names(nuclearplants) <-
+    vapply(seq_len(nrow(nuclearplants)),
+           function(x) {
+             paste0(sample(strsplit("!@#$%^&*()_+1234567890asdfghjkl",
+                                    "")[[1]], 10, TRUE),
+                    collapse="")
+           }, character(1)
+           )
 
   w1 <- fullmatch(pr ~ cost, data=nuclearplants)
   w2 <- fullmatch(pr ~ cost, data=nuclearplants, max=10)

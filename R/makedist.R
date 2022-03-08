@@ -49,7 +49,7 @@ makedist <- function(z, data, distancefn, within = NULL) {
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
 
-    if ((nc * nr > getMaxProblemSize()) && warning.requested) {
+    if ((as.numeric(nc) * nr > getMaxProblemSize()) && warning.requested) {
 
       warning("match_on has been asked to compute a large number of treatment-control
 distances.  You can reduce this number by providing an appropriate 'within'
@@ -114,7 +114,9 @@ elaborating on it; see 'exactMatch' and 'caliper' documentation for details.")
       res <- new("DenseMatrix", matrix(dists, nrow = nr, ncol = nc, dimnames =
                                        list(treatment = rns, control = cns)))
   } else {
-      res <- replace(within, seq_along(within), dists)
+    # using `replace` will cause issues down the road with `[<-`
+    res <- within
+    res@.Data <- dists
   }
   return(res)
 }

@@ -487,7 +487,10 @@ fullmatch.matrix <- function(x,
     ncol <- dim(d)[2]
     nrow <- dim(d)[1]
 
-    tol.frac <- (nrow + ncol - 2)/(total.n - 2 * np)
+    tol.frac <-
+       if (total.n > 2 * np) {
+           (nrow + ncol - 2)/(total.n - 2 * np)
+                      } else 1
 
     # if omf is specified (i.e. not NA), see if is non-negative
     # if omf is not specified, check to see if mxctl is > .5

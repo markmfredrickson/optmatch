@@ -38,10 +38,10 @@
 #' \code{Inf} in \code{within} will be \code{Inf} in the distance matrix
 #' returned by \code{match_on}. This argument can reduce the processing time
 #' needed to compute sparse distance matrices.
-#' 
+#'
 #' Details for each particular first type of argument follow:
 #'
-#' @param x A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details. 
+#' @param x A model formula, fitted glm or other object implicitly specifying a distance; see blurbs on specific methods in Details.
 #' @param within A valid distance specification, such as the result of
 #'   \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
 #'   which distances to create. Including this argument can significantly speed
@@ -91,11 +91,13 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'
 #'   Optionally these distances are also rescaled. The default is to rescale, by
 #'   the reciprocal of an outlier-resistant variant of the pooled s.d. of
-#'   propensity scores.  (Outlier resistance is obtained by the application of
-#'   \code{mad}, as opposed to \code{sd}, to linear propensity scores in the
-#'   treatment; this can be changed to the actual pooled s.d., or rescaling can
-#'   be skipped entirely, by setting argument \code{standardization.scale} to
-#'   \code{sd} or \code{NULL}, respectively.)  The overall result records
+#'   propensity scores; see \code{\link{standardization_scale}}.  (The
+#'   \code{standardization.scale} argument of this function can be used to
+#'   change how this dispersion is calculated, e.g. to calculate an ordinary not
+#'   an outlier-resistant s.d.; it will be passed down
+#'   to \code{standardization_scale} as its \code{standardizer} argument.)
+#'   To skip rescaling, set argument \code{standardization.scale} to 1.
+#'   The overall result records
 #'   absolute differences between treated and control units on linear, possibly
 #'   rescaled, propensity scores.
 #'
@@ -122,15 +124,15 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'   match_on.  If there are observations with missing values in right hand
 #'   side (independent) variables, then a re-fit of the model after imputing
 #'   these variables using a simple scheme and adding indicator variables of
-#'   missingness will be attempted, via the \code{\link{scores}} function. 
+#'   missingness will be attempted, via the \code{\link{scores}} function.
 #'
 #' @param standardization.scale Function for rescaling of \code{scores(x)}, or
-#'   \code{NULL}; defaults to \code{mad}.  (See Details.)
+#'   \code{NULL}; defaults to \code{mad}. (See Details.)
 #' @seealso \code{\link{scores}}
 #' @method match_on glm
 #' @rdname match_on-methods
 #' @export
-match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
 
   stopifnot(all(c('y','data') %in% names(x)))
 
@@ -148,11 +150,10 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   lp <- lp[!is.na(z)]
   z <- z[!is.na(z)]
 
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
-    match_on_szn_scale(lp, trtgrp=z, standardization.scale)
-  }
+  pooled.sd <-
+    standardization_scale(lp, trtgrp=z, standardization.scale,
+                       svydesign_ = x$'survey.design')
+
   lp.adj <- lp/pooled.sd
 
   if (!is.null(attr(terms(formula(x), special = "strata", data = data),
@@ -170,12 +171,12 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 }
 
 #' @title pooled dispersion for a numeric variable
-#' 
-#' Dispersion as pooled across a treatment and a control group. By default, 
-#' the measure of dispersion calculated within each group is not the 
-#' ordinary standard deviation but rather the robust alternative 
-#' provided by \code{stats::mad}. 
-#' 
+#'
+#' Dispersion as pooled across a treatment and a control group. By default,
+#' the measure of dispersion calculated within each group is not the
+#' ordinary standard deviation but rather the robust alternative
+#' provided by \code{stats::mad}.
+#'
 #' @param x numeric variable
 #' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
 #' @param standardizer function or numeric of length 1
@@ -201,7 +202,7 @@ match_on_szn_scale <- function(x, trtgrp, standardizer = mad) {
 #' @method match_on bigglm
 #' @rdname match_on-methods
 #' @export
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = mad, ...) {
+match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -223,11 +224,8 @@ are there missing values in data?")
 
   Data <-  model.frame(x$terms, data = data)
   z <- Data[, 1]
-  pooled.sd <- if (is.null(standardization.scale)) {
-    1
-  } else {
-    match_on_szn_scale(theps, trtgrp=z, standardizer=standardization.scale)
-  }
+  pooled.sd <-
+    standardization_scale(theps, trtgrp=z, standardizer=standardization.scale)
 
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
@@ -269,13 +267,13 @@ are there missing values in data?")
 #'   separately by stratum.
 #'
 #'   A unit with NA treatment status (\code{Z}) is ignored and will not be included in the distance output.
-#'  Missing values in variables on the right hand side of the formula are handled as follows. By default 
-#' \code{match_on} will (1) create a matrix of distances between observations which 
-#' have only valid values for **all** covariates and then (2) append matrices of Inf values 
-#' for distances between observations either of which has a missing values on any of the right-hand-side variables. 
+#'  Missing values in variables on the right hand side of the formula are handled as follows. By default
+#' \code{match_on} will (1) create a matrix of distances between observations which
+#' have only valid values for **all** covariates and then (2) append matrices of Inf values
+#' for distances between observations either of which has a missing values on any of the right-hand-side variables.
 #' (I.e., observations with missing values are retained in the output, but
 #' matches involving them are forbidden.)
-#' 
+#'
 #' @param subset A subset of the data to use in creating the distance
 #'   specification.
 #' @param method A string indicating which method to use in computing the
@@ -342,7 +340,7 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
   }
 
   # we want to use our own contrasts creating function
-  isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
+  isF <- colnames(mf)[vapply(mf, is.factor, logical(1))]
   c.arg <- lapply(isF, function(fname) {
     if (nlevels(mf[[fname]]) < 2) {
       return(NULL)
@@ -424,7 +422,7 @@ makeWithinFromStrata <- function(x, data)
 {
   xs <- findStrata(x, data)
 
-  em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
+  em <- unlist(lapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
   lhs <- paste(xs$newx[[2]], collapse="")
   within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
@@ -770,12 +768,12 @@ match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, excl
   }
 
     ## If we're here, within is non-null, but caliper may or may not be null
-    within  <-  within * 0 
+    within  <-  within * 0
     if (!is.null(caliper))
         within  <- within +
             optmatch::caliper(x, width = caliper, exclude = exclude)
     return(x + within)
-} 
+}
 
 #' @rdname match_on-methods
 #' @method match_on matrix
@@ -794,12 +792,12 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
   }
 
     ## If we're here, within is non-null, but caliper may or may not be null
-    within  <-  within * 0 
+    within  <-  within * 0
     if (!is.null(caliper))
         within  <- within +
             optmatch::caliper(x, width = caliper, exclude = exclude)
     return(x + within)
-} 
+}
 
 ## Non-exported function
 ## @title A contrasts function suitable for use within match_on
@@ -813,4 +811,98 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
 ## @author Ben B Hansen
 contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
   contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
+}
+
+#' pooled dispersion for a numeric variable
+#'
+#' Dispersion as pooled across a treatment and a control group. By default,
+#' the measure of dispersion calculated within each group is not the
+#' ordinary standard deviation as in \code{stats::sd} but rather the robust alternative
+#' encoded in \code{stats::mad}.  The dispersion measurements are combined
+#' by squaring, averaging with weights proportional to one minus the sizes of
+#' the groups and then taking square roots.  Used in \code{\link{match_on.glm}}.
+#'
+#' A non-NULL \code{svydesign_} parameter indicates that the dispersion
+#' calculations are to be made respecting the weighting scheme implicit in
+#' that \code{survey.design2} object. If \code{standardizer} is \code{NULL},
+#' one gets a calculation in the style of \code{stats::mad} but with weights,
+#' performed by \code{optmatch:::svy_sd}; for a pooling of weighted standard
+#' deviations, one would pass a non-\code{NULL} \code{svydesign_} parameter along
+#' with \code{standardizer=optmatch:::svy_sd}.
+#' (More generally, the provided \code{standardizer}
+#' function should accept as a sole argument a \code{survey.design2} object,
+#' with \code{nrows(svydesign_$variables)} equal to the lengths of \code{x} and
+#' \code{trtgrp}.  This object is expected to carry a numeric variable \sQuote{\code{x}},
+#' and the \code{standardizer} function is to return the dispersion of this variable.)
+#'
+#' @param x numeric variable
+#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param standardizer function, \code{NULL} or numeric of length 1
+#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
+#' @return numeric of length 1
+#' @export
+#' @keywords internal
+standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NULL)
+    {
+    stopifnot(is.null(svydesign_) || is(svydesign_, "survey.design2"),
+              is.null(standardizer) || is.function(standardizer) || is.numeric(standardizer)
+              )
+    if (is.numeric(standardizer))
+    {
+        if (length(standardizer)>1)
+            warning("Multiple element standardizer, only the first is used")
+        return(standardizer)
+    }
+    n_c <- sum(!trtgrp)
+    n <- length(x)
+    n_t <- n - n_c
+    if (is.null(svydesign_))
+        {
+	if (is.null(standardizer)) standardizer <- stats::mad
+	s_c <- standardizer(x[!trtgrp])
+	s_t <- standardizer(x[as.logical(trtgrp)])
+    } else {
+        if (is.null(standardizer)) standardizer <- svy_mad
+        des <- update(svydesign_, x=x, trtgrp=as.logical(trtgrp))
+        des_t <- subset(des, trtgrp)
+        des_c <- subset(des, !trtgrp)
+        s_t <- standardizer(des_t)
+        s_c <- standardizer(des_c)
+    }
+    s2_t <- s_t^2
+    s2_c <- s_c^2
+    sqrt(((n_t - 1) * s2_t +
+          (n_c - 1) * s2_c) / (n - 2))
+}
+
+#' @keywords internal
+#' @importFrom survey svyquantile
+svy_mad <- function(design)
+{
+        med <- svyquantile(~x, design, 0.5)[[1]][1]
+
+        design <- update(design,
+                        abs_dev=abs( design$variable$x - med )
+                        )
+        mad <- svyquantile(~abs_dev, design, 0.5)[[1]][1]
+        constant <- formals(stats::mad)$constant
+        s2_t <- constant * mad
+}
+#' @keywords internal
+#' @importFrom survey svyvar
+svy_sd <- function(design)
+{
+        var_ <- survey::svyvar(~x, design)
+        sqrt(unname(var_)[1])
+}
+
+#' This method quells a warning when \code{optmatch::scores()}
+#' is applied to a svyglm object.
+#' @method model.frame svyglm
+#' @keywords internal
+model.frame.svyglm <- function (formula, ...)
+{
+    ans <- get_all_vars(formula, formula[["survey.design"]][["variables"]])
+    attr(ans, "terms") <- terms(formula)
+    ans
 }

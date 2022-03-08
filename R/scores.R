@@ -98,7 +98,7 @@ scores <- function(object, newdata=NULL, ...) {
       cbind(model.frame(object)[,1,drop=FALSE], olddata)
     })
 
-    if (is.null(wts)) {
+    if ( all('weights' != names(object$call)) ) {
       newobject <- update(object, formula.=formula(olddata),
                           data=olddata, subset=NULL)
     } else {

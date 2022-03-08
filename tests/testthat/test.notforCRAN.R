@@ -58,3 +58,56 @@ test_that("match_on with bigglm distances", {
     expect_equivalent(res.bg, res.glm)
   }
 })
+
+### next tests disabled due to an odd scoping-related error
+### occurring only within the test, not in interactive use.
+### (The problem is that `test.design` can't be found when
+### the model is re-fit inside of `scores()`.)
+###test_that("scores with svyglm (survey package) objects",
+if (FALSE) {
+  if (require(survey)) {
+    n <- 16
+    test.data <- data.frame(Z = rep(0:1, each = n/2),
+                            X1 = rnorm(n, mean = 5),
+                            X2 = rnorm(n, mean = -2, sd = 2),
+                            B = rep(c(0,1), times = n/2))
+    test.design <- svydesign(~1, probs=1, data=test.data)
+    sglm <- svyglm(Z ~ X1 + X2, test.design, family = quasibinomial())
+    expect_silent(scores(sglm, newdata=sglm$data))
+}
+}
+###)
+###test_that("match_on with svyglm (survey package) objects",
+if (FALSE) {
+  if (require(survey)) {
+    n <- 16
+    test.data <- data.frame(Z = rep(0:1, each = n/2),
+                            X1 = rnorm(n, mean = 5),
+                            X2 = rnorm(n, mean = -2, sd = 2),
+                            B = rep(c(0,1), times = n/2))
+    test.design <- svydesign(~1, probs=1, data=test.data)
+    sglm <- svyglm(Z ~ X1 + X2, test.design, family = binomial())
+    expect_silent(res.svy0 <- match_on(sglm, data=test.data, standardization.scale=1))
+    expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))    
+    expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))   
+    ## Comparisons to glm: currently failing, disabled pending investigation.
+    ## First step: figure out whether sglm/aglm are returning the same
+    ## linear predictors.
+    if (FALSE)
+    {
+        aglm <- glm(Z ~ X1 + X2, test.data, family = binomial())
+    res.glm0 <- match_on(aglm, data=test.data, standardization.scale=1)
+        res.glm1 <- match_on(aglm, data=test.data, standardization.scale=stats::sd)
+        mad_lo  <- function(x) {
+            ctr  <- quantile(x, probs=0.5, type=1)
+            stats::mad(x, center=ctr, low=TRUE)
+                       }
+    res.glm2 <- match_on(aglm, data=test.data, standardization.scale=mad_lo)
+
+    expect_equivalent(res.svy0, res.glm0)
+    expect_equivalent(res.svy1, res.glm1)
+    expect_equivalent(res.svy2, res.glm2)
+    }
+}
+}
+###)
