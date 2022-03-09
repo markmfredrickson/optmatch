@@ -1,16 +1,19 @@
 Package: optmatch
-Version: 0.9-17
+Version: 0.9-17.9999
 Title: Functions for Optimal Matching
-Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
-    oriented to matching of treatment and control groups in observational
-    studies (Hansen and Klopfer 2006 <doi:10.1198/106186006X137047>). Routines are provided to generate distances from generalised linear models (propensity
-    score matching), formulas giving variables on which to limit matched distances, stratified or
-    exact matching directives, or calipers, alone or in combination.
-Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
-    <mark.m.fredrickson@gmail.com>, Josh Buckner, Josh Errickson,
-    Adam Rauh and Peter Solenberger, with embedded Fortran code due to
-    Dimitri P. Bertsekas <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
+Description: Distance based bipartite matching using the RELAX-IV minimum cost
+    flow solver, oriented to matching of treatment and control groups in
+    observational studies (Hansen and Klopfer 2006
+    <doi:10.1198/106186006X137047>). Routines are provided to generate distances
+    from generalised linear models (propensity score matching), formulas giving
+    variables on which to limit matched distances, stratified or exact matching
+    directives, or calipers, alone or in combination.
+Authors@R: c(person("Ben", "Hansen", role = "aut", email = "ben.hansen@umich.edu"),
+             person("Mark", "Fredrickson", role = "aut", email = "mark.m.fredrickson@gmail.com"),
+             person("Josh", "Errickson", role = c("cre","aut"), email = "jerrick@umich.edu"),
+             person("Josh", "Buckner", role = "ctb"),
+             person("Adam", "Rauh", role = "ctb"),
+             person("Peter", "Solenberge", role = "ctb"))
 LazyData: true
 Depends:
     R (>= 2.15.1),
