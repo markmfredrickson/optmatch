@@ -44,6 +44,7 @@ Enhances:
 License: file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
+Additional_repositories: https://github.com/josherrickson/rrelaxiv
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
