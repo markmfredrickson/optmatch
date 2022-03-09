@@ -47,7 +47,7 @@ test_that("No Warnings", {
   # omit.fraction is NULL
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-    slvr <- "RELAX-iV"
+    slvr <- "RELAX-IV"
   } else {
     slvr <- "LEMON"
   }
@@ -65,7 +65,7 @@ test_that("NA for unmatched items", {
   tolerance <- 0.005
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-    slvr <- "RELAX-iV"
+    slvr <- "RELAX-IV"
   } else {
     slvr <- "LEMON"
   }
