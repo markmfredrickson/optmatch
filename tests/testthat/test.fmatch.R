@@ -4,6 +4,7 @@
 
 context("R/Fortran Interface")
 
+if (requireNamespace("rrelaxiv", quietly = TRUE)) {
 test_that("fmatch accepts DistanceSpecifications", {
   v <- c(1, Inf, 2,
          2, 1, Inf,
@@ -33,6 +34,7 @@ test_that("fmatch accepts DistanceSpecifications", {
   res.ism <- fmatch(pM, 2, 2, solver = "RELAX-IV")
   expect_identical(res$solution, res.ism$solution)
 })
+}
 
 test_that("Solutions -> factor helper", {
   v <- c(1, Inf, 2,
@@ -86,18 +88,21 @@ test_that("LEMON solvers", {
 
   expect_error(fmatch(pm, 2, 2))
 
-  f_relax <- fmatch(pm, 2, 2, solver = "RELAX-IV")
-  # CycleCancellingRunner CapacityScalingRunner CostScalingRunner NetworkSimplexRunner
-  f_lemon = fmatch(pm, 2, 2, solver = "LEMON")
-  f_cycle = fmatch(pm, 2, 2, solver = LEMON("CycleCancelling"))
-  f_capac = fmatch(pm, 2, 2, solver = LEMON("CapacityScaling"))
-  f_costs = fmatch(pm, 2, 2, solver = LEMON("CostScaling"))
-  f_netwo = fmatch(pm, 2, 2, solver = LEMON("NetworkSimplex"))
 
-  expect_identical(f_relax, f_cycle)
-  expect_identical(f_relax, f_lemon)
-  expect_identical(f_relax, f_capac)
-  expect_identical(f_relax, f_costs)
-  expect_identical(f_relax, f_netwo)
+  f_lemon <- fmatch(pm, 2, 2, solver = "LEMON")
+  f_cycle <- fmatch(pm, 2, 2, solver = LEMON("CycleCancelling"))
+  f_capac <- fmatch(pm, 2, 2, solver = LEMON("CapacityScaling"))
+  f_costs <- fmatch(pm, 2, 2, solver = LEMON("CostScaling"))
+  f_netwo <- fmatch(pm, 2, 2, solver = LEMON("NetworkSimplex"))
+
+  expect_identical(f_lemon, f_cycle)
+  expect_identical(f_lemon, f_capac)
+  expect_identical(f_lemon, f_costs)
+  expect_identical(f_lemon, f_netwo)
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    f_relax <- fmatch(pm, 2, 2, solver = "RELAX-IV")
+    expect_identical(f_relax, f_lemon)
+  }
 
 })

@@ -753,7 +753,6 @@ test_that("combining optmatch objects", {
   full <- fullmatch(pr ~ t1, data = nuclearplants, min = 1, max = 2,
                     within = exactMatch(pr ~ treat, data = nuclearplants))
 
-  expect_true(compare_optmatch(fc, full))
   expect_identical(matched(fc), matched(full))
 
   expect_identical(optmatch_restrictions(fc), optmatch_restrictions(full))

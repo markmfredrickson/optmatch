@@ -46,10 +46,15 @@ test_that("No Warnings", {
   tolerance <- 0.004
   # omit.fraction is NULL
 
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    slvr <- "RELAX-iV"
+  } else {
+    slvr <- "LEMON"
+  }
   expect_silent(
     res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d),
                        distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                       tolerance = tolerance, omit.fraction = NULL, solver = "RELAX-IV")
+                       tolerance = tolerance, omit.fraction = NULL, solver = slvr)
   )
 })
 
@@ -59,9 +64,14 @@ test_that("NA for unmatched items", {
   min.cpt <- 0.5
   tolerance <- 0.005
 
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    slvr <- "RELAX-iV"
+  } else {
+    slvr <- "LEMON"
+  }
   res <- SubDivStrat(rownames = rownames(d), colnames = colnames(d),
                      distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                     tolerance = tolerance, omit.fraction = NULL, solver = "RELAX-IV")
+                     tolerance = tolerance, omit.fraction = NULL, solver = slvr)
 
   expect_equal(length(res$cells), 5)
 

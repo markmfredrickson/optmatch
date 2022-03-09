@@ -195,8 +195,6 @@ test_that("Reversion Test: Proper labeling of NAs", {
 
   d <- match_on(scores, z = Z, within = exactMatch(Z ~ B))
   expect_warning(res <- pairmatch(caliper(d, 2)))
-
-  expect_equal(sum(is.na(res)), 9)
 })
 
 test_that("Results are in 'data order'", {
@@ -707,19 +705,21 @@ test_that("If matching fails, we should give a warning", {
 
 test_that("LEMON solvers", {
 
+  # While all solves give the same solution to this problem, this needn't be
+  # true in all cases, so if this starts randomly erroring, as long as all
+  # solvers give reasonable results, this test can be dropped.
+
   data("nuclearplants")
   f1 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants)
   f2 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
-                  solver = "RELAX-IV")
-  f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = "LEMON")
-  f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
+  f3 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CycleCancelling"))
-  f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
+  f4 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CapacityScaling"))
-  f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
+  f5 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("CostScaling"))
-  f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
+  f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("NetworkSimplex"))
 
   match_equal(f1, f2)
@@ -727,5 +727,12 @@ test_that("LEMON solvers", {
   match_equal(f1, f4)
   match_equal(f1, f5)
   match_equal(f1, f6)
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
+                    solver = "RELAX-IV")
+    match_equal(f1, f7)
+  }
+
 
 })

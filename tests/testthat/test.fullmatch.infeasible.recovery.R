@@ -292,44 +292,48 @@ test_that("attr saved after recovery", {
 
 })
 
-test_that("fullmatch_try_recovery", {
-  data(nuclearplants)
+if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+  test_that("fullmatch_try_recovery", {
+    data(nuclearplants)
 
-  mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
+    mm <- match_on(pr ~ cost + t1 + t2, data=nuclearplants)
 
-  options("fullmatch_try_recovery" = TRUE)
-  # warn and fix
-  expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
-  options("fullmatch_try_recovery" = FALSE)
-  # fail to fix
-  expect_warning(expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
-  options("fullmatch_try_recovery" = TRUE)
-  # back to fixing.
-  expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
-})
+    options("fullmatch_try_recovery" = TRUE)
+    # warn and fix
+    expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
+    options("fullmatch_try_recovery" = FALSE)
+    # fail to fix
+    expect_warning(expect_true(all(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
+    options("fullmatch_try_recovery" = TRUE)
+    # back to fixing.
+    expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
+
+  })
 
 
-test_that("n_t > n_c", {
-  data(nuclearplants)
 
-  nuclearplants$pr <- abs(1-nuclearplants$pr)
-  # 22 treatment, 10 control
-  m <- match_on(pr ~ cost, data=nuclearplants)
+  test_that("n_t > n_c", {
+    data(nuclearplants)
 
-  # should pass here without problems
-  expect_true(any(!is.na(fullmatch(m, data=nuclearplants))))
+    nuclearplants$pr <- abs(1-nuclearplants$pr)
+    # 22 treatment, 10 control
+    m <- match_on(pr ~ cost, data=nuclearplants)
 
-  # min.controls = 1/2, so we need 11 controls. Can't accomodate.
-  expect_warning(expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants)))))
-})
+    # should pass here without problems
+    expect_true(any(!is.na(fullmatch(m, data=nuclearplants))))
 
-test_that("Issue #92", {
-  # Based upon data that had 1058 controls, 62 treated, and min=1, max=5, omit=.8.
-  d <- data.frame("z" <- c(rep(0,1058), rep(1, 62)),
-                  "x" <- rnorm(1120))
+    # min.controls = 1/2, so we need 11 controls. Can't accomodate.
+    expect_warning(expect_true(all(is.na(fullmatch(m, min.controls = 1/2, data=nuclearplants)))))
+  })
 
-  expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
-  # this shouldn't warn about infeasible
-  expect_silent(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8))
-  expect_that(fullmatch(z ~ x, data=d, min=1, max=2, omit=.2), gives_warning("infeasible"))
-})
+  test_that("Issue #92", {
+    # Based upon data that had 1058 controls, 62 treated, and min=1, max=5, omit=.8.
+    d <- data.frame("z" <- c(rep(0,1058), rep(1, 62)),
+                    "x" <- rnorm(1120))
+
+    expect_that(fullmatch(z ~ x, data=d, min=1, max=5), gives_warning("infeasible"))
+    # this shouldn't warn about infeasible
+    expect_silent(fullmatch(z ~ x, data=d, min=1, max=5, omit=.8))
+    expect_that(fullmatch(z ~ x, data=d, min=1, max=2, omit=.2), gives_warning("infeasible"))
+  })
+}

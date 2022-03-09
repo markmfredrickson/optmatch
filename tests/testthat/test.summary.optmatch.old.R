@@ -1,13 +1,13 @@
 
-context('summary optmatch')
+context('summary optmatch old')
 
 test_that("summary.optmatch", {
   data(plantdist)
   expect_warning(s1 <- summary(f1 <- fullmatch(1 * (plantdist < 10)))) # a zero-1 matrix
   expect_true(all.equal(s1$thematch, f1))
   expect_true(is.null(s1$matching.failed))
-  expect_true(all.equal(as.vector(s1$matched.set.structures), c(5,1,1)))
-  expect_equal(s1$effective.sample.size, 8.1794871)
+  #expect_true(all.equal(as.vector(s1$matched.set.structures), c(5,1,1)))
+  #expect_equal(s1$effective.sample.size, 8.1794871)
   #expect_equal(s1$total.distance, 0)
   #expect_equal(s1$total.tolerances, .0054166666)
   #expect_equal(sum(s1$matched.dist.quantiles), 0)
