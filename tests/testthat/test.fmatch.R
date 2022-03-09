@@ -5,13 +5,19 @@
 context("R/Fortran Interface")
 
 if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+  slvr <- "RELAX-IV"
+} else {
+  slvr <- "LEMON"
+}
+
+
 test_that("fmatch accepts DistanceSpecifications", {
   v <- c(1, Inf, 2,
          2, 1, Inf,
          3, 2, 1)
 
   # and doesn't accept other things...
-  expect_error(fmatch(v, 2, 2, solver = "RELAX-IV"))
+  expect_error(fmatch(v, 2, 2, solver = slvr))
 
   # the goal of this matrix is that there is a clear match to make
   # A:D, B:E, C:F
@@ -20,7 +26,7 @@ test_that("fmatch accepts DistanceSpecifications", {
   rownames(m) <- c("D", "E", "F")
   pm <- prepareMatching(m)
 
-  res <- fmatch(pm, 2, 2, solver = "RELAX-IV")
+  res <- fmatch(pm, 2, 2, solver = slvr)
 
   expect_equal(dim(res), c(7,4)) # seven non-Inf entries
 
@@ -31,10 +37,10 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   M <- as.InfinitySparseMatrix(m)
   pM <- prepareMatching(M)
-  res.ism <- fmatch(pM, 2, 2, solver = "RELAX-IV")
+  res.ism <- fmatch(pM, 2, 2, solver = slvr)
   expect_identical(res$solution, res.ism$solution)
 })
-}
+#}
 
 test_that("Solutions -> factor helper", {
   v <- c(1, Inf, 2,
@@ -89,7 +95,7 @@ test_that("LEMON solvers", {
   expect_error(fmatch(pm, 2, 2))
 
 
-  f_lemon <- fmatch(pm, 2, 2, solver = "LEMON")
+  f_lemon <- fmatch(pm, 2, 2, solver = slvr)
   f_cycle <- fmatch(pm, 2, 2, solver = LEMON("CycleCancelling"))
   f_capac <- fmatch(pm, 2, 2, solver = LEMON("CapacityScaling"))
   f_costs <- fmatch(pm, 2, 2, solver = LEMON("CostScaling"))
