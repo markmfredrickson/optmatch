@@ -164,6 +164,12 @@ setTryRecovery <- function() {
 #' \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. CycleCancelling is
 #' the default.
 #'
+#' Note that the CycleCancelling algorithm will produce results most closely
+#' resembling those of RELAX-IV. The other LEMON algorithms may produce slightly
+#' different results, especially when infeasible `min.controls` and
+#' `max.controls` are passed. Changing the option "fullmatch_try_recovery" may
+#' again produce slightly different results with these alternative solvers.
+#'
 #' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within})
 #' or to specific methods.
 #'
