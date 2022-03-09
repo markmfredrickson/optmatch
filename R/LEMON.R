@@ -2,10 +2,10 @@
 #'
 #' @param algorithm LEMON algorithm to use. Choices are "CycleCancelling",
 #'   "CapacityScaling", "CostScaling", "NetworkSimplex". Default is
-#'   "NetworkSimplex".
+#'   "CycleCancelling".
 #' @return String of the form "LEMON.<algorithm>"
 #' @export
-LEMON <- function(algorithm = "NetworkSimplex") {
+LEMON <- function(algorithm = "CycleCancelling") {
   if (!(algorithm %in% c("CycleCancelling", "CapacityScaling", "CostScaling", "NetworkSimplex"))) {
     stop("Invalid LEMON algorithm. Valid algorithms are 'CycleCancelling', 'CapacityScaling', 'CostScaling', and 'NetworkSimplex'.")
   }

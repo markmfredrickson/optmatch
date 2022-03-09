@@ -130,7 +130,7 @@ To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
 LEMON will use, pass the function \link{LEMON} with argument for the
 algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
 "NetworkSimplex". See this site for details on their differences:
-\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. NetworkSimplex is
+\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. CycleCancelling is
 the default.}
 
 \item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within})

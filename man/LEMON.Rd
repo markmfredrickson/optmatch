@@ -4,12 +4,12 @@
 \alias{LEMON}
 \title{(Internal) Helper function for accessing algorithms in LEMON solver}
 \usage{
-LEMON(algorithm = "NetworkSimplex")
+LEMON(algorithm = "CycleCancelling")
 }
 \arguments{
 \item{algorithm}{LEMON algorithm to use. Choices are "CycleCancelling",
 "CapacityScaling", "CostScaling", "NetworkSimplex". Default is
-"NetworkSimplex".}
+"CycleCancelling".}
 }
 \value{
 String of the form "LEMON.<algorithm>"
