@@ -50,7 +50,6 @@ Additional_repositories: https://github.com/josherrickson/rrelaxiv
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
-    'LEMON.R'
     'Ops.optmatch.dlist.R'
     'Optmatch-package.R'
     'Optmatch.R'
@@ -78,6 +77,7 @@ Collate:
     'print.optmatch.R'
     'print.optmatch.dlist.R'
     'scores.R'
+    'solver.R'
     'stratumStructure.R'
     'subDivStrat.R'
     'summary.ism.R'
