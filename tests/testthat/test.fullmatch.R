@@ -4,8 +4,8 @@
 
 context("fullmatch function")
 
-# test whether two matches are the same. Uses all.equal exceedances to
-# ignore errors below some tolerance. After checking those, strips
+# test whether two matches are the same. Uses all.equal on exceedances
+# to ignore errors below some tolerance. After checking those, strips
 # attributes that may differ but not break `identical` status.
 match_equal <- function(match1, match2, ignore.solver = TRUE) {
   expect_true(all.equal(attr(match1, "exceedances"),
@@ -15,8 +15,6 @@ match_equal <- function(match1, match2, ignore.solver = TRUE) {
   attr(match2, "hashed.distance") <- NULL
   attr(match1, "exceedances") <- NULL
   attr(match2, "exceedances") <- NULL
-  attr(match1, "call") <- NULL
-  attr(match2, "call") <- NULL
   attr(match1, "call") <- NULL
   attr(match2, "call") <- NULL
   if (!ignore.solver) {

@@ -7,7 +7,7 @@ context("pairmatch function")
 # test whether two matches are the same. Uses all.equal on exceedances
 # to ignore errors below some tolerance. After checking those, strips
 # attributes that may differ but not break `identical` status.
-match_compare <- function(match1, match2) {
+match_equal <- function(match1, match2, ignore.solver = TRUE) {
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
 
@@ -17,6 +17,10 @@ match_compare <- function(match1, match2) {
   attr(match2, "exceedances") <- NULL
   attr(match1, "call") <- NULL
   attr(match2, "call") <- NULL
+  if (!ignore.solver) {
+    attr(match1, "solver") <- NULL
+    attr(match2, "solver") <- NULL
+  }
 
   expect_true(identical(match1, match2))
 }
@@ -137,13 +141,13 @@ test_that("pairmatch UI cleanup", {
 
   pm.form <- pairmatch(Z ~ X1 + X2, data=test.data)
 
-  match_compare(pm.dist, pm.form)
+  match_equal(pm.dist, pm.form)
 
   # with "with()"
 
   pm.with <- with(data=test.data, pairmatch(Z~X1 + X2))
 
-  match_compare(pm.dist, pm.with)
+  match_equal(pm.dist, pm.with)
 
   # passing a glm
   ps <- glm(Z~X1+X2, data=test.data, family=binomial)
@@ -157,9 +161,9 @@ test_that("pairmatch UI cleanup", {
 
   pm.glm <- pairmatch(glm(Z~X1+X2, data=test.data, family=binomial), data=test.data, caliper=2.5, remove.unmatchables=TRUE)
 
-  match_compare(pm.ps, pm.glm)
-  match_compare(pm.ps, pm.match)
-  match_compare(pm.glm, pm.match)
+  match_equal(pm.ps, pm.glm)
+  match_equal(pm.ps, pm.match)
+  match_equal(pm.glm, pm.match)
 
   # passing inherited from glm
 
@@ -167,7 +171,7 @@ test_that("pairmatch UI cleanup", {
 
   pm.foo <- pairmatch(ps, data=test.data, caliper=2.5, remove.unmatchables=TRUE)
 
-  match_compare(pm.ps, pm.foo)
+  match_equal(pm.ps, pm.foo)
 
   # with scores
 
@@ -179,7 +183,7 @@ test_that("pairmatch UI cleanup", {
 
   pm.form <- pairmatch(Z~ X2 + scores(ps), data=test.data)
 
-  match_compare(pm.dist, pm.form)
+  match_equal(pm.dist, pm.form)
 
   # passing numeric
 
@@ -194,7 +198,7 @@ test_that("pairmatch UI cleanup", {
   m <- match_on(X1, z=Z, caliper=2)
   pm.mi <- pairmatch(m, data=test.data)
 
-  match_compare(pm.vector, pm.mi)
+  match_equal(pm.vector, pm.mi)
   rm(X1, Z)
 
   # function
@@ -215,7 +219,7 @@ test_that("pairmatch UI cleanup", {
   pm.func <- pairmatch(sdiffs, z = test.data$Z, data=test.data)
   expect_error(pairmatch(sdiffs, z = Z), "A data argument must be given when passing a function")
 
-  match_compare(pm.funcres, pm.func)
+  match_equal(pm.funcres, pm.func)
 
   # passing bad arguments
 
@@ -416,4 +420,39 @@ test_that("If matching fails, we should give a warning", {
   expect_warning(pairmatch(m + caliper(m, .05) + exactMatch(pr ~ pt, data = nuclearplants),
                            data = nuclearplants),
                  "Matching failed")
+})
+
+
+test_that("LEMON solvers", {
+
+  # While all solves give the same solution to this problem, this needn't be
+  # true in all cases, so if this starts randomly erroring, as long as all
+  # solvers give reasonable results, this test can be dropped.
+
+  data("nuclearplants")
+  p1 <- pairmatch(pr ~ cost + t1, data = nuclearplants)
+  p2 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                  solver = "LEMON")
+  p3 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                  solver = LEMON("CycleCancelling"))
+  p4 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                  solver = LEMON("CapacityScaling"))
+  p5 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                  solver = LEMON("CostScaling"))
+  p6 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                  solver = LEMON("NetworkSimplex"))
+
+  match_equal(p1, p2, ignore.solver = FALSE)
+  match_equal(p1, p3, ignore.solver = FALSE)
+  match_equal(p1, p4, ignore.solver = FALSE)
+  match_equal(p1, p5, ignore.solver = FALSE)
+  match_equal(p1, p6, ignore.solver = FALSE)
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    p7 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
+                    solver = "RELAX-IV")
+    match_equal(p1, p7, ignore.solver = FALSE)
+  }
+
+
 })
