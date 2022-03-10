@@ -804,3 +804,42 @@ test_that("combining already blocked matches", {
   expect_identical(summary(fc)$matched.set.structures,
                    summary(full)$matched.set.structures)
 })
+
+test_that("handleSolver", {
+  # Input: ""
+  s <- handleSolver("")
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    expect_equal(s, "RELAX-IV")
+  } else {
+    expect_equal(s, LEMON())
+  }
+
+  # Input: "RELAX-IV"
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    s <- handleSolver("RELAX-IV")
+    expect_equal(s, "RELAX-IV")
+  } else {
+    expect_error(handleSolver("RELAX-IV"),
+                 "install package")
+  }
+
+  # Input: "LEMON"
+  s <- handleSolver("LEMON")
+  expect_equal(s, LEMON())
+
+  # INPUT: LEMON(...)
+  s <- handleSolver(LEMON("CycleCancelling"))
+  expect_equal(s, LEMON("CycleCancelling"))
+  s <- handleSolver(LEMON("CostScaling"))
+  expect_equal(s, LEMON("CostScaling"))
+  s <- handleSolver(LEMON("CapacityScaling"))
+  expect_equal(s, LEMON("CapacityScaling"))
+  s <- handleSolver(LEMON("NetworkSimplex"))
+  expect_equal(s, LEMON("NetworkSimplex"))
+
+  expect_error(handleSolver("ABC"), "Invalid solver")
+  expect_error(handleSolver(123), "Invalid solver")
+  expect_error(handleSolver(ls()), "Invalid solver")
+
+
+})

@@ -19,6 +19,10 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
     stop("Argument \'distspec\' must have a \'prepareMatching\' method")
   }
 
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
+
+
   # convert the distspec into a cannonical matching specification with columns
   # treated, control, distance
   dm <- prepareMatching(distspec)

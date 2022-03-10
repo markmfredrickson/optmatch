@@ -459,16 +459,8 @@ fullmatch.matrix <- function(x,
       stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
   }
 
-  # Allow both character entries (solver = "LEMON") and functions (solver =
-  # LEMON("NetworkSimplex")) a la the family argument in glm.
-  if (solver == "") {
-    if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-      solver <- "RELAX-IV"
-    } else {
-      solver <- "LEMON"
-    }
-  }
-
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
 
   user.input.mean.controls <- FALSE
 

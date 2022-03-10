@@ -3,22 +3,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
                    solver)
 {
-
-  if (grepl("^LEMON", solver)) {
-    if (solver == "LEMON") {
-      solver <- LEMON()
-    }
-    s <- strsplit(solver, "\\.")[[1]]
-    solver <- s[1]
-    algorithm <- s[2]
-  } else if (solver == "RELAX-IV") {
-    if (!requireNamespace("rrelaxiv", quietly = TRUE)) {
-      stop("To use RELAX-IV solver, install package `rrelaxiv`.")
-    }
-  }
-  else {
-    stop("Invalid solver. Valid solvers are 'RELAX-IV' and 'LEMON'")
-  }
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
 
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
@@ -124,7 +110,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
     x <- feas * fop$x1 - (1 - feas)
   }
-  if (solver == "LEMON") {
+  if (grepl("^LEMON", solver)) {
+    algorithm <- gsub("^LEMON\\.", "", solver)
     lout <- rlemon::MinCostFlow(arcSources = as.integer(startn),
                                 arcTargets = as.integer(endn),
                                 arcCapacities = as.integer(ucap),
