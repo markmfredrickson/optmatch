@@ -3,15 +3,6 @@ fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
                    solver)
 {
-  # Allow both character entries (solver = "LEMON") and functions (solver =
-  # LEMON("NetworkSimplex")) a la the family argument in glm.
-  if (solver == "") {
-    if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-      solver <- "RELAX-IV"
-    } else {
-      solver <- "LEMON"
-    }
-  }
 
   if (grepl("^LEMON", solver)) {
     if (solver == "LEMON") {

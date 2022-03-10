@@ -7,7 +7,7 @@ context("fullmatch function")
 # test whether two matches are the same. Uses all.equal exceedances to
 # ignore errors below some tolerance. After checking those, strips
 # attributes that may differ but not break `identical` status.
-match_equal <- function(match1, match2) {
+match_equal <- function(match1, match2, ignore.solver = TRUE) {
   expect_true(all.equal(attr(match1, "exceedances"),
                         attr(match2, "exceedances")))
 
@@ -17,6 +17,12 @@ match_equal <- function(match1, match2) {
   attr(match2, "exceedances") <- NULL
   attr(match1, "call") <- NULL
   attr(match2, "call") <- NULL
+  attr(match1, "call") <- NULL
+  attr(match2, "call") <- NULL
+  if (!ignore.solver) {
+    attr(match1, "solver") <- NULL
+    attr(match2, "solver") <- NULL
+  }
 
   expect_true(identical(match1, match2))
 }
@@ -642,11 +648,11 @@ test_that("Edge case of only (1,1)-subproblems (#211)",
                         )
     data_sm  <- subset(data, fac=="a")
     expect_silent(f1  <- fullmatch(setNames(data_sm$x, rownames(data_sm)),
-                                   z=data_sm$z, 
+                                   z=data_sm$z,
                                    data = data_sm
                                    )
                   )
-    expect_silent(f2  <- fullmatch(z~x+strata(fac), data = data))    
+    expect_silent(f2  <- fullmatch(z~x+strata(fac), data = data))
 })
 test_that("Problems w/ fewer controls than treatment don't break mean.controls", {
 
@@ -722,16 +728,16 @@ test_that("LEMON solvers", {
   f6 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                   solver = LEMON("NetworkSimplex"))
 
-  match_equal(f1, f2)
-  match_equal(f1, f3)
-  match_equal(f1, f4)
-  match_equal(f1, f5)
-  match_equal(f1, f6)
+  match_equal(f1, f2, ignore.solver = FALSE)
+  match_equal(f1, f3, ignore.solver = FALSE)
+  match_equal(f1, f4, ignore.solver = FALSE)
+  match_equal(f1, f5, ignore.solver = FALSE)
+  match_equal(f1, f6, ignore.solver = FALSE)
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
     f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
                     solver = "RELAX-IV")
-    match_equal(f1, f7)
+    match_equal(f1, f7, ignore.solver = FALSE)
   }
 
 
