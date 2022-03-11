@@ -29,5 +29,5 @@ comparison.
 Note that the distance is hashed with its \code{call} set to \code{NULL}.
 (This avoids issues where, for example, \code{match_on(Z~X, data=d,
 caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical matches but
-have differeing \code{call}s.)
+have differing \code{call}s.)
 }
