@@ -1,14 +1,22 @@
-CHANGES IN OPTMATCH VERSION 0.9-18
-* Major change: optmatch no longer includes the RELAX-IV solver internally.
-  Instead, the `rlemon` package is used for the solver. Users should generally
-  notice no difference aside from occasionally slightly different matches.
-* Users preferring to continue using the RELAX-IV solver should install
-  the new `rrelaxiv` package from https://github.com/josherrickson/rrelaxiv/
+CHANGES IN OPTMATCH VERSION 1.0
+
+* Major change: optmatch no longer includes the RELAX-IV solver
+  internally.  That solver can be still be used, by calling the new
+  `rrelaxiv` package (which will *not* be hosted on CRAN).  When
+  `rrelaxiv` is not available, optmatch instead uses a min-cost flow
+  solver provided by the LEMON project,
+  https://lemon.cs.elte.hu/trac/lemon; bindings to these are provided
+  by the `rlemon` package.  The user interface remains the same, other
+  than a new optional argument for specifying which solver to use. In
+  *very* limited testing, we've seen similar matching results with the
+  new solvers.
+* The `rlemon` package offers bindings to four LEMON solvers.  See
+  `help(fullmatch)` for a discussion on those, and the new argument to
+  `fullmatch, `solver = `.
+* To continue using the RELAX-IV solver, whether for back-compatibility
+  or as a matter of preference, install the `rrelaxiv` package,
+  from https://github.com/josherrickson/rrelaxiv/
   If installed it will become the default solver automatically.
-* The `rlemon` package has four different potential solvers, see `help(fullmatch)`
-  for a discussion on those, and the new argument to `fullmatch, `solver = `.
-* To re-iterate, these changes are almost entirely back-end and the vast majority
-  of users should notice no difference.
 
 CHANGES IN OPTMATCH VERSION 0.9-17
 * Fix to FORTRAN to conform with Writing R Extensions §6.6.2.
