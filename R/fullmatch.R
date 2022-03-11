@@ -153,7 +153,7 @@ setTryRecovery <- function() {
 #'
 #' @param solver Choose which solver to use. Currently implemented are RELAX-IV
 #'   and LEMON. Default of \code{""}, a blank string, will use RELAX-IV if the
-#'   rrelaxiv package is installed, otherwise will use LEMON.
+#'   \strong{rrelaxiv} package is installed, otherwise will use LEMON.
 #'
 #' To explicitly use RELAX-IV, pass string "RELAX-IV".
 #'
