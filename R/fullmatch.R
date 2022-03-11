@@ -164,11 +164,13 @@ setTryRecovery <- function() {
 #' \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. CycleCancelling is
 #' the default.
 #'
-#' Note that the CycleCancelling algorithm will produce results most closely
-#' resembling those of RELAX-IV. The other LEMON algorithms may produce slightly
-#' different results, especially when infeasible `min.controls` and
-#' `max.controls` are passed. Changing the option "fullmatch_try_recovery" may
-#' again produce slightly different results with these alternative solvers.
+#' The CycleCancelling algorithm seems to produce results most closely
+#' resembling those of optmatch versions prior to 1.0. We have observed
+#' the other LEMON algorithms to produce different results when the
+#' `mean.controls` is unspecified, or specified in such a way as to
+#' produce an infeasible matching problem. When using a LEMON algorithm
+#' other than CycleCancelling, we recommend setting the
+#' "fullmatch_try_recovery" option to \code{FALSE}.
 #'
 #' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within})
 #' or to specific methods.
