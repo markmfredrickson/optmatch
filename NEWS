@@ -1,7 +1,6 @@
 CHANGES IN OPTMATCH VERSION 1.0
-
 * Major change: optmatch no longer includes the RELAX-IV solver
-  internally.  That solver can be still be used, by calling the new
+  internally.  That solver can be still be used, by installing the new
   `rrelaxiv` package (which will *not* be hosted on CRAN).  When
   `rrelaxiv` is not available, optmatch instead uses a min-cost flow
   solver provided by the LEMON project,
@@ -9,7 +8,7 @@ CHANGES IN OPTMATCH VERSION 1.0
   by the `rlemon` package.  The user interface remains the same, other
   than a new optional argument for specifying which solver to use. In
   *very* limited testing, we've seen similar matching results with the
-  new solvers.
+  new solver.
 * The `rlemon` package offers bindings to four LEMON solvers.  See
   `help(fullmatch)` for a discussion on those, and the new argument to
   `fullmatch, `solver = `.
@@ -40,7 +39,11 @@ CHANGES IN OPTMATCH VERSION 0.9-14
   ignored (#181).
 * Binary operations on sparse matching distances now compare dimnames
   of the two before proceeding (#190).
-* Bug fix: when `fullmatch()` or `pairmatch()` found it infeasible to create matches within an exact matching category, under some circumstances all members of that category were being placed into a single category labeled `1.NA`, or `2.NA` etc.  Instead, all members of that category are now `NA` (#203).
+* Bug fix: when `fullmatch()` or `pairmatch()` found it infeasible to create
+  matches within an exact matching category, under some circumstances all
+  members of that category were being placed into a single category labeled
+  `1.NA`, or `2.NA` etc. Instead, all members of that category are now `NA`
+  (#203).
 * Fixed a bug causing `match_on()`, `scores()` to misinterpret propensity
   or other scores fitted with `survey::svyglm()` (#194).
 * `boxplot()` gains a method for `svyglm` objects, e.g. propensity
