@@ -1,11 +1,11 @@
-## Changes in optmatch Version 1.0
+## Changes in **optmatch** Version 1.0
 
 ### Major changes
 
-- Major change: optmatch no longer includes the RELAX-IV solver internally. That
-  solver can be still be used, by installing the new **rrelaxiv** package (which
-  will *not* be hosted on CRAN). When **rrelaxiv** is not available, optmatch
-  instead uses a min-cost flow solver provided by the LEMON project,
+- **optmatch** no longer includes the RELAX-IV solver internally. That solver
+  can be still be used, by installing the new **rrelaxiv** package (which will
+  *not* be hosted on CRAN). When **rrelaxiv** is not available, **optmatch** instead
+  uses a min-cost flow solver provided by the LEMON project,
   https://lemon.cs.elte.hu/trac/lemon; bindings to these are provided by the
   **rlemon** package. The user interface remains the same, other than a new
   optional argument for specifying which solver to use. In *very* limited
@@ -23,7 +23,7 @@
 - Remove dependence on the **digest** package when generating hashes of distance
   matrices.
 
-## Changes in optmatch Version 0.9-17
+## Changes in **optmatch** Version 0.9-17
 
 - Fix to FORTRAN to conform with Writing R Extensions §6.6.2.
 - Observations with NAs in a blocking variable are now retained, although marked
@@ -31,15 +31,15 @@
   matching variable (#189).
 - Minor bug fix(es) incl. #211, #204
 
-## Changes in optmatch Version 0.9-16
+## Changes in **optmatch** Version 0.9-16
 - Bug fix: integer overflow issue arising with large problems (#209)
 - Minor refinement of support for glms from `survey::svyglm()` (#194)
 
 
-## Changes in optmatch Version 0.9-15
-- Small bug fix related to survey::mad and survey::med interface
+## Changes in **optmatch** Version 0.9-15
+- Small bug fix related to `survey::mad` and `survey::med` interface
 
-## Changes in optmatch Version 0.9-14
+## Changes in **optmatch** Version 0.9-14
 
 - Bug fix: `within=` arguments to `match_on()`, or functions calling
   `match_on()` such as `pairmatch()` or `fullmatch()`, were sometimes ignored
@@ -60,16 +60,16 @@
   index, you should now pass `standardization.scale=1`, not
   `standardization.scale=NULL` (#194).
 
-## Changes in optmatch Version 0.9-12
+## Changes in **optmatch** Version 0.9-12
 
-- Fixed a bug causing summary.optmatch() to fail b/c of NAs in the treatment
+- Fixed a bug causing `summary.optmatch()` to fail b/c of NAs in the treatment
   variable (#155).
 - Fixed bug with using custom distance functions (#180) and updated
   documentation related to custom distance functions.
 - Fixed minor compatibility error in R-devel for math operations on sparse
   distance matrices (#179).
 
-## Changes in optmatch Version 0.9-11
+## Changes in **optmatch** Version 0.9-11
 - Added `exclude` argument to `match_on` mirroring the `exclude` argument for
   `caliper`.
 - `Optmatch` objects now support an `update` function. (#54)
@@ -81,17 +81,17 @@
   matching/calipering/exactMatching. (#147)
 - Fixed a bug with incorrect results in `matchfailed`. (#175)
 
-## Changes in optmatch Version 0.9-10
+## Changes in **optmatch** Version 0.9-10
 - Minor release to fix warnings during CRAN checks.
 
-## Changes in optmatch Version 0.9-9
+## Changes in **optmatch** Version 0.9-9
 - Fixed a bug that caused the effective sample size to be rounded too
   aggresively in `summary.optmatch`.
 - Improved several error messages and warnings. (#138, #149, #142)
 - Fixed use of `if(vectorOfThings)` usage that will give an error in upcoming R
   release.
 
-## Changes in optmatch Version 0.9-8
+## Changes in **optmatch** Version 0.9-8
 - If pairmatch is asked to match within a stratum with fewer eligible controls
   than `controls` times the number of treatments, it now attempts to match in
   that stratum by leaving out some of the treatment units. (#116)
@@ -119,12 +119,12 @@
   fullmatch to automatically fail. I.e. we've restored the behaviour of the
   software prior to version 0.8. (#132)
 
-## Changes in optmatch Version 0.9-7
+## Changes in **optmatch** Version 0.9-7
 - Added support for CBPS created objects (#121).
 - Improvments to documentation for several functions.
 - Several small bugfixes.
 
-## Changes in optmatch Version 0.9-6
+## Changes in **optmatch** Version 0.9-6
 - New material in vignettes, on general use of the package and on import/export
   of matching results and material between R and SAS or Stata (Josh Errickson).
 - New `summary` methods for InfinitySparseMatrix, BlockedInfinitySparseMatrix
@@ -148,11 +148,11 @@
   for fitted propensities ignoring varwidth argument (#113); various minor
   issues affecting package development and deployment (#110,...).
 
-## Changes in optmatch Version 0.9-5
+## Changes in **optmatch** Version 0.9-5
 - Documentation adjustments.
 - Explicit print method for output from explicit calls to `stratumStructure`.
 
-## Changes in optmatch Version 0.9-4
+## Changes in **optmatch** Version 0.9-4
 
 - Significant speed up of math operations for sparse distance objects (by Josh
   Buckner).
@@ -169,7 +169,7 @@
   `mean.controls`/`max.controls` and `max.controls` (#92)
 - Various small bug fixes and documentation improvements.
 
-## Changes in optmatch Version 0.9-3
+## Changes in **optmatch** Version 0.9-3
 
 - Fixed memory issues, potential segfaults in solver code. (Thank you, Peter
   Solenberger).
@@ -186,12 +186,12 @@
   when the **RItools** package is present.
 - Additional warnings and clarifications.
 
-## Changes in optmatch Version 0.9-2
+## Changes in **optmatch** Version 0.9-2
 
 - Fixed issue #74 by properly setting the `omit.fraction` argument when there
   are unmatched controls.
 - Improvements to the `minExactMatch` function.
-- Added "optmatch_verbose_message" option to provide additional warnings.
+- Added `optmatch_verbose_message` option to provide additional warnings.
 - Fixed crash when all NULL or NA vectors passed as arguments to `fullmatch`.
 - Added argument to `caliper` function that allows returning values that fit the
   caliper instead of just indicators of which entries fit the caliper width.
@@ -199,9 +199,9 @@
 - Additional binary operators for sparse matrix representations.
 - Added new ranked Mahalanobis method for the formula method of `match_on`.
 
-## Changes in optmatch Version 0.9-1
+## Changes in **optmatch** Version 0.9-1
 
-- Subsetting of optmatch objects now preserves (and subsets) the subproblem
+- Subsetting of `Optmatch` objects now preserves (and subsets) the subproblem
   attribute.
 - Performance improvements for match_on applied to glm's.
 - The solver update of version 0.9-0 had a bug that in some circumstances caused
@@ -209,91 +209,92 @@
   notify maintainer if you continue to experience the problem. (If you do, we'll
   reward you with an easy workaround.)
 
-## Changes in optmatch Version 0.9-0
+## Changes in **optmatch** Version 0.9-0
 
 ### NEW FEATURES
 
 - Solver limits now depend on machine limits, not arbitrary constants defined by
-  the optmatch maintainers. For large problems, users will see a warning, but
+  the **optmatch** maintainers. For large problems, users will see a warning, but
   the solver will attempt to solve.
 
-- fullmatch() and pairmatch() can now take distance generating arguments
-  directly, instead of having to first call match_on(). See the documentation
+- `fullmatch()` and `pairmatch()` can now take distance generating arguments
+  directly, instead of having to first call `match_on()`. See the documentation
   for these two functions for more details.
 
-- Infeasibility recovery in fullmatch(). When passing a combination of
-  constraints (e.g. max.controls) that would make the matching infeasible,
-  fullmatch() will now attempt to find a feasible match that respects those
+- Infeasibility recovery in `fullmatch()`. When passing a combination of
+  constraints (e.g. `max.controls`) that would make the matching infeasible,
+  `fullmatch()` will now attempt to find a feasible match that respects those
   constraints, which will likely result in omitting some controls units.
 
-- An additional argument to fullmatch(), mean.controls, is an alternative to the
-  previous omit.fraction. (Only one of the two arguments can be presented.) The
-  match will attempt to average mean.controls number of controls per treatment.
+- An additional argument to `fullmatch()`, `mean.controls`, is an alternative to
+  the previous `omit.fraction`. (Only one of the two arguments can be
+  presented.) The match will attempt to average mean.controls number of controls
+  per treatment.
 
-- Each optmatch object now carries with it the constraints used to generate it
-  (e.g. max.controls) as well as a hashed version of the distance it matched up,
+- Each `Optmatch` object now carries with it the constraints used to generate it
+  (e.g. `max.controls`) as well as a hashed version of the distance it matched up,
   to help with some debugging/error checking but avoiding having to carry the
   entire distance matrix around.
 
-- Creating a distance matrix prior to matching is now optional. fullmatch() now
-  accepts arguments from which match_on() would create a distance, and create
+- Creating a distance matrix prior to matching is now optional. `fullmatch()` now
+  accepts arguments from which `match_on()` would create a distance, and create
   the match behind the scenes.
 
 - Performance enhancements for distance calculations.
 
-- Several new utility functions, including subdim(), optmatch_restrictions(),
-  optmatch_same_distance(), num_eligible_matches(). See their help documentation
+- Several new utility functions, including `subdim()`, `optmatch_restrictions()`,
+  `optmatch_same_distance()`, `num_eligible_matches()`. See their help documentation
   for additional details.
 
 - Arithmetic operations between InfinitySparseMatrices and vectors are
   supported. The operation is carried out as column by vector steps.
 
-- scores() function allows including model predictions (such as propensity
+- `scores()` function allows including model predictions (such as propensity
   scores) in formulas directly (such as combining multiple propensity scores).
-  The scores() function is preferred to predict() as it makes several smart
+  The `scores()` function is preferred to predict() as it makes several smart
   choices to avoid dropping observations due to partial missingness and other
   useful preparations for matching.
 
 ### BUG FIXES
 
-- match_on is now a S3 generic function, which solves several bugs using
+- `match_on` is now a S3 generic function, which solves several bugs using
   propensity models from other packages.
 
-- summary() method was giving overly pessimistic warnings about failures.
+- `summary()` method was giving overly pessimistic warnings about failures.
 
-- fixed bug in how optmatch objects were printing.
+- fixed bug in how `Optmatch` objects were printing.
 
 ### DEPRECATED AND DEFUNCT
-- mdist() is now deprecated, in favor of match_on().
+- `mdist()` is now deprecated, in favor of `match_on()`.
 
-## Changes in optmatch Version 0.8-3
+## Changes in **optmatch** Version 0.8-3
 - Changes to make examples compatible with PDF manual
 
-## Changes in optmatch Version 0.8-2
+## Changes in **optmatch** Version 0.8-2
 
-- full() and pair() are now aliases to fullmatch() and pairmatch()
+- `full()` and `pair()` are now aliases to `fullmatch()` and `pairmatch()`
 
-- All match_on() methods take `caliper` arguments (formerly just the numeric
+- All `match_on()` methods take `caliper` arguments (formerly just the numeric
   method and derived methods had this argument).
 
-- boxplot methods for fitted propensity score methods (glm and bigglm)
+- boxplot methods for fitted propensity score methods (`glm` and `bigglm`)
 
-- fill.NAs now takes `contrasts.arg` argument to mimic model.matrix()
+- `fill.NAs` now takes `contrasts.arg` argument to mimic `model.matrix()`
 
 - Several bug fixes in examples, documentation
 
-- The methods pscore.dist() and mahal.dist() are now deprecated, with useful
+- The methods `pscore.dist()` and `mahal.dist()` are now deprecated, with useful
   error messages pointing users to replacements.
 
 - Significant performance improvements for sparse matching problems.
 
-- Functions umatched() and matched() were backwards. Corrected.
+- Functions `umatched()` and `matched()` were backwards. Corrected.
 
-## Changes in optmatch Version 0.8-1
+## Changes in **optmatch** Version 0.8-1
 
 - Several small bug fixes
 
-## Changes in optmatch Version 0.8-0
+## Changes in **optmatch** Version 0.8-0
 
 ### NEW FEATURES
 
@@ -304,9 +305,9 @@
   `rbind`, and `subset` operations, making it easier to work with the older
   `optmatch.dlist` data structure.
 
-- match_on: A series of methods to generate matching problems using the new data
-  structure when appropriate, or using a standard matrix when the problem is
-  dense. This function is being deployed along side the `mdist` function to
+- `match_on`: A series of methods to generate matching problems using the new
+  data structure when appropriate, or using a standard matrix when the problem
+  is dense. This function is being deployed along side the `mdist` function to
   provide complete backward compatibility. New development will focus on this
   function for distance creation, and users are encouraged to use it right away.
   One difference for `mdist` users is the `within` argument. This argument takes
@@ -314,7 +315,7 @@
   those pairs that have finite distances in the `within` argument. See the
   `match_on`, `exactMatch`, and `caliper` documentation for more details.
 
-- exactMatch: A new function to create stratified matching problems (in which
+- `exactMatch`: A new function to create stratified matching problems (in which
   cross strata matches are forbidden). Users can specify the strata using either
   a factor vector or a convenient formula interface. The results can be used in
   calls `match_on` to limit distance calculations to only with-in strata
@@ -325,9 +326,9 @@
   passed `data.frame` or `vector`. This avoids potential bugs caused when the
   `optmatch` objects were in a different order than users' data.
 
-- Test suite expanded and now uses the testthat library.
+- Test suite expanded and now uses the **testthat** library.
 
-- fill.NAs allows (optionally) filling in all columns (previously, the first
+- `fill.NAs` allows (optionally) filling in all columns (previously, the first
   column was assumed to be an outcome or treatment indicator and was not filled
   in).
 
@@ -340,85 +341,85 @@
 
 ### BUG FIXES
 
-- Unmatched units are always NA (instead of being labeled "1.NA" or similar).
+- Unmatched units are always NA (instead of being labeled `1.NA` or similar).
   This avoids some obscure bugs when feeding the results of `fullmatch` to other
   functions.
 
 FOR A DETAILED CHANGELOG, SEE https://github.com/markmfredrickson/optmatch
 
-## Changes in optmatch Version 0.7-1
+## Changes in **optmatch** Version 0.7-1
 
 ### NEW FEATURES
 
-- pairmatch() has a new option, "remove.unmatchables," that may be useful in
-  conjunction with caliper matching. With "remove.unmatchables=TRUE", prior to
+- `pairmatch()` has a new option, `remove.unmatchables`, that may be useful in
+  conjunction with caliper matching. With `remove.unmatchables = TRUE`, prior to
   matching any units with no counterparts within caliper distance are removed.
   Pair matching can still fail, if for example for two distinct treatment units
   only a single control, the same one, is available for matching to them; but
-  remove.unmatchables eliminates one simple and common reason for pair matching
+  `remove.unmatchables` eliminates one simple and common reason for pair matching
   to fail.
 
-- Applying summary() to an optmatch object now creates a "summary.optmatch"
+- Applying `summary()` to an optmatch object now creates a `summary.optmatch`
   containing the summary information, in addition to reporting it to the console
-  (via a summary.optmatch method for print() ).
+  (via a `summary.optmatch` method for `print()`).
 
-- mdist.formula() no longer requires an explicit data argument. I.e., you can
-  get away with a call like "mdist(Treat~X1+X2|S)" if the variables Treat, X1,
-  X2 and S are available in the environment you're working from (or in one of
-  its parent environments). Previously you would have had to do
-  "mdist(Treat~X1+X2|S, data=mydata)". (The latter formulation is still to be
-  preferred, however, in part because with it mdist() gets to use data's row
+- `mdist.formula()` no longer requires an explicit data argument. I.e., you can
+  get away with a call like `mdist(Treat~X1+X2|S)` if the variables `Treat`,
+  `X1`, `X2` and `S` are available in the environment you're working from (or in
+  one of its parent environments). Previously you would have had to do
+  `mdist(Treat~X1+X2|S, data=mydata)`. (The latter formulation is still to be
+  preferred, however, in part because with it `mdist()` gets to use data's row
   names, whereas otherwise it would have to make up row names.)
 
-## Changes in optmatch Version 0.7
+## Changes in **optmatch** Version 0.7
 
 ### NEW FEATURES
 
-- New function fill.NAs replaces missing observations (ie. NA values) with
-  minimally informative values (ie. the mean of observed columns). Fill.NAs
+- New function `fill.NAs` replaces missing observations (ie. NA values) with
+  minimally informative values (ie. the mean of observed columns). `Fill.NAs`
   handles functions in formulas intelligently and provides missing indicators
   for each variable. See the help documentation for more information and
   examples.
 
 ### BUG FIXES
 
-- mdist.function method now properly returns an optmatch.dlist object for use in
-  summary.optmatch, etc.
+- `mdist.function` method now properly returns an `optmatch.dlist` object for use in
+  `summary.optmatch`, etc.
 
-- mdist.function maintains label on grouping factor.
+- `mdist.function` maintains label on grouping factor.
 
-## Changes in optmatch Version 0.6-1
-
-### NEW FEATURES
-
-- New mdist method to extract propensity scores from models fitted using bigglm
-  in package "biglm".
-
-- mdist's formula method now understands grouping factors indicated with a pipe
-  ("|")
-
-- informative error message for mdist called on numeric vectors
-
-- updated mdist documentation
-
-## Changes in optmatch Version 0.6
+## Changes in **optmatch** Version 0.6-1
 
 ### NEW FEATURES
 
-- There is a new generic function, mdist(), for creating matching distances. It
-  accepts: fitted glm's, which it uses to extract propensity distances;
+- New `mdist` method to extract propensity scores from models fitted using `bigglm`
+  in package **biglm**.
+
+- `mdist`'s formula method now understands grouping factors indicated with a
+  pipe (`|`)
+
+- informative error message for `mdist` called on numeric vectors
+
+- updated `mdist` documentation
+
+## Changes in **optmatch** Version 0.6
+
+### NEW FEATURES
+
+- There is a new generic function, `mdist()`, for creating matching distances.
+  It accepts: fitted glm's, which it uses to extract propensity distances;
   formulas, which it uses to construct squared Mahalanobis distances; and
   functions, with which a user can construct his or her own type of distance.
-  The function method is more intuitive to work with than the older makedist()
+  The function method is more intuitive to work with than the older `makedist()`
   function.
 
-- A new function, caliper(), builds on the mdist() structure to provide a
+- A new function, `caliper()`, builds on the `mdist()` structure to provide a
   convenient way to add calipers to a distance. In contrast to earlier ways of
-  adding calipers, caliper() has an optional argument specify observations to be
-  excluded from the caliper requirement --- this permits one to relax it for
+  adding calipers, `caliper()` has an optional argument specify observations to
+  be excluded from the caliper requirement --- this permits one to relax it for
   just a few observations, for instance.
 
-- summary.optmatch() now removes strata in which matching failed (b/c the
+- `summary.optmatch()` now removes strata in which matching failed (b/c the
   matching problem was found to be infeasible) before summarizing. It also
   indicates when such strata are present, and how many observations fall in
   them.
@@ -431,25 +432,25 @@ FOR A DETAILED CHANGELOG, SEE https://github.com/markmfredrickson/optmatch
 
 ### BUG FIXES
 
-- subsetting of objects of class optmatch now preserves matched.distances
+- subsetting of objects of class `Optmatch` now preserves matched.distances
   attribute.
 
-- fixed bug in maxControlsCap/minControlsCap whereby they behaved unreliably on
+- fixed bug in `maxControlsCap`/`minControlsCap` whereby they behaved unreliably on
   subclasses within which some subjects had no permissible matches.
 
-- Removed unnecessary panic in fullmatch when it was given a min.controls
-  argument with attributes other than names (as when it is created by tapply()).
+- Removed unnecessary panic in `fullmatch` when it was given a `min.controls`
+  argument with attributes other than names (as when it is created by `tapply()`).
 
-- fixed bug wherein summary.optmatch fails to retrieve balance tests if given a
+- fixed bug wherein `summary.optmatch` fails to retrieve balance tests if given a
   propensity model that had function calls in its formula.
 
-- Documentation pages for fullmatch, pairmatch filled out a bit.
+- Documentation pages for `fullmatch`, `pairmatch` filled out a bit.
 
-## Changes in optmatch Version 0.5
+## Changes in **optmatch** Version 0.5
 
 ### NEW FEATURES:
 
-- summary.optmatch() completely revised. It now reports information about the
+- `summary.optmatch()` completely revised. It now reports information about the
   configuration of the matched sets and about matched distances. In addition, if
   given a fitted propensity model as a second argument it summarizes covariate
   balance.
