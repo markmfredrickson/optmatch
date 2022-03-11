@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - external_solvers
   pull_request:
     branches:
       - master
