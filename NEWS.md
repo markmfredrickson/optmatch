@@ -1,5 +1,7 @@
 ## Changes in optmatch Version 1.0
 
+### Major changes
+
 - Major change: optmatch no longer includes the RELAX-IV solver internally. That
   solver can be still be used, by installing the new **rrelaxiv** package (which
   will *not* be hosted on CRAN). When **rrelaxiv** is not available, optmatch
@@ -15,6 +17,11 @@
   matter of preference, install the **rrelaxiv** package, from
   https://github.com/josherrickson/rrelaxiv/ If installed it will become the
   default solver automatically.
+
+### Minor changes
+
+- Remove dependence on the **digest** package when generating hashes of distance
+  matrices.
 
 ## Changes in optmatch Version 0.9-17
 
