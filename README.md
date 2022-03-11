@@ -24,7 +24,7 @@ more on the application and its implementation, see:
 
 There are two different packages implementing the actual solver which can be used.
 
-- The default, starting in 0.9-18, is the [LEMON graph
+- The default, starting in 1.0, is the [LEMON graph
   library](https://lemon.cs.elte.hu/trac/lemon)'s Min Cost Flow solver,
   implemented in the
   [rlemon](https://cran.r-project.org/web/packages/rlemon/index.html) package.
@@ -39,11 +39,6 @@ The LEMON solver has four separate algorithms implemented, Cycle Cancelling (the
 default), Network Simplex, Cost Scaling, and Capacity Scaling. Each has its own
 trade-offs and performance quirks. See `help(fullmatch)` for details of how to
 choose which is being used.
-
-We believe that for most users in most situations, the default LEMON solver of
-Cycle Cancelling should be the best choice and thus to most users, they can
-ignore this complication.
-
 
 ## Using Optmatch
 
@@ -264,8 +259,8 @@ page)[https://github.com/markmfredrickson/optmatch].
 
 ### Installing a development version
 
-You must have the Fortran extensions for package building included. These can be
-had from CRAN: [OS X](https://cran.r-project.org/bin/macosx/tools/),
+You may need additional compilers as distributed by CRAN:
+[OS X](https://cran.r-project.org/bin/macosx/tools/),
 [Windows](https://cran.r-project.org/bin/windows/Rtools/).
 
 We recommend using `dev_mode` from the `devtools` package to install
