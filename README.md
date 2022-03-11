@@ -20,6 +20,31 @@ more on the application and its implementation, see:
     > install.packages("optmatch")
     > library("optmatch")
 
+## Choice of solvers
+
+There are two different packages implementing the actual solver which can be used.
+
+- The default, starting in 0.9-18, is the [LEMON graph
+  library](https://lemon.cs.elte.hu/trac/lemon)'s Min Cost Flow solver,
+  implemented in the
+  [rlemon](https://cran.r-project.org/web/packages/rlemon/index.html) package.
+- In previous versions, the default was the RELAX-IV solver, which is now
+  implemented in the [rrelaxiv](https://github.com/josherrickson/rrelaxiv/)
+  package.
+
+Users wishing to utilize the RELAX-IV solver must install rrelaxiv separately,
+see that page for details. Once installed, RELAX-IV becomes the default solver.
+
+The LEMON solver has four separate algorithms implemented, Cycle Cancelling (the
+default), Network Simplex, Cost Scaling, and Capacity Scaling. Each has its own
+trade-offs and performance quirks. See `help(fullmatch)` for details of how to
+choose which is being used.
+
+We believe that for most users in most situations, the default LEMON solver of
+Cycle Cancelling should be the best choice and thus to most users, they can
+ignore this complication.
+
+
 ## Using Optmatch
 
 In addition to the optimal full matching algorithm, the package contains

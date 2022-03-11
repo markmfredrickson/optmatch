@@ -1,3 +1,15 @@
+CHANGES IN OPTMATCH VERSION 0.9-18
+* Major change: optmatch no longer includes the RELAX-IV solver internally.
+  Instead, the `rlemon` package is used for the solver. Users should generally
+  notice no difference aside from occasionally slightly different matches.
+* Users preferring to continue using the RELAX-IV solver should install
+  the new `rrelaxiv` package from https://github.com/josherrickson/rrelaxiv/
+  If installed it will become the default solver automatically.
+* The `rlemon` package has four different potential solvers, see `help(fullmatch)`
+  for a discussion on those, and the new argument to `fullmatch, `solver = `.
+* To re-iterate, these changes are almost entirely back-end and the vast majority
+  of users should notice no difference.
+
 CHANGES IN OPTMATCH VERSION 0.9-17
 * Fix to FORTRAN to conform with Writing R Extensions §6.6.2.
 * Observations with NAs in a blocking variable are now retained, although
