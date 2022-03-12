@@ -45,7 +45,7 @@ Enhances:
 License: MIT + file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
-Additional_repositories: https://github.com/josherrickson/rrelaxiv
+Additional_repositories: https://josherrickson.github.io/rrelaxiv
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
