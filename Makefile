@@ -37,15 +37,19 @@ clean-vignette: FUNC=clean_vignettes
 
 .PHONY:build
 build: FUNC=build
+build: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 
 .PHONY:check_win_old
 check_win_old: FUNC=check_win_oldrelease # Check & build on win-builder old release
+check_win_old: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 
 .PHONY:check_win
 check_win: FUNC=check_win_release        # ... on win-builder release
+check_win: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 
 .PHONY:check_win_dev
 check_win_dev: FUNC=check_win_devel    # ... on win-builder dev
+check_win_dev: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 
 dependencies test check document vignette clean-vignette build check_win check_win_dev check_win_old: .devtools
 
