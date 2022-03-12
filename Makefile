@@ -60,3 +60,7 @@ clean: clean-vignette
 .PHONY:spell-check-DESCRIPTION
 spell-check-DESCRIPTION:
 	aspell -c DESCRIPTION --personal=NULL
+
+.PHONY:release
+release:
+	R_PROFILE=release.R R -q --no-save

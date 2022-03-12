@@ -2,6 +2,7 @@
 ^doc$
 Makefile
 load.R
+release.R
 check.R
 checkspelling.R
 lexicon.txt
