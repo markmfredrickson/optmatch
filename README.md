@@ -24,7 +24,7 @@ more on the application and its implementation, see:
 
 There are two different packages implementing the actual solver which can be used.
 
-- The default, starting in 1.0, is the [LEMON graph
+- The default, starting in 0.10.0, is the [LEMON graph
   library](https://lemon.cs.elte.hu/trac/lemon)'s Min Cost Flow solver,
   implemented in the
   [**rlemon**](https://cran.r-project.org/web/packages/rlemon/index.html)

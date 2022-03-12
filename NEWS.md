@@ -1,4 +1,4 @@
-## Changes in **optmatch** Version 1.0
+## Changes in **optmatch** Version 0.10.0
 
 ### Major changes
 
