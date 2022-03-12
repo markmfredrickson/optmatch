@@ -345,15 +345,22 @@ remove.packages("optmatch")
 install.packages("optmatch")
 ```
 
+Note: If you are building for release on CRAN, you need to ensure vignettes are
+compacted. This should be enabled automatically in the .Rproj file, but if not
+see [this stackoverflow answer](https://stackoverflow.com/a/53706965/905101) for
+some concerns about dealing with this with RStudio.
+
 If you prefer not to use RStudio, you can develop using Make.
 
 - `make test`: Run the full test suite.
 - `make document`: Update all documentation from Roxygen inline comments.
 - `make interactive`: Start up an interactive session with **optmatch** loaded.
+  (`make interactive-emacs` will start the session inside emacs.)
 - `make check`: Run `R CMD check` on the package
 - `make build`: Build a binary package.
 - `make vignette`: Builds any vignettes in `vignettes/` directory
 - `make clean`: Removes files built by `make vignette`, `make document` or `make check`.
    Should not be generally necessary, but can be useful for debugging.
+- `make release`: Starts an interactive R session to submit a release to CRAN.
 
 When your change is ready, make a pull request on github.
