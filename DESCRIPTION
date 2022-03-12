@@ -42,7 +42,7 @@ Suggests:
 Enhances:
     CBPS,
     haven
-License: file LICENSE
+License: MIT + file LICENSE
 URL: https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
 Additional_repositories: https://github.com/josherrickson/rrelaxiv
