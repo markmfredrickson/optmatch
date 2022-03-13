@@ -20,13 +20,13 @@ Depends:
 LinkingTo: Rcpp
 Imports:
     Rcpp,
-    RItools,
     stats,
     methods,
     graphics,
     rlemon,
     survey
 Suggests:
+    RItools,
     boot,
     biglm,
     testthat (>= 0.11.0),
