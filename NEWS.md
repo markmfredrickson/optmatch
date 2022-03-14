@@ -22,6 +22,7 @@
 
 - Remove dependence on the **digest** package when generating hashes of distance
   matrices.
+- **RItools** is moved to Suggests instead of Imports.
 
 ## Changes in **optmatch** Version 0.9-17
 
