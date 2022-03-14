@@ -8,6 +8,7 @@
 
 There were 2 note:
 
+```
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Josh Errickson <jerrick@umich.edu>'
 
@@ -33,24 +34,25 @@ Availability using Additional_repositories specification:
 
 * checking package dependencies ... NOTE
 Package suggested but not available for checking: 'rrelaxiv'
+```
 
 ## Comments about NOTEs
 
 This is a "new" release of an archived package.
 
-Klopfer is a proper name.
+"Klopfer" is a proper name.
 
-See Submission Comments below; license is now standard and `rrelaxiv` is
+See Submission Comments below; license is now standard and **rrelaxiv** is
 non-CRAN package.
 
 # Submission Comments
 
-This is a re-release of the optmatch package which uses a standard license as
-opposed to the non-standard license it was previously under.
+This is a re-release of the **optmatch** package which uses a standard license
+as opposed to the non-standard license it was previously under.
 
 This was accomplished by moving the code under the non-standard license into an
-external package, rrelaxiv, which is listed under `Additional_repositories` and
-will not be submitted to CRAN.
+external package, **rrelaxiv**, which is listed under `Additional_repositories`
+and will not be submitted to CRAN.
 
 The package is fully functional without this additional package through the
-addition of a dependence on the new rlemon package.
+addition of a dependence on the new **rlemon** package.
