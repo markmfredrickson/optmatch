@@ -4,8 +4,6 @@ Makefile
 load.R
 release.R
 check.R
-checkspelling.R
-lexicon.txt
 ^data-raw$
 .pkgexclude
 vignettes/Sweave.sty
