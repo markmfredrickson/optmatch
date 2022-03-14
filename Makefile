@@ -103,4 +103,4 @@ check_win check_win_dev check_win_old check_mac check_rhub: .devtools
 
 .PHONY:release
 release:
-	R_PROFILE=release.R R -q --no-save
+	@echo Inside R, run "devtools::release(args=c('--compact-vignettes=gs+qpdf') )"
