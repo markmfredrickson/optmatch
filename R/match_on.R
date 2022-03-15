@@ -234,7 +234,7 @@ are there missing values in data?")
 }
 
 #' @details \bold{First argument (\code{x}): \code{formula}.} The formula must have
-#'   \code{Z}, the treatment indicator (\code{Z=0} incidates control group,
+#'   \code{Z}, the treatment indicator (\code{Z=0} indicates control group,
 #'   \code{Z=1} indicates treatment group), on the left hand side, and any
 #'   variables to compute a distance on on the right hand side. E.g. \code{Z ~ X1
 #'   + X2}. The Mahalanobis distance is calculated as the square root of d'Cd,

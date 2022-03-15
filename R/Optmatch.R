@@ -201,7 +201,7 @@ optmatch_restrictions <- function(obj) {
 #' Note that the distance is hashed with its \code{call} set to \code{NULL}.
 #' (This avoids issues where, for example, \code{match_on(Z~X, data=d,
 #' caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical matches but
-#' have differeing \code{call}s.)
+#' have differing \code{call}s.)
 #' @param x A distances (\code{InfinitySparseMatrix},
 #'   \code{BlockedInfinitySparseMatrix}, or \code{DenseMatrix}), or
 #'   \code{optmatch} object.
@@ -218,12 +218,12 @@ optmatch_same_distance <- function(x, y) {
   if (is(x, "optmatch")) {
     x <- attr(x, "hashed.distance")
   } else {
-    x <- dist_digest(x)
+    x <- hash_dist(x)
   }
   if (is(y, "optmatch")) {
     y <- attr(y, "hashed.distance")
   } else {
-    y <- dist_digest(y)
+    y <- hash_dist(y)
   }
   return(x == y)
 }

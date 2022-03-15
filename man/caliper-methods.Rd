@@ -64,7 +64,7 @@ comparison function using the \code{comparison} argument.
 
 It is important to understand that \code{width} argument is defined on the
 scale of these distances. For univariate distances such as propensity scores,
-it is common to specificy calipers in standard deviations. If a caliper of
+it is common to specify calipers in standard deviations. If a caliper of
 this nature is desired, you must either find the standard deviation directly
 or use the \code{\link{match_on}} function with its \code{caliper} argument.
 Since \code{match_on} has access to the underlying univariate scores, for
