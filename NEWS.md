@@ -3,20 +3,20 @@
 ### Major changes
 
 - **optmatch** no longer includes the RELAX-IV solver internally. That solver
-  can be still be used, by installing the new **rrelaxiv** package (which will
-  *not* be hosted on CRAN). When **rrelaxiv** is not available, **optmatch** instead
-  uses a min-cost flow solver provided by the LEMON project,
-  https://lemon.cs.elte.hu/trac/lemon; bindings to these are provided by the
+  can be still be used by installing the new **rrelaxiv** package (which will
+  *not* be hosted on CRAN). When **rrelaxiv** is not available, **optmatch**
+  instead uses a min-cost flow solver provided by the LEMON project,
+  <https://lemon.cs.elte.hu/trac/lemon>; bindings to these are provided by the
   **rlemon** package. The user interface remains the same, other than a new
   optional argument for specifying which solver to use. In *very* limited
   testing, we've seen similar matching results with the new solver.
 - The **rlemon** package offers bindings to four LEMON solvers. See
   `help(fullmatch)` for a discussion on those, and the new argument to
-  `fullmatch, `solver = `.
+  `fullmatch`, `solver = `.
 - To continue using the RELAX-IV solver, whether for back-compatibility or as a
   matter of preference, install the **rrelaxiv** package, from
-  https://github.com/josherrickson/rrelaxiv/ If installed it will become the
-  default solver automatically.
+  <https://github.com/josherrickson/rrelaxiv/>. If **rrelaxiv** is installed,
+  RELAX-IV will become the default solver automatically.
 
 ### Minor changes
 
@@ -346,7 +346,7 @@
   This avoids some obscure bugs when feeding the results of `fullmatch` to other
   functions.
 
-FOR A DETAILED CHANGELOG, SEE https://github.com/markmfredrickson/optmatch
+FOR A DETAILED CHANGELOG, SEE <https://github.com/markmfredrickson/optmatch>
 
 ## Changes in **optmatch** Version 0.7-1
 
