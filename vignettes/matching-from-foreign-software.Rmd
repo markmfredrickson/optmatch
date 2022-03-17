@@ -1,8 +1,8 @@
 ---
 title: "Using Optmatch on data in SAS, Stata, etc"
-author: "Ben B. Hansen, Mark Fredrickson, Josh Buckner, Josh Errickson, and Peter Solenberger, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
+author: "Ben B. Hansen, Mark Fredrickson, Josh Errickson, Josh Buckner"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_document
 vignette: >
   %\VignetteIndexEntry{Using Optmatch with Foreign Software}
   %\VignetteEngine{knitr::rmarkdown}

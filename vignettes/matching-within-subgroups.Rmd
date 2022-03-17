@@ -1,8 +1,8 @@
 ---
 title: "Combining Matches Within Subgroups"
-author: "Josh Errickson, Mark Fredrickson, Josh Buckner, Peter Solenberger and Ben B. Hansen, with embedded Fortran code due to Dimitri P. Bertsekas and Paul Tseng"
+author: "Ben B. Hansen, Mark Fredrickson, Josh Errickson, Josh Buckner"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_document
 vignette: >
   %\VignetteIndexEntry{Matching within subgroups}
   %\VignetteEngine{knitr::rmarkdown}
