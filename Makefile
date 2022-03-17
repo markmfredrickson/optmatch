@@ -57,8 +57,12 @@ clean-vignette: FUNC=clean_vignettes
 build: FUNC=build
 build: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 
+# Update the pkgdown site
+.PHONY:build_site
+build_site: FUNC=build_site
+
 dependencies test check document: .devtools
-vignette clean-vignette build: .devtools
+vignette clean-vignette build build_site: .devtools
 
 
 
