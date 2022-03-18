@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
+    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in *R* using the `optmatch` and `RItools` packages</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
   </div>
@@ -57,9 +57,9 @@
 <div class="section level3">
 <h3 id="major-changes-0-10-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-10-0"></a></h3>
 <ul><li>
-<strong>optmatch</strong> no longer includes the RELAX-IV solver internally. That solver can be still be used by installing the new <strong>rrelaxiv</strong> package (which will <em>not</em> be hosted on CRAN). When <strong>rrelaxiv</strong> is not available, <strong>optmatch</strong> instead uses a min-cost flow solver provided by the LEMON project, <a href="https://lemon.cs.elte.hu/trac/lemon" class="external-link uri">https://lemon.cs.elte.hu/trac/lemon</a>; bindings to these are provided by the <strong>rlemon</strong> package. The user interface remains the same, other than a new optional argument for specifying which solver to use. In <em>very</em> limited testing, we’ve seen similar matching results with the new solver.</li>
-<li>The <strong>rlemon</strong> package offers bindings to four LEMON solvers. See <code><a href="../reference/fullmatch.html">help(fullmatch)</a></code> for a discussion on those, and the new argument to <code>fullmatch</code>, <code>solver =</code>.</li>
-<li>To continue using the RELAX-IV solver, whether for back-compatibility or as a matter of preference, install the <strong>rrelaxiv</strong> package, from <a href="https://github.com/josherrickson/rrelaxiv/" class="external-link uri">https://github.com/josherrickson/rrelaxiv/</a>. If <strong>rrelaxiv</strong> is installed, RELAX-IV will become the default solver automatically.</li>
+<strong>optmatch</strong> no longer includes the RELAX-IV solver internally. That solver can be still be used, by installing the new <strong>rrelaxiv</strong> package (which will <em>not</em> be hosted on CRAN). When <strong>rrelaxiv</strong> is not available, <strong>optmatch</strong> instead uses a min-cost flow solver provided by the LEMON project, <a href="https://lemon.cs.elte.hu/trac/lemon" class="external-link uri">https://lemon.cs.elte.hu/trac/lemon</a>; bindings to these are provided by the <strong>rlemon</strong> package. The user interface remains the same, other than a new optional argument for specifying which solver to use. In <em>very</em> limited testing, we’ve seen similar matching results with the new solver.</li>
+<li>The <strong>rlemon</strong> package offers bindings to four LEMON solvers. See <code><a href="../reference/fullmatch.html">help(fullmatch)</a></code> for a discussion on those, and the new argument to <code>fullmatch,</code>solver = `.</li>
+<li>To continue using the RELAX-IV solver, whether for back-compatibility or as a matter of preference, install the <strong>rrelaxiv</strong> package, from <a href="https://github.com/josherrickson/rrelaxiv/" class="external-link uri">https://github.com/josherrickson/rrelaxiv/</a> If installed it will become the default solver automatically.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-0-10-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-10-0"></a></h3>
