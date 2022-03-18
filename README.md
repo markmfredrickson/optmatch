@@ -1,7 +1,7 @@
 # optmatch: Optimal Fullmatching for R
 
 
-Package website: [release](https://markmfredrickson.github.ui/optmatch) | [development](https://markmfredrickson.github.ui/ptmatchoptmatch/dev)
+Package website: [release](https://markmfredrickson.github.io/optmatch) | [development](https://markmfredrickson.github.io/ptmatchoptmatch/dev)
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)
