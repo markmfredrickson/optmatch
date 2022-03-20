@@ -25,7 +25,8 @@ jobs:
 
       - name: install rrelaxiv
         run: |
-          install.packages("https://josherrickson.github.io/rrelaxiv/src/contrib/rrelaxiv_0.1.0.tar.gz", repos = NULL)
+          install.packages("drat")
+          drat::addRepo("rrelaxiv", "https://errickson.net/rrelaxiv")
         shell: Rscript {0}
 
 
