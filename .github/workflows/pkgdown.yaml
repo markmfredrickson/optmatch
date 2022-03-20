@@ -24,9 +24,9 @@ jobs:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v1
+        run: |
+          install.packages("https://josherrickson.github.io/rrelaxiv/src/contrib/rrelaxiv_0.1.0.tar.gz", repos = NULL)
         with:
-          run: |
-            install.packages("https://josherrickson.github.io/rrelaxiv/src/contrib/rrelaxiv_0.1.0.tar.gz", repos = NULL)
           extra-packages: pkgdown
           needs: website
 
