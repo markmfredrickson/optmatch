@@ -1,3 +1,16 @@
+## Changes in **optmatch** Version 0.10.0.9001
+
+- **optmatch** no longer depends on **digest**, **RItools**, or **survey**, or
+  imports from **survival**. This should harden us against unexpected downtime
+  should any of these packages be removed from CRAN.
+  - Implemented `optmatch::strata` to be used in place of `survival::strata`.
+    Loading **survival** and masking `strata` should not cause issues either.
+  - Hashing of distance matrixes is now done internally.
+  - **RItools** and **survery** are now only suggested with appropriate
+      warnings if users attempt to utilize code with them without first
+      installing the packages.
+- Modernized some vignettes
+
 ## Changes in **optmatch** Version 0.10.0
 
 ### Major changes

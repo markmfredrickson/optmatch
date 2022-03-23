@@ -53,6 +53,17 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.0.9001" id="changes-in-optmatch-version-01009001">Changes in <strong>optmatch</strong> Version 0.10.0.9001<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-01009001"></a></h2>
+<ul><li>
+<strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.
+<ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
+<li>Hashing of distance matrixes is now done internally.</li>
+<li>
+<strong>RItools</strong> and <strong>survery</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
+</ul></li>
+<li>Modernized some vignettes</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0" id="changes-in-optmatch-version-0100">Changes in <strong>optmatch</strong> Version 0.10.0<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0100"></a></h2><p class="text-muted">CRAN release: 2022-03-15</p>
 <div class="section level3">
 <h3 id="major-changes-0-10-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-10-0"></a></h3>
