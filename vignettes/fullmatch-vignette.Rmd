@@ -55,13 +55,13 @@ install.packages("optmatch")
 install.packages("RItools")
 ```
 
-These commands will ask you to select a CRAN server. Any server will
-do.  You may also be asked whether you'd like to set up a "personal
-library to install packages into"; if so, answer yes.  (The default
-personal library location that *R* will suggest should be OK.) You'll
-only need to run these commands the first time you want to use
-`optmatch` or `RItools` on a particular computer, or when you install
-a new version of *R*.
+These commands will ask you to select a CRAN server. Any server will do. You may
+also be asked whether you'd like to set up a "personal library to install
+packages into"; if so, answer yes. (The default personal library location that
+*R* will suggest should be OK.) You'll only need to run these commands the first
+time you want to use **optmatch** or
+**[RItools](https://cran.r-project.org/package=RItools)** on a particular
+computer, or when you install a new version of *R*.
 
 ## Setting up the *R* environment for matching
 
@@ -223,8 +223,6 @@ control group units):
 tm <- pairmatch(pr ~ cap, controls = 2, data = nuke.nopt)
 ```
 
-There will be further variations suggested on the slides.
-
 ## Did matching work?
 
 It's possible to give the software an impossible list of requirements
@@ -289,8 +287,9 @@ Here is a parallel calculation that takes the match `pm` into account.
 summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
 ```
 
-The RItools package's `xBalance` function zeroes in on balance, and
-facilitates checking balance on multiple variables at the same time. Here are some examples:
+The **[RItools](https://cran.r-project.org/package=RItools)** package's
+`xBalance` function zeroes in on balance, and facilitates checking balance on
+multiple variables at the same time. Here are some examples:
 
 ```{r}
 
@@ -323,17 +322,16 @@ to that let's discuss try matching with propensity scores.
 ## Propensity score fitting in *R*
 
 Logistic regression models are fit in *R* using the function `glm()`,
-with "`family`" argument set to "`binomial`."  Example:
+with `family` argument set to `binomial`.  Example:
 
 ```{r}
 psm <- glm(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt,
            family = binomial, data = nuclearplants)
 ```
 
-The fitted logistic regression is then stored in the object "`psm`."
-The propensity scores can be accessed with `psm$fitted.values`
-(estimated probabilities) or `scores(psm)` (estimated logits of
-probabilities).
+The fitted logistic regression is then stored in the object `psm`. The
+propensity scores can be accessed with `psm$fitted.values` (estimated
+probabilities) or `scores(psm)` (estimated logits of probabilities).
 
 It's often a good idea to compare the groups' distributions on the
 propensity score.
@@ -410,9 +408,9 @@ summary(mhpc.pm) # better!
 
 ## Checking balance in general
 
-The `RItools` package has a convenient function for checking balance
-on many variables simultaneously.  To get a sense of what it does, try
-this:
+The **[RItools](https://cran.r-project.org/package=RItools)** package has a
+convenient function for checking balance on many variables simultaneously. To
+get a sense of what it does, try this:
 
 ```{r, eval=FALSE}
 library(RItools)
@@ -435,10 +433,10 @@ plot(myb)
 print(myb, digits=1)
 ```
 
-For a very compact representation of the assessment, call `summary()`
-on the match, passing along the fitted propensity model as a second
-argument.  If you've got `RItools` loaded, then this will call
-`xBalance` in the background, reporting the summary chi-square test
+For a very compact representation of the assessment, call `summary()` on the
+match, passing along the fitted propensity model as a second argument. If you've
+got **[RItools](https://cran.r-project.org/package=RItools)** loaded, then this
+will call `xBalance` in the background, reporting the summary chi-square test
 results.
 
 ```{r}
@@ -480,7 +478,7 @@ guarantees (`pt == 1`), for which costs are difficult to compare with
 other plants.  We might include the excluded plants by matching them
 only among themselves.  Then we need to subclassify prior to matching.
 
-This is a common and useful operation, and `optmatch` is designed to
+This is a common and useful operation, and **optmatch** is designed to
 help you do it via a `strata` term in the matching formula.
 
 ```{r}
@@ -538,125 +536,55 @@ than standard units, then you would have to create `cap.dist` in a
 somewhat different way.  There's an example on the help page for
 `caliper()`. Enter `help(caliper)` at the *R* command line.
 
-## Using *R* for matching and another program for matched analysis
-
-If you prefer to do your main work in another statistical package, you
-can use *R* for matching and balance assessment, and then re-import
-the matched data back into your preferred package for the main
-analysis. A typical work flow might look something like this:
-
-
-1. Load data into your primary statistical package.
-1. Preprocess data (handle missing values, combine variables into
-  single measures, etc).
-1. Export data in a format *R* can read.
-1. Load data into *R*.
-1. Perform matching and balance testing.
-1. Append matches to your data and export in a format your statistical
-  package can read.
-1. Load appended data into your primary package and perform analyses.
-
-You already know how to perform the matching and balance testing, so
-what remains are the import and export steps, along with appending
-your matches to your original data.
-
-
-When importing and exporting data, you must select a data format. In a
-broad sense, you have two options: proprietary data formats (for
-example `.dta` for Stata) or open standards (for example `.csv`, Comma
-Separated Values). The advantage of proprietary formats is that they
-may include additional information for *R* to use, such as the labels
-on a categorical variable. The potential pitfall is that *R* might not
-know how to read your particular file type. Open formats like CSV are
-easy to read and write, but you may lose variable names, labels, or
-other special forms of data. For reading and writing proprietary
-formats, consider the use of the `foreign` library in *R*. See for
-example `read.dta` and `write.dta`:
-
-```{r, eval=FALSE}
-library(foreign)
-?read.dta
-?write.dta
-```
-
-For much more detail on this topic, see the ["*R* Data Import/Export"
-manual](https://cran.r-project.org/doc/manuals/r-release/R-data.html).
-
-If you use CSV files, consult your statistical package's manuals for
-details on how to export your data as a CSV. Once you have exported
-your data into a file, open the file (using a text editor, not
-Microsoft Word) to see if there is a header row of variable
-names. Then, to import your data use the following:
-
-```{r, eval=FALSE}
-my.plants <- read.csv("nuclearplants.csv", header = TRUE)
-```
-
-If you do not have a header on your data change to `header = FALSE`.
-
-At this point, you may proceed to conduct your matching as usual (for
-example using an example from earlier in this document). When you are
-done, you will need to append your match to your original data. The
-safest way to do this is using the following code snippet:
-
-```{r, eval=FALSE}
-plant.match <- pairmatch(pr ~ cap, data = my.plants)
-my.plants.extended <- data.frame(my.plants, matches = plant.match, check.rows=TRUE)
-```
-
-Finally, export your data as a .csv file (or a proprietary format such
-as with `write.dta` if that is what you are using):
-
-```{r, eval=FALSE}
-write.csv(my.plants.extended, file = "nuclearplants-with-matches.csv")
-```
-
-As one final note, many of the balance tests included in `RItools` are
-available to Stata users directly from Stata. Information is available
-at the `RItools` webpage at {http://www.jakebowers.org/RItools.html}.
-
 ## Trying it out on your own
 
-For another interesting (toy) data set, do
+Below are some suggestions of other data sets you could try this out on.
 
-```{r}
-data(tli, package="xtable")
-head(tli)
+For another interesting (toy) data set, you can use the "tli" data set in the
+**[xtable](https://cran.r-project.org/package=xtable)** package.
+
+```{r, eval = FALSE}
+install.packages("xtable") # if not already installed
+data(tli, package = "xtable")
 ```
 
-You might compare test scores for kids with ```disadvg=="YES"` to
-those of kids with ```disadvg=="NO"``` using propensity matching, in
-some combination with Mahalanobis matching and caliper matching.  A
-check of propensity overlap may inform your decision as to whether to
-include a propensity caliper.  Be sure to check for balance, and do
-check the structure of the matched sets.
+You might compare test scores for kids with `disadvg=="YES"` to those of kids
+with `disadvg=="NO"` using propensity matching, in some combination with
+Mahalanobis matching and caliper matching. A check of propensity overlap may
+inform your decision as to whether to include a propensity caliper. Be sure to
+check for balance, and do check the structure of the matched sets.
 
-Three sources of \textit{real} data can be gotten as follows.  First,
-Paul Rosenbaum has posted many of the data sets discussed in his _Design of
-Observational Studies_ (2010) to his web site.  If you have an active
-internet connection then you can get them by (as of this writing):
-```{r, eval=FALSE}
-download.file("http://www-stat.wharton.upenn.edu/~rosenbap/DOSdata.RData",
-              destfile="./DOSdata.RData")
-load("./DOSdata.RData")
-```
-Second, the "`lalonde`" data set, discussed by Lalonde (1986,
-*Am. Econom. Rev.*),
-Dehejia and Wahba (1999, *JASA*) and Smith and Todd (2005,
-*J. Econom.*), is bundled with several *R* packages, including
-"`{arm}`" and "`Matching`."  To get it:
+Three sources of \textit{real} data can be gotten as follows. First, Paul
+Rosenbaum has collected many of the data sets discussed in his _Design of
+Observational Studies_ (2010) into the
+**[DOS](https://cran.r-project.org/package=DOS)** and
+**[DOS2](https://cran.r-project.org/package=DOS2)** packages.
 
-```{r, eval=FALSE}
-install.packages("arm", dep=T) # if not already installed
-data(lalonde, package="arm")
-help("lalonde", package="arm")
+```{r, eval = FALSE}
+install.packages("DOS") # if not already installed
+install.packages("DOS2") # if not already installed
+data(package = "DOS")
+data(package = "DOS2")
 ```
 
-Third, the data used by Connors et al (1996, *J. Am. Med. Assoc.*)
-to examine costs, benefits and risks associated with right heart catheterization
-is bundled with Frank Harrell and collaborators' "`Hmisc`" package.
+Second, the "lalonde" data set, discussed by Lalonde (1986, *Am. Econom. Rev.*),
+Dehejia and Wahba (1999, *JASA*) and Smith and Todd (2005, *J. Econom.*), is
+bundled with several *R* packages, including
+**[arm](https://cran.r-project.org/package=arm)** and
+**[Matching](https://cran.r-project.org/package=Matching)**. To get it:
 
 ```{r, eval=FALSE}
-install.packages("Hmisc", dep=T) # if not already installed
+install.packages("arm") # if not already installed
+data(lalonde, package = "arm")
+help("lalonde", package = "arm")
+```
+
+Third, the data used by Connors et al (1996, *J. Am. Med. Assoc.*) to examine
+costs, benefits and risks associated with right heart catheterization is bundled
+with Frank Harrell and collaborators'
+**[Hmisc](https://cran.r-project.org/package=Hmisc)** package.
+
+```{r, eval=FALSE}
+install.packages("Hmisc") # if not already installed
 Hmisc:::getHdata(rhc, what = "all")
 ```

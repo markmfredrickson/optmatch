@@ -107,7 +107,7 @@
 <p><em>R</em> add-on packages are available to install directly from <em>R</em>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"optmatch"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"RItools"</span>)</span></code></pre></div>
-<p>These commands will ask you to select a CRAN server. Any server will do. You may also be asked whether you’d like to set up a “personal library to install packages into”; if so, answer yes. (The default personal library location that <em>R</em> will suggest should be OK.) You’ll only need to run these commands the first time you want to use <code>optmatch</code> or <code>RItools</code> on a particular computer, or when you install a new version of <em>R</em>.</p>
+<p>These commands will ask you to select a CRAN server. Any server will do. You may also be asked whether you’d like to set up a “personal library to install packages into”; if so, answer yes. (The default personal library location that <em>R</em> will suggest should be OK.) You’ll only need to run these commands the first time you want to use <strong>optmatch</strong> or <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> on a particular computer, or when you install a new version of <em>R</em>.</p>
 </div>
 <div class="section level3">
 <h3 id="setting-up-the-r-environment-for-matching">Setting up the <em>R</em> environment for matching<a class="anchor" aria-label="anchor" href="#setting-up-the-r-environment-for-matching"></a>
@@ -355,7 +355,6 @@
 </h3>
 <p>There are other types of matches you might want to try. Here’s how to create matched triples (each treatment group unit is matched to two control group units):</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> tm <span class="ot">&lt;-</span> <span class="fu">pairmatch</span>(pr <span class="sc">~</span> cap, <span class="at">controls =</span> <span class="dv">2</span>, <span class="at">data =</span> nuke.nopt)</span></code></pre></div>
-<p>There will be further variations suggested on the slides.</p>
 </div>
 <div class="section level3">
 <h3 id="did-matching-work">Did matching work?<a class="anchor" aria-label="anchor" href="#did-matching-work"></a>
@@ -389,7 +388,7 @@
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">summary</span>(<span class="fu">lm</span>(cap <span class="sc">~</span> pr <span class="sc">+</span> pm, <span class="at">data =</span> nuke.nopt))<span class="sc">$</span>coeff[<span class="st">"pr"</span>,]</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   Estimate Std. Error    t value   Pr(&gt;|t|) </span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  1.7142857  5.1395492  0.3335479  0.7500689</span></span></code></pre></div>
-<p>The RItools package’s <code>xBalance</code> function zeroes in on balance, and facilitates checking balance on multiple variables at the same time. Here are some examples:</p>
+<p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package’s <code>xBalance</code> function zeroes in on balance, and facilitates checking balance on multiple variables at the same time. Here are some examples:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> </span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="er">&gt;</span> <span class="fu">xBalance</span>(pr <span class="sc">~</span> cap <span class="sc">+</span> t2, <span class="at">report=</span><span class="st">"all"</span>, <span class="at">data=</span>nuke.nopt)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      strata unstrat                                                           </span></span>
@@ -427,10 +426,10 @@
 <div class="section level3">
 <h3 id="propensity-score-fitting-in-r">Propensity score fitting in <em>R</em><a class="anchor" aria-label="anchor" href="#propensity-score-fitting-in-r"></a>
 </h3>
-<p>Logistic regression models are fit in <em>R</em> using the function <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, with “<code>family</code>” argument set to “<code>binomial</code>.” Example:</p>
+<p>Logistic regression models are fit in <em>R</em> using the function <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, with <code>family</code> argument set to <code>binomial</code>. Example:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> psm <span class="ot">&lt;-</span> <span class="fu">glm</span>(pr <span class="sc">~</span> date <span class="sc">+</span> t1 <span class="sc">+</span> t2 <span class="sc">+</span> cap <span class="sc">+</span> ne <span class="sc">+</span> ct <span class="sc">+</span> bw <span class="sc">+</span> cum.n <span class="sc">+</span> pt,</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="sc">+</span>            <span class="at">family =</span> binomial, <span class="at">data =</span> nuclearplants)</span></code></pre></div>
-<p>The fitted logistic regression is then stored in the object “<code>psm</code>.” The propensity scores can be accessed with <code>psm$fitted.values</code> (estimated probabilities) or <code>scores(psm)</code> (estimated logits of probabilities).</p>
+<p>The fitted logistic regression is then stored in the object <code>psm</code>. The propensity scores can be accessed with <code>psm$fitted.values</code> (estimated probabilities) or <code>scores(psm)</code> (estimated logits of probabilities).</p>
 <p>It’s often a good idea to compare the groups’ distributions on the propensity score.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">boxplot</span>(psm)</span></code></pre></div>
 <p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-29-1.png" width="480"></p>
@@ -507,7 +506,7 @@
 <div class="section level3">
 <h3 id="checking-balance-in-general">Checking balance in general<a class="anchor" aria-label="anchor" href="#checking-balance-in-general"></a>
 </h3>
-<p>The <code>RItools</code> package has a convenient function for checking balance on many variables simultaneously. To get a sense of what it does, try this:</p>
+<p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package has a convenient function for checking balance on many variables simultaneously. To get a sense of what it does, try this:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">library</span>(RItools)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">xBalance</span>(pr <span class="sc">~</span> date <span class="sc">+</span> t1 <span class="sc">+</span> t2 <span class="sc">+</span> cap <span class="sc">+</span> ne <span class="sc">+</span> ct <span class="sc">+</span> bw <span class="sc">+</span> cum.n, <span class="at">data =</span> nuclearplants)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">xBalance</span>(pr <span class="sc">~</span> date <span class="sc">+</span> t1 <span class="sc">+</span> t2 <span class="sc">+</span> cap <span class="sc">+</span> ne <span class="sc">+</span> ct <span class="sc">+</span> bw <span class="sc">+</span> cum.n <span class="sc">+</span> pt <span class="sc">+</span></span>
@@ -540,7 +539,7 @@
 ## ps.pm2         8  8     0.4
 ## ---
 ## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</code></pre>
-<p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <code>RItools</code> loaded, then this will call <code>xBalance</code> in the background, reporting the summary chi-square test results.</p>
+<p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> loaded, then this will call <code>xBalance</code> in the background, reporting the summary chi-square test results.</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">summary</span>(ps.pm2, psm)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Structure of matched sets:</span></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:1 0:1 </span></span>
@@ -576,7 +575,7 @@
 <h3 id="subclassification-before-matching">Subclassification before matching<a class="anchor" aria-label="anchor" href="#subclassification-before-matching"></a>
 </h3>
 <p>Recall that the data set <code>nuclearplants</code> had 32 observations, 6 of which we excluded. These were plants built under “partial turnkey” guarantees (<code>pt == 1</code>), for which costs are difficult to compare with other plants. We might include the excluded plants by matching them only among themselves. Then we need to subclassify prior to matching.</p>
-<p>This is a common and useful operation, and <code>optmatch</code> is designed to help you do it via a <code>strata</code> term in the matching formula.</p>
+<p>This is a common and useful operation, and <strong>optmatch</strong> is designed to help you do it via a <code>strata</code> term in the matching formula.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">pairmatch</span>(pr <span class="sc">~</span> date <span class="sc">+</span> cap <span class="sc">+</span> <span class="fu">scores</span>(psm), <span class="at">data=</span>nuclearplants)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="do">## &lt;NA&gt;  1.2  1.2 &lt;NA&gt;  1.4 &lt;NA&gt; &lt;NA&gt;  1.7  1.6  1.6 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.4 &lt;NA&gt;  1.1 </span></span>
@@ -636,59 +635,25 @@
 <p>matches on <code>cap</code>, insisting that paired units not differ by more than 2 pooled SDs in <code>cap</code>. If you would prefer to set a requirement on how much paired units can differ in <code>cap</code> in its original units, rather than standard units, then you would have to create <code>cap.dist</code> in a somewhat different way. There’s an example on the help page for <code><a href="../reference/caliper-methods.html">caliper()</a></code>. Enter <code><a href="../reference/caliper-methods.html">help(caliper)</a></code> at the <em>R</em> command line.</p>
 </div>
 <div class="section level3">
-<h3 id="using-r-for-matching-and-another-program-for-matched-analysis">Using <em>R</em> for matching and another program for matched analysis<a class="anchor" aria-label="anchor" href="#using-r-for-matching-and-another-program-for-matched-analysis"></a>
-</h3>
-<p>If you prefer to do your main work in another statistical package, you can use <em>R</em> for matching and balance assessment, and then re-import the matched data back into your preferred package for the main analysis. A typical work flow might look something like this:</p>
-<ol style="list-style-type: decimal">
-<li>Load data into your primary statistical package.</li>
-<li>Preprocess data (handle missing values, combine variables into single measures, etc).</li>
-<li>Export data in a format <em>R</em> can read.</li>
-<li>Load data into <em>R</em>.</li>
-<li>Perform matching and balance testing.</li>
-<li>Append matches to your data and export in a format your statistical package can read.</li>
-<li>Load appended data into your primary package and perform analyses.</li>
-</ol>
-<p>You already know how to perform the matching and balance testing, so what remains are the import and export steps, along with appending your matches to your original data.</p>
-<p>When importing and exporting data, you must select a data format. In a broad sense, you have two options: proprietary data formats (for example <code>.dta</code> for Stata) or open standards (for example <code>.csv</code>, Comma Separated Values). The advantage of proprietary formats is that they may include additional information for <em>R</em> to use, such as the labels on a categorical variable. The potential pitfall is that <em>R</em> might not know how to read your particular file type. Open formats like CSV are easy to read and write, but you may lose variable names, labels, or other special forms of data. For reading and writing proprietary formats, consider the use of the <code>foreign</code> library in <em>R</em>. See for example <code>read.dta</code> and <code>write.dta</code>:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">library</span>(foreign)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> ?read.dta</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> ?write.dta</span></code></pre></div>
-<p>For much more detail on this topic, see the <a href="https://cran.r-project.org/doc/manuals/r-release/R-data.html" class="external-link">“<em>R</em> Data Import/Export” manual</a>.</p>
-<p>If you use CSV files, consult your statistical package’s manuals for details on how to export your data as a CSV. Once you have exported your data into a file, open the file (using a text editor, not Microsoft Word) to see if there is a header row of variable names. Then, to import your data use the following:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> my.plants <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"nuclearplants.csv"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p>If you do not have a header on your data change to <code>header = FALSE</code>.</p>
-<p>At this point, you may proceed to conduct your matching as usual (for example using an example from earlier in this document). When you are done, you will need to append your match to your original data. The safest way to do this is using the following code snippet:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> plant.match <span class="ot">&lt;-</span> <span class="fu">pairmatch</span>(pr <span class="sc">~</span> cap, <span class="at">data =</span> my.plants)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> my.plants.extended <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(my.plants, <span class="at">matches =</span> plant.match, <span class="at">check.rows=</span><span class="cn">TRUE</span>)</span></code></pre></div>
-<p>Finally, export your data as a .csv file (or a proprietary format such as with <code>write.dta</code> if that is what you are using):</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">write.csv</span>(my.plants.extended, <span class="at">file =</span> <span class="st">"nuclearplants-with-matches.csv"</span>)</span></code></pre></div>
-<p>As one final note, many of the balance tests included in <code>RItools</code> are available to Stata users directly from Stata. Information is available at the <code>RItools</code> webpage at {<a href="http://www.jakebowers.org/RItools.html" class="external-link uri">http://www.jakebowers.org/RItools.html</a>}.</p>
-</div>
-<div class="section level3">
 <h3 id="trying-it-out-on-your-own">Trying it out on your own<a class="anchor" aria-label="anchor" href="#trying-it-out-on-your-own"></a>
 </h3>
-<p>For another interesting (toy) data set, do</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(tli, <span class="at">package=</span><span class="st">"xtable"</span>)</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">head</span>(tli)</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   grade sex disadvg ethnicty tlimth</span></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1     6   M     YES HISPANIC     43</span></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2     7   M      NO    BLACK     88</span></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3     5   F     YES HISPANIC     34</span></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4     3   M     YES HISPANIC     65</span></span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5     8   M     YES    WHITE     75</span></span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6     5   M      NO    BLACK     74</span></span></code></pre></div>
-<p>You might compare test scores for kids with <code>disadvg=="YES"` to those of kids with</code>disadvg==“NO”``` using propensity matching, in some combination with Mahalanobis matching and caliper matching. A check of propensity overlap may inform your decision as to whether to include a propensity caliper. Be sure to check for balance, and do check the structure of the matched sets.</p>
-<p>Three sources of  data can be gotten as follows. First, Paul Rosenbaum has posted many of the data sets discussed in his <em>Design of Observational Studies</em> (2010) to his web site. If you have an active internet connection then you can get them by (as of this writing):</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">download.file</span>(<span class="st">"http://www-stat.wharton.upenn.edu/~rosenbap/DOSdata.RData"</span>,</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="sc">+</span>               <span class="at">destfile=</span><span class="st">"./DOSdata.RData"</span>)</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">load</span>(<span class="st">"./DOSdata.RData"</span>)</span></code></pre></div>
-<p>Second, the “<code>lalonde</code>” data set, discussed by Lalonde (1986, <em>Am. Econom. Rev.</em>), Dehejia and Wahba (1999, <em>JASA</em>) and Smith and Todd (2005, <em>J. Econom.</em>), is bundled with several <em>R</em> packages, including “<a href="https://CRAN.R-project.org/package=arm" class="external-link">arm</a>” and “<code>Matching</code>.” To get it:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"arm"</span>, <span class="at">dep=</span>T) <span class="co"># if not already installed</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(lalonde, <span class="at">package=</span><span class="st">"arm"</span>)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">help</span>(<span class="st">"lalonde"</span>, <span class="at">package=</span><span class="st">"arm"</span>)</span></code></pre></div>
-<p>Third, the data used by Connors et al (1996, <em>J. Am. Med. Assoc.</em>) to examine costs, benefits and risks associated with right heart catheterization is bundled with Frank Harrell and collaborators’ “<code>Hmisc</code>” package.</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"Hmisc"</span>, <span class="at">dep=</span>T) <span class="co"># if not already installed</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> Hmisc<span class="sc">:::</span><span class="fu">getHdata</span>(rhc, <span class="at">what =</span> <span class="st">"all"</span>)</span></code></pre></div>
+<p>Below are some suggestions of other data sets you could try this out on.</p>
+<p>For another interesting (toy) data set, you can use the “tli” data set in the <strong><a href="https://cran.r-project.org/package=xtable" class="external-link">xtable</a></strong> package.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"xtable"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(tli, <span class="at">package =</span> <span class="st">"xtable"</span>)</span></code></pre></div>
+<p>You might compare test scores for kids with <code>disadvg=="YES"</code> to those of kids with <code>disadvg=="NO"</code> using propensity matching, in some combination with Mahalanobis matching and caliper matching. A check of propensity overlap may inform your decision as to whether to include a propensity caliper. Be sure to check for balance, and do check the structure of the matched sets.</p>
+<p>Three sources of  data can be gotten as follows. First, Paul Rosenbaum has collected many of the data sets discussed in his <em>Design of Observational Studies</em> (2010) into the <strong><a href="https://cran.r-project.org/package=DOS" class="external-link">DOS</a></strong> and <strong><a href="https://cran.r-project.org/package=DOS2" class="external-link">DOS2</a></strong> packages.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"DOS"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"DOS2"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(<span class="at">package =</span> <span class="st">"DOS"</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(<span class="at">package =</span> <span class="st">"DOS2"</span>)</span></code></pre></div>
+<p>Second, the “lalonde” data set, discussed by Lalonde (1986, <em>Am. Econom. Rev.</em>), Dehejia and Wahba (1999, <em>JASA</em>) and Smith and Todd (2005, <em>J. Econom.</em>), is bundled with several <em>R</em> packages, including <strong><a href="https://cran.r-project.org/package=arm" class="external-link">arm</a></strong> and <strong><a href="https://cran.r-project.org/package=Matching" class="external-link">Matching</a></strong>. To get it:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"arm"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">data</span>(lalonde, <span class="at">package =</span> <span class="st">"arm"</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">help</span>(<span class="st">"lalonde"</span>, <span class="at">package =</span> <span class="st">"arm"</span>)</span></code></pre></div>
+<p>Third, the data used by Connors et al (1996, <em>J. Am. Med. Assoc.</em>) to examine costs, benefits and risks associated with right heart catheterization is bundled with Frank Harrell and collaborators’ <strong><a href="https://cran.r-project.org/package=Hmisc" class="external-link">Hmisc</a></strong> package.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">"Hmisc"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> Hmisc<span class="sc">:::</span><span class="fu">getHdata</span>(rhc, <span class="at">what =</span> <span class="st">"all"</span>)</span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
