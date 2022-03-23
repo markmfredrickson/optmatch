@@ -41,7 +41,7 @@ Enhances:
     CBPS,
     haven
 License: MIT + file LICENSE
-URL: https://github.com/markmfredrickson/optmatch
+URL: https://github.com/markmfredrickson/optmatch, https://markmfredrickson.github.io/optmatch/
 BugReports: https://github.com/markmfredrickson/optmatch/issues
 Additional_repositories: https://josherrickson.github.io/rrelaxiv
 Collate:
@@ -86,3 +86,4 @@ Collate:
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
 Encoding: UTF-8
+Remotes: josherrickson/rrelaxiv
