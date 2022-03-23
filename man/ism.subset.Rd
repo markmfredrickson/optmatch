@@ -2,15 +2,15 @@
 % Please edit documentation in R/InfinitySparseMatrix.R
 \name{subset.InfinitySparseMatrix}
 \alias{subset.InfinitySparseMatrix}
-\alias{[,InfinitySparseMatrix,ANY,ANY,ANY-method}
-\alias{[<-,InfinitySparseMatrix,ANY,ANY,ANY-method}
+\alias{[,InfinitySparseMatrix-method}
+\alias{[<-,InfinitySparseMatrix-method}
 \title{Subsetting for InfinitySparseMatrices}
 \usage{
 \method{subset}{InfinitySparseMatrix}(x, subset, select, ...)
 
-\S4method{[}{InfinitySparseMatrix,ANY,ANY,ANY}(x, i, j = NULL, ..., drop = TRUE)
+\S4method{[}{InfinitySparseMatrix}(x, i, j = NULL, ..., drop = TRUE)
 
-\S4method{[}{InfinitySparseMatrix,ANY,ANY,ANY}(x, i, j) <- value
+\S4method{[}{InfinitySparseMatrix}(x, i, j) <- value
 }
 \arguments{
 \item{x}{InfinitySparseMatrix to be subset or bound.}

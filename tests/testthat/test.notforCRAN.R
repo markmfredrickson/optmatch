@@ -116,6 +116,10 @@ if (FALSE) {
 test_that("survival::strata masking doesn't break", {
   data(nuclearplants)
 
+  # survey depends on survival, so need to remove both prior to this test
+  detach("package:survey")
+  detach("package:survival")
+
   expect_true(!any(grepl("package:survival", search())))
 
   m1 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
