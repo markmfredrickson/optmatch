@@ -60,6 +60,7 @@ build: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 # Update the pkgdown site
 .PHONY:build_site
 build_site: FUNC=build_site
+build_site: DEVTOOLSARG=quiet=FALSE
 
 dependencies test check document: .devtools
 vignette clean-vignette build build_site: .devtools
