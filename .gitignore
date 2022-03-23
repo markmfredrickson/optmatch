@@ -25,3 +25,5 @@ vignettes/*.R
 vignettes/*.pdf
 .Rproj.user
 .DS_Store
+/doc/
+/Meta/

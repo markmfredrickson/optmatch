@@ -189,31 +189,43 @@ optmatch_restrictions <- function(obj) {
   }
 }
 
-#' Checks if the distance \code{newdist} is identical to the distance used to
-#' generate the optmatch object \code{obj}.
+
+#' Checks if two distances are equivalent. \code{x} and \code{y} can be
+#' distances (\code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
+#' or \code{DenseMatrix}), or they can be \code{optmatch} objects.
 #'
-#' To save space, optmatch objects merely store a hash of the distance matrix
-#' instead of the original object. This checks if the hash of \code{newdist} is
-#' identical to the hash currently saved in \code{obj}.
+#' To save space, \code{optmatch} objects merely store a hash of the distance
+#' matrix instead of the original object. Any distance objects are hashed before
+#' comparison.
 #'
-#' Note that the distance is hashed with its \code{call} set to
-#' \code{NULL}. (This avoids issues where, for example, \code{match_on(Z~X,
-#' data=d, caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical
-#' matches (since the default argument to \code{caliper} is \code{NULL}) but
-#' distinct calls.)
-#' @param obj An optmatch object.
-#' @param newdist A distance
+#' Note that the distance is hashed with its \code{call} set to \code{NULL}.
+#' (This avoids issues where, for example, \code{match_on(Z~X, data=d,
+#' caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical matches but
+#' have differing \code{call}s.)
+#' @param x A distances (\code{InfinitySparseMatrix},
+#'   \code{BlockedInfinitySparseMatrix}, or \code{DenseMatrix}), or
+#'   \code{optmatch} object.
+#' @param y A distances (\code{InfinitySparseMatrix},
+#'   \code{BlockedInfinitySparseMatrix}, or \code{DenseMatrix}), or
+#'   \code{optmatch} object.
 #' @return Boolean whether the two distance specifications are identical.
 #' @export
-optmatch_same_distance <- function(obj, newdist) {
-  if (!is(obj, "optmatch")) {
-    stop("obj must be an optmatch object")
+optmatch_same_distance <- function(x, y) {
+  if (!(is(x, "InfinitySparseMatrix") | is(x, "optmatch")) |
+      !(is(y, "InfinitySparseMatrix") | is(y, "optmatch"))) {
+    stop("both arguments must be either a distance or an optmatch object")
   }
-  if (!class(newdist)[1] %in% c("BlockedInfinitySparseMatrix", "InfinitySparseMatrix", "DenseMatrix")) {
-    stop("newdist must be a valid distance")
+  if (is(x, "optmatch")) {
+    x <- attr(x, "hashed.distance")
+  } else {
+    x <- hash_dist(x)
   }
-
-  return(attr(obj, "hashed.distance") == dist_digest(newdist))
+  if (is(y, "optmatch")) {
+    y <- attr(y, "hashed.distance")
+  } else {
+    y <- hash_dist(y)
+  }
+  return(x == y)
 }
 
 #' Performs an update on an \code{optmatch} object.

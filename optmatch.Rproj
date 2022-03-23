@@ -18,4 +18,6 @@ StripTrailingWhitespace: Yes
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
+PackageBuildArgs: args=c('--compact-vignettes=gs+qpdf')
+PackageBuildBinaryArgs: args=c('--compact-vignettes=gs+qpdf')
 PackageRoxygenize: rd,collate,namespace,vignette

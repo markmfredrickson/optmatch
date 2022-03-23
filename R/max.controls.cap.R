@@ -1,6 +1,6 @@
 ##' @export
 ##' @rdname minmaxctlcap
-maxControlsCap <- function(distance, min.controls = NULL)
+maxControlsCap <- function(distance, min.controls = NULL, solver = "")
 {
   # check if it is valid distance specification,
   # if not through an error message explaining the issue
@@ -69,7 +69,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
     temp <- SubDivStrat(rownames = trnl, colnames = tcnl, distspec = tdm,
       max.cpt = min(tlmxc, ncol),
       min.cpt = max(tgmnc, 1/nrow), tolerance=.5,
-      omit.fraction = NULL)
+      omit.fraction = NULL, solver = solver)
 
     # IF THE PROBLEM IS FEASIBLE, SET TLMXC TO GREATEST OBTAINED
     # RATIO OF CONTROLS TO TREATED UNITS.  THIS MAY BE MUCH LESS THAN
@@ -96,7 +96,8 @@ maxControlsCap <- function(distance, min.controls = NULL)
           temp <- SubDivStrat(rownames=tcnl, colnames=trnl, distspec=t(tdm),
               max.cpt=min(1/tgmnc, ncol), min.cpt=1,
               tolerance=.5, omit.fraction=
-              switch(1+is.na(omf), -omf, NULL))
+                              switch(1+is.na(omf), -omf, NULL),
+              solver = solver)
           flipflag <- !all(is.na(temp$cells)) && !all(temp$cells=="NA") && !all(temp$cells=="0")
       } else {flipflag <- FALSE}
 
@@ -114,7 +115,8 @@ maxControlsCap <- function(distance, min.controls = NULL)
                                         max.cpt = min(1/tgmnc, length(trnl)),
                                         min.cpt = invlmxc,
                                         tolerance = .5,
-                                        omit.fraction = NULL)$cells)),
+                                        omit.fraction = NULL,
+                                        solver = solver)$cells)),
                        invlmxc, -invlmxc)
                 },
                 upper = min(1/tgmnc,length(trnl)),
@@ -135,7 +137,7 @@ maxControlsCap <- function(distance, min.controls = NULL)
                 ifelse(!all(is.na(SubDivStrat( rownames=rown1, colnames=coln1, distspec=dist1,
                       min.cpt=max(gmnc1, 1/length(rown1)), max.cpt=lmxc1,
                       tolerance=.5, omit.fraction= switch(1+is.na(omf), omf,
-                        NULL) )$cells)),
+                        NULL), solver = solver )$cells)),
                   lmxc1, 2*length(coln1) - lmxc1)
                 },
                 lower=max(tgmnc,1), upper=min(length(tcnl), tlmxc), tol=1,

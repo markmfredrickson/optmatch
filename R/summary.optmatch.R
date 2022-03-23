@@ -6,11 +6,11 @@
 #'
 #' @param object The \code{optmatch} object to summarize.
 #' @param propensity.model An optional propensity model (the result of
-#'   a call to \code{glm}) to use when summarizing the match. Using
-#'   the \code{RItools} package, an additional chi-squared test will
+#'   a call to \code{glm}) to use when summarizing the match. If the
+#'   \pkg{RItools} package is installed, an additional chi-squared test will
 #'   be performed on the average differences between treated and
 #'   control units on each variable used in the model. See the
-#'   \code{xBalance} function in the \code{RItools} package for more
+#'   \code{xBalance} function in the \pkg{RItools} package for more
 #'   details.
 #' @param ... Additional arguments to pass to \code{xBalance} when
 #'   also passing a propensity model.
@@ -28,7 +28,6 @@
 #' @seealso \code{\link{print.optmatch}}
 #' @method summary optmatch
 #' @rdname optmatch
-#' @importFrom RItools xBalance
 #' @export
 summary.optmatch <- function(object,
                              propensity.model = NULL, ...,
@@ -62,7 +61,7 @@ summary.optmatch <- function(object,
     }
   match.succeed <- tapply(mfd, subprobs, function(x) !all(x))
   so$matching.failed <- table(subprobs, attr(object, "contrast.group"),
-                              exclude = c(names(match.succeed)[match.succeed], NA), 
+                              exclude = c(names(match.succeed)[match.succeed], NA),
                               useNA = 'no')
   if (prod(dim(so$matching.failed)) == 0) {
     so$matching.failed <- NULL
@@ -120,12 +119,17 @@ summary.optmatch <- function(object,
       stop("'summary' method unable to recreate data. Consider passing 'data' argument to 'pairmatch' or 'fullmatch'.")
     }
 
-    so$balance <- RItools::xBalance(fmla = formula(propensity.model),
-                           strata = strata,
-                           data = data,
-                           report = c('adj.means', 'z.scores', 'chisquare.test'),
-                           na.rm = na.behavior)
-
+    if (requireNamespace("RItools", quietly = TRUE)) {
+      so$balance <- RItools::xBalance(fmla = formula(propensity.model),
+                                      strata = strata,
+                                      data = data,
+                                      report = c('adj.means', 'z.scores', 'chisquare.test'),
+                                      na.rm = na.behavior)
+    } else {
+      so$warnings <- c(so$warning,
+                       list("For covariate balance information, the RItools package must be installed.")
+                       )
+    }
   } else if (!is.null(propensity.model)) so$warnings <-
     c(so$warnings,
       list("For covariate balance information, load the RItools package and\npass a (glm) propensity model to summary() as a second argument.")
