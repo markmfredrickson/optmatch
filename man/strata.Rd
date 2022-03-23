@@ -2,7 +2,7 @@
 % Please edit documentation in R/strata.R
 \name{strata}
 \alias{strata}
-\title{Identify Strata Varia}
+\title{Identify Stratafication Variables}
 \usage{
 strata(...)
 }

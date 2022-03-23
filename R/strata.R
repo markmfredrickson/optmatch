@@ -2,7 +2,7 @@
 ##' when defining an \code{exactMatch} during a call to \code{fullmatch},
 ##' \code{pairmatch}, or \code{match_on}. It should not be called externally.
 ##'
-##' @title Identify Strata Varia
+##' @title Identify Stratafication Variables
 ##' @param ... any number of variables of the same length.
 ##' @return the variables with appropriate labels
 ##' @export
