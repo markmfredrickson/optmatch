@@ -39,6 +39,7 @@ test: FUNC=test
 # Complete check
 .PHONY:check
 check: FUNC=check
+check: DEVTOOLSARG=incoming=TRUE
 
 # Update documentation
 .PHONY:document
