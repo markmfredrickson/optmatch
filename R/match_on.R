@@ -509,7 +509,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
 
-    if (is.null(index)) return(r_smahal(NULL, data, z))
+    if (is.null(index)) return(sqrt(r_smahal(NULL, data, z)))
 
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
@@ -524,7 +524,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
     indices <- match(short_indices, all_indices)
     if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
     # Now, since `r_smahal` is ignoring its `index` argument anyway:
-    rankdists <- r_smahal(NULL, data, z)
+    rankdists <- sqrt(r_smahal(NULL, data, z))
     rankdists <- rankdists[indices]
     return(rankdists)
 }
