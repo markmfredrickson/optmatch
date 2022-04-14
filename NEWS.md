@@ -1,9 +1,10 @@
 ## Changes in **optmatch** Version 0.10.0.9001
 
-- The `compute_rank_mahalanobis()` function was accidentally returning the
-  squared distance rather than the distance. This has been fixed. To recover
-  results using the squared distance, square the results, e.g.: `match_on(...,
-  method = "rank_mahalanobis")^2`. (Thanks Noah Greifer #218)
+- The rank Mahalanobis distance being created in `match_on()` with the `method =
+  "rank_mahalanobis"` was accidentally returning the squared distance rather
+  than the distance. This has been fixed. To recover results using the squared
+  distance, square the results, e.g.: `match_on(..., method =
+  "rank_mahalanobis")^2`. (Thanks Noah Greifer #218)
 - **optmatch** no longer depends on **digest**, **RItools**, or **survey**, or
   imports from **survival**. This should harden us against unexpected downtime
   should any of these packages be removed from CRAN.
@@ -55,7 +56,7 @@
 
 
 ## Changes in **optmatch** Version 0.9-15
-- Small bug fix related to `survey::mad()` and `survey::med()` interface
+- Small bug fix related to `survey::mad` and `survey::med` interface
 
 ## Changes in **optmatch** Version 0.9-14
 
