@@ -5,7 +5,7 @@ Package website: [release](https://markmfredrickson.github.io/optmatch) | [devel
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)
-[![R-build-check](https://github.com/markmfredrickson/optmatch/workflows/R-build-check/badge.svg)](https://github.com/markmfredrickson/optmatch/actions)
+[![R-CMD-check](https://github.com/markmfredrickson/optmatch/workflows/R-CMD-check/badge.svg)](https://github.com/markmfredrickson/optmatch/actions)
 <!-- badges: end -->
 
 The **optmatch** package implements the optimal full matching algorithm for
