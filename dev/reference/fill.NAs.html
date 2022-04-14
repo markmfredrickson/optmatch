@@ -191,63 +191,59 @@ problem. This behavior can be overridden by setting <code>all.covs
 <span class="r-in"><span class="va">np.filled</span> <span class="op">&lt;-</span> <span class="fu">fill.NAs</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">*</span> <span class="va">t2</span>, <span class="va">np.missing</span><span class="op">)</span></span>
 <span class="r-in"><span class="co"># Look at np.filled to establish what missingness flags were created</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pr    t1 t2    t1:t2 t1.NA t2.NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> H  0 13.88 46 870.4348  TRUE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> I  0 13.88 73 870.4348  TRUE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A  1 10.00 85 850.0000 FALSE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> J  0 11.00 67 737.0000 FALSE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B  1 11.00 78 858.0000 FALSE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> K  0 13.88 51 870.4348  TRUE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pr       t1       t2    t1:t2 t1.NA t2.NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> H  0 14.00000 46.00000 644.0000 FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> I  0 10.00000 73.00000 730.0000 FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A  1 10.00000 85.00000 850.0000 FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> J  0 11.00000 62.44444 860.4167 FALSE  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B  1 11.00000 78.00000 858.0000 FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> K  0 13.86207 51.00000 860.4167  TRUE FALSE</span>
 <span class="r-in"><span class="op">(</span><span class="va">np.glm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">.</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = pr ~ ., family = binomial, data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -54.74465      2.48465      0.74123     -0.03242    -22.65858      1.47877  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -34.62378      1.43989      0.45797     -0.01783    -17.64709     -1.82154  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 18.58 	AIC: 30.58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 21.6 	AIC: 33.6</span>
 <span class="r-in"><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="va">`t1:t2`</span> <span class="op">+</span> <span class="va">t1.NA</span> <span class="op">+</span> <span class="va">t2.NA</span>,</span>
 <span class="r-in">                family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, family = binomial, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -54.74465      2.48465      0.74123     -0.03242    -22.65858      1.47877  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -34.62378      1.43989      0.45797     -0.01783    -17.64709     -1.82154  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 18.58 	AIC: 30.58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 21.6 	AIC: 33.6</span>
 <span class="r-in"><span class="co"># In a non-interactive session, the following may help, as long as</span></span>
 <span class="r-in"><span class="co"># the formula passed to `fill.NAs` (plus any missingness flags) is</span></span>
 <span class="r-in"><span class="co"># the desired formula for the glm.</span></span>
 <span class="r-in"><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = formula(terms(np.filled)), family = binomial, data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -54.74465      2.48465      0.74123     -0.03242    -22.65858      1.47877  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -34.62378      1.43989      0.45797     -0.01783    -17.64709     -1.82154  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 18.58 	AIC: 30.58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 21.6 	AIC: 33.6</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">### produce a matrix of propensity distances based on the propensity model</span></span>
 <span class="r-in"><span class="co">### with fill-in and flagging. Then perform pair matching on it:</span></span>
 <span class="r-in"><span class="fu"><a href="pairmatch.html">pairmatch</a></span><span class="op">(</span><span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">np.glm</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt; &lt;NA&gt;  1.1  1.2  1.2 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.3 &lt;NA&gt;  1.3 &lt;NA&gt; 1.10 &lt;NA&gt;  1.9  1.8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.6  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.3  1.1  1.4 &lt;NA&gt;  1.2  1.3 &lt;NA&gt; &lt;NA&gt; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5  1.4  1.7  1.5  1.6  1.6  1.1  1.7 &lt;NA&gt;  1.4 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.8  1.9 1.10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.8  1.4  1.9  1.5 &lt;NA&gt;  1.6  1.5  1.7 &lt;NA&gt; 1.10  1.7 &lt;NA&gt; &lt;NA&gt;  1.8  1.9 1.10 </span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## fill NAs without using treatment contrasts by making a list of contrasts for</span></span>
 <span class="r-in"><span class="co">## each factor ## following hints from https://stackoverflow.com/a/4569239/161808</span></span>

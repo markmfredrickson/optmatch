@@ -54,7 +54,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0.9001" id="changes-in-optmatch-version-01009001">Changes in <strong>optmatch</strong> Version 0.10.0.9001<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-01009001"></a></h2>
-<ul><li>
+<ul><li>The <code>compute_rank_mahalanobis()</code> function was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
+<li>
 <strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.
 <ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
 <li>Hashing of distance matrixes is now done internally.</li>
@@ -69,7 +70,7 @@
 <h3 id="major-changes-0-10-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-10-0"></a></h3>
 <ul><li>
 <strong>optmatch</strong> no longer includes the RELAX-IV solver internally. That solver can be still be used by installing the new <strong>rrelaxiv</strong> package (which will <em>not</em> be hosted on CRAN). When <strong>rrelaxiv</strong> is not available, <strong>optmatch</strong> instead uses a min-cost flow solver provided by the LEMON project, <a href="https://lemon.cs.elte.hu/trac/lemon" class="external-link uri">https://lemon.cs.elte.hu/trac/lemon</a>; bindings to these are provided by the <strong>rlemon</strong> package. The user interface remains the same, other than a new optional argument for specifying which solver to use. In <em>very</em> limited testing, we’ve seen similar matching results with the new solver.</li>
-<li>The <strong>rlemon</strong> package offers bindings to four LEMON solvers. See <code><a href="../reference/fullmatch.html">help(fullmatch)</a></code> for a discussion on those, and the new argument to <code>fullmatch</code>, <code>solver =</code>.</li>
+<li>The <strong>rlemon</strong> package offers bindings to four LEMON solvers. See <code><a href="../reference/fullmatch.html">help(fullmatch)</a></code> for a discussion on those, and the new argument to <code><a href="../reference/fullmatch.html">fullmatch()</a></code>, <code>solver =</code>.</li>
 <li>To continue using the RELAX-IV solver, whether for back-compatibility or as a matter of preference, install the <strong>rrelaxiv</strong> package, from <a href="https://github.com/josherrickson/rrelaxiv/" class="external-link uri">https://github.com/josherrickson/rrelaxiv/</a>. If <strong>rrelaxiv</strong> is installed, RELAX-IV will become the default solver automatically.</li>
 </ul></div>
 <div class="section level3">
@@ -92,7 +93,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-15" id="changes-in-optmatch-version-09-15">Changes in <strong>optmatch</strong> Version 0.9-15<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-15"></a></h2><p class="text-muted">CRAN release: 2021-08-17</p>
-<ul><li>Small bug fix related to <code>survey::mad</code> and <code>survey::med</code> interface</li>
+<ul><li>Small bug fix related to <code>survey::mad()</code> and <code>survey::med()</code> interface</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-14" id="changes-in-optmatch-version-09-14">Changes in <strong>optmatch</strong> Version 0.9-14<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-14"></a></h2><p class="text-muted">CRAN release: 2021-05-26</p>
@@ -102,7 +103,7 @@
 <li>Fixed a bug causing <code><a href="../reference/match_on-methods.html">match_on()</a></code>, <code><a href="../reference/scores.html">scores()</a></code> to misinterpret propensity or other scores fitted with <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html" class="external-link">survey::svyglm()</a></code> (<a href="https://github.com/markmfredrickson/optmatch/issues/194" class="external-link">#194</a>).</li>
 <li>
 <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> gains a method for <code>svyglm</code> objects, e.g. propensity score models fitted with case weights via <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html" class="external-link">survey::svyglm()</a></code> (<a href="https://github.com/markmfredrickson/optmatch/issues/194" class="external-link">#194</a>).</li>
-<li>The meaning of one of <code><a href="../reference/match_on-methods.html">match_on.glm()</a></code>’s arguments has changed slightly: to circumvent scale standardization when matching on a propensity score or other index, you should now pass <code>standardization.scale=1</code>, not <code>standardization.scale=NULL</code> (<a href="https://github.com/markmfredrickson/optmatch/issues/194" class="external-link">#194</a>).</li>
+<li>The meaning of one of <code><a href="../reference/match_on-methods.html">match_on.glm()</a></code>’s arguments has changed slightly: to circumvent scale standardization when matching on a propensity score or other index, you should now pass <code>standardization.scale = 1</code>, not <code>standardization.scale = NULL</code> (<a href="https://github.com/markmfredrickson/optmatch/issues/194" class="external-link">#194</a>).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-12" id="changes-in-optmatch-version-09-12">Changes in <strong>optmatch</strong> Version 0.9-12<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-12"></a></h2><p class="text-muted">CRAN release: 2019-10-11</p>
@@ -112,15 +113,15 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-11" id="changes-in-optmatch-version-09-11">Changes in <strong>optmatch</strong> Version 0.9-11<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-11"></a></h2><p class="text-muted">CRAN release: 2019-07-12</p>
-<ul><li>Added <code>exclude</code> argument to <code>match_on</code> mirroring the <code>exclude</code> argument for <code>caliper</code>.</li>
+<ul><li>Added <code>exclude</code> argument to <code><a href="../reference/match_on-methods.html">match_on()</a></code> mirroring the <code>exclude</code> argument for <code><a href="../reference/caliper-methods.html">caliper()</a></code>.</li>
 <li>
-<code>Optmatch</code> objects now support an <code>update</code> function. (<a href="https://github.com/markmfredrickson/optmatch/issues/54" class="external-link">#54</a>)</li>
+<code>Optmatch</code> objects now support an <code><a href="https://rdrr.io/r/stats/update.html" class="external-link">update()</a></code> function, <code>update.Optmatch()</code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/54" class="external-link">#54</a>)</li>
 <li>
-<code>Optmatch</code> objects can be combined via <code>c</code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/68" class="external-link">#68</a>)</li>
+<code>Optmatch</code> objects can be combined via a <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> function, <code>c.Optmatch()</code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/68" class="external-link">#68</a>)</li>
 <li>Added support for <code>labelled</code> treatment vectors which often arise when importing from Stata or SPSS. (<a href="https://github.com/markmfredrickson/optmatch/issues/159" class="external-link">#159</a>)</li>
 <li>Introduced more informative error messages in a few situations. (<a href="https://github.com/markmfredrickson/optmatch/issues/149" class="external-link">#149</a>, <a href="https://github.com/markmfredrickson/optmatch/issues/104" class="external-link">#104</a>)</li>
 <li>Better handling of NA’s in variables involved in matching/calipering/exactMatching. (<a href="https://github.com/markmfredrickson/optmatch/issues/147" class="external-link">#147</a>)</li>
-<li>Fixed a bug with incorrect results in <code>matchfailed</code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/175" class="external-link">#175</a>)</li>
+<li>Fixed a bug with incorrect results in <code><a href="../reference/matched.html">matchfailed()</a></code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/175" class="external-link">#175</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-10" id="changes-in-optmatch-version-09-10">Changes in <strong>optmatch</strong> Version 0.9-10<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-10"></a></h2><p class="text-muted">CRAN release: 2018-07-12</p>
@@ -128,7 +129,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-9" id="changes-in-optmatch-version-09-9">Changes in <strong>optmatch</strong> Version 0.9-9<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-9"></a></h2><p class="text-muted">CRAN release: 2018-05-14</p>
-<ul><li>Fixed a bug that caused the effective sample size to be rounded too aggresively in <code>summary.optmatch</code>.</li>
+<ul><li>Fixed a bug that caused the effective sample size to be rounded too aggresively in <code><a href="../reference/optmatch.html">summary.optmatch()</a></code>.</li>
 <li>Improved several error messages and warnings. (<a href="https://github.com/markmfredrickson/optmatch/issues/138" class="external-link">#138</a>, <a href="https://github.com/markmfredrickson/optmatch/issues/149" class="external-link">#149</a>, <a href="https://github.com/markmfredrickson/optmatch/issues/142" class="external-link">#142</a>)</li>
 <li>Fixed use of <code>if(vectorOfThings)</code> usage that will give an error in upcoming R release.</li>
 </ul></div>
@@ -137,61 +138,61 @@
 <ul><li>If pairmatch is asked to match within a stratum with fewer eligible controls than <code>controls</code> times the number of treatments, it now attempts to match in that stratum by leaving out some of the treatment units. (<a href="https://github.com/markmfredrickson/optmatch/issues/116" class="external-link">#116</a>)</li>
 <li>The treatment indicator must be either numeric 0/1 (1 for treatment, 0 for control) or logical (TRUE for treatment, FALSE for control).</li>
 <li>Support for any other type of treatment vector (factors, character, other numerical values) has been deprecated. You can easily update treatment vectors using conditional statements, e.g. if you have a character “T” and “C”, <code>treatment_new = treatment == "T"</code>.</li>
-<li>The treatment indicator can now include NA’s. Any observations with NA treatment status will be excluded from distances matrices and will never match. WARNING: if the <code>data</code> argument is excluded from <code>fullmatch</code> or <code>pairmatch</code> and <code>num_NA</code> &gt; 0 entries in the treatment status vector are NA, then the length of the vector produced by <code>fullmatch</code> or <code>pairmatch</code> won’t match the length of the treatment status vector, having <code>num_NA</code> fewer observations. Don’t forget to pass a <code>data</code> argument!</li>
+<li>The treatment indicator can now include NA’s. Any observations with NA treatment status will be excluded from distances matrices and will never match. WARNING: if the <code>data</code> argument is excluded from <code><a href="../reference/fullmatch.html">fullmatch()</a></code> or <code><a href="../reference/pairmatch.html">pairmatch()</a></code> and <code>num_NA</code> &gt; 0 entries in the treatment status vector are NA, then the length of the vector produced by <code><a href="../reference/fullmatch.html">fullmatch()</a></code> or <code><a href="../reference/pairmatch.html">pairmatch()</a></code> won’t match the length of the treatment status vector, having <code>num_NA</code> fewer observations. Don’t forget to pass a <code>data</code> argument!</li>
 <li>Fixed bug affecting rank Mahalanobis matching in combination with calipers and/or exact matching constraints (<a href="https://github.com/markmfredrickson/optmatch/issues/128" class="external-link">#128</a>)</li>
-<li>Addressed an issue affecting certain problems with both exact matching and caliper restrictions, where min/mean/max.controls directives would have been mistakenly applied to the wrong subclasses, resulting in strange warnings and, potentially, spurious match failures or unintended structural restrictions in some subclasses (<a href="https://github.com/markmfredrickson/optmatch/issues/129" class="external-link">#129</a>).</li>
-<li>Structural restrictions allowing only many-one matches no longer cause fullmatch to automatically fail. I.e. we’ve restored the behaviour of the software prior to version 0.8. (<a href="https://github.com/markmfredrickson/optmatch/issues/132" class="external-link">#132</a>)</li>
+<li>Addressed an issue affecting certain problems with both exact matching and caliper restrictions, where <code>min.controls</code>/<code>mean.controls</code>/<code>max.controls</code> directives would have been mistakenly applied to the wrong subclasses, resulting in strange warnings and, potentially, spurious match failures or unintended structural restrictions in some subclasses (<a href="https://github.com/markmfredrickson/optmatch/issues/129" class="external-link">#129</a>).</li>
+<li>Structural restrictions allowing only many-one matches no longer cause <code><a href="../reference/fullmatch.html">fullmatch()</a></code> to automatically fail. I.e. we’ve restored the behaviour of the software prior to version 0.8. (<a href="https://github.com/markmfredrickson/optmatch/issues/132" class="external-link">#132</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-7" id="changes-in-optmatch-version-09-7">Changes in <strong>optmatch</strong> Version 0.9-7<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-7"></a></h2><p class="text-muted">CRAN release: 2016-12-29</p>
-<ul><li>Added support for CBPS created objects (<a href="https://github.com/markmfredrickson/optmatch/issues/121" class="external-link">#121</a>).</li>
+<ul><li>Added support for <strong>CBPS</strong> created objects (<a href="https://github.com/markmfredrickson/optmatch/issues/121" class="external-link">#121</a>).</li>
 <li>Improvments to documentation for several functions.</li>
 <li>Several small bugfixes.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-6" id="changes-in-optmatch-version-09-6">Changes in <strong>optmatch</strong> Version 0.9-6<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-6"></a></h2><p class="text-muted">CRAN release: 2016-05-03</p>
 <ul><li>New material in vignettes, on general use of the package and on import/export of matching results and material between R and SAS or Stata (Josh Errickson).</li>
-<li>New <code>summary</code> methods for InfinitySparseMatrix, BlockedInfinitySparseMatrix and DenseMatrix. I.e., you can call <code>summary</code> on the result of a call to <code>match_on</code> or <code>caliper</code>. The information this returns may be useful for selecting caliper widths, and for managing computational burdens with large matching problems.</li>
-<li>Streamlined combinations of exact and propensity score matching. If you include “+ strata(fac)” on the right hand side of a propensity scoring model formula, then pass the fitted model to <code><a href="../reference/pairmatch.html">pairmatch()</a></code>, <code><a href="../reference/fullmatch.html">fullmatch()</a></code> or <code>match_on</code>, then the factor “fac” will both serve as an independent variable for the propensity model and an exact matching variable (<a href="https://github.com/markmfredrickson/optmatch/issues/101" class="external-link">#101</a>). See the examples on the help documentation for <code>fullmatch</code>.</li>
+<li>New <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods for <code>InfinitySparseMatrix</code> (<code><a href="../reference/summary.ism.html">summary.InfinitySparseMatrix()</a></code>), <code>BlockedInfinitySparseMatrix</code>, (<code><a href="../reference/summary.ism.html">summary.BlockedInfinitySparseMatrix()</a></code>) and <code>DenseMatrix</code> (<code><a href="../reference/summary.ism.html">summary.DenseMatrix()</a></code>). I.e., you can call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the result of a call to <code><a href="../reference/match_on-methods.html">match_on()</a></code> or <code><a href="../reference/caliper-methods.html">caliper()</a></code>. The information this returns may be useful for selecting caliper widths, and for managing computational burdens with large matching problems.</li>
+<li>Streamlined combinations of exact and propensity score matching. If you include “+ strata(fac)” on the right hand side of a propensity scoring model formula, then pass the fitted model to <code><a href="../reference/pairmatch.html">pairmatch()</a></code>, <code><a href="../reference/fullmatch.html">fullmatch()</a></code> or <code><a href="../reference/match_on-methods.html">match_on()</a></code>, then the factor “fac” will both serve as an independent variable for the propensity model and an exact matching variable (<a href="https://github.com/markmfredrickson/optmatch/issues/101" class="external-link">#101</a>). See the examples on the help documentation for <code><a href="../reference/fullmatch.html">fullmatch()</a></code>.</li>
 <li>
-<code>pairmatch</code> and <code>fullmatch</code> no longer generate “matched.distances” attributes for their results. To get this information, use <code>matched.distances</code>.</li>
+<code><a href="../reference/pairmatch.html">pairmatch()</a></code> and <code><a href="../reference/fullmatch.html">fullmatch()</a></code> no longer generate “matched.distances” attributes for their results. To get this information, use <code><a href="../reference/matched.distances.html">matched.distances()</a></code>.</li>
 <li>(Internal) methods for sorting of InfinitySparseMatrix’s</li>
-<li>Deprecated: support passing the results of <code>fill.NAs</code> directly to <code>glm</code> or similar. Use the traditional formula and <code>data</code> argument version. See help documentation for <code>fill.NAs</code> for examples.</li>
-<li>Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); <code>boxplot</code> method for fitted propensities ignoring varwidth argument (<a href="https://github.com/markmfredrickson/optmatch/issues/113" class="external-link">#113</a>); various minor issues affecting package development and deployment (<a href="https://github.com/markmfredrickson/optmatch/issues/110" class="external-link">#110</a>,…).</li>
+<li>Deprecated: support passing the results of <code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> directly to <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> or similar. Use the traditional formula and <code>data</code> argument version. See help documentation for <code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> for examples.</li>
+<li>Fixed: Rcpp incompatibilities for some OSX users (4bbcaca); <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> method for fitted propensities ignoring varwidth argument (<a href="https://github.com/markmfredrickson/optmatch/issues/113" class="external-link">#113</a>); various minor issues affecting package development and deployment (<a href="https://github.com/markmfredrickson/optmatch/issues/110" class="external-link">#110</a>,…).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-5" id="changes-in-optmatch-version-09-5">Changes in <strong>optmatch</strong> Version 0.9-5<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-5"></a></h2><p class="text-muted">CRAN release: 2015-07-31</p>
 <ul><li>Documentation adjustments.</li>
-<li>Explicit print method for output from explicit calls to <code>stratumStructure</code>.</li>
+<li>Explicit print method for output from explicit calls to <code><a href="../reference/stratumStructure.html">stratumStructure()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-4" id="changes-in-optmatch-version-09-4">Changes in <strong>optmatch</strong> Version 0.9-4<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-4"></a></h2>
 <ul><li>Significant speed up of math operations for sparse distance objects (by Josh Buckner).</li>
-<li>Introducing <code>contr.match_on</code>, a new default contrasts function for making Mahalanobis and Euclidean distances. Previously we used R defaults, which (a) generated different answers for the same factor depending on the ordering of the levels and (b) led to different distances for {0,1}-valued numeric variables and two level factors. (<a href="https://github.com/markmfredrickson/optmatch/issues/80" class="external-link">#80</a>)</li>
+<li>Introducing <code>contr.match_on()</code>, a new default contrasts function for making Mahalanobis and Euclidean distances. Previously we used R defaults, which (a) generated different answers for the same factor depending on the ordering of the levels and (b) led to different distances for {0,1}-valued numeric variables and two level factors. (<a href="https://github.com/markmfredrickson/optmatch/issues/80" class="external-link">#80</a>)</li>
 <li>match_on now takes strata as element of formula. Now users can write: match_on(z ~ x1 + x2 + strata(exactMatchVar)) Instead of match_on(z ~ x1 + x2, within = exactMatch(z ~ exactMatchVar))</li>
-<li>Fixed bug giving spurious infeasibility warnings, sample size reductions when using <code>fullmatch</code> with feasible combinations of <code>min.controls</code>, <code>mean.controls</code>/<code>max.controls</code> and <code>max.controls</code> (<a href="https://github.com/markmfredrickson/optmatch/issues/92" class="external-link">#92</a>)</li>
+<li>Fixed bug giving spurious infeasibility warnings, sample size reductions when using <code><a href="../reference/fullmatch.html">fullmatch()</a></code> with feasible combinations of <code>min.controls</code>, <code>mean.controls</code>/<code>max.controls</code> and <code>max.controls</code> (<a href="https://github.com/markmfredrickson/optmatch/issues/92" class="external-link">#92</a>)</li>
 <li>Various small bug fixes and documentation improvements.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-3" id="changes-in-optmatch-version-09-3">Changes in <strong>optmatch</strong> Version 0.9-3<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-3"></a></h2><p class="text-muted">CRAN release: 2014-08-13</p>
 <ul><li>Fixed memory issues, potential segfaults in solver code. (Thank you, Peter Solenberger).</li>
-<li>Fixed bug in dropping cases with extraneous NAs when using <code>fullmatch</code> or <code>pairmatch</code> to create distance specifications directly.</li>
-<li>Fixed bug (<a href="https://github.com/markmfredrickson/optmatch/issues/83" class="external-link">#83</a>) in <code>glm</code> method for <code>match_on</code> that caused observations with fixable NAs to be dropped too often.</li>
-<li>New function <code>distUnion</code> allows combining arbitrary distance specifications.</li>
-<li>New function <code>antiExactMatch</code> provides for matches that may only occur between treated and control units with <em>different</em> values on a factor variable. This is the opposite of <code>exactMatch</code>, which ensures matches occur within factor levels.</li>
-<li>Can now infer <code>data</code> argument in more cases when using the <code>summary</code> method when the <strong>RItools</strong> package is present.</li>
+<li>Fixed bug in dropping cases with extraneous NAs when using <code><a href="../reference/fullmatch.html">fullmatch()</a></code> or <code><a href="../reference/pairmatch.html">pairmatch()</a></code> to create distance specifications directly.</li>
+<li>Fixed bug (<a href="https://github.com/markmfredrickson/optmatch/issues/83" class="external-link">#83</a>) in <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> method for <code><a href="../reference/match_on-methods.html">match_on()</a></code> that caused observations with fixable NAs to be dropped too often.</li>
+<li>New function <code><a href="../reference/distUnion.html">distUnion()</a></code> allows combining arbitrary distance specifications.</li>
+<li>New function <code><a href="../reference/antiExactMatch.html">antiExactMatch()</a></code> provides for matches that may only occur between treated and control units with <em>different</em> values on a factor variable. This is the opposite of <code><a href="../reference/exactMatch.html">exactMatch()</a></code>, which ensures matches occur within factor levels.</li>
+<li>Can now infer <code>data</code> argument in more cases when using the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method when the <strong>RItools</strong> package is present.</li>
 <li>Additional warnings and clarifications.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-2" id="changes-in-optmatch-version-09-2">Changes in <strong>optmatch</strong> Version 0.9-2<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-2"></a></h2>
 <ul><li>Fixed issue <a href="https://github.com/markmfredrickson/optmatch/issues/74" class="external-link">#74</a> by properly setting the <code>omit.fraction</code> argument when there are unmatched controls.</li>
-<li>Improvements to the <code>minExactMatch</code> function.</li>
+<li>Improvements to the <code><a href="../reference/minExactMatch.html">minExactMatch()</a></code> function.</li>
 <li>Added <code>optmatch_verbose_message</code> option to provide additional warnings.</li>
-<li>Fixed crash when all NULL or NA vectors passed as arguments to <code>fullmatch</code>.</li>
-<li>Added argument to <code>caliper</code> function that allows returning values that fit the caliper instead of just indicators of which entries fit the caliper width.</li>
+<li>Fixed crash when all NULL or NA vectors passed as arguments to <code><a href="../reference/fullmatch.html">fullmatch()</a></code>.</li>
+<li>Added argument to <code><a href="../reference/caliper-methods.html">caliper()</a></code> function that allows returning values that fit the caliper instead of just indicators of which entries fit the caliper width.</li>
 <li>Calipers widths can be given per-treated unit, instead of globally.</li>
 <li>Additional binary operators for sparse matrix representations.</li>
-<li>Added new ranked Mahalanobis method for the formula method of <code>match_on</code>.</li>
+<li>Added new ranked Mahalanobis method for the formula method of <code><a href="../reference/match_on-methods.html">match_on()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-1" id="changes-in-optmatch-version-09-1">Changes in <strong>optmatch</strong> Version 0.9-1<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-1"></a></h2><p class="text-muted">CRAN release: 2013-11-01</p>
@@ -216,7 +217,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-9-0">BUG FIXES<a class="anchor" aria-label="anchor" href="#bug-fixes-0-9-0"></a></h3>
-<ul><li><p><code>match_on</code> is now a S3 generic function, which solves several bugs using propensity models from other packages.</p></li>
+<ul><li><p><code><a href="../reference/match_on-methods.html">match_on()</a></code> is now a S3 generic function, which solves several bugs using propensity models from other packages.</p></li>
 <li><p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method was giving overly pessimistic warnings about failures.</p></li>
 <li><p>fixed bug in how <code>Optmatch</code> objects were printing.</p></li>
 </ul></div>
@@ -234,8 +235,8 @@
 <h2 class="pkg-version" data-toc-text="0.8-2" id="changes-in-optmatch-version-08-2">Changes in <strong>optmatch</strong> Version 0.8-2<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-08-2"></a></h2>
 <ul><li><p><code><a href="../reference/fullmatch.html">full()</a></code> and <code><a href="../reference/pairmatch.html">pair()</a></code> are now aliases to <code><a href="../reference/fullmatch.html">fullmatch()</a></code> and <code><a href="../reference/pairmatch.html">pairmatch()</a></code></p></li>
 <li><p>All <code><a href="../reference/match_on-methods.html">match_on()</a></code> methods take <code>caliper</code> arguments (formerly just the numeric method and derived methods had this argument).</p></li>
-<li><p>boxplot methods for fitted propensity score methods (<code>glm</code> and <code>bigglm</code>)</p></li>
-<li><p><code>fill.NAs</code> now takes <code>contrasts.arg</code> argument to mimic <code><a href="https://rdrr.io/pkg/SparseM/man/SparseM.hb.html" class="external-link">model.matrix()</a></code></p></li>
+<li><p>boxplot methods for fitted propensity score methods (<code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> and <code>bigglm()</code>)</p></li>
+<li><p><code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> now takes <code>contrasts.arg</code> argument to mimic <code><a href="https://rdrr.io/pkg/SparseM/man/SparseM.hb.html" class="external-link">model.matrix()</a></code></p></li>
 <li><p>Several bug fixes in examples, documentation</p></li>
 <li><p>The methods <code><a href="../reference/optmatch-defunct.html">pscore.dist()</a></code> and <code><a href="../reference/optmatch-defunct.html">mahal.dist()</a></code> are now deprecated, with useful error messages pointing users to replacements.</p></li>
 <li><p>Significant performance improvements for sparse matching problems.</p></li>
@@ -249,17 +250,17 @@
 <h2 class="pkg-version" data-toc-text="0.8-0" id="changes-in-optmatch-version-08-0">Changes in <strong>optmatch</strong> Version 0.8-0<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-08-0"></a></h2><p class="text-muted">CRAN release: 2012-11-17</p>
 <div class="section level3">
 <h3 id="new-features-0-8-0">NEW FEATURES<a class="anchor" aria-label="anchor" href="#new-features-0-8-0"></a></h3>
-<ul><li><p>More efficient data structure for sparse matching problems, those with relatively few allowed (finite) distances between units. Sparse problems often arise when calipers are employed. The new data structure (<code>InfinitySparseMatrix</code>) behaves like a simple matrix, allowing <code>cbind</code>, <code>rbind</code>, and <code>subset</code> operations, making it easier to work with the older <code>optmatch.dlist</code> data structure.</p></li>
-<li><p><code>match_on</code>: A series of methods to generate matching problems using the new data structure when appropriate, or using a standard matrix when the problem is dense. This function is being deployed along side the <code>mdist</code> function to provide complete backward compatibility. New development will focus on this function for distance creation, and users are encouraged to use it right away. One difference for <code>mdist</code> users is the <code>within</code> argument. This argument takes an existing distance specification and limits the new comparisons to only those pairs that have finite distances in the <code>within</code> argument. See the <code>match_on</code>, <code>exactMatch</code>, and <code>caliper</code> documentation for more details.</p></li>
-<li><p><code>exactMatch</code>: A new function to create stratified matching problems (in which cross strata matches are forbidden). Users can specify the strata using either a factor vector or a convenient formula interface. The results can be used in calls <code>match_on</code> to limit distance calculations to only with-in strata treatment-control pairs.</p></li>
-<li><p>New <code>data</code> argument to <code>fullmatch</code> and <code>pairmatch</code>: This argument will set the order of the match to that of the <code>row.names</code>, <code>names</code>, or contents of the passed <code>data.frame</code> or <code>vector</code>. This avoids potential bugs caused when the <code>optmatch</code> objects were in a different order than users’ data.</p></li>
+<ul><li><p>More efficient data structure for sparse matching problems, those with relatively few allowed (finite) distances between units. Sparse problems often arise when calipers are employed. The new data structure (<code>InfinitySparseMatrix</code>) behaves like a simple matrix, allowing <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code>, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code>, and <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> operations, making it easier to work with the older <code>optmatch.dlist</code> data structure.</p></li>
+<li><p><code><a href="../reference/match_on-methods.html">match_on()</a></code>: A series of methods to generate matching problems using the new data structure when appropriate, or using a standard matrix when the problem is dense. This function is being deployed along side the <code><a href="../reference/mdist.html">mdist()</a></code> function to provide complete backward compatibility. New development will focus on this function for distance creation, and users are encouraged to use it right away. One difference for <code><a href="../reference/mdist.html">mdist()</a></code> users is the <code>within</code> argument. This argument takes an existing distance specification and limits the new comparisons to only those pairs that have finite distances in the <code>within</code> argument. See the <code><a href="../reference/match_on-methods.html">match_on()</a></code>, <code><a href="../reference/exactMatch.html">exactMatch()</a></code>, and <code><a href="../reference/caliper-methods.html">caliper()</a></code> documentation for more details.</p></li>
+<li><p><code><a href="../reference/exactMatch.html">exactMatch()</a></code>: A new function to create stratified matching problems (in which cross strata matches are forbidden). Users can specify the strata using either a factor vector or a convenient formula interface. The results can be used in calls <code><a href="../reference/match_on-methods.html">match_on()</a></code> to limit distance calculations to only with-in strata treatment-control pairs.</p></li>
+<li><p>New <code>data</code> argument to <code><a href="../reference/fullmatch.html">fullmatch()</a></code> and <code><a href="../reference/pairmatch.html">pairmatch()</a></code>: This argument will set the order of the match to that of the <code>row.names</code>, <code>names</code>, or contents of the passed <code>data.frame</code> or <code>vector</code>. This avoids potential bugs caused when the <code>optmatch</code> objects were in a different order than users’ data.</p></li>
 <li><p>Test suite expanded and now uses the <strong>testthat</strong> library.</p></li>
-<li><p><code>fill.NAs</code> allows (optionally) filling in all columns (previously, the first column was assumed to be an outcome or treatment indicator and was not filled in).</p></li>
-<li><p>New tools to find minimum feasible constraints: Large matching problems could exceed the upper limit for a matching problem. The functions <code>minExactmatch</code> and <code>maxCaliper</code> find the smallest interaction of potential factors for stratified matchings or the largest (most generous) caliper, respectively, that make the problem small enough to fit under the maximum problem size limit. See the help pages for these functions for more information.</p></li>
+<li><p><code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> allows (optionally) filling in all columns (previously, the first column was assumed to be an outcome or treatment indicator and was not filled in).</p></li>
+<li><p>New tools to find minimum feasible constraints: Large matching problems could exceed the upper limit for a matching problem. The functions <code>minExactmatch()</code> and <code><a href="../reference/maxCaliper.html">maxCaliper()</a></code> find the smallest interaction of potential factors for stratified matchings or the largest (most generous) caliper, respectively, that make the problem small enough to fit under the maximum problem size limit. See the help pages for these functions for more information.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-8-0">BUG FIXES<a class="anchor" aria-label="anchor" href="#bug-fixes-0-8-0"></a></h3>
-<ul><li>Unmatched units are always NA (instead of being labeled <code>1.NA</code> or similar). This avoids some obscure bugs when feeding the results of <code>fullmatch</code> to other functions.</li>
+<ul><li>Unmatched units are always NA (instead of being labeled <code>1.NA</code> or similar). This avoids some obscure bugs when feeding the results of <code><a href="../reference/fullmatch.html">fullmatch()</a></code> to other functions.</li>
 </ul><p>FOR A DETAILED CHANGELOG, SEE <a href="https://github.com/markmfredrickson/optmatch" class="external-link uri">https://github.com/markmfredrickson/optmatch</a></p>
 </div>
 </div>
@@ -268,7 +269,7 @@
 <div class="section level3">
 <h3 id="new-features-0-7-1">NEW FEATURES<a class="anchor" aria-label="anchor" href="#new-features-0-7-1"></a></h3>
 <ul><li><p><code><a href="../reference/pairmatch.html">pairmatch()</a></code> has a new option, <code>remove.unmatchables</code>, that may be useful in conjunction with caliper matching. With <code>remove.unmatchables = TRUE</code>, prior to matching any units with no counterparts within caliper distance are removed. Pair matching can still fail, if for example for two distinct treatment units only a single control, the same one, is available for matching to them; but <code>remove.unmatchables</code> eliminates one simple and common reason for pair matching to fail.</p></li>
-<li><p>Applying <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to an optmatch object now creates a <code>summary.optmatch</code> containing the summary information, in addition to reporting it to the console (via a <code>summary.optmatch</code> method for <code><a href="https://rdrr.io/pkg/RItools/man/print.xbal.html" class="external-link">print()</a></code>).</p></li>
+<li><p>Applying <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to an optmatch object now creates a <code>summary.optmatch</code> containing the summary information, in addition to reporting it to the console (via a <code><a href="../reference/optmatch.html">summary.optmatch()</a></code> method for <code><a href="https://rdrr.io/pkg/RItools/man/print.xbal.html" class="external-link">print()</a></code>).</p></li>
 <li><p><code><a href="../reference/mdist.html">mdist.formula()</a></code> no longer requires an explicit data argument. I.e., you can get away with a call like <code>mdist(Treat~X1+X2|S)</code> if the variables <code>Treat</code>, <code>X1</code>, <code>X2</code> and <code>S</code> are available in the environment you’re working from (or in one of its parent environments). Previously you would have had to do <code>mdist(Treat~X1+X2|S, data=mydata)</code>. (The latter formulation is still to be preferred, however, in part because with it <code><a href="../reference/mdist.html">mdist()</a></code> gets to use data’s row names, whereas otherwise it would have to make up row names.)</p></li>
 </ul></div>
 </div>
@@ -276,22 +277,22 @@
 <h2 class="pkg-version" data-toc-text="0.7" id="changes-in-optmatch-version-07">Changes in <strong>optmatch</strong> Version 0.7<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-07"></a></h2>
 <div class="section level3">
 <h3 id="new-features-0-7">NEW FEATURES<a class="anchor" aria-label="anchor" href="#new-features-0-7"></a></h3>
-<ul><li>New function <code>fill.NAs</code> replaces missing observations (ie. NA values) with minimally informative values (ie. the mean of observed columns). <code>Fill.NAs</code> handles functions in formulas intelligently and provides missing indicators for each variable. See the help documentation for more information and examples.</li>
+<ul><li>New function <code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> replaces missing observations (ie. NA values) with minimally informative values (ie. the mean of observed columns). <code><a href="../reference/fill.NAs.html">fill.NAs()</a></code> handles functions in formulas intelligently and provides missing indicators for each variable. See the help documentation for more information and examples.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-7">BUG FIXES<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7"></a></h3>
-<ul><li><p><code>mdist.function</code> method now properly returns an <code>optmatch.dlist</code> object for use in <code>summary.optmatch</code>, etc.</p></li>
-<li><p><code>mdist.function</code> maintains label on grouping factor.</p></li>
+<ul><li><p><code><a href="../reference/mdist.html">mdist.function()</a></code> method now properly returns an <code>optmatch.dlist</code> object for use in <code><a href="../reference/optmatch.html">summary.optmatch()</a></code>, etc.</p></li>
+<li><p><code><a href="../reference/mdist.html">mdist.function()</a></code> maintains label on grouping factor.</p></li>
 </ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6-1" id="changes-in-optmatch-version-06-1">Changes in <strong>optmatch</strong> Version 0.6-1<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-06-1"></a></h2><p class="text-muted">CRAN release: 2010-02-11</p>
 <div class="section level3">
 <h3 id="new-features-0-6-1">NEW FEATURES<a class="anchor" aria-label="anchor" href="#new-features-0-6-1"></a></h3>
-<ul><li><p>New <code>mdist</code> method to extract propensity scores from models fitted using <code>bigglm</code> in package <strong>biglm</strong>.</p></li>
-<li><p><code>mdist</code>’s formula method now understands grouping factors indicated with a pipe (<code>|</code>)</p></li>
-<li><p>informative error message for <code>mdist</code> called on numeric vectors</p></li>
-<li><p>updated <code>mdist</code> documentation</p></li>
+<ul><li><p>New <code><a href="../reference/mdist.html">mdist()</a></code> method to extract propensity scores from models fitted using <code>bigglm()</code> in package <strong>biglm</strong>.</p></li>
+<li><p><code><a href="../reference/mdist.html">mdist()</a></code>’s formula method now understands grouping factors indicated with a pipe (<code>|</code>)</p></li>
+<li><p>informative error message for <code><a href="../reference/mdist.html">mdist()</a></code> called on numeric vectors</p></li>
+<li><p>updated <code><a href="../reference/mdist.html">mdist()</a></code> documentation</p></li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -310,10 +311,10 @@
 <div class="section level3">
 <h3 id="bug-fixes-0-6">BUG FIXES<a class="anchor" aria-label="anchor" href="#bug-fixes-0-6"></a></h3>
 <ul><li><p>subsetting of objects of class <code>Optmatch</code> now preserves matched.distances attribute.</p></li>
-<li><p>fixed bug in <code>maxControlsCap</code>/<code>minControlsCap</code> whereby they behaved unreliably on subclasses within which some subjects had no permissible matches.</p></li>
-<li><p>Removed unnecessary panic in <code>fullmatch</code> when it was given a <code>min.controls</code> argument with attributes other than names (as when it is created by <code><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply()</a></code>).</p></li>
-<li><p>fixed bug wherein <code>summary.optmatch</code> fails to retrieve balance tests if given a propensity model that had function calls in its formula.</p></li>
-<li><p>Documentation pages for <code>fullmatch</code>, <code>pairmatch</code> filled out a bit.</p></li>
+<li><p>fixed bug in <code><a href="../reference/minmaxctlcap.html">maxControlsCap()</a></code>/<code><a href="../reference/minmaxctlcap.html">minControlsCap()</a></code> whereby they behaved unreliably on subclasses within which some subjects had no permissible matches.</p></li>
+<li><p>Removed unnecessary panic in <code><a href="../reference/fullmatch.html">fullmatch()</a></code> when it was given a <code>min.controls</code> argument with attributes other than names (as when it is created by <code><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply()</a></code>).</p></li>
+<li><p>fixed bug wherein <code><a href="../reference/optmatch.html">summary.optmatch()</a></code> fails to retrieve balance tests if given a propensity model that had function calls in its formula.</p></li>
+<li><p>Documentation pages for <code><a href="../reference/fullmatch.html">fullmatch()</a></code>, <code><a href="../reference/pairmatch.html">pairmatch()</a></code> filled out a bit.</p></li>
 </ul></div>
 </div>
     <div class="section level2">
