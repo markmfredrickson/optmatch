@@ -54,7 +54,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0.9001" id="changes-in-optmatch-version-01009001">Changes in <strong>optmatch</strong> Version 0.10.0.9001<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-01009001"></a></h2>
-<ul><li>The <code>compute_rank_mahalanobis()</code> function was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
+<ul><li>The rank Mahalanobis distance being created in <code><a href="../reference/match_on-methods.html">match_on()</a></code> with the <code>method = "rank_mahalanobis"</code> was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
 <li>
 <strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.
 <ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
@@ -93,7 +93,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-15" id="changes-in-optmatch-version-09-15">Changes in <strong>optmatch</strong> Version 0.9-15<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-15"></a></h2><p class="text-muted">CRAN release: 2021-08-17</p>
-<ul><li>Small bug fix related to <code>survey::mad()</code> and <code>survey::med()</code> interface</li>
+<ul><li>Small bug fix related to <code>survey::mad</code> and <code>survey::med</code> interface</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9-14" id="changes-in-optmatch-version-09-14">Changes in <strong>optmatch</strong> Version 0.9-14<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-09-14"></a></h2><p class="text-muted">CRAN release: 2021-05-26</p>
