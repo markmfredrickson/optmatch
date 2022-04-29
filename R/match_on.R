@@ -178,7 +178,7 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' provided by \code{stats::mad}.
 #'
 #' @param x numeric variable
-#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param trtgrp logical or numeric. If numeric, coerced to logical via \code{!}
 #' @param standardizer function or numeric of length 1
 #' @return numeric of length 1
 #' @keywords internal
@@ -836,9 +836,10 @@ contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
 #' and the \code{standardizer} function is to return the dispersion of this variable.)
 #'
 #' @param x numeric variable
-#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param trtgrp logical or numeric. If numeric, coerced to logical via \code{!}
 #' @param standardizer function, \code{NULL} or numeric of length 1
-#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
+#' @param svydesign_ ordinarily \code{NULL}, but may also be a
+#'   \code{survey.design2}; see Details.
 #' @return numeric of length 1
 #' @export
 #' @keywords internal

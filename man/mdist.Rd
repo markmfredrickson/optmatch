@@ -40,12 +40,12 @@ for additional formula options.}
 \item{...}{Additional method arguments. Most methods require a
 'data' argument.}
 
-\item{data}{Data where the variables references in `x` live.}
+\item{data}{Data where the variables references in \code{x} live.}
 
-\item{subset}{If non-NULL, the subset of `data` to be used.}
+\item{subset}{If non-\code{NULL}, the subset of \code{data} to be used.}
 
 \item{standardization.scale}{A function to scale the distances; by
-default uses `mad`.}
+default uses \code{mad}.}
 
 \item{trtgrp}{Dummy variable for treatment group membership.}
 }

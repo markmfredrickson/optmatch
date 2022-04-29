@@ -38,7 +38,7 @@
 #' @param subset an optional vector specifying a subset of
 #'   observations to be used
 #' @param na.action A function which indicates what should happen when
-#'   the data contain `NA's
+#'   the data contain \code{NA}s
 #' @param ... Additional arguments for methods.
 #'
 #' @return A matrix like object, which is suitable to be given as

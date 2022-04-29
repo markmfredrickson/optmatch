@@ -15,10 +15,11 @@ NA
 #' of \code{\link{exactMatch}}, or combinations (using \code{`+`}) of these objects.
 #'
 #' \code{width} provides the size of the caliper, the allowable distance for
-#' matching. If the distance between a treated and control pair is less than or equal
-#' to this distance, it is allowed kept; otherwise, the pair is discarded from future
-#' matching. The default comparison of ``equal or less than can'' be changed to any other
-#' comparison function using the \code{comparison} argument.
+#' matching. If the distance between a treated and control pair is less than or
+#' equal to this distance, it is allowed kept; otherwise, the pair is discarded
+#' from future matching. The default comparison of "equal or less than can" be
+#' changed to any other comparison function using the \code{comparison}
+#' argument.
 #'
 #' It is important to understand that \code{width} argument is defined on the
 #' scale of these distances. For univariate distances such as propensity scores,

@@ -14,7 +14,7 @@ match_on_szn_scale(x, trtgrp, standardizer = mad)
 \arguments{
 \item{x}{numeric variable}
 
-\item{trtgrp}{logical or numeric.  If numeric, coerced to `T`/`F` via `!`}
+\item{trtgrp}{logical or numeric. If numeric, coerced to logical via \code{!}}
 
 \item{standardizer}{function or numeric of length 1}
 }

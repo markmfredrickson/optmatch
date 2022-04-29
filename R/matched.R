@@ -21,7 +21,7 @@
 ##'   subproblem for each subclass.  Second, \code{fullmatch} removes
 ##'   from each subproblem those individual units that lack
 ##'   permissible potential matches (i.e. potential matches from which
-##'   they are separated by a finite discrepancy).  Such ``isolated''
+##'   they are separated by a finite discrepancy).  Such "isolated"
 ##'   units are flagged in such a way as to be indicated by
 ##'   \code{unmatched}, but not by \code{matchfailed}.  Third,
 ##'   \code{fullmatch} presents each subproblem, with isolated

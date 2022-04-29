@@ -236,7 +236,7 @@ optmatch_same_distance <- function(x, y) {
 #' Note that passing \code{data} again is strongly recommended. A warning will be printed if the hash of the data used to generate the
 #' \code{optmatch} object differs from the hash of the new \code{data}.
 #'
-#' To obtain an updated call without performing the actual update, pass an additional `evaluate = FALSE` argument.
+#' To obtain an updated call without performing the actual update, pass an additional \code{evaluate = FALSE} argument.
 #' @param object \code{Optmatch} object to update.
 #' @param ... Additional arguments to the call, or arguments with changed values.
 #' @return An updated \code{optmatch} object.

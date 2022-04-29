@@ -165,12 +165,12 @@ setTryRecovery <- function() {
 #' the default.
 #'
 #' The CycleCancelling algorithm seems to produce results most closely
-#' resembling those of optmatch versions prior to 1.0. We have observed
-#' the other LEMON algorithms to produce different results when the
-#' `mean.controls` is unspecified, or specified in such a way as to
-#' produce an infeasible matching problem. When using a LEMON algorithm
-#' other than CycleCancelling, we recommend setting the
-#' "fullmatch_try_recovery" option to \code{FALSE}.
+#' resembling those of optmatch versions prior to 1.0. We have observed the
+#' other LEMON algorithms to produce different results when the
+#' \code{mean.controls} is unspecified, or specified in such a way as to produce
+#' an infeasible matching problem. When using a LEMON algorithm other than
+#' CycleCancelling, we recommend setting the \code{fullmatch_try_recovery}
+#' option to \code{FALSE}.
 #'
 #' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within})
 #' or to specific methods.
