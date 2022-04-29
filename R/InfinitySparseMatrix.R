@@ -883,9 +883,9 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 ##' \code{TRUE} errors on this instead.
 ##'
-##' Note that you do **not** have to combine subgroup distances into a single
-##' blocked distance using this function to ultimately obtain a single matching
-##' set. Instead, take a look at the vignette
+##' Note that you do \strong{not} have to combine subgroup distances into a
+##' single blocked distance using this function to ultimately obtain a single
+##' matching set. Instead, take a look at the vignette
 ##' \code{vignette("matching-within-subgroups", package = "optmatch")} for
 ##' details on combining multiple matches.
 ##' @title Stitch together subgroup-specific distances
