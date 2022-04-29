@@ -119,10 +119,11 @@ You can combine the results of <code>caliper</code> with other distances using t
 specifications: user created matrices, the results of <code><a href="match_on-methods.html">match_on</a></code>, the results
 of <code><a href="exactMatch.html">exactMatch</a></code>, or combinations (using <code>`+`</code>) of these objects.</p>
 <p><code>width</code> provides the size of the caliper, the allowable distance for
-matching. If the distance between a treated and control pair is less than or equal
-to this distance, it is allowed kept; otherwise, the pair is discarded from future
-matching. The default comparison of ``equal or less than can'' be changed to any other
-comparison function using the <code>comparison</code> argument.</p>
+matching. If the distance between a treated and control pair is less than or
+equal to this distance, it is allowed kept; otherwise, the pair is discarded
+from future matching. The default comparison of "equal or less than can" be
+changed to any other comparison function using the <code>comparison</code>
+argument.</p>
 <p>It is important to understand that <code>width</code> argument is defined on the
 scale of these distances. For univariate distances such as propensity scores,
 it is common to specify calipers in standard deviations. If a caliper of
