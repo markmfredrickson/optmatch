@@ -862,3 +862,23 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
 ##' @return NULL
 ##' @export
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
+
+##' @title Splits a BlockedInfinitySparseMatrix into a list of
+##'   InfinitySparseMatrices
+##' @param x a BlockedInfinitySparseMatrix
+##' @param ... Ignored
+##' @return A list of InfinitySparseMatrices
+##' @export
+as.list.BlockedInfinitySparseMatrix <- function(x, ...) {
+  findSubproblems(x)
+}
+
+##' @export
+as.list.InfinitySparseMatrix <- function(x, ...) {
+  list(x)
+}
+
+##' @export
+as.list.DenseMatrix <- function(x, ...) {
+  list(as.InfinitySparseMatrix(x))
+}

@@ -763,3 +763,40 @@ test_that("BISM subset replacement", {
 
 
 })
+
+test_that("as.list ISM/BISM",  {
+  # BISM
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1,
+                within = exactMatch(pr ~ pt, data = nuclearplants))
+
+  expect_is(m, "BlockedInfinitySparseMatrix")
+
+  m2 <- as.list(m)
+
+  expect_is(m2, "list")
+  expect_length(m2, 2)
+  expect_true(all(sapply(m2, is, "InfinitySparseMatrix")))
+
+  # ISM
+  m <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
+
+  expect_is(m, "InfinitySparseMatrix")
+
+  m2 <- as.list(m)
+
+  expect_is(m2, "list")
+  expect_length(m2, 1)
+  expect_true(all(sapply(m2, is, "InfinitySparseMatrix")))
+
+  # DenseMatrix
+  m <- match_on(pr ~ cost, data = nuclearplants)
+
+  expect_is(m, "DenseMatrix")
+
+  m2 <- as.list(m)
+
+  expect_is(m2, "list")
+  expect_length(m2, 1)
+  expect_true(all(sapply(m2, is, "InfinitySparseMatrix")))
+
+})

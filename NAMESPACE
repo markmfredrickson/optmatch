@@ -2,6 +2,9 @@
 
 S3method("[",optmatch)
 S3method(Ops,optmatch.dlist)
+S3method(as.list,BlockedInfinitySparseMatrix)
+S3method(as.list,DenseMatrix)
+S3method(as.list,InfinitySparseMatrix)
 S3method(as.matrix,DenseMatrix)
 S3method(as.matrix,InfinitySparseMatrix)
 S3method(as.matrix,optmatch.dlist)
