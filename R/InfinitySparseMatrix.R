@@ -882,6 +882,12 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' appending "X." to each distance, where "X" is ascending lower case letters
 ##' ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 ##' \code{TRUE} errors on this instead.
+##'
+##' Note that you do **not** have to combine subgroup distances into a single
+##' blocked distance using this function to ultimately obtain a single matching
+##' set. Instead, take a look at the vignette
+##' \code{vignette("matching-within-subgroups", package = "optmatch")} for
+##' details on combining multiple matches.
 ##' @title Stitch together subgroup-specific distances
 ##' @param ... Any number of elements of class \code{matrix},
 ##'   \code{DenseMatrix}, \code{InfinitySparseMatrix}, or
