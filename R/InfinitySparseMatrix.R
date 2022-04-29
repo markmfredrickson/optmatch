@@ -863,18 +863,18 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
 ##' @export
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
 
-##' This function generates a single blocked distance matrix given several
-##' distance matrixes defined on subgroups.
+##' This function generates a single block-diagonal distance matrix given
+##' several distance matrixes defined on subgroups.
 ##'
 ##' When you've generated several distances matrices on subgroups in your
-##' analysis, you may wish to combine them into a single distance matrix. The
-##' \code{blockdiag} function facilitates this.
+##' analysis, you may wish to combine them into a single block-diagonal distance
+##' matrix. The \code{dbind} function facilitates this.
 ##'
 ##' Any \code{BlockedInfinitySparseMatrix} include in \code{...} will be broken
 ##' into individual \code{InfinitySparseMatrix} before being joined back
 ##' toegther. For example, if \code{b} is a \code{BlockedInfinitySparseMatrix}
 ##' with 2 subgroups and \code{m} is a distance without subgroups, then
-##' \code{blockdiag(b, m)} will be a \code{BlockedInfinitySparseMatrix} with 3
+##' \code{dbind(b, m)} will be a \code{BlockedInfinitySparseMatrix} with 3
 ##' subgroups.
 ##'
 ##' If there are any shared names (either row or column) amongst all distances
@@ -888,7 +888,7 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' matching set. Instead, take a look at the vignette
 ##' \code{vignette("matching-within-subgroups", package = "optmatch")} for
 ##' details on combining multiple matches.
-##' @title Stitch together subgroup-specific distances
+##' @title Diagnnally bind together subgroup-specific distances
 ##' @param ... Any number of elements of class \code{matrix},
 ##'   \code{DenseMatrix}, \code{InfinitySparseMatrix}, or
 ##'   \code{BlockedInfinitySparseMatrix}
@@ -896,7 +896,8 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##'   not unique amongst all distances, if \code{FALSE}, throw a warning and
 ##'   rename all rows and columns to ensure unique names. If \code{TRUE}, error
 ##'   on non-unique names.
-##' @return A \code{BlockedInfinitySparseMatrix}
+##' @return A \code{BlockedInfinitySparseMatrix} containing a block-diagonal
+##'   distance matrix.
 ##' @importFrom methods slot
 ##' @export
 ##' @examples
@@ -905,8 +906,8 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##'                caliper = 1)
 ##' m2 <- match_on(pr ~ cost, data = subset(nuclearplants, pt == 1),
 ##'                caliper = 1.3)
-##' blocked <- blockdiag(m1, m2)
-blockdiag <- function(..., force_unique_names = FALSE) {
+##' blocked <- dbind(m1, m2)
+dbind <- function(..., force_unique_names = FALSE) {
   mats <- list(...)
   if (!all(vapply(mats, function(x) is(x)[[1]] %in%
                                       c("matrix",
@@ -914,7 +915,7 @@ blockdiag <- function(..., force_unique_names = FALSE) {
                                         "InfinitySparseMatrix",
                                         "BlockedInfinitySparseMatrix"),
                   TRUE))) {
-    stop("Only distance matrices can be combined with blockdiag")
+    stop("Only distance matrices can be combined with dbind")
   }
 
   if (length(mats) == 1) {

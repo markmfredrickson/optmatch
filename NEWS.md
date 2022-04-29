@@ -18,8 +18,8 @@
   `BlockedInfinitySparseMatrix` into a `list` of `InfinitySparseMatrix` based
   upon the separate blocks. (Called via `as.list(b)` when `b` is a
   `BlockedInfinitySparseMatrix`.)
-- New function `blockdiag()` for combining several distance matrices into a
-  single `BlockedInfinitySparseMatrix`. (#65)
+- New function `dbind()` for binding several distance matrices into a single
+  `BlockedInfinitySparseMatrix`. (#65)
 - Modernized some vignettes
 
 ## Changes in **optmatch** Version 0.10.0

@@ -801,14 +801,14 @@ test_that("as.list ISM/BISM",  {
 
 })
 
-test_that("blockdiag", {
+test_that("dbind", {
   if (requireNamespace("boot")) {
     chn <- boot::channing
 
     # Dense/Dense
     m1 <- match_on(cens ~ entry, data = chn[chn$sex == "Female",])
     m2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",])
-    bm <- blockdiag(m1, m2)
+    bm <- dbind(m1, m2)
 
     expect_true(is(bm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bm, is, TRUE, "InfinitySparseMatrix")))
@@ -820,7 +820,7 @@ test_that("blockdiag", {
     # ISM/ISM
     im1 <- match_on(cens ~ entry, data = chn[chn$sex == "Female",], caliper = 1)
     im2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",], caliper = 1)
-    bim <- blockdiag(im1, im2)
+    bim <- dbind(im1, im2)
 
     expect_true(is(bim, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bim, is, TRUE, "InfinitySparseMatrix")))
@@ -833,7 +833,7 @@ test_that("blockdiag", {
     expect_identical(as.list(bim)[[2]], im2)
 
     # Dense/ISM
-    b2m <- blockdiag(m1, im2)
+    b2m <- dbind(m1, im2)
     expect_true(is(b2m, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(b2m, is, TRUE, "InfinitySparseMatrix")))
 
@@ -847,7 +847,7 @@ test_that("blockdiag", {
     chn$group <- as.numeric(cut(chn$exit, breaks = c(0, 900, 1100, 2000)))
     b1 <- match_on(cens ~ entry + strata(group), data = chn[chn$group < 3,])
     m3 <- match_on(cens ~ entry, data = chn[chn$group == 3,])
-    bbm <- blockdiag(b1, m3)
+    bbm <- dbind(b1, m3)
 
     expect_true(is(bbm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bbm, is, TRUE, "InfinitySparseMatrix")))
@@ -858,7 +858,7 @@ test_that("blockdiag", {
 
     # BISM/ISM
     im3 <- match_on(cens ~ entry, data = chn[chn$group == 3,], caliper = 1)
-    bibm <- blockdiag(b1, im3)
+    bibm <- dbind(b1, im3)
 
     expect_true(is(bibm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bibm, is, TRUE, "InfinitySparseMatrix")))
@@ -873,7 +873,7 @@ test_that("blockdiag", {
     b1 <- match_on(cens ~ entry + strata(group), data = chn[chn$group < 3,])
     b2 <- match_on(cens ~ entry + strata(group), data = chn[chn$group >= 3,])
 
-    b2bm <- blockdiag(b1, b2)
+    b2bm <- dbind(b1, b2)
     expect_true(is(b2bm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(b2bm, is, TRUE, "InfinitySparseMatrix")))
     expect_length(unique(b2bm@groups), 4)
@@ -887,7 +887,7 @@ test_that("blockdiag", {
     m3 <- match_on(cens ~ entry, data = chn[chn$group == 3,])
     m4 <- match_on(cens ~ entry, data = chn[chn$group == 4,])
 
-    b4bm <- blockdiag(m4, m2, m3, m1)
+    b4bm <- dbind(m4, m2, m3, m1)
     expect_true(is(b4bm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(b4bm, is, TRUE, "InfinitySparseMatrix")))
     expect_length(unique(b4bm@groups), 4)
@@ -899,10 +899,10 @@ test_that("blockdiag", {
                           check.attributes = FALSE))
 
     # errors and warnings
-    expect_error(blockdiag(m1, 1), "Only distance")
+    expect_error(dbind(m1, 1), "Only distance")
 
     # same names
-    expect_warning(bdupm <- blockdiag(m1, b1),
+    expect_warning(bdupm <- dbind(m1, b1),
                    "Duplicated column or row names")
 
     expect_true(is(bdupm, "BlockedInfinitySparseMatrix"))
@@ -912,7 +912,7 @@ test_that("blockdiag", {
     expect_true(all.equal(subdim(bdupm), data.frame(dim(m1), subdim(b1)),
                           check.attributes = FALSE))
 
-    expect_error(blockdiag(m1, b1, force_unique_names = TRUE),
+    expect_error(dbind(m1, b1, force_unique_names = TRUE),
                  "Duplicated column or row names")
 }
 })
