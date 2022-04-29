@@ -12,7 +12,7 @@ blockdiag(..., force_unique_names = FALSE)
 \code{BlockedInfinitySparseMatrix}}
 
 \item{force_unique_names}{Default \code{FALSE}. When row or column names are
-not unique amongst all distances, if code{FALSE}, throw a warning and
+not unique amongst all distances, if \code{FALSE}, throw a warning and
 rename all rows and columns to ensure unique names. If \code{TRUE}, error
 on non-unique names.}
 }

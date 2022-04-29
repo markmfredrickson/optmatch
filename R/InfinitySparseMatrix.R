@@ -642,24 +642,24 @@ setMethod("show", "InfinitySparseMatrix", function(object) { show(as.matrix(obje
 
 ##' Sort the internal structure of an InfinitySparseMatrix.
 ##'
-##' Internally, an InfinitySparseMatrix (Blocked or non) comprises of
-##' vectors of values, row positions, and column positions. The
-##' ordering of these vectors is not enforced. This function sorts the
-##' internal structure, leaving the external structure unchanged
-##' (e.g. `as.matrix(ism)` and `as.matrix(sort(ism))` will look
-##' identical despite sorting.)
+##' Internally, an \code{InfinitySparseMatrix} (Blocked or non) comprises of
+##' vectors of values, row positions, and column positions. The ordering of
+##' these vectors is not enforced. This function sorts the internal structure,
+##' leaving the external structure unchanged (e.g. \code{as.matrix(ism)} and
+##' \code{as.matrix(sort(ism))} will look identical despite sorting.)
 ##'
-##' By default, the InfinitySparseMatrix is row-dominant, meaning the
-##' row positions are sorted first, then column positions are sorted
-##' within each row. Use argument `byCol` to change this.
-##' @param x An InfinitySparseMatrix or BlockedInfinitySparseMatrix.
-##' @param decreasing Logical. Should the sort be increasing or
-##'   decreasing?
+##' By default, the \code{InfinitySparseMatrix} is row-dominant, meaning the row
+##' positions are sorted first, then column positions are sorted within each
+##' row. Use argument \code{byCol} to change this.
+##' @param x An \code{InfinitySparseMatrix} or
+##'   \code{BlockedInfinitySparseMatrix}.
+##' @param decreasing Logical. Should the sort be increasing or decreasing?
+##'   Default \code{FALSE}.
 ##' @param ... Additional arguments ignored.
-##' @param byCol Logical. Defaults to FALSE, so the returned ISM is
-##'   row-dominant. TRUE returns a column-dominant ISM.
-##' @return An object of the same class as `x` which is sorted
-##'   according to `byCol`.
+##' @param byCol Logical. Defaults to \code{FALSE}, so the returned ISM is
+##'   row-dominant. \code{TRUE} returns a column-dominant ISM.
+##' @return An object of the same class as \code{x} which is sorted according to
+##'   \code{byCol}.
 ##' @rdname sort.ism
 ##' @export
 sort.InfinitySparseMatrix <- function(x,
@@ -893,7 +893,7 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##'   \code{DenseMatrix}, \code{InfinitySparseMatrix}, or
 ##'   \code{BlockedInfinitySparseMatrix}
 ##' @param force_unique_names Default \code{FALSE}. When row or column names are
-##'   not unique amongst all distances, if code{FALSE}, throw a warning and
+##'   not unique amongst all distances, if \code{FALSE}, throw a warning and
 ##'   rename all rows and columns to ensure unique names. If \code{TRUE}, error
 ##'   on non-unique names.
 ##' @return A \code{BlockedInfinitySparseMatrix}
