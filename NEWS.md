@@ -14,10 +14,12 @@
   - **RItools** and **survery** are now only suggested with appropriate
       warnings if users attempt to utilize code with them without first
       installing the packages.
-- New function `as.list.BlockedInfinitySparseMatrix` to split a single
+- New function `as.list.BlockedInfinitySparseMatrix()` to split a single
   `BlockedInfinitySparseMatrix` into a `list` of `InfinitySparseMatrix` based
   upon the separate blocks. (Called via `as.list(b)` when `b` is a
   `BlockedInfinitySparseMatrix`.)
+- New function `blockdiag()` for combining several distance matrices into a
+  single `BlockedInfinitySparseMatrix`. (#65)
 - Modernized some vignettes
 
 ## Changes in **optmatch** Version 0.10.0

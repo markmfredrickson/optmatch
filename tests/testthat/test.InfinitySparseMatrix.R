@@ -800,3 +800,119 @@ test_that("as.list ISM/BISM",  {
   expect_true(all(sapply(m2, is, "InfinitySparseMatrix")))
 
 })
+
+test_that("blockdiag", {
+  if (requireNamespace("boot")) {
+    chn <- boot::channing
+
+    # Dense/Dense
+    m1 <- match_on(cens ~ entry, data = chn[chn$sex == "Female",])
+    m2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",])
+    bm <- blockdiag(m1, m2)
+
+    expect_true(is(bm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(bm, is, TRUE, "InfinitySparseMatrix")))
+
+    expect_true(all.equal(subdim(bm), data.frame(dim(m1), dim(m2)), check.attributes = FALSE))
+    expect_identical(as.list(bm)[[1]], as.InfinitySparseMatrix(m1))
+    expect_identical(as.list(bm)[[2]], as.InfinitySparseMatrix(m2))
+
+    # ISM/ISM
+    im1 <- match_on(cens ~ entry, data = chn[chn$sex == "Female",], caliper = 1)
+    im2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",], caliper = 1)
+    bim <- blockdiag(im1, im2)
+
+    expect_true(is(bim, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(bim, is, TRUE, "InfinitySparseMatrix")))
+
+    expect_true(all.equal(subdim(bim), data.frame(dim(im1), dim(im2)),
+                          check.attributes = FALSE))
+    im1@call <- NULL
+    im2@call <- NULL
+    expect_identical(as.list(bim)[[1]], im1)
+    expect_identical(as.list(bim)[[2]], im2)
+
+    # Dense/ISM
+    b2m <- blockdiag(m1, im2)
+    expect_true(is(b2m, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(b2m, is, TRUE, "InfinitySparseMatrix")))
+
+    expect_true(all.equal(subdim(b2m), data.frame(dim(m1), dim(im2)),
+                          check.attributes = FALSE))
+    expect_identical(as.list(b2m)[[1]], as.InfinitySparseMatrix(m1))
+    expect_identical(as.list(b2m)[[2]], im2)
+
+
+    #BISM/Dense
+    chn$group <- as.numeric(cut(chn$exit, breaks = c(0, 900, 1100, 2000)))
+    b1 <- match_on(cens ~ entry + strata(group), data = chn[chn$group < 3,])
+    m3 <- match_on(cens ~ entry, data = chn[chn$group == 3,])
+    bbm <- blockdiag(b1, m3)
+
+    expect_true(is(bbm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(bbm, is, TRUE, "InfinitySparseMatrix")))
+    expect_length(unique(bbm@groups), 3)
+
+    expect_true(all.equal(subdim(bbm), data.frame(subdim(b1), dim(m3)),
+                          check.attributes = FALSE))
+
+    # BISM/ISM
+    im3 <- match_on(cens ~ entry, data = chn[chn$group == 3,], caliper = 1)
+    bibm <- blockdiag(b1, im3)
+
+    expect_true(is(bibm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(bibm, is, TRUE, "InfinitySparseMatrix")))
+    expect_length(unique(bibm@groups), 3)
+
+    expect_true(all.equal(subdim(bibm), data.frame(subdim(b1), dim(im3)),
+                          check.attributes = FALSE))
+
+
+    # BISM/BISM
+    chn$group <- as.numeric(cut(chn$exit, breaks = c(0, 900, 1000, 1100, 2000)))
+    b1 <- match_on(cens ~ entry + strata(group), data = chn[chn$group < 3,])
+    b2 <- match_on(cens ~ entry + strata(group), data = chn[chn$group >= 3,])
+
+    b2bm <- blockdiag(b1, b2)
+    expect_true(is(b2bm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(b2bm, is, TRUE, "InfinitySparseMatrix")))
+    expect_length(unique(b2bm@groups), 4)
+
+    expect_true(all.equal(subdim(b2bm), data.frame(subdim(b1), subdim(b2)),
+                          check.attributes = FALSE))
+
+    # >2 elements
+    m1 <- match_on(cens ~ entry, data = chn[chn$group == 1,])
+    m2 <- match_on(cens ~ entry, data = chn[chn$group == 2,])
+    m3 <- match_on(cens ~ entry, data = chn[chn$group == 3,])
+    m4 <- match_on(cens ~ entry, data = chn[chn$group == 4,])
+
+    b4bm <- blockdiag(m4, m2, m3, m1)
+    expect_true(is(b4bm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(b4bm, is, TRUE, "InfinitySparseMatrix")))
+    expect_length(unique(b4bm@groups), 4)
+
+    expect_true(all.equal(subdim(b4bm), data.frame(dim(m4),
+                                                   dim(m2),
+                                                   dim(m3),
+                                                   dim(m1)),
+                          check.attributes = FALSE))
+
+    # errors and warnings
+    expect_error(blockdiag(m1, 1), "Only distance")
+
+    # same names
+    expect_warning(bdupm <- blockdiag(m1, b1),
+                   "Duplicated column or row names")
+
+    expect_true(is(bdupm, "BlockedInfinitySparseMatrix"))
+    expect_true(all(vapply(bdupm, is, TRUE, "InfinitySparseMatrix")))
+    expect_length(unique(bdupm@groups), 3)
+
+    expect_true(all.equal(subdim(bdupm), data.frame(dim(m1), subdim(b1)),
+                          check.attributes = FALSE))
+
+    expect_error(blockdiag(m1, b1, force_unique_names = TRUE),
+                 "Duplicated column or row names")
+}
+})
