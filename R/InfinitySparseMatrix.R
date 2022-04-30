@@ -864,7 +864,7 @@ num_eligible_matches.BlockedInfinitySparseMatrix <- function(x) {
 setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSubproblems(object)) })
 
 ##' This function generates a single block-diagonal distance matrix given
-##' several distance matrixes defined on subgroups.
+##' several distance matrices defined on subgroups.
 ##'
 ##' When you've generated several distances matrices on subgroups in your
 ##' analysis, you may wish to combine them into a single block-diagonal distance
@@ -872,13 +872,13 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##'
 ##' Any \code{BlockedInfinitySparseMatrix} include in \code{...} will be broken
 ##' into individual \code{InfinitySparseMatrix} before being joined back
-##' toegther. For example, if \code{b} is a \code{BlockedInfinitySparseMatrix}
+##' together. For example, if \code{b} is a \code{BlockedInfinitySparseMatrix}
 ##' with 2 subgroups and \code{m} is a distance without subgroups, then
 ##' \code{dbind(b, m)} will be a \code{BlockedInfinitySparseMatrix} with 3
 ##' subgroups.
 ##'
-##' If there are any shared names (either row or column) amongst all distances
-##' passed in, by default all matrixes will be renamed to ensure unique names by
+##' If there are any shared names (either row or column) among all distances
+##' passed in, by default all matrices will be renamed to ensure unique names by
 ##' appending "X." to each distance, where "X" is ascending lower case letters
 ##' ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 ##' \code{TRUE} errors on this instead.
@@ -888,16 +888,20 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' matching set. Instead, take a look at the vignette
 ##' \code{vignette("matching-within-subgroups", package = "optmatch")} for
 ##' details on combining multiple matches.
-##' @title Diagnnally bind together subgroup-specific distances
-##' @param ... Any number of elements of class \code{matrix},
+##' @title Diagonally bind together subgroup-specific distances
+##' @param ... Any number of distance objects which can be converted to
+##'   \code{InfinitySparseMatrix}, such as class \code{matrix},
 ##'   \code{DenseMatrix}, \code{InfinitySparseMatrix}, or
-##'   \code{BlockedInfinitySparseMatrix}
+##'   \code{BlockedInfinitySparseMatrix}, or \code{list}s containing distance
+##'   objects.
 ##' @param force_unique_names Default \code{FALSE}. When row or column names are
-##'   not unique amongst all distances, if \code{FALSE}, throw a warning and
+##'   not unique among all distances, if \code{FALSE}, throw a warning and
 ##'   rename all rows and columns to ensure unique names. If \code{TRUE}, error
 ##'   on non-unique names.
 ##' @return A \code{BlockedInfinitySparseMatrix} containing a block-diagonal
-##'   distance matrix.
+##'   distance matrix. If only a single distance is passed to \code{dbind} and
+##'   it is not already a \code{BlockedInfinitySparseMatrix}, the result will be
+##'   an \code{InfinitySparseMatrix} instead.
 ##' @importFrom methods slot
 ##' @export
 ##' @examples
@@ -907,54 +911,92 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' m2 <- match_on(pr ~ cost, data = subset(nuclearplants, pt == 1),
 ##'                caliper = 1.3)
 ##' blocked <- dbind(m1, m2)
+##'
+##' dists <- list(m1, m2)
+##'
+##' blocked2 <- dbind(dists)
+##' identical(blocked, blocked2)
 dbind <- function(..., force_unique_names = FALSE) {
   mats <- list(...)
-  if (!all(vapply(mats, function(x) is(x)[[1]] %in%
-                                      c("matrix",
-                                        "DenseMatrix",
-                                        "InfinitySparseMatrix",
-                                        "BlockedInfinitySparseMatrix"),
-                  TRUE))) {
-    stop("Only distance matrices can be combined with dbind")
+
+  if (length(mats) == 1 & !inherits(mats[[1]], "list")) {
+    # If passed a single distance, return it as ISM or BISM
+    return(.as.ism_or_bism(mats[[1]]))
   }
 
-  if (length(mats) == 1) {
-    # If passed a single item, return it.
-    return(mats[[1]])
-  }
-
-  # Convert all matrices to ISMs if they aren't already.
-  mats <- lapply(mats, function(x) {
-    if (is(x, "BlockedInfinitySparseMatrix")) {
-      findSubproblems(x)
-    } else if (!is(x, "InfinitySparseMatrix")) {
-      as.InfinitySparseMatrix(x)
-    } else {
-      x
-    }
-  })
-
-  # Coming out of the above lapply, if one of the entries is a BISM, we'll end
-  # up with a list of lists, where the BISM is replaced with a list of ISMs. The
-  # following flattens this into a single list of ISMs but seems overly
-  # complicated; basically for any non-list inside `mats` (that is, any
-  # non-BISMs in ...), it sticks them inside a sub-list, then the `unlist(...,
+  # Below, if one of the entries is a BISM, we'll end up with a list of lists,
+  # where the BISM is replaced with a list of ISMs. The following flattens this
+  # into a single list of ISMs but seems overly complicated; basically for any
+  # non-list inside `l`, it sticks them inside a sub-list, then the `unlist(...,
   # recursive = FALSE)` breaks the outer-most list away. Generally `unlist(...,
   # recursive = FALSE)` is suggested to work without additional concerns in most
   # cases, but that fails here because an ISM would be unlisted to return a
   # vector. I really don't like this solution but can't find anything better.
-  mats <- unlist(lapply(mats, function(x)
-    if(!inherits(x, "list")) {
-      # using `inherits` rather than `is.list` here because some objects
-      # (specifically `data.frame`) return TRUE to `is.list`. This shouldn't
-      # ever be an issue as input check above is restricted to types that
-      # `is.list` returns FALSE for, but leaving with `inherits` for
-      # future-proofing.
-      list(x)
-    }else {
-      x
-    }),
-    recursive = FALSE)
+  #
+  # Visualization of this
+  # Starting:
+  # List of 2
+  #     $ InfinitySparseMatrix
+  #     $ List of 2
+  #         $ InfinitySparseMatrix
+  #         $ InfinitySparseMatrix
+  # Step 1:
+  # List of 2
+  #     $ List of 1
+  #         $ InfinitySparseMatrix
+  #     $ List of 2
+  #         $ InfinitySparseMatrix
+  #         $ InfinitySparseMatrix
+  # Final result:
+  # List of 3
+  #     $ InfinitySparseMatrix
+  #     $ InfinitySparseMatrix
+  #     $ InfinitySparseMatrix
+  flatten_list <- function(l) {
+    unlist(lapply(l, function(x)
+      if(!inherits(x, "list")) {
+        # using `inherits` rather than `is.list` here because some objects
+        # (specifically `data.frame`) return TRUE to `is.list`. This shouldn't
+        # ever be an issue as input check above is restricted to types that
+        # `is.list` returns FALSE for, but leaving with `inherits` for
+        # future-proofing.
+        list(x)
+      }else {
+        x
+      }),
+      recursive = FALSE)
+  }
+
+
+  # Convert all matrices to ISMs if they aren't already.
+  mats <- lapply(mats, function(x) {
+    if (is(x, "BlockedInfinitySparseMatrix")) {
+      # Replace BISM with list of ISMs
+      findSubproblems(x)
+    } else if (inherits(x, "list")) {
+      # If any entry in ... is a list,
+      # 1) Convert all entries in that list to ISM while keeping BISM as BISM
+      x <- lapply(x, .as.ism_or_bism)
+      # 2) If we have any BISMs, split into list of ISMS
+      x <- lapply(x, function(y) {
+        if (is(y, "BlockedInfinitySparseMatrix")) {
+          findSubproblems(y)
+        } else {
+          y
+        }
+      })
+      # 3) pull list of lists into list
+      flatten_list(x)
+    } else {
+      # This will error appropriately if some element in `mats` cannot be
+      # converted to an ISM.
+      .as.ism_or_bism(x)
+    }
+  })
+
+  # If we were passed any BISMs, we have a list of lists of ISM, so flatten to a
+  # single list.
+  mats <- flatten_list(mats)
 
   # new row and column positions are based on current, incrementing by number of
   # rows/columns in all previous matrices.
@@ -1035,4 +1077,16 @@ as.list.InfinitySparseMatrix <- function(x, ...) {
 ##' @export
 as.list.DenseMatrix <- function(x, ...) {
   list(as.InfinitySparseMatrix(x))
+}
+
+# (Internal) Converts item to ISM, but keeps as BISM if is BISM already.
+.as.ism_or_bism <- function(x) {
+  if (is(x, "BlockedInfinitySparseMatrix")) {
+    return(x)
+  }
+  tryCatch(x <- as.InfinitySparseMatrix(x),
+           error = function(e) {
+             stop("Cannot convert object to InfinitySparseMatrices")
+           })
+  return(x)
 }

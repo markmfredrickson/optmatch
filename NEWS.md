@@ -19,7 +19,9 @@
   upon the separate blocks. (Called via `as.list(b)` when `b` is a
   `BlockedInfinitySparseMatrix`.)
 - New function `dbind()` for binding several distance matrices into a single
-  `BlockedInfinitySparseMatrix`. (#65)
+  `BlockedInfinitySparseMatrix`. Valid inputs include any distance
+  convertible into an `InfinitySparseMatrix`, or `BlockedInfinitySparseMatrix`,
+  or `list`s of these. (#65)
 - Modernized some vignettes
 
 ## Changes in **optmatch** Version 0.10.0

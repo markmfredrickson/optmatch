@@ -2,27 +2,31 @@
 % Please edit documentation in R/InfinitySparseMatrix.R
 \name{dbind}
 \alias{dbind}
-\title{Diagnnally bind together subgroup-specific distances}
+\title{Diagonally bind together subgroup-specific distances}
 \usage{
 dbind(..., force_unique_names = FALSE)
 }
 \arguments{
-\item{...}{Any number of elements of class \code{matrix},
+\item{...}{Any number of distance objects which can be converted to
+\code{InfinitySparseMatrix}, such as class \code{matrix},
 \code{DenseMatrix}, \code{InfinitySparseMatrix}, or
-\code{BlockedInfinitySparseMatrix}}
+\code{BlockedInfinitySparseMatrix}, or \code{list}s containing distance
+objects.}
 
 \item{force_unique_names}{Default \code{FALSE}. When row or column names are
-not unique amongst all distances, if \code{FALSE}, throw a warning and
+not unique among all distances, if \code{FALSE}, throw a warning and
 rename all rows and columns to ensure unique names. If \code{TRUE}, error
 on non-unique names.}
 }
 \value{
 A \code{BlockedInfinitySparseMatrix} containing a block-diagonal
-  distance matrix.
+  distance matrix. If only a single distance is passed to \code{dbind} and
+  it is not already a \code{BlockedInfinitySparseMatrix}, the result will be
+  an \code{InfinitySparseMatrix} instead.
 }
 \description{
 This function generates a single block-diagonal distance matrix given
-several distance matrixes defined on subgroups.
+several distance matrices defined on subgroups.
 }
 \details{
 When you've generated several distances matrices on subgroups in your
@@ -31,13 +35,13 @@ matrix. The \code{dbind} function facilitates this.
 
 Any \code{BlockedInfinitySparseMatrix} include in \code{...} will be broken
 into individual \code{InfinitySparseMatrix} before being joined back
-toegther. For example, if \code{b} is a \code{BlockedInfinitySparseMatrix}
+together. For example, if \code{b} is a \code{BlockedInfinitySparseMatrix}
 with 2 subgroups and \code{m} is a distance without subgroups, then
 \code{dbind(b, m)} will be a \code{BlockedInfinitySparseMatrix} with 3
 subgroups.
 
-If there are any shared names (either row or column) amongst all distances
-passed in, by default all matrixes will be renamed to ensure unique names by
+If there are any shared names (either row or column) among all distances
+passed in, by default all matrices will be renamed to ensure unique names by
 appending "X." to each distance, where "X" is ascending lower case letters
 ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 \code{TRUE} errors on this instead.
@@ -55,4 +59,9 @@ m1 <- match_on(pr ~ cost, data = subset(nuclearplants, pt == 0),
 m2 <- match_on(pr ~ cost, data = subset(nuclearplants, pt == 1),
                caliper = 1.3)
 blocked <- dbind(m1, m2)
+
+dists <- list(m1, m2)
+
+blocked2 <- dbind(dists)
+identical(blocked, blocked2)
 }

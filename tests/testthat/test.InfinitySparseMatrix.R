@@ -810,10 +810,13 @@ test_that("dbind", {
     m2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",])
     bm <- dbind(m1, m2)
 
+    expect_identical(as.InfinitySparseMatrix(m1), dbind(m1))
+
     expect_true(is(bm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bm, is, TRUE, "InfinitySparseMatrix")))
 
-    expect_true(all.equal(subdim(bm), data.frame(dim(m1), dim(m2)), check.attributes = FALSE))
+    expect_true(all.equal(subdim(bm), data.frame(dim(m1), dim(m2)),
+                          check.attributes = FALSE))
     expect_identical(as.list(bm)[[1]], as.InfinitySparseMatrix(m1))
     expect_identical(as.list(bm)[[2]], as.InfinitySparseMatrix(m2))
 
@@ -821,6 +824,8 @@ test_that("dbind", {
     im1 <- match_on(cens ~ entry, data = chn[chn$sex == "Female",], caliper = 1)
     im2 <- match_on(cens ~ entry, data = chn[chn$sex == "Male",], caliper = 1)
     bim <- dbind(im1, im2)
+
+    expect_identical(im1, dbind(im1))
 
     expect_true(is(bim, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bim, is, TRUE, "InfinitySparseMatrix")))
@@ -848,6 +853,8 @@ test_that("dbind", {
     b1 <- match_on(cens ~ entry + strata(group), data = chn[chn$group < 3,])
     m3 <- match_on(cens ~ entry, data = chn[chn$group == 3,])
     bbm <- dbind(b1, m3)
+
+    expect_identical(b1, dbind(b1))
 
     expect_true(is(bbm, "BlockedInfinitySparseMatrix"))
     expect_true(all(vapply(bbm, is, TRUE, "InfinitySparseMatrix")))
@@ -899,7 +906,7 @@ test_that("dbind", {
                           check.attributes = FALSE))
 
     # errors and warnings
-    expect_error(dbind(m1, 1), "Only distance")
+    expect_error(dbind(m1, 1), "Cannot convert")
 
     # same names
     expect_warning(bdupm <- dbind(m1, b1),
@@ -914,5 +921,43 @@ test_that("dbind", {
 
     expect_error(dbind(m1, b1, force_unique_names = TRUE),
                  "Duplicated column or row names")
-}
+
+    # passing a list
+    b4bml <- dbind(list(m4, m2, m3, m1))
+    expect_identical(b4bml, b4bm)
+    b4bml2 <- dbind(list(m4, m2), list(m3, m1))
+    expect_identical(b4bml2, b4bm)
+    b4bml3 <- dbind(list(m4, m2), m3, list(m1))
+    expect_identical(b4bml3, b4bm)
+
+
+    bmix1 <- dbind(b1, m3, m4)
+    bmix2 <- dbind(list(b1, m3, m4))
+    bmix3 <- dbind(list(b1, m3), m4)
+    expect_identical(bmix1, bmix2)
+    expect_identical(bmix1, bmix3)
+  }
+})
+
+test_that("as ism or bism", {
+
+  m1 <- match_on(pr ~ cost, data = nuclearplants)
+  expect_is(m1, "DenseMatrix")
+  expect_is(.as.ism_or_bism(m1), "InfinitySparseMatrix")
+
+  m2 <- as.matrix(m1)
+  expect_is(m2, "matrix")
+  expect_is(.as.ism_or_bism(m2), "InfinitySparseMatrix")
+
+  m3 <- match_on(pr ~ cost, data = nuclearplants, caliper = 1)
+  expect_is(m3, "InfinitySparseMatrix")
+  expect_is(.as.ism_or_bism(m3), "InfinitySparseMatrix")
+
+  m4 <- match_on(pr ~ cost + strata(pt), data = nuclearplants)
+  expect_is(m4, "BlockedInfinitySparseMatrix")
+  expect_is(.as.ism_or_bism(m4), "BlockedInfinitySparseMatrix")
+
+  expect_error(.as.ism_or_bism(1), "Cannot convert")
+  expect_error(.as.ism_or_bism(data.frame(1:4)), "Cannot convert")
+  expect_error(.as.ism_or_bism(list(1, 2)), "Cannot convert")
 })
