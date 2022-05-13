@@ -2,12 +2,7 @@
 % Please edit documentation in R/match_on.R
 \name{match_on_szn_scale}
 \alias{match_on_szn_scale}
-\title{pooled dispersion for a numeric variable
-
-Dispersion as pooled across a treatment and a control group. By default,
-the measure of dispersion calculated within each group is not the
-ordinary standard deviation but rather the robust alternative
-provided by \code{stats::mad}.}
+\title{pooled dispersion for a numeric variable}
 \usage{
 match_on_szn_scale(x, trtgrp, standardizer = mad)
 }
@@ -22,8 +17,6 @@ match_on_szn_scale(x, trtgrp, standardizer = mad)
 numeric of length 1
 }
 \description{
-pooled dispersion for a numeric variable
-
 Dispersion as pooled across a treatment and a control group. By default,
 the measure of dispersion calculated within each group is not the
 ordinary standard deviation but rather the robust alternative

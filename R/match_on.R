@@ -170,13 +170,12 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
 }
 
-#' @title pooled dispersion for a numeric variable
-#'
 #' Dispersion as pooled across a treatment and a control group. By default,
 #' the measure of dispersion calculated within each group is not the
 #' ordinary standard deviation but rather the robust alternative
 #' provided by \code{stats::mad}.
 #'
+#' @title pooled dispersion for a numeric variable
 #' @param x numeric variable
 #' @param trtgrp logical or numeric. If numeric, coerced to logical via \code{!}
 #' @param standardizer function or numeric of length 1
