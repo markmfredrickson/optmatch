@@ -1,10 +1,25 @@
-## Changes in **optmatch** Version 0.10.0.9001
+## Changes in **optmatch** Version 0.10.1
+
+### Interface changes
 
 - The rank Mahalanobis distance being created in `match_on()` with the `method =
   "rank_mahalanobis"` was accidentally returning the squared distance rather
   than the distance. This has been fixed. To recover results using the squared
   distance, square the results, e.g.: `match_on(..., method =
   "rank_mahalanobis")^2`. (Thanks Noah Greifer #218)
+- New function `as.list.BlockedInfinitySparseMatrix()` to split a single
+  `BlockedInfinitySparseMatrix` into a `list` of `InfinitySparseMatrix` based
+  upon the separate blocks. (Called via `as.list(b)` when `b` is a
+  `BlockedInfinitySparseMatrix`.)
+- New function `dbind()` for binding several distance matrices into a single
+  `BlockedInfinitySparseMatrix`. Valid inputs include any distance
+  convertible into an `InfinitySparseMatrix`, or `BlockedInfinitySparseMatrix`,
+  or `list`s of these. (#65)
+
+### Infrastructure changes
+
+- Manually correcting `License_is_FOSS` and `License_restricts_use` flags after
+  0.10.0 transition to an open license.
 - **optmatch** no longer depends on **digest**, **RItools**, or **survey**, or
   imports from **survival**. This should harden us against unexpected downtime
   should any of these packages be removed from CRAN.
@@ -14,14 +29,6 @@
   - **RItools** and **survery** are now only suggested with appropriate
       warnings if users attempt to utilize code with them without first
       installing the packages.
-- New function `as.list.BlockedInfinitySparseMatrix()` to split a single
-  `BlockedInfinitySparseMatrix` into a `list` of `InfinitySparseMatrix` based
-  upon the separate blocks. (Called via `as.list(b)` when `b` is a
-  `BlockedInfinitySparseMatrix`.)
-- New function `dbind()` for binding several distance matrices into a single
-  `BlockedInfinitySparseMatrix`. Valid inputs include any distance
-  convertible into an `InfinitySparseMatrix`, or `BlockedInfinitySparseMatrix`,
-  or `list`s of these. (#65)
 - Modernized some vignettes
 
 ## Changes in **optmatch** Version 0.10.0
@@ -41,8 +48,8 @@
   `fullmatch()`, `solver = `.
 - To continue using the RELAX-IV solver, whether for back-compatibility or as a
   matter of preference, install the **rrelaxiv** package, from
-  <https://github.com/josherrickson/rrelaxiv/>. If **rrelaxiv** is installed,
-  RELAX-IV will become the default solver automatically.
+  <https://errickson.net/rrelaxiv/>. If **rrelaxiv** is installed, RELAX-IV will
+  become the default solver automatically.
 
 ### Minor changes
 
