@@ -38,7 +38,7 @@
     
     <a class="navbar-brand me-2" href="index.html">optmatch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="articles/fullmatch-vignette.html">Matching in *R* using the `optmatch` and `RItools` packages</a>
+    <a class="dropdown-item" href="articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
     <a class="dropdown-item" href="articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
   </div>
@@ -85,7 +85,6 @@
 </h1></div>
 <p>Package website: <a href="https://markmfredrickson.github.io/optmatch">release</a> | <a href="https://markmfredrickson.github.io/optmatch/dev">development</a></p>
 <!-- badges: start -->
-
 <p>The <strong>optmatch</strong> package implements the optimal full matching algorithm for bipartite matching problems. Given a matrix describing the distances between two groups (where one group is represented by row entries, and the other by column entries), the algorithm finds a matching between units that minimizes the average within grouped distances. This algorithm is a popular choice for covariate balancing applications (e.g. propensity score matching), but it also can be useful for design stage applications such as blocking. For more on the application and its implementation, see:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>Hansen, B.B. and Klopfer, <span class="kw">S.O.</span> (<span class="dv">2006</span>) Optimal full matching and</span>
 <span id="cb1-2"><a href="#cb1-2"></a> related designs via network flows, JCGS <span class="dv">15</span> <span class="dv">609</span><span class="fl">-627.</span></span></code></pre></div>
@@ -294,7 +293,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://cran.r-project.org/package=optmatch" class="external-link"><img src="https://www.r-pkg.org/badges/version/optmatch" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://github.com/markmfredrickson/optmatch/actions" class="external-link"><img src="https://github.com/markmfredrickson/optmatch/workflows/R-build-check/badge.svg" alt="R-build-check"></a></li>
+<li><a href="https://github.com/markmfredrickson/optmatch/actions" class="external-link"><img src="https://github.com/markmfredrickson/optmatch/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 
@@ -309,7 +308,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
     </footer>

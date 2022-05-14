@@ -46,6 +46,9 @@
     <loc>https://markmfredrickson.github.io/optmatch/reference/as.InfinitySparseMatrix.html</loc>
   </url>
   <url>
+    <loc>https://markmfredrickson.github.io/optmatch/reference/as.list.BlockedInfinitySparseMatrix.html</loc>
+  </url>
+  <url>
     <loc>https://markmfredrickson.github.io/optmatch/reference/c.optmatch.html</loc>
   </url>
   <url>
@@ -62,6 +65,9 @@
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/reference/compare_optmatch.html</loc>
+  </url>
+  <url>
+    <loc>https://markmfredrickson.github.io/optmatch/reference/dbind.html</loc>
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/reference/dimnames-InfinitySparseMatrix.html</loc>
@@ -191,6 +197,9 @@
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/reference/standardization_scale.html</loc>
+  </url>
+  <url>
+    <loc>https://markmfredrickson.github.io/optmatch/reference/strata.html</loc>
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/reference/stratumStructure.html</loc>
