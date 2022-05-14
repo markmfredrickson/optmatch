@@ -1,11 +1,15 @@
+## Changes in **optmatch** version 0.10.2
+
+Minor patch to correct `License_is_FOSS` and `License_restricts_use` flags.
+
 ## Changes in **optmatch** Version 0.10.1
 
 ### Interface changes
 
-- The rank Mahalanobis distance being created in `match_on()` with the `method =
-  "rank_mahalanobis"` was accidentally returning the squared distance rather
-  than the distance. This has been fixed. To recover results using the squared
-  distance, square the results, e.g.: `match_on(..., method =
+- The rank Mahalanobis distance being created in `match_on()` using the argument
+  `method = "rank_mahalanobis"` was accidentally returning the squared distance
+  rather than the distance. This has been fixed. To recover results using the
+  squared distance, square the results, e.g.: `match_on(..., method =
   "rank_mahalanobis")^2`. (Thanks Noah Greifer #218)
 - New function `as.list.BlockedInfinitySparseMatrix()` to split a single
   `BlockedInfinitySparseMatrix` into a `list` of `InfinitySparseMatrix` based

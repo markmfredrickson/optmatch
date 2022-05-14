@@ -41,8 +41,8 @@ Enhances:
     CBPS,
     haven
 License: MIT + file LICENSE
-License_is_FOSS: true
-License_restricts_use: false
+License_is_FOSS: yes
+License_restricts_use: no
 URL: https://github.com/markmfredrickson/optmatch, https://markmfredrickson.github.io/optmatch/
 BugReports: https://github.com/markmfredrickson/optmatch/issues
 Additional_repositories: https://errickson.net/rrelaxiv
