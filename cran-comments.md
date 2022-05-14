@@ -24,3 +24,9 @@ Package suggested but not available for checking: 'rrelaxiv'
 
 Optional suggested dependency **rrelaxiv** has a very restrictive license and is
 not being submitted to CRAN. It is listed under `Additional_repositories`.
+
+## Submission comments
+
+I apologize for the rapid re-submission of the package, but I made an error in
+correcting the `License_is_FOSS` flag in the previous release, which was the
+major reason for its release.
