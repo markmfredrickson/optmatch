@@ -30,9 +30,9 @@ Minor patch to correct `License_is_FOSS` and `License_restricts_use` flags.
   - Implemented `optmatch::strata` to be used in place of `survival::strata`.
     Loading **survival** and masking `strata` should not cause issues either.
   - Hashing of distance matrixes is now done internally.
-  - **RItools** and **survery** are now only suggested with appropriate
-      warnings if users attempt to utilize code with them without first
-      installing the packages.
+  - **RItools** and **survey** are now only suggested with appropriate warnings
+      if users attempt to utilize code with them without first installing the
+      packages.
 - Modernized some vignettes
 
 ## Changes in **optmatch** Version 0.10.0
