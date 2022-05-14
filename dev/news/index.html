@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.0.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.2.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,18 +53,29 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.10.0.9001" id="changes-in-optmatch-version-01009001">Changes in <strong>optmatch</strong> Version 0.10.0.9001<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-01009001"></a></h2>
-<ul><li>The rank Mahalanobis distance being created in <code><a href="../reference/match_on-methods.html">match_on()</a></code> with the <code>method = "rank_mahalanobis"</code> was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
+<h2 class="pkg-version" data-toc-text="0.10.2" id="changes-in-optmatch-version-0102">Changes in <strong>optmatch</strong> version 0.10.2<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0102"></a></h2>
+<p>Minor patch to correct <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags.</p>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.1" id="changes-in-optmatch-version-0101">Changes in <strong>optmatch</strong> Version 0.10.1<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0101"></a></h2><p class="text-muted">CRAN release: 2022-05-13</p>
+<div class="section level3">
+<h3 id="interface-changes-0-10-1">Interface changes<a class="anchor" aria-label="anchor" href="#interface-changes-0-10-1"></a></h3>
+<ul><li>The rank Mahalanobis distance being created in <code><a href="../reference/match_on-methods.html">match_on()</a></code> using the argument <code>method = "rank_mahalanobis"</code> was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
+<li>New function <code><a href="../reference/as.list.BlockedInfinitySparseMatrix.html">as.list.BlockedInfinitySparseMatrix()</a></code> to split a single <code>BlockedInfinitySparseMatrix</code> into a <code>list</code> of <code>InfinitySparseMatrix</code> based upon the separate blocks. (Called via <code>as.list(b)</code> when <code>b</code> is a <code>BlockedInfinitySparseMatrix</code>.)</li>
+<li>New function <code><a href="../reference/dbind.html">dbind()</a></code> for binding several distance matrices into a single <code>BlockedInfinitySparseMatrix</code>. Valid inputs include any distance convertible into an <code>InfinitySparseMatrix</code>, or <code>BlockedInfinitySparseMatrix</code>, or <code>list</code>s of these. (<a href="https://github.com/markmfredrickson/optmatch/issues/65" class="external-link">#65</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure-changes-0-10-1">Infrastructure changes<a class="anchor" aria-label="anchor" href="#infrastructure-changes-0-10-1"></a></h3>
+<ul><li>Manually correcting <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags after 0.10.0 transition to an open license.</li>
 <li>
 <strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.<ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
 <li>Hashing of distance matrixes is now done internally.</li>
 <li>
-<strong>RItools</strong> and <strong>survery</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
+<strong>RItools</strong> and <strong>survey</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
 </ul></li>
-<li>New function <code><a href="../reference/as.list.BlockedInfinitySparseMatrix.html">as.list.BlockedInfinitySparseMatrix()</a></code> to split a single <code>BlockedInfinitySparseMatrix</code> into a <code>list</code> of <code>InfinitySparseMatrix</code> based upon the separate blocks. (Called via <code>as.list(b)</code> when <code>b</code> is a <code>BlockedInfinitySparseMatrix</code>.)</li>
-<li>New function <code><a href="../reference/dbind.html">dbind()</a></code> for binding several distance matrices into a single <code>BlockedInfinitySparseMatrix</code>. Valid inputs include any distance convertible into an <code>InfinitySparseMatrix</code>, or <code>BlockedInfinitySparseMatrix</code>, or <code>list</code>s of these. (<a href="https://github.com/markmfredrickson/optmatch/issues/65" class="external-link">#65</a>)</li>
 <li>Modernized some vignettes</li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0" id="changes-in-optmatch-version-0100">Changes in <strong>optmatch</strong> Version 0.10.0<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0100"></a></h2><p class="text-muted">CRAN release: 2022-03-15</p>
 <div class="section level3">
@@ -72,7 +83,7 @@
 <ul><li>
 <strong>optmatch</strong> no longer includes the RELAX-IV solver internally. That solver can be still be used by installing the new <strong>rrelaxiv</strong> package (which will <em>not</em> be hosted on CRAN). When <strong>rrelaxiv</strong> is not available, <strong>optmatch</strong> instead uses a min-cost flow solver provided by the LEMON project, <a href="https://lemon.cs.elte.hu/trac/lemon" class="external-link uri">https://lemon.cs.elte.hu/trac/lemon</a>; bindings to these are provided by the <strong>rlemon</strong> package. The user interface remains the same, other than a new optional argument for specifying which solver to use. In <em>very</em> limited testing, we’ve seen similar matching results with the new solver.</li>
 <li>The <strong>rlemon</strong> package offers bindings to four LEMON solvers. See <code><a href="../reference/fullmatch.html">help(fullmatch)</a></code> for a discussion on those, and the new argument to <code><a href="../reference/fullmatch.html">fullmatch()</a></code>, <code>solver =</code>.</li>
-<li>To continue using the RELAX-IV solver, whether for back-compatibility or as a matter of preference, install the <strong>rrelaxiv</strong> package, from <a href="https://github.com/josherrickson/rrelaxiv/" class="external-link uri">https://github.com/josherrickson/rrelaxiv/</a>. If <strong>rrelaxiv</strong> is installed, RELAX-IV will become the default solver automatically.</li>
+<li>To continue using the RELAX-IV solver, whether for back-compatibility or as a matter of preference, install the <strong>rrelaxiv</strong> package, from <a href="https://errickson.net/rrelaxiv/" class="external-link uri">https://errickson.net/rrelaxiv/</a>. If <strong>rrelaxiv</strong> is installed, RELAX-IV will become the default solver automatically.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-0-10-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-10-0"></a></h3>
