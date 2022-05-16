@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.2.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.3.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,28 +53,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.10.2" id="changes-in-optmatch-version-0102">Changes in <strong>optmatch</strong> version 0.10.2<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0102"></a></h2>
-<p>Minor patch to correct <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags.</p>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.10.1" id="changes-in-optmatch-version-0101">Changes in <strong>optmatch</strong> Version 0.10.1<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0101"></a></h2><p class="text-muted">CRAN release: 2022-05-13</p>
+<h2 class="pkg-version" data-toc-text="0.10.3" id="changes-in-optmatch-version-0103">Changes in <strong>optmatch</strong> Version 0.10.3<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0103"></a></h2>
 <div class="section level3">
-<h3 id="interface-changes-0-10-1">Interface changes<a class="anchor" aria-label="anchor" href="#interface-changes-0-10-1"></a></h3>
+<h3 id="interface-changes-0-10-3">Interface changes<a class="anchor" aria-label="anchor" href="#interface-changes-0-10-3"></a></h3>
 <ul><li>The rank Mahalanobis distance being created in <code><a href="../reference/match_on-methods.html">match_on()</a></code> using the argument <code>method = "rank_mahalanobis"</code> was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
 <li>New function <code><a href="../reference/as.list.BlockedInfinitySparseMatrix.html">as.list.BlockedInfinitySparseMatrix()</a></code> to split a single <code>BlockedInfinitySparseMatrix</code> into a <code>list</code> of <code>InfinitySparseMatrix</code> based upon the separate blocks. (Called via <code>as.list(b)</code> when <code>b</code> is a <code>BlockedInfinitySparseMatrix</code>.)</li>
 <li>New function <code><a href="../reference/dbind.html">dbind()</a></code> for binding several distance matrices into a single <code>BlockedInfinitySparseMatrix</code>. Valid inputs include any distance convertible into an <code>InfinitySparseMatrix</code>, or <code>BlockedInfinitySparseMatrix</code>, or <code>list</code>s of these. (<a href="https://github.com/markmfredrickson/optmatch/issues/65" class="external-link">#65</a>)</li>
 </ul></div>
 <div class="section level3">
-<h3 id="infrastructure-changes-0-10-1">Infrastructure changes<a class="anchor" aria-label="anchor" href="#infrastructure-changes-0-10-1"></a></h3>
+<h3 id="infrastructure-changes-0-10-3">Infrastructure changes<a class="anchor" aria-label="anchor" href="#infrastructure-changes-0-10-3"></a></h3>
 <ul><li>Manually correcting <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags after 0.10.0 transition to an open license.</li>
 <li>
 <strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.<ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
 <li>Hashing of distance matrixes is now done internally.</li>
 <li>
-<strong>RItools</strong> and <strong>survey</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
+<strong>RItools</strong> and <strong>survery</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
 </ul></li>
 <li>Modernized some vignettes</li>
-</ul></div>
+</ul><p>(Note: 0.10.1 and 0.10.2 were functionally equivalent releases updated to address an issue with CRAN and the <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags.)</p>
+</div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0" id="changes-in-optmatch-version-0100">Changes in <strong>optmatch</strong> Version 0.10.0<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0100"></a></h2><p class="text-muted">CRAN release: 2022-03-15</p>
