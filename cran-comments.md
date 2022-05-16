@@ -27,6 +27,5 @@ not being submitted to CRAN. It is listed under `Additional_repositories`.
 
 ## Submission comments
 
-I apologize for the rapid re-submission of the package, but I made an error in
-correcting the `License_is_FOSS` flag in the previous release, which was the
-major reason for its release.
+Resubmitting per Uwe Ligges' request to trigger correction of `License_is_FOSS`
+and `License_restricts_use` flags.
