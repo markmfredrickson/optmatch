@@ -67,7 +67,7 @@
 <strong>optmatch</strong> no longer depends on <strong>digest</strong>, <strong>RItools</strong>, or <strong>survey</strong>, or imports from <strong>survival</strong>. This should harden us against unexpected downtime should any of these packages be removed from CRAN.<ul><li>Implemented <code><a href="../reference/strata.html">optmatch::strata</a></code> to be used in place of <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata</a></code>. Loading <strong>survival</strong> and masking <code>strata</code> should not cause issues either.</li>
 <li>Hashing of distance matrixes is now done internally.</li>
 <li>
-<strong>RItools</strong> and <strong>survery</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
+<strong>RItools</strong> and <strong>survey</strong> are now only suggested with appropriate warnings if users attempt to utilize code with them without first installing the packages.</li>
 </ul></li>
 <li>Modernized some vignettes</li>
 </ul><p>(Note: 0.10.1 and 0.10.2 were functionally equivalent releases updated to address an issue with CRAN and the <code>License_is_FOSS</code> and <code>License_restricts_use</code> flags.)</p>
