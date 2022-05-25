@@ -78,6 +78,25 @@ test_that('compute_rank.mahal returns results similar to the Rosenbaum code', {
 
 })
 
+test_that("rank mahal with factor variables, #220", {
+  data(nuclearplants)
+  nuclearplants$group <- factor(sample(3:5, 32, TRUE))
+
+  form1 <- pr ~ group
+  # Generate a design matrix with no intercept and all dummies (no reference)
+  X1 <- model.matrix(form1, data = nuclearplants,
+                     contrasts.arg = lapply(Filter(is.factor, nuclearplants),
+                                            function(x) {
+                                              contrasts(x, contrasts = FALSE)/sqrt(2)
+                                            })) [, -1]
+
+  d1a <- compute_smahal(nuclearplants$pr, X1)
+  d1b <- as.matrix(match_on(form1, data = nuclearplants,
+                            method = "rank_mahalanobis"))
+  expect_true(all.equal(d1a, d1b, check.attributes = FALSE))
+
+})
+
 test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) holds", {
 
     nr <- 10L
