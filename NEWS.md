@@ -1,3 +1,9 @@
+## Changes in **optmatch** Version 0.10.3.9001
+
+- When including factor variables on the right hand side of the formula passed
+  into `match_on()`, now more simply calculates the contrast to enable more
+  intuitive results. (Thanks Noah Greifer, #220)
+
 ## Changes in **optmatch** Version 0.10.3
 
 ### Interface changes
