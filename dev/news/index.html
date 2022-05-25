@@ -53,7 +53,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.10.3" id="changes-in-optmatch-version-0103">Changes in <strong>optmatch</strong> Version 0.10.3<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0103"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.10.3.9001" id="changes-in-optmatch-version-01039001">Changes in <strong>optmatch</strong> Version 0.10.3.9001<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-01039001"></a></h2>
+<ul><li>When including factor variables on the right hand side of the formula passed into <code><a href="../reference/match_on-methods.html">match_on()</a></code>, now more simply calculates the contrast to enable more intuitive results. (Thanks Noah Greifer, <a href="https://github.com/markmfredrickson/optmatch/issues/220" class="external-link">#220</a>)</li></ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.3" id="changes-in-optmatch-version-0103">Changes in <strong>optmatch</strong> Version 0.10.3<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0103"></a></h2><p class="text-muted">CRAN release: 2022-05-16</p>
 <div class="section level3">
 <h3 id="interface-changes-0-10-3">Interface changes<a class="anchor" aria-label="anchor" href="#interface-changes-0-10-3"></a></h3>
 <ul><li>The rank Mahalanobis distance being created in <code><a href="../reference/match_on-methods.html">match_on()</a></code> using the argument <code>method = "rank_mahalanobis"</code> was accidentally returning the squared distance rather than the distance. This has been fixed. To recover results using the squared distance, square the results, e.g.: <code>match_on(..., method = "rank_mahalanobis")^2</code>. (Thanks Noah Greifer <a href="https://github.com/markmfredrickson/optmatch/issues/218" class="external-link">#218</a>)</li>
