@@ -883,6 +883,12 @@ setMethod("show", "BlockedInfinitySparseMatrix", function(object) { show(findSub
 ##' ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 ##' \code{TRUE} errors on this instead.
 ##'
+##' If the matrices need to be renamed and there are more than 26 separate
+##' matrices, after the first 26 single "X." prefixs, they will continue as
+##' "YX.", e.g "aa.", "ab.", "ac.". If more than 676 separate matrices, the
+##' prefix wil continue to "ZYX.", e.g. "aaa.", "aab.", "aac.". This scheme
+##' supports up to 18,278 unique matrices.
+##'
 ##' Note that you do \strong{not} have to combine subgroup distances into a
 ##' single blocked distance using this function to ultimately obtain a single
 ##' matching set. Instead, take a look at the vignette
@@ -1028,7 +1034,16 @@ dbind <- function(..., force_unique_names = FALSE) {
                   "original matrices without this issue."))
     # If there are duplicated names, append a., b., c., etc to all names just to
     # ensure uniqueness.
-    name_prefix <- paste0(letters[seq_along(mats)], ".")
+
+    # To handle more than 26 entries, once we go through z., repeat with aa.,
+    # ab., ac., ...., .zx, .zy, .zz, .aaa, .aab, .aac, etc. Supports up to 18278
+    # separate entries
+    doubleletters <- expand.grid(letters, letters)
+    doubleletters <- paste0(doubleletters[, 2], doubleletters[, 1])
+    tripleletters <- expand.grid(letters, doubleletters)
+    tripleletters <- paste0(tripleletters[, 2], tripleletters[, 1])
+    allletters <- c(letters, doubleletters, tripleletters)
+    name_prefix <- paste0(allletters[seq_along(mats)], ".")
     cnameslist <- mapply(paste0, name_prefix, cnameslist, SIMPLIFY = FALSE)
     newcolnames <- do.call(c, cnameslist)
     rnameslist <- mapply(paste0, name_prefix, rnameslist, SIMPLIFY = FALSE)

@@ -46,6 +46,12 @@ appending "X." to each distance, where "X" is ascending lower case letters
 ("a.", "b.", etc). Setting the \code{force_unique_names} argument to
 \code{TRUE} errors on this instead.
 
+If the matrices need to be renamed and there are more than 26 separate
+matrices, after the first 26 single "X." prefixs, they will continue as
+"YX.", e.g "aa.", "ab.", "ac.". If more than 676 separate matrices, the
+prefix wil continue to "ZYX.", e.g. "aaa.", "aab.", "aac.". This scheme
+supports up to 18,278 unique matrices.
+
 Note that you do \strong{not} have to combine subgroup distances into a
 single blocked distance using this function to ultimately obtain a single
 matching set. Instead, take a look at the vignette

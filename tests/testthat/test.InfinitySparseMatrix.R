@@ -939,6 +939,33 @@ test_that("dbind", {
   }
 })
 
+test_that("dbind'ing a very large number of matrices", {
+  data(nuclearplants)
+
+  m1 <- match_on(pr ~ cost, data = nuclearplants[nuclearplants$pt == 1, ])
+
+  expect_warning(dm1 <- dbind(lapply(1:26, function(x) m1)), "Duplicated")
+  expect_true(all(grepl("^[a-z]\\.[a-f]$",dm1@colnames)))
+
+  expect_warning(dm2 <- dbind(lapply(1:27, function(x) m1)), "Duplicated")
+
+  expect_identical(dm1@colnames, dm2@colnames[seq_along(dm1@colnames)])
+
+  expect_true(all(grepl("^aa\\.[a-f]$",
+                        dm2@colnames[-seq_along(dm1@colnames)])))
+
+  expect_warning(dm3 <- dbind(lapply(1:500, function(x) m1)), "Duplicated")
+
+  expect_true(all(grepl("^[a-z]{2}\\.[a-f]$",
+                        dm3@colnames[-seq_along(dm1@colnames)])))
+
+  expect_warning(dm4 <- dbind(lapply(1:1000, function(x) m1)), "Duplicated")
+
+  expect_identical(dm3@colnames, dm4@colnames[seq_along(dm3@colnames)])
+  expect_true(all(grepl("^[a-z]{3}\\.[a-f]$", tail(dm4@colnames, 100))))
+
+})
+
 test_that("as ism or bism", {
 
   m1 <- match_on(pr ~ cost, data = nuclearplants)
