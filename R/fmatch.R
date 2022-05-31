@@ -134,13 +134,16 @@ fmatch <- function(distance, max.row.units, max.col.units,
       )
   {
     return(
-      data.frame(distance,
-                 solution = rep(-1L, narcs),
-                 check.names=FALSE,
-                 row.names=NULL
-                )
-          )
-      }
+      c(data.frame(distance,
+                   solution = rep(-1L, narcs),
+                   check.names=FALSE,
+                   row.names=NULL
+                   ),
+        list(maxerr=0),
+        list(MCFSolution=NULL)
+        )
+      )
+  }
 
   ##  Min-Cost-Flow representation of problem  ####
   ## Each node has a integer ID number, implicitly pointing
