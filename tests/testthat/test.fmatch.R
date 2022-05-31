@@ -91,24 +91,27 @@ test_that("Solutions -> factor helper", {
   skeleton  <- dplyr::mutate(skeleton, treated=factor(i), control=factor(j))
 
   pairs <- cbind(skeleton, solution = c(1,0,0,1,0,0,1))
-  pairs.expected <- c(1,2,3,1,2,3)
+  pairs.expected <- factor(c(1,2,3,1,2,3), labels=c("D", "E", "F"))
   names(pairs.expected) <- c("D", "E", "F", "A", "B", "C")
 
   expect_equal(solution2factor(pairs), pairs.expected)
 
   pairOfTriples <- cbind(skeleton, solution = c(1,0,1,0,0,1,1))
-  pot.expected <- c(1,2,2,1,1,2)
+  pot.expected <- factor(c(1,2,2,1,1,2), levels=1:3,
+                         labels=c("D", "E", "F"))
   names(pot.expected) <- c("D", "E", "F", "A", "B", "C")
   expect_equal(solution2factor(pairOfTriples), pot.expected)
 
   treatedNotMatched <- cbind(skeleton, solution = c(1,0,0,1,1,0,0))
-  tnm.expected <- c(1,2, NA, 1,2,1)
+  tnm.expected <- factor(c(1,2, NA, 1,2,1), levels=1:3,
+                         labels=c("D", "E", "F"))
   names(tnm.expected) <- c("D", "E", "F", "A", "B", "C")
 
   expect_equal(solution2factor(treatedNotMatched), tnm.expected)
 
   controlNotMatched <- cbind(skeleton, solution = c(0,0,1,1,0,0,1))
-  cnm.expected <- c(1, 1, 3, NA, 1, 3)
+  cnm.expected <- factor(c(1, 1, 3, NA, 1, 3), levels=1:3,
+                         labels=c("D", "E", "F"))
   names(cnm.expected) <- c("D", "E", "F", "A", "B", "C")
 
   expect_equal(solution2factor(controlNotMatched), cnm.expected)
