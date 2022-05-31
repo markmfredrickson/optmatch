@@ -176,7 +176,9 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     }
     
     intsol$maxerr  <-
-        if (any(is.na(intsol$solution))) { # i.e., problem was found infeasible.
+        if (any(is.na(intsol$solution) |
+                intsol$solution<0)
+            ) { # i.e., problem was found infeasible.
             0 } else { #roundoff error crude estimate
                   sum(intsol$solution * dm_distance, na.rm = TRUE) -
                       sum(intsol$solution * (intsol$dist - 1/2), na.rm = TRUE) * epsilon +
