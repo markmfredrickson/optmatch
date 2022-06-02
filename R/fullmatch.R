@@ -276,7 +276,10 @@ fullmatch.matrix <- function(x,
                              tol = .001,
                              data = NULL,
                              within = NULL,
+                             hint,
                              ...) {
+
+  hint  <- if (missing(hint)) NULL else nodeinfo(hint)
 
   ### Checking Input ###
 
@@ -355,6 +358,24 @@ fullmatch.matrix <- function(x,
   subproblemids  <- names(problems)
   if (is.null(subproblemids)) subproblemids  <- character(1L)
 
+    if (is.null(hint)) { hints  <- rep(list(NULL), np)
+    } else {
+        hints  <- split(hint, hint[['groups']],
+                        drop=TRUE # drops levels of hint$groups that aren't represented in hint
+                        )
+        nohint  <- setdiff(subproblemids, names(hints))
+        hints  <- hints[match(subproblemids, names(hints), 0L)]
+        if (length(hints)>0) for (ii in 1L:length(hints)) hints[[ii]]  <- new("NodeInfo", hints[[ii]])
+        if (length(nohint))
+        {
+            nullhint  <- rep(list(NULL), length(nohint))
+            names(nullhint)  <- nohint
+            hints  <- c(hints, nullhint)
+            if (length(nohint)==np) warning("Hint lacks information about subproblems of this problem; ignoring.")
+            }
+        hints  <- hints[match(subproblemids, names(hints))]
+            }
+
   if (length(min.controls) > 1 & np != length(min.controls)) {
       if (is.null(names(min.controls)))
           stop("\'min.controls\' longer than 1 should have names (that match names of subproblems/exact matching categories).")
@@ -412,11 +433,11 @@ fullmatch.matrix <- function(x,
     mean.controls <- rep(mean.controls, np)
   }
 
-  if (any(mean.controls < min.controls, na.rm=TRUE)) {
+  if (any(mean.controls + .Machine$double.eps^0.5 < min.controls, na.rm=TRUE)) {
     stop("mean.controls cannot be smaller than min.controls")
   }
 
-  if (any(mean.controls > max.controls, na.rm=TRUE)) {
+  if (any(mean.controls - .Machine$double.eps^0.5> max.controls, na.rm=TRUE)) {
     stop("mean.controls cannot be larger than max.controls")
   }
 
@@ -447,7 +468,7 @@ fullmatch.matrix <- function(x,
 
   # a helper to handle a single matching problem. all args required.
   # input error checking happens in the public fullmatch function.
-  .fullmatch <- function(d, mnctl, mxctl, omf) {
+  .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL) {
 
     # if the subproblem is completely empty, short circuit
     if (length(d) == 0 || all(is.infinite(d))) {
@@ -474,32 +495,40 @@ fullmatch.matrix <- function(x,
       maxc <- min(mxctl, ncol)
       minc <- max(mnctl, 1/nrow)
       omf.calc <- omf
-
+      flipped  <- FALSE
     } else {
       maxc <- min(1/mnctl, ncol)
       minc <- max(1/mxctl, 1/nrow)
       omf.calc <- -1 * omf
       d <- t(d)
+      flipped  <- TRUE
     }
 
-    temp <- SubDivStrat(rownames = rownames(d),
-                        colnames = colnames(d),
+    ## (I'd like to do the following higher in the call stack, and also more
+    ##  informatively, obviating subsequent needs for max.cpt, min.cpt,
+    ##  omit.fraction etc. Keeping it here for fear of mischief with flipped subproblems.)
+    if (is.null(hint)) hint  <- nodes_shell_fmatch(rownames(d), colnames(d))
+      
+    temp <- solve_reg_fm_prob(node_info = hint,
                         distspec = d,
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
-                        omit.fraction = if(!is.na(omf)) { omf.calc }) # passes NULL for NA
+                        omit.fraction = if(!is.na(omf)) { omf.calc }# passes NULL for NA
+                        )
+      if (!is.null(temp$MCFSolution))
+          temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped 
 
     return(temp)
   }
 
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
-  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r) {
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
     if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -509,7 +538,7 @@ fullmatch.matrix <- function(x,
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control
-      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r))
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, hint.r))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
       trial.ss <- stratumStructure(tmp2.optmatch)
       treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
@@ -518,7 +547,7 @@ fullmatch.matrix <- function(x,
       if(num.controls == 0) {
         # infeasible anyways
         if (!exists("tmp")) {
-          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
         }
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
         return(tmp)
@@ -527,11 +556,11 @@ fullmatch.matrix <- function(x,
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r))
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r))
     } else {
       # subproblem is infeasible, but we can't try to fix because no max.controls
       if (!exists("tmp")) {
-        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r)
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
       }
 
       new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -548,9 +577,9 @@ fullmatch.matrix <- function(x,
   }
 
   if (options()$fullmatch_try_recovery) {
-    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
   } else {
-    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
@@ -590,11 +619,41 @@ fullmatch.matrix <- function(x,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- dist_digest(x)
+  attr(mout, "hashed.distance") <- disthash  <- dist_digest(x)
 
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
 
+    ## assemble MCF material
+    mcfsolutions  <- rep(list(NULL), np)
+    names(mcfsolutions)  <- subproblemids
+    for (ii in 1L:np)
+        if (!is.null(solutions[[ii]]$MCFSolution))
+        {
+            mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
+            mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
+            thesubprob  <- subproblemids[ii]
+            mcfsolutions[[ii]]@subproblems[1L,"groups"]  <- thesubprob
+            mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
+            if (nrow(mcfsolutions[[ii]]@arcs@matches) > 0)
+                mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
+            mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
+            bookkeeping_nodes  <- c('(_Sink_)', '(_End_)')
+            for (bn in bookkeeping_nodes)
+            {
+                nlabs <- node.labels(mcfsolutions[[ii]])
+                nlabs[nlabs==bn]  <- paste0(bn, thesubprob)
+                node.labels(mcfsolutions[[ii]])  <-  nlabs
+            }
+        }
+    mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
+
+    attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { NULL
+                                   } else {
+                                       names(mcfsolutions)[1]  <- "x"
+    ##b/c in next line `c()` needs to dispatch on an `x` argument
+                                       do.call("c", mcfsolutions)
+                                       }
 
   if (all(subproblemSuccess(mout) == FALSE)) {
     warning(paste("Matching failed.",

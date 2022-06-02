@@ -59,6 +59,47 @@ test_that("match_on with bigglm distances", {
   }
 })
 
+# convenience function for use in testing
+pairmatch_nodeinfo  <- function(edges) {
+    stopifnot(is(edges, "EdgeList"))
+    allunits  <- levels(edges[['i']])
+    istreated  <- allunits %in% edges[['i']]
+
+    adf  <- data.frame(name=c(allunits, "(_Sink_)"),
+                       price=0L,
+                       upstream_not_down=c(istreated, NA),
+                       supply=c(rep(1L, sum(istreated)),
+                                rep(0L, sum(!istreated)),
+                                -sum(istreated)
+                                ),
+                       stringsAsFactors=FALSE
+                       )
+    new("NodeInfo", adf)
+}
+test_that("Hinting decreases runtimes",{
+  N <- 1000
+  X <- data.frame(X1 = rnorm(N), 
+                  X2 = rnorm(N, mean = runif(N, -5, 5)), 
+                  X3 = as.factor(sample(letters[1:5], N, replace = T)))
+  mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+  coefs <- runif(dim(mm)[2], -2, 2)
+  logits <- as.vector(coefs %*% t(mm)) 
+  DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)  
+  m <- match_on(x = Z ~ X1 + X2 + X3, data = DATA)
+  if (nrow(m) > ncol(m)) m <- t(m)
+  ff <- nrow(m)/ncol(m)
+  pm <- edgelist(m)
+  pm$dist <- as.integer(100*pm$dist)
+  nodes_dummy <- pairmatch_nodeinfo(pm)
+  t0  <- system.time(res0 <- fmatch(pm, 1, 1, 1, f=ff,
+                                   node_info=nodes_dummy)
+                     )
+  expect_false(is.null(mcfs0  <-  res0$MCFSolution))
+  n0  <-  mcfs0@nodes
+  t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0))
+  expect_gt(t0['elapsed'], 
+            t1['elapsed'])
+})
 ### next tests disabled due to an odd scoping-related error
 ### occurring only within the test, not in interactive use.
 ### (The problem is that `test.design` can't be found when

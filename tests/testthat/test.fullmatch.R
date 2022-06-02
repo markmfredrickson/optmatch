@@ -691,6 +691,46 @@ test_that("accept negative omit.fraction", {
 
 })
 
+test_that("returns min-cost flow solution info", {
+
+        data <- data.frame(z = c(rep(0,10), rep(1,5)),
+                     x = rnorm(15), fac=rep(c(rep("a",2), rep("b",3)),3))
+
+    f1 <- fullmatch(z~x, min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_false(is.null(attr(f1, "MCFSolutions")))
+    f2 <- fullmatch(z~x+strata(fac), min.c=1, max.c=1, omit.fraction=.5, data = data)
+    expect_false(is.null(attr(f2, "MCFSolutions")))
+
+})
+
+test_that('Hints accepted',{
+  set.seed(201905)
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
+  mo  <- match_on(z ~ x, data=data)
+  f1a <- fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.1)
+  expect_is(attr(f1a, "MCFSolutions"), "FullmatchMCFSolutions")  
+  expect_silent(fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.0001, hint=f1a))
+  mos <- match_on(z ~ x + strata(fac), data=data)
+  f1b <- fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1)
+  expect_is(attr(f1b, "MCFSolutions"), "FullmatchMCFSolutions")
+  expect_warning(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1a), "ignoring")
+  expect_silent(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.0001, hint=f1b))
+
+  expect_equal(length(summary(mos)$overall$unmatchable$treatment), 0)
+  mosc  <- mos + caliper(mos, width=1)
+  expect_equal(length(summary(mosc)$overall$unmatchable$treatment), 1)
+  expect_silent(f1c  <- fullmatch(mosc, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1b))
+  expect_is(attr(f1c, "MCFSolutions"), "FullmatchMCFSolutions")
+  ## expect_error(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1c))
+  ## (b/c hint is missing price for the treatment node that was excluded by the caliper.
+  ##  [But this is no longer an error.])
+  ## OTOH it's always been OK to be missing a price for a control node.
+  expect_silent(f1d  <- fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1))
+  expect_is(attr(f1d, "MCFSolutions"), "FullmatchMCFSolutions")  
+  expect_silent(fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1, hint=f1d))
+})  
+  
 test_that("If matching fails, we should give a warning", {
   # One subproblem, matching fails
   expect_warning(fullmatch(pr ~ cost, data = nuclearplants, min = 5, max = 5),

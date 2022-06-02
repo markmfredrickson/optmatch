@@ -90,7 +90,8 @@ documentation of 'getMaxProblemSize' and 'setMaxProblemSize'.")
     subprobs <- findSubproblems(within)
     issue.warning <- FALSE # just issue 1 warning, even if multiple subs fail
     for (s in subprobs) {
-      issue.warning <- issue.warning || (dim(prepareMatching(s))[1] > getMaxProblemSize())
+        issue.warning <- issue.warning ||
+            (length(as.InfinitySparseMatrix(s)) > getMaxProblemSize())
     }
 
     if(issue.warning && warning.requested) {

@@ -8,7 +8,10 @@ NULL
 
 ### prepareMatching: DistanceSpecification -> arcs
 ### where arcs is a data.frame with 3 columns: control, treatment, distance
-
+### (Now deprecated, in favor of `edgelist()`.  It creates `EdgeList` objects,
+###  which are similar but have a formal class and are better suited to have
+###  `dplyr::*_join()` functions operate on them, as is done in
+###  `optmatch:::evaluate_*()`.)
 setGeneric("prepareMatching", function(distances)
   standardGeneric("prepareMatching"))
 
@@ -175,6 +178,12 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
       }
       return(FALSE)
     }
+
+      if (any(sbprobs[[i]]<0)) {
+          if (stopOnProblem) {
+              stop("Invalid distance: distances can't be negative.")
+          }
+      }
   }
 
   if(!hasMethod(dim, class(distance)[1])) {

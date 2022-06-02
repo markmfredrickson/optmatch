@@ -10,8 +10,7 @@ extern SEXP _optmatch_r_smahal(SEXP, SEXP, SEXP);
 extern SEXP _optmatch_subsetInfSparseMatrix(SEXP, SEXP, SEXP);
 
 /* .Fortran calls */
-extern void F77_NAME(relaxalg)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(relaxalgold)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(relaxalg)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
   {"_optmatch_ismOps",                (DL_FUNC) &_optmatch_ismOps,                3},
@@ -22,8 +21,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 
 static const R_FortranMethodDef FortranEntries[] = {
-  {"relaxalg",    (DL_FUNC) &F77_NAME(relaxalg),    11},
-  {"relaxalgold", (DL_FUNC) &F77_NAME(relaxalgold), 11},
+  {"relaxalg",    (DL_FUNC) &F77_NAME(relaxalg),    12},
   {NULL, NULL, 0}
 };
 

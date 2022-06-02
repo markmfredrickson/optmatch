@@ -403,6 +403,20 @@ test_that("#116: If nt>nc, try creating nc pairs" , {
   expect_error(p <- pairmatch(z~x, controls = 2, data = data))
 })
 
+test_that('Hints accepted',{
+  set.seed(201905)
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
+  mo  <- match_on(z ~ x, data=data)
+  p1a <- pairmatch(mo, data = data, tol=0.1)
+  expect_is(attr(p1a, "MCFSolutions"), "FullmatchMCFSolutions")  
+  expect_silent(pairmatch(mo, data = data, tol=0.0001, hint=p1a))
+  mos <- match_on(z ~ x + strata(fac), data=data)
+  p1b <- pairmatch(mos, data = data, tol=0.1)
+  expect_is(attr(p1b, "MCFSolutions"), "FullmatchMCFSolutions")
+  expect_warning(pairmatch(mos, data = data, tol=0.0001, hint=p1a) , "ignoring")
+  expect_silent(pairmatch(mos, data = data, tol=0.0001, hint=p1b))
+})  
 test_that("If matching fails, we should give a warning", {
   m <- match_on(pr ~ cost, data = nuclearplants)
   # One subproblem, matching fails

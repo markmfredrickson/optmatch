@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.9-16
+Version: 1.0.0.9001
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
     oriented to matching of treatment and control groups in observational
@@ -7,20 +7,22 @@ Description: Distance based bipartite matching using the RELAX-IV minimum cost f
     score matching), formulas giving variables on which to limit matched distances, stratified or
     exact matching directives, or calipers, alone or in combination.
 Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
-    <mark.m.fredrickson@gmail.com>, Josh Buckner, Josh Errickson,
-    Adam Rauh and Peter Solenberger, with embedded Fortran code due to
+    <mark.m.fredrickson@gmail.com>, Josh Errickson <jerrick@umich.edu>,
+    Josh Buckner, Adam Rauh and Peter Solenberger, with embedded Fortran code due to
     Dimitri P. Bertsekas <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Mark M. Fredrickson <mark.m.fredrickson@gmail.com>
+Maintainer: Josh Errickson <jerrick@umich.edu>
 LazyData: true
 Depends:
-    R (>= 2.15.1),
+    R (>= 3.5.0),
     survival
 LinkingTo: Rcpp
 Imports:
     Rcpp,
     RItools,
     digest,
+    dplyr,
     stats,
+    tibble,
     methods,
     graphics,
     survey
@@ -45,16 +47,18 @@ BugReports: https://github.com/markmfredrickson/optmatch/issues
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
+    'MCFSolutions.R'
     'Ops.optmatch.dlist.R'
     'Optmatch-package.R'
-    'Optmatch.R'
     'RcppExports.R'
     'abs.optmatch.dlist.R'
     'boxplotMethods.R'
     'caliper.R'
+    'complementarySlackness.R'
     'data.R'
     'deprecated.R'
     'distUnion.R'
+    'edgelist.R'
     'exactMatch.R'
     'feasible.R'
     'fill.NAs.R'
@@ -68,13 +72,14 @@ Collate:
     'max.controls.cap.R'
     'mdist.R'
     'min.controls.cap.R'
+    'optmatchS3.R'
     'pairmatch.R'
     'print.optmatch.R'
     'print.optmatch.dlist.R'
     'relaxinfo.R'
     'scores.R'
+    'solve_reg_fm_prob.R'
     'stratumStructure.R'
-    'subDivStrat.R'
     'summary.ism.R'
     'summary.optmatch.R'
     'utilities.R'

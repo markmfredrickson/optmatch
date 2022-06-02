@@ -23,7 +23,7 @@ setClassUnion("OptionalCharacter", c("character", "NULL"))
 #' Objects for sparse matching problems.
 #'
 #' \code{InfinitySparseMatrix} is a special class of distance specifications. Finite entries
-#' indicate possible matches, while infinite entries indicated non-allowed
+#' indicate possible matches, while infinite or NA entries indicated non-allowed
 #' matches. This data type can be more space efficient for sparse matching
 #' problems.
 #' Usually, users will create distance specification using \code{\link{match_on}}, \code{\link{caliper}}, or
