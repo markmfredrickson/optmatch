@@ -107,7 +107,7 @@ test_that("Checks input", {
   expect_warning(expect_error(fullmatch(as.InfinitySparseMatrix(m))))
 
   # a logical matrix should case an error
-  ml <- matrix(rep(c(T,F), 2), nrow = 2, ncol = 2, dimnames =
+  ml <- matrix(rep(c(TRUE, FALSE), 2), nrow = 2, ncol = 2, dimnames =
     list(letters[1:2], letters[3:4]))
 
   expect_warning(expect_error(fullmatch(ml)))

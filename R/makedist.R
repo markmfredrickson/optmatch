@@ -49,7 +49,7 @@ makedist <- function(z, data, distancefn, within = NULL) {
     treatmentids <- rep(rns, nc)
     controlids <- rep(cns, each = nr)
 
-    if ((nc * nr > getMaxProblemSize()) && warning.requested) {
+    if ((as.numeric(nc) * nr > getMaxProblemSize()) && warning.requested) {
 
       warning("match_on has been asked to compute a large number of treatment-control
 distances.  You can reduce this number by providing an appropriate 'within'
