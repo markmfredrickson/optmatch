@@ -227,12 +227,22 @@ typed_dataframe_combiner  <- function(thetype)
     }
 }
 
+##' Combine objects
+##' @param x object of particular class
+##' @param ... Various objects
+##' @return Combined objects
+##' @rdname mcf_c_fns
+##' @export
 setMethod("c", signature(x="SubProbInfo"),
           definition=typed_dataframe_combiner(thetype="SubProbInfo")
           )
+##' @rdname mcf_c_fns
+##' @export
 setMethod("c", signature(x="NodeInfo"),
           definition=typed_dataframe_combiner(thetype="NodeInfo")
           )
+##' @rdname mcf_c_fns
+##' @export
 setMethod("c", signature(x="ArcInfo"),
           definition=function(x, ...) {
               objs = list(...)
@@ -251,14 +261,16 @@ setMethod("c", signature(x="ArcInfo"),
 
               new("ArcInfo", matches=ans_m, bookkeeping=ans_b)
           })
+##' @rdname mcf_c_fns
+##' @export
 setMethod("c", signature(x="MCFSolutions"),
           definition=function(x, ...) {
               objs  <-  list(...)
               if (!missing(x)) objs  <- c(list(x), objs)
 
               ans  <- new("MCFSolutions")
-              slot(ans, "subproblems")  <- do.call(c, lapply(objs, slot, "subproblems"))
-              slot(ans, "nodes")  <- do.call(c, lapply(objs, slot, "nodes"))
+              methods::slot(ans, "subproblems")  <- do.call(c, lapply(objs, slot, "subproblems"))
+              methods::slot(ans, "nodes")  <- do.call(c, lapply(objs, slot, "nodes"))
 
               ## This creates new node.labels (that are free of duplicates).
               new_nl  <- node.labels(slot(ans, "nodes"))
@@ -267,18 +279,20 @@ setMethod("c", signature(x="MCFSolutions"),
               n_nodes_by_obj  <- vapply(objs, function(obj) nrow(nodeinfo(obj)), integer(1))
               offsets  <- if (length(objs)>1) c(0L, cumsum(n_nodes_by_obj)[-length(objs)]) else 0L
               for (ii in 1L: length(objs))
-                  slot(objs[[ii]], "arcs")  <-
+                 methods::slot(objs[[ii]], "arcs")  <-
                       revise_ArcInfo_nodelabels(slot(objs[[ii]], "arcs"),
                                                 new_nl,
                                                 offsets[ii]+1L:n_nodes_by_obj[ii])
 
-              slot(ans, "arcs")  <- do.call(c, lapply(objs, slot, "arcs"))
+              methods::slot(ans, "arcs")  <- do.call(c, lapply(objs, slot, "arcs"))
               ans
           })
 
+##' @rdname mcf_c_fns
+##' @export
 setMethod("c", signature(x="FullmatchMCFSolutions"),
           definition=function(x, ...) {
-              ans  <- callNextMethod()
+              ans  <- methods::callNextMethod()
               ans  <- as(ans, "FullmatchMCFSolutions")
               ans
           } )
@@ -302,7 +316,7 @@ setMethod("nodeinfo", "ANY", function(x) NULL)
 setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
 setMethod("nodeinfo<-", c(x="MCFSolutions", value="NodeInfo"),
           function(x, value) {
-              stopifnot(isTRUE(validObject(x)),
+              stopifnot(isTRUE(methods::validObject(x)),
                         length(unique(nodeinfo(x)[['groups']]))<=1,
                         !any(is.na(positions  <-
                                        match(nodeinfo(x)[['name']], value[['name']])

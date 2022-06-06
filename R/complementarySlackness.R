@@ -19,10 +19,10 @@ evaluate_primal  <- function(distances, solution) {
 
     nodes  <- as(nodeinfo(solution), "tbl_df")
     main_ij <- left_join(solution@arcs@matches,
-                         dplyr::filter(nodes, upstream_not_down),
+                         dplyr::filter(nodes, nodes$upstream_not_down),
                          by = c("groups", "upstream" = "nodelabels"))
     main_ij <- left_join(main_ij,
-                         y = dplyr::filter(nodes, !upstream_not_down),
+                         y = dplyr::filter(nodes, !nodes$upstream_not_down),
                          by = c("groups", "downstream" = "nodelabels"),
                          suffix = c(x = ".i", y = ".j")
                          )
@@ -51,7 +51,7 @@ evaluate_primal  <- function(distances, solution) {
     ##   i/j cols indicates that we're in this scenario
     ## - any nonzero costs will be communicated by EdgeList entries
     bookkeeping_node_labels <-
-      as.character(filter(nodes, is.na(upstream_not_down))$nodelabels)
+      as.character(filter(nodes, is.na(nodes$upstream_not_down))$nodelabels)
     bookkeeping_costs  <-
       if (any(eld[['i']] %in% bookkeeping_node_labels)) {
         if (!anyflipped) {# if `anyflipped` is T, then this
@@ -95,10 +95,10 @@ evaluate_lagrangian <- function(distances, solution) {
 
     nodes  <- as(nodeinfo(solution), "tbl_df")
     main_ij <- left_join(solution@arcs@matches,
-                         dplyr::filter(nodes, upstream_not_down),
+                         dplyr::filter(nodes, nodes$upstream_not_down),
                          by = c("groups", "upstream" = "nodelabels"))
     main_ij <- left_join(main_ij,
-                         y = dplyr::filter(nodes, !upstream_not_down),
+                         y = dplyr::filter(nodes, !nodes$upstream_not_down),
                          by = c("groups", "downstream" = "nodelabels"),
                          suffix = c(x = ".i", y = ".j")
                          )
@@ -118,7 +118,7 @@ evaluate_lagrangian <- function(distances, solution) {
                                 by = c("groups", "start" = "nodelabels"))
     bookkeeping_ij <- left_join(bookkeeping_ij,
                                 dplyr::filter(nodes,#assumes bookkeeping arcs terminate...
-                                              is.na(upstream_not_down)),#...only in bookkeeping nodes
+                                              is.na(nodes$upstream_not_down)),#...only in bookkeeping nodes
                                 by = c("groups", "end" = "nodelabels"),
                                 suffix = c(x = ".i", y = ".j"))
 
@@ -126,7 +126,7 @@ evaluate_lagrangian <- function(distances, solution) {
 
     sum_main_flow_cost <- sum(main_ij$dist - (main_ij$price.i - main_ij$price.j))
     bookkeeping_node_labels  <-
-      as.character(filter(nodes, is.na(upstream_not_down))$.nodelabels)
+      as.character(filter(nodes, is.na(nodes$upstream_not_down))$.nodelabels)
     if (any(eld[['i']] %in% bookkeeping_node_labels)) {
       warning("Distances involving bookkeeping nodes ignored/treated as 0")
     }
@@ -187,7 +187,7 @@ evaluate_dual <- function(distances, solution) {
                                 by = c("groups", "start" = "nodelabels"))
     bookkeeping_ij <- left_join(bookkeeping_ij,
                                 y = dplyr::filter(nodes,#assumes bookkeeping arcs terminate ...
-                                                  is.na(upstream_not_down)),#... only in bookkeeping nodes
+                                                  is.na(nodes$upstream_not_down)),#... only in bookkeeping nodes
                                 by = c("groups", "end" = "nodelabels"),
                                 suffix = c(x = ".i", y = ".j"))
 
@@ -199,7 +199,7 @@ evaluate_dual <- function(distances, solution) {
     eld <- edgelist(distances, node.labels(solution))
     eld  <- asS3(eld) # saves some dplyr headaches
     bookkeeping_node_labels <-
-      as.character(filter(nodes, is.na(upstream_not_down))$nodelabels)
+      as.character(filter(nodes, is.na(nodes$upstream_not_down))$nodelabels)
     if (any(eld[['i']] %in% bookkeeping_node_labels)) {
       warning("Distances involving bookkeeping nodes ignored/treated as 0")
     }
@@ -238,10 +238,10 @@ evaluate_dual <- function(distances, solution) {
     }
 
     matchable_ij <-
-      inner_join(eld, y = filter(nodes, upstream_not_down),
+      inner_join(eld, y = filter(nodes, nodes$upstream_not_down),
                  by = c("i" = "nodelabels"))
     matchable_ij <- inner_join(matchable_ij,
-                               y = filter(nodes, !upstream_not_down),
+                               y = filter(nodes, !nodes$upstream_not_down),
                                by = c("j" = "nodelabels"),
                                suffix = c(x =".i", y =".j"))
 
