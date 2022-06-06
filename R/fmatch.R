@@ -211,60 +211,81 @@ fmatch <- function(distance,
   if (!is.integer(nodes$supply)) nodes$supply  <- as.integer(nodes$supply)
   if (!is.integer(redcost)) redcost  <- as.integer(redcost)
 
-  #if (solver == "RELAX-IV") {
-  fop <- rrelaxiv::.RELAX_IV(n1=as.integer(nc + nt + 2L),
-                             na1=problem.size,
-                             startn1=startn,
-                             endn1=endn,
-                             c1=c(distance[['dist']],
-                                  rep(0L, nrow(bookkeeping))),
-                             u1=ucap,
-                             b1=nodes$supply,
-                             rc1 = redcost,
-                             crash1=as.integer(0),
-                             large1=as.integer(.Machine$integer.max/4))
+  if (grepl("^LEMON", solver)) {
+    algorithm <- gsub("^LEMON\\.", "", solver)
 
-  ## Material used to create s3 optmatch object:
-  feas <- fop$feasible1
-  x <- feas * fop$x1 - (1 - feas)
+    lout <- rlemon::MinCostFlow(arcSources = startn,
+                                arcTargets = endn,
+                                arcCapacities = ucap,
+                                arcCosts = c(distance[['dist']],
+                                             rep(0L, nrow(bookkeeping))),
+                                nodeSupplies = nodes$supply,
+                                numNodes = as.integer(nc + nt + 2L),
+                                algorithm = algorithm)
+
+    x <- as.numeric(lout[[1]])
+    nodes[, "price"] <- lout[[2]]
+    nodes[, "price"][nrow(nodes)] <- lout[[2]][nrow(nodes) - 1]
+    nodes[, "price"][nrow(nodes) - 1] <- 0
+  }
+  if (solver == "RELAX-IV") {
+    fop <- rrelaxiv::.RELAX_IV(n1=as.integer(nc + nt + 2L),
+                               na1=problem.size,
+                               startn1=startn,
+                               endn1=endn,
+                               c1=c(distance[['dist']],
+                                    rep(0L, nrow(bookkeeping))),
+                               u1=ucap,
+                               b1=nodes$supply,
+                               rc1 = redcost,
+                               crash1=as.integer(0),
+                               large1=as.integer(.Machine$integer.max/4))
+
+
+    ## Material used to create s3 optmatch object:
+    feas <- fop$feasible1
+    x <- feas * fop$x1 - (1 - feas)
+
+    #### Recover node prices, store in nodes table ##
+    ## In full matching, each upstream (row) or downstream (column) node starts
+    ## an arc ending at End, and these are also the only arcs ending there. End
+    ## being at the bottom of the canonical diagram, call these "downarcs".
+    ## Downarcs' costs are 0, so their reduced costs are simply the price of the
+    ## End node minus the price of the upstream or downstream node they started
+    ## from. Imposing a convention that the price of End is 0, the prices of
+    ## these upstream and downstream nodes are just the opposites of the reduced
+    ## costs of the arcs they begin.
+    End_rownum_in_nodes_table  <- which(nodes$name=="(_End_)")
+    stopifnot(length(End_rownum_in_nodes_table)==1)
+    is_downarc  <-  ( bookkeeping[['end']] == End_rownum_in_nodes_table )
+    downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]
+    nodes[bookkeeping[['start']][ is_downarc ], "price"]  <-
+      -1L * downarc_redcosts
+
+    ## It remains to recover the price of the Sink node. There are arcs to it
+    ## from every downstream (column) node, and these are the only arcs
+    ## involving it. First we extract these arcs' reduced costs.
+    Sink_rownum_in_nodes_table  <- which(nodes$name=="(_Sink_)")
+    stopifnot(length(Sink_rownum_in_nodes_table)==1)
+    is_arctosink  <-  ( bookkeeping[['end']] == Sink_rownum_in_nodes_table )
+    arctosink_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_arctosink )]
+    sinkprice  <- arctosink_redcosts +
+      nodes[ bookkeeping[['start']][ is_arctosink ] , "price" ]
+    if (!all(sinkprice==sinkprice[1])) {
+      stop("Mutually inconsistent inferred sink prices.")
+    }
+    nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]
+  }
+
   obj <- as.data.frame(distance, row.names = NULL)
   obj$solution <-  x[seq.int(from=min(1L, narcs), to=narcs)]
 
-  #### Recover node prices, store in nodes table ##
-  ## In full matching, each upstream (row) or downstream (column) node starts
-  ## an arc ending at End, and these are also the only arcs
-  ## ending there. End being at the bottom of the canonical diagram,
-  ## call these "downarcs". Downarcs' costs are 0, so their reduced
-  ## costs are simply the price of the End node minus the price
-  ## of the upstream or downstream node they started from. Imposing
-  ## a convention that the price of End is 0, the prices of these upstream
-  ## and downstream nodes are just the opposites of the reduced
-  ## costs of the arcs they begin.
-  End_rownum_in_nodes_table  <- which(nodes$name=="(_End_)")
-  stopifnot(length(End_rownum_in_nodes_table)==1)
-  is_downarc  <-  ( bookkeeping[['end']] == End_rownum_in_nodes_table )
-  downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]
-  nodes[ bookkeeping[['start']][ is_downarc ] ,
-                                      "price" ]  <-
-      -1L * downarc_redcosts
-  ## It remains to recover the price of the Sink node.  There
-  ## are arcs to it from every downstream (column) node, and these
-  ## are the only arcs involving it.  First we extract these arcs'
-  ## reduced costs.
-  Sink_rownum_in_nodes_table  <- which(nodes$name=="(_Sink_)")
-  stopifnot(length(Sink_rownum_in_nodes_table)==1)
-  is_arctosink  <-  ( bookkeeping[['end']] == Sink_rownum_in_nodes_table )
-  arctosink_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_arctosink )]
-  sinkprice  <- arctosink_redcosts +
-      nodes[ bookkeeping[['start']][ is_arctosink ] ,
-                                            "price" ]
-  if (!all(sinkprice==sinkprice[1])) stop("Mutually inconsistent inferred sink prices.")
-  nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]
+
 
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:
-  matches  <- distance[as.logical(fop$x1[1L:narcs]), c("i", "j")]
-  bookkeeping[1L:(problem.size-narcs), "flow"]  <- fop$x1[(narcs+1L):problem.size]
+  matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
+  bookkeeping[1L:(problem.size-narcs), "flow"]  <- as.integer(x)[(narcs+1L):problem.size]
   ## reshape `matches`, `bookkeeping` to match ArcInfo object spec:
   matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
                          upstream=factor(matches[['i']],
