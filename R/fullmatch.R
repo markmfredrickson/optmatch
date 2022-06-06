@@ -151,7 +151,28 @@ setTryRecovery <- function() {
 #' combine a match (using, e.g., \code{cbind}) with the data that were used to
 #' generate it (for example, in a propensity score matching).
 #'
-#' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within}) 
+#' @param solver Choose which solver to use. Currently implemented are RELAX-IV
+#'   and LEMON. Default of \code{""}, a blank string, will use RELAX-IV if the
+#'   \strong{rrelaxiv} package is installed, otherwise will use LEMON.
+#'
+#' To explicitly use RELAX-IV, pass string "RELAX-IV".
+#'
+#' To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
+#' LEMON will use, pass the function \link{LEMON} with argument for the
+#' algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
+#' "NetworkSimplex". See this site for details on their differences:
+#' \url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. CycleCancelling is
+#' the default.
+#'
+#' The CycleCancelling algorithm seems to produce results most closely
+#' resembling those of optmatch versions prior to 1.0. We have observed the
+#' other LEMON algorithms to produce different results when the
+#' \code{mean.controls} is unspecified, or specified in such a way as to produce
+#' an infeasible matching problem. When using a LEMON algorithm other than
+#' CycleCancelling, we recommend setting the \code{fullmatch_try_recovery}
+#' option to \code{FALSE}.
+#'
+#' @param ... Additional arguments, passed to \code{match_on} (e.g. \code{within})
 #' or to specific methods.
 #'
 #' @return A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
@@ -178,6 +199,7 @@ fullmatch <- function(x,
                       mean.controls = NULL,
                       tol = .001,
                       data = NULL,
+                      solver = "",
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -209,6 +231,7 @@ fullmatch.default <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
+                              solver = "",
                               within = NULL,
                               ...) {
 
@@ -235,6 +258,7 @@ fullmatch.default <- function(x,
                    mean.controls=mean.controls,
                    tol=tol,
                    data=mfd,
+                   solver=solver,
                    ...)
   if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
@@ -249,6 +273,7 @@ fullmatch.numeric <- function(x,
                               mean.controls = NULL,
                               tol = .001,
                               data = NULL,
+                              solver = "",
                               z,
                               within = NULL,
                               ...) {
@@ -261,6 +286,7 @@ fullmatch.numeric <- function(x,
                    mean.controls=mean.controls,
                    tol=tol,
                    data=data,
+                   solver=solver,
                    ...)
   if (!exists("cl")) cl <- match.call()
   attr(out, "call") <- cl
@@ -275,6 +301,7 @@ fullmatch.matrix <- function(x,
                              mean.controls = NULL,
                              tol = .001,
                              data = NULL,
+                             solver = "",
                              within = NULL,
                              hint,
                              ...) {
@@ -455,6 +482,9 @@ fullmatch.matrix <- function(x,
       stop("negative \'omit.fraction\' with \'min.controls\' >= 2 not permitted")
   }
 
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
+
   user.input.mean.controls <- FALSE
 
   if (any(!is.na(mean.controls) & is.na(omit.fraction))) {
@@ -468,7 +498,7 @@ fullmatch.matrix <- function(x,
 
   # a helper to handle a single matching problem. all args required.
   # input error checking happens in the public fullmatch function.
-  .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL) {
+  .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL, solver) {
 
     # if the subproblem is completely empty, short circuit
     if (length(d) == 0 || all(is.infinite(d))) {
@@ -508,27 +538,28 @@ fullmatch.matrix <- function(x,
     ##  informatively, obviating subsequent needs for max.cpt, min.cpt,
     ##  omit.fraction etc. Keeping it here for fear of mischief with flipped subproblems.)
     if (is.null(hint)) hint  <- nodes_shell_fmatch(rownames(d), colnames(d))
-      
+
     temp <- solve_reg_fm_prob(node_info = hint,
                         distspec = d,
                         max.cpt = maxc,
                         min.cpt = minc,
                         tolerance = TOL * tol.frac,
+                        solver = solver,
                         omit.fraction = if(!is.na(omf)) { omf.calc }# passes NULL for NA
                         )
       if (!is.null(temp$MCFSolution))
-          temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped 
+          temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
 
     return(temp)
   }
 
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
-  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL) {
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL, solver) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
     if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -538,7 +569,7 @@ fullmatch.matrix <- function(x,
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control
-      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, hint.r))
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, hint.r, solver))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
       trial.ss <- stratumStructure(tmp2.optmatch)
       treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
@@ -547,7 +578,7 @@ fullmatch.matrix <- function(x,
       if(num.controls == 0) {
         # infeasible anyways
         if (!exists("tmp")) {
-          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
         }
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
         return(tmp)
@@ -556,11 +587,11 @@ fullmatch.matrix <- function(x,
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r))
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r, solver))
     } else {
       # subproblem is infeasible, but we can't try to fix because no max.controls
       if (!exists("tmp")) {
-        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r)
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
       }
 
       new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -577,9 +608,9 @@ fullmatch.matrix <- function(x,
   }
 
   if (options()$fullmatch_try_recovery) {
-    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery, problems, min.controls, max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
   } else {
-    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, hints, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch, problems, min.controls, max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
@@ -619,7 +650,7 @@ fullmatch.matrix <- function(x,
   }
 
   # save hash of distance
-  attr(mout, "hashed.distance") <- disthash  <- dist_digest(x)
+  attr(mout, "hashed.distance") <- disthash <- hash_dist(x)
 
   if (!exists("cl")) cl <- match.call()
   attr(mout, "call") <- cl
@@ -627,33 +658,38 @@ fullmatch.matrix <- function(x,
     ## assemble MCF material
     mcfsolutions  <- rep(list(NULL), np)
     names(mcfsolutions)  <- subproblemids
-    for (ii in 1L:np)
-        if (!is.null(solutions[[ii]]$MCFSolution))
-        {
-            mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
-            mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
-            thesubprob  <- subproblemids[ii]
-            mcfsolutions[[ii]]@subproblems[1L,"groups"]  <- thesubprob
-            mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
-            if (nrow(mcfsolutions[[ii]]@arcs@matches) > 0)
-                mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
-            mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
-            bookkeeping_nodes  <- c('(_Sink_)', '(_End_)')
-            for (bn in bookkeeping_nodes)
-            {
-                nlabs <- node.labels(mcfsolutions[[ii]])
-                nlabs[nlabs==bn]  <- paste0(bn, thesubprob)
-                node.labels(mcfsolutions[[ii]])  <-  nlabs
-            }
+    for (ii in 1L:np) {
+      if (!is.null(solutions[[ii]]$MCFSolution))
+      {
+        mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
+        mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
+        thesubprob  <- subproblemids[ii]
+        mcfsolutions[[ii]]@subproblems[1L,"groups"]  <- thesubprob
+        mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
+        if (nrow(mcfsolutions[[ii]]@arcs@matches) > 0) {
+          mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
         }
-    mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
+        mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
+        bookkeeping_nodes  <- c('(_Sink_)', '(_End_)')
+        for (bn in bookkeeping_nodes) {
+          nlabs <- node.labels(mcfsolutions[[ii]])
+          nlabs[nlabs==bn]  <- paste0(bn, thesubprob)
+          node.labels(mcfsolutions[[ii]])  <-  nlabs
+        }
+      }
+    }
+  mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
 
-    attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { NULL
-                                   } else {
-                                       names(mcfsolutions)[1]  <- "x"
+  attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) {
+    NULL
+  } else {
+    names(mcfsolutions)[1]  <- "x"
     ##b/c in next line `c()` needs to dispatch on an `x` argument
-                                       do.call("c", mcfsolutions)
-                                       }
+    do.call("c", mcfsolutions)
+  }
+
+  # save solver information
+  attr(mout, "solver") <- solver
 
   if (all(subproblemSuccess(mout) == FALSE)) {
     warning(paste("Matching failed.",

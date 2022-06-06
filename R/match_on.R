@@ -177,8 +177,9 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
 #' ordinary standard deviation but rather the robust alternative
 #' provided by \code{stats::mad}.
 #'
+#' @title pooled dispersion for a numeric variable
 #' @param x numeric variable
-#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param trtgrp logical or numeric. If numeric, coerced to logical via \code{!}
 #' @param standardizer function or numeric of length 1
 #' @return numeric of length 1
 #' @keywords internal
@@ -234,7 +235,7 @@ are there missing values in data?")
 }
 
 #' @details \bold{First argument (\code{x}): \code{formula}.} The formula must have
-#'   \code{Z}, the treatment indicator (\code{Z=0} incidates control group,
+#'   \code{Z}, the treatment indicator (\code{Z=0} indicates control group,
 #'   \code{Z=1} indicates treatment group), on the left hand side, and any
 #'   variables to compute a distance on on the right hand side. E.g. \code{Z ~ X1
 #'   + X2}. The Mahalanobis distance is calculated as the square root of d'Cd,
@@ -281,6 +282,7 @@ are there missing values in data?")
 #'   \code{"mahalanobis", "euclidean"} or \code{"rank_mahalanobis"}.
 #' @method match_on formula
 #' @rdname match_on-methods
+#' @importFrom stats contrasts
 #' @export
 match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
   if (length(x) != 3) {
@@ -339,17 +341,6 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
     stop("Formula must have a right hand side with at least one variable.")
   }
 
-  # we want to use our own contrasts creating function
-  isF <- colnames(mf)[vapply(mf, is.factor, TRUE)]
-  c.arg <- lapply(isF, function(fname) {
-    if (nlevels(mf[[fname]]) < 2) {
-      return(NULL)
-    }
-    contr.match_on(nlevels(mf[[fname]]))
-  })
-
-  names(c.arg) <- isF
-
   tmpz <- toZ(mf[,1])
   tmpn <- rownames(mf)
 
@@ -363,7 +354,14 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
   dropped.t <- setdiff(tmpn[tmpz],  rownames(mf))
   dropped.c <- setdiff(tmpn[!tmpz], rownames(mf))
 
-  data <- subset(model.matrix(x, mf, contrasts.arg = c.arg), TRUE, -1) # drop the intercept
+  # Switching contrts function, see #220
+  data <- subset(model.matrix(x, mf,
+                              contrasts.arg =
+                                lapply(Filter(is.factor, mf),
+                                       function(x) {
+                                         stats::contrasts(x, contrasts = FALSE)/sqrt(2)
+                                       })),
+                 TRUE, -1) # drop the intercept
 
   z <- toZ(mf[,1])
   names(z) <- rownames(mf)
@@ -422,7 +420,7 @@ makeWithinFromStrata <- function(x, data)
 {
   xs <- findStrata(x, data)
 
-  em <- unlist(sapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
+  em <- unlist(lapply(strsplit(xs$strata, "\\(|)|,"), "[", -1))
   lhs <- paste(xs$newx[[2]], collapse="")
   within <- exactMatch(as.formula(paste(lhs, "~", paste(em, collapse="+"))),
                              data=data)
@@ -509,7 +507,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
     }
 
-    if (is.null(index)) return(r_smahal(NULL, data, z))
+    if (is.null(index)) return(sqrt(r_smahal(NULL, data, z)))
 
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
@@ -524,7 +522,7 @@ compute_rank_mahalanobis <- function(index, data, z) {
     indices <- match(short_indices, all_indices)
     if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
     # Now, since `r_smahal` is ignoring its `index` argument anyway:
-    rankdists <- r_smahal(NULL, data, z)
+    rankdists <- sqrt(r_smahal(NULL, data, z))
     rankdists <- rankdists[indices]
     return(rankdists)
 }
@@ -799,20 +797,6 @@ match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
     return(x + within)
 }
 
-## Non-exported function
-## @title A contrasts function suitable for use within match_on
-## @details Scales the result of `contr.poly` by `2^-1`. Necessary for
-## Euclidean distance to be the same when you apply it with a 2-level
-## factor or with same factor after coercion to numeric.
-## @param n levels of the factor
-## @param contrasts (passed to contr.poly)
-## @param sparse (passed to contr.poly)
-## @return A matrix with `nn=length(n)` rows and `k` columns, with `k=nn-1` if `contrasts` is `TRUE` and `k=nn` if `contrasts` is `FALSE`.
-## @author Ben B Hansen
-contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
-  contr.poly(n, contrasts=contrasts, sparse=sparse)/sqrt(2)
-}
-
 #' pooled dispersion for a numeric variable
 #'
 #' Dispersion as pooled across a treatment and a control group. By default,
@@ -836,9 +820,10 @@ contr.match_on <- function(n, contrasts=TRUE, sparse=FALSE) {
 #' and the \code{standardizer} function is to return the dispersion of this variable.)
 #'
 #' @param x numeric variable
-#' @param trtgrp logical or numeric.  If numeric, coerced to `T`/`F` via `!`
+#' @param trtgrp logical or numeric. If numeric, coerced to logical via \code{!}
 #' @param standardizer function, \code{NULL} or numeric of length 1
-#' @param svydesign_ ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.
+#' @param svydesign_ ordinarily \code{NULL}, but may also be a
+#'   \code{survey.design2}; see Details.
 #' @return numeric of length 1
 #' @export
 #' @keywords internal
@@ -876,28 +861,35 @@ standardization_scale <- function(x, trtgrp, standardizer = NULL, svydesign_=NUL
 }
 
 #' @keywords internal
-#' @importFrom survey svyquantile
 svy_mad <- function(design)
 {
-        med <- svyquantile(~x, design, 0.5)[[1]][1]
+  if (requireNamespace("survey", quietly = TRUE)) {
+        med <- survey::svyquantile(~x, design, 0.5)[[1]][1]
 
         design <- update(design,
                         abs_dev=abs( design$variable$x - med )
                         )
-        mad <- svyquantile(~abs_dev, design, 0.5)[[1]][1]
+        mad <- survey::svyquantile(~abs_dev, design, 0.5)[[1]][1]
         constant <- formals(stats::mad)$constant
         s2_t <- constant * mad
+        return(s2_t)
+  } else {
+    stop("'survey' package must be installed")
+  }
 }
 #' @keywords internal
-#' @importFrom survey svyvar
 svy_sd <- function(design)
 {
+  if (requireNamespace("survey", quietly = TRUE)) {
         var_ <- survey::svyvar(~x, design)
-        sqrt(unname(var_)[1])
+        return(sqrt(unname(var_)[1]))
+  } else {
+    stop("'survey' package must be installed")
+  }
 }
 
 #' This method quells a warning when \code{optmatch::scores()}
-#' is applied to a svyglm object.  
+#' is applied to a svyglm object.
 #' @method model.frame svyglm
 #' @keywords internal
 model.frame.svyglm <- function (formula, ...)

@@ -10,30 +10,30 @@
 \method{sort}{BlockedInfinitySparseMatrix}(x, decreasing = FALSE, ..., byCol = FALSE)
 }
 \arguments{
-\item{x}{An InfinitySparseMatrix or BlockedInfinitySparseMatrix.}
+\item{x}{An \code{InfinitySparseMatrix} or
+\code{BlockedInfinitySparseMatrix}.}
 
-\item{decreasing}{Logical. Should the sort be increasing or
-decreasing?}
+\item{decreasing}{Logical. Should the sort be increasing or decreasing?
+Default \code{FALSE}.}
 
 \item{...}{Additional arguments ignored.}
 
-\item{byCol}{Logical. Defaults to FALSE, so the returned ISM is
-row-dominant. TRUE returns a column-dominant ISM.}
+\item{byCol}{Logical. Defaults to \code{FALSE}, so the returned ISM is
+row-dominant. \code{TRUE} returns a column-dominant ISM.}
 }
 \value{
-An object of the same class as `x` which is sorted
-  according to `byCol`.
+An object of the same class as \code{x} which is sorted according to
+  \code{byCol}.
 }
 \description{
-Internally, an InfinitySparseMatrix (Blocked or non) comprises of
-vectors of values, row positions, and column positions. The
-ordering of these vectors is not enforced. This function sorts the
-internal structure, leaving the external structure unchanged
-(e.g. `as.matrix(ism)` and `as.matrix(sort(ism))` will look
-identical despite sorting.)
+Internally, an \code{InfinitySparseMatrix} (Blocked or non) comprises of
+vectors of values, row positions, and column positions. The ordering of
+these vectors is not enforced. This function sorts the internal structure,
+leaving the external structure unchanged (e.g. \code{as.matrix(ism)} and
+\code{as.matrix(sort(ism))} will look identical despite sorting.)
 }
 \details{
-By default, the InfinitySparseMatrix is row-dominant, meaning the
-row positions are sorted first, then column positions are sorted
-within each row. Use argument `byCol` to change this.
+By default, the \code{InfinitySparseMatrix} is row-dominant, meaning the row
+positions are sorted first, then column positions are sorted within each
+row. Use argument \code{byCol} to change this.
 }

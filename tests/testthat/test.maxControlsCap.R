@@ -34,7 +34,7 @@ test_that("Testing input", {
   # should not expect an error for this:
   mcc <- maxControlsCap(res.em, min.controls = c(a = 1, b = 1, c = 1, d = 1))
   expect_equal(length(mcc), 2)
-  expect_true(all.equal(sapply(mcc, length), c(4,4),
+  expect_true(all.equal(vapply(mcc, length, numeric(1)), c(4,4),
                         check.attributes=FALSE))
 
 })

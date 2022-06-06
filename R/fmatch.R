@@ -27,15 +27,19 @@
 ##*         The `dist` column holds values of the integer distance that `intSolve()` saw.
 ##* @author Ben Hansen, Mark Fredrickson, Adam Rauh
 ##* @keywords internal
+fmatch <- function(distance,
+                   max.row.units,
+                   max.col.units,
+                   min.col.units = 1,
+                   f = 1,
+                   node_info,
+                   solver) {
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
 
-fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, node_info)
-{
-    if (identical(options()$use_fallback_optmatch_solver, TRUE))
-       warning("Old version of RELAX-IV solver (avoiding variable-sized Fortran arrays)\n no longer implemented; using current version.")
-    stopifnot(is(distance, "EdgeList"), is(node_info, "NodeInfo"),
-              is.integer(node_info[['price']]),
-              is.numeric(f))
+  stopifnot(is(distance, "EdgeList"), is(node_info, "NodeInfo"),
+            is.integer(node_info[['price']]),
+            is.numeric(f))
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))
@@ -64,7 +68,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (!is.integer(distance[['dist']])) {
       tdist  <- as.integer(distance[['dist']])
       if (!isTRUE(all.equal(distance[['dist']],tdist))) stop("distance should be integer")
-      distance  <- edgelist(tibble::tibble(i=distance[['i']], 
+      distance  <- edgelist(tibble::tibble(i=distance[['i']],
                                            j=distance[['j']],
                                            dist=tdist
                                            )
@@ -73,13 +77,13 @@ fmatch <- function(distance, max.row.units, max.col.units,
   if (any(nadists  <-  is.na(distance[['dist']])))
   {
       replacement  <- if (all(nadists)) { #occurs if
-                          1L              #user passed ISM 
+                          1L              #user passed ISM
                       } else {            #produced by exactMatch()`
                           min(distance[['dist']], na.rm=TRUE)
                           }
       distance[['dist']][nadists]  <- replacement
   }
-  
+
   if (mxr > 1) # i.e. many-one matches permissible
   {
       if (any(distance[['dist']] <= 0))
@@ -96,10 +100,10 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## 'j' and 'i' are interpretable as control (Z=0)
   ## and treated (Z=1) in the matching problem as it was presented
   ## to fullmatch(), pairmatch() or match_on(), but in full
-  ## matching the subproblem may have been "flipped" prior  
-  ## to its delivery to this function.  In that case, what's  
-  ## "treated" here would be control in the originating problem,  
-  ## and vice versa.  To eliminate ambiguities in such instances, 
+  ## matching the subproblem may have been "flipped" prior
+  ## to its delivery to this function.  In that case, what's
+  ## "treated" here would be control in the originating problem,
+  ## and vice versa.  To eliminate ambiguities in such instances,
   ## we'll prefer "i', "row.units" or "upstream" to "treated",
   ## and also "j", "col.units" or "downstream" over "control".
   nt <- length(row.units)
@@ -107,7 +111,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   n.mc  <- as.integer(round(nc * f)) # no. downstream (usu., control) units to be matched
   narcs <- nrow(distance)
 
-  ## Ok, let's see how a big a problem we are working on    
+  ## Ok, let's see how a big a problem we are working on
   problem.size <- narcs + nt + 2L*nc # no. arcs in MCF rep'n of problem
   if (problem.size > getMaxProblemSize()) {
       stop(paste('Maximum matching problem may have only',
@@ -117,7 +121,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
            call. = FALSE)
   }
 
-  
+
   if (mnc > 1 & mxr > 1) {
     stop("since min.col.units > 1, max.row.units can be at most 1.")
   }
@@ -149,8 +153,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
   nodes  <- new("NodeInfo",
             data.frame(name=c(row.units, col.units,
                               "(_End_)", "(_Sink_)"),# note that `factor()` would put these at start not end of levels
-                       price=0L, 
-                       upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA), 
+                       price=0L,
+                       upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA),
                        supply=c(rep(mxc, nt), rep(0L, nc),
                                 -(mxc * nt - n.mc), -n.mc),
                        groups=factor(rep(NA_character_, nt+nc+2L)),
@@ -196,33 +200,29 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ucap <-  c(rep(1L, narcs),              bookkeeping$capacity )
   redcost<-c(distance[['dist']],               rep(0L, nrow(bookkeeping)) ) +
         nodes[endn, "price"] - nodes[startn, "price"]
-    
+
   ## Everything headed for the solver ought currently to be cast as integer,
   ## but passing a double by mistake will cause a difficult-to-diagnose
   ## infeasibility.  So let's just be sure:
-  if (!is.integer(problem.size)) problem.size  <- as.integer(problem.size)    
-  if (!is.integer(startn)) startn  <- as.integer(startn)    
+  if (!is.integer(problem.size)) problem.size  <- as.integer(problem.size)
+  if (!is.integer(startn)) startn  <- as.integer(startn)
   if (!is.integer(endn)) endn  <- as.integer(endn)
   if (!is.integer(ucap)) ucap  <- as.integer(ucap)
   if (!is.integer(nodes$supply)) nodes$supply  <- as.integer(nodes$supply)
-  if (!is.integer(redcost)) redcost  <- as.integer(redcost)  
-  
-    fop <- .Fortran("relaxalg",
-                    n1=as.integer(nc + nt + 2L),
-                    na1=problem.size,
-                    startn1=startn,
-                    endn1=endn,
-                    c1=c(distance[['dist']], rep(0L, nrow(bookkeeping))),
-                    u1=ucap,
-                    b1=nodes$supply,
-                    x1=integer(problem.size),
-                    rc1 = redcost,
-                    crash1=as.integer(0),
-                    large1=as.integer(.Machine$integer.max/4),
-                    feasible1=integer(1),
-                    NAOK = FALSE,
-                    DUP = TRUE,
-                    PACKAGE = "optmatch")
+  if (!is.integer(redcost)) redcost  <- as.integer(redcost)
+
+  #if (solver == "RELAX-IV") {
+  fop <- rrelaxiv::.RELAX_IV(n1=as.integer(nc + nt + 2L),
+                             na1=problem.size,
+                             startn1=startn,
+                             endn1=endn,
+                             c1=c(distance[['dist']],
+                                  rep(0L, nrow(bookkeeping))),
+                             u1=ucap,
+                             b1=nodes$supply,
+                             rc1 = redcost,
+                             crash1=as.integer(0),
+                             large1=as.integer(.Machine$integer.max/4))
 
   ## Material used to create s3 optmatch object:
   feas <- fop$feasible1
@@ -232,24 +232,24 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   #### Recover node prices, store in nodes table ##
   ## In full matching, each upstream (row) or downstream (column) node starts
-  ## an arc ending at End, and these are also the only arcs 
-  ## ending there. End being at the bottom of the canonical diagram, 
+  ## an arc ending at End, and these are also the only arcs
+  ## ending there. End being at the bottom of the canonical diagram,
   ## call these "downarcs". Downarcs' costs are 0, so their reduced
-  ## costs are simply the price of the End node minus the price  
-  ## of the upstream or downstream node they started from. Imposing 
+  ## costs are simply the price of the End node minus the price
+  ## of the upstream or downstream node they started from. Imposing
   ## a convention that the price of End is 0, the prices of these upstream
   ## and downstream nodes are just the opposites of the reduced
-  ## costs of the arcs they begin.   
+  ## costs of the arcs they begin.
   End_rownum_in_nodes_table  <- which(nodes$name=="(_End_)")
   stopifnot(length(End_rownum_in_nodes_table)==1)
   is_downarc  <-  ( bookkeeping[['end']] == End_rownum_in_nodes_table )
-  downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]  
+  downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]
   nodes[ bookkeeping[['start']][ is_downarc ] ,
                                       "price" ]  <-
-      -1L * downarc_redcosts 
-  ## It remains to recover the price of the Sink node.  There 
+      -1L * downarc_redcosts
+  ## It remains to recover the price of the Sink node.  There
   ## are arcs to it from every downstream (column) node, and these
-  ## are the only arcs involving it.  First we extract these arcs'  
+  ## are the only arcs involving it.  First we extract these arcs'
   ## reduced costs.
   Sink_rownum_in_nodes_table  <- which(nodes$name=="(_Sink_)")
   stopifnot(length(Sink_rownum_in_nodes_table)==1)
@@ -259,7 +259,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
       nodes[ bookkeeping[['start']][ is_arctosink ] ,
                                             "price" ]
   if (!all(sinkprice==sinkprice[1])) stop("Mutually inconsistent inferred sink prices.")
-  nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]  
+  nodes[nodes$name=="(_Sink_)", "price"]  <- sinkprice[1]
 
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:
@@ -274,7 +274,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
                                          levels=node.labels(nodes)
                                          )
                          )
-  bookkeeping[['start']]  <- factor(bookkeeping[['start']], 
+  bookkeeping[['start']]  <- factor(bookkeeping[['start']],
                                     levels=1L:(nt + nc + 2),
                                     labels=node.labels(nodes)
                                     )
@@ -288,7 +288,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
   sp[1L, "feasible"]  <- TRUE
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs)
-    c(obj,
-      list(maxerr=0), # if we were called from doubleSolve(), this will be re-set there
-      list(MCFSolution=fmcfs) )
+  return(c(obj,
+           list(maxerr=0), # if we were called from doubleSolve(), this will be re-set there
+           list(MCFSolution=fmcfs) ))
+
 }

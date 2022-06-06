@@ -146,6 +146,8 @@ test_that("Contains grouping information", {
 
   # the grouping factor must have names
   expect_equal(length(names(res.em@groups)), 16)
+  # ... and those names should match the dimnames of the BISM
+  expect_setequal(names(res.em@groups), unlist(dimnames(res.em)))
 
   # the names of the strata should be used as names of the subprobs list
   expect_equal(names(findSubproblems(res.em)), letters[1:4])
@@ -232,24 +234,30 @@ test_that("#123: exactmatch accepts NA treatment", {
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   data$z[1] <- NA
 
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 
   data$z[c(2,4,6,7)] <- NA
 
   m <- match_on(z ~ b, data = data)
   e <- exactMatch(z ~ b, data = data)
   expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
   expect_equal(rownames(m), rownames(e))
   expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
 })
 
 test_that("#149: exactMatch fails on unique RHS values", {
@@ -258,8 +266,59 @@ test_that("#149: exactMatch fails on unique RHS values", {
   names(t) <- names(x) <- letters[1:6]
 
   expect_error(exactMatch(x, t), "no overlap")
-
+  # if x is factor, let it go
+  expect_silent(exactMatch(as.factor(x), t))
+  
   x <- c(1, 1, 2, 3, 4, 4)
   names(t) <- names(x) <- letters[1:6]
   expect_error(exactMatch(x, t), "no overlap")
+  # if x is factor, again let it go
+  expect_silent(exactMatch(as.factor(x), t))
+})
+
+test_that("#206: maintain dimension if x has NAs", {
+  data <- data.frame(z = rep(0:1, each = 5),
+                     b = rep(0:1, times = 5))
+
+  m <- match_on(z ~ b, data = data)
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
+
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))
+  
+
+  data$b[1] <- NA
+
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
+
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))
+
+  data$b[c(2,4,6,7)] <- NA
+
+  e <- exactMatch(z ~ b, data = data)
+  expect_equal(dim(m), dim(e))
+  expect_equal(length(e@groups), sum(dim(m)))  
+  expect_equal(rownames(m), rownames(e))
+  expect_equal(colnames(m), colnames(e))
+  expect_setequal(names(e@groups), unlist(dimnames(m)))
+
+  a <- antiExactMatch(setNames(data$b, rownames(data)), data$z)
+  expect_equal(dim(m), dim(a))
+  expect_equal(rownames(m), rownames(a))
+  expect_equal(colnames(m), colnames(a))  
 })

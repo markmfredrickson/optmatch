@@ -22,13 +22,20 @@ pairmatch_nodeinfo  <- function(edges) {
     new("NodeInfo", adf)
 }
 
+if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+  slvr <- "RELAX-IV"
+} else {
+  slvr <- "LEMON"
+}
+
+
 test_that("fmatch accepts DistanceSpecifications", {
   v <- c(1, Inf, 2,
          2, 1, Inf,
          3, 2, 1)
 
   # and doesn't accept other things...
-  expect_error(fmatch(v, 2, 2))
+  expect_error(fmatch(v, 2, 2, solver = slvr))
 
   # the goal of this matrix is that there is a clear match to make
   # A:D, B:E, C:F
@@ -37,7 +44,7 @@ test_that("fmatch accepts DistanceSpecifications", {
   rownames(m) <- c("D", "E", "F")
   pm <- edgelist(m)
 
-  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm))
+  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm), solver = slvr)
   expect_true(all(c("j","i",
                     "dist", # used in `doubleSolve()`'s "maxerr" calc
                     "solution") %in% names(res)))
@@ -50,9 +57,10 @@ test_that("fmatch accepts DistanceSpecifications", {
 
   M <- as.InfinitySparseMatrix(m)
   pM <- edgelist(M)
-  res.ism <- fmatch(pM, 2, 2, node_info=pairmatch_nodeinfo(pM))
+  res.ism <- fmatch(pM, 2, 2, node_info=pairmatch_nodeinfo(pM), solver = slvr)
   expect_identical(res$solution, res.ism$solution)
 })
+#}
 
 test_that("Stop on unacceptable input", {
   v <- c(1, Inf, 2,
@@ -60,20 +68,20 @@ test_that("Stop on unacceptable input", {
          3, 2, 1)
 
   m <- matrix(v, nrow = 3, ncol = 3)
-  colnames(m) <- c("A", "B", "C")  
-  rownames(m) <- c("D", "E", "F")  
-  
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+
   m1  <- m
-  colnames(m1) <- c("(_Sink_)", "B", "C")  
+  colnames(m1) <- c("(_Sink_)", "B", "C")
   pm1  <- edgelist(m1)
-  expect_error(fmatch(pm1,2,2, node_info=pairmatch_nodeinfo(pm1)), "unique") #"(_Sink_)"
+  expect_error(fmatch(pm1,2,2, node_info=pairmatch_nodeinfo(pm1), solver = slvr), "unique") #"(_Sink_)"
 
   m2  <- m1
   colnames(m2) <- c("A", "B", "C")
   rownames(m2) <- c("(_End_)", "E", "F")
 
   pm2  <- edgelist(m2)
-  expect_error(fmatch(pm2,2,2, node_info=pairmatch_nodeinfo(pm2)), "(_End_)")
+  expect_error(fmatch(pm2,2,2, node_info=pairmatch_nodeinfo(pm2), solver = slvr), "(_End_)")
 
 })
 
@@ -120,30 +128,66 @@ test_that("Solutions -> factor helper", {
   noMatches <- cbind(skeleton, solution = -1)
 
   expect_true(is.null(solution2factor(noMatches)))
-})  
+})
 
 test_that("Passing and receiving node information",{
   v <- c(1, Inf, 2,
          2, 1, Inf,
          3, 2, 1)
-  # the clear match to make: 
+  # the clear match to make:
   # A:D, B:E, C:F
   m <- matrix(v, nrow = 3, ncol = 3)
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
   pm <- edgelist(m)
 
-  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm))
+  res <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm), solver = slvr)
   expect_false(is.null(mcfs0  <-  res$MCFSolution))
   n0  <-  mcfs0@nodes
-  expect_silent(fmatch(pm, 2, 2, node_info=n0))
+  expect_silent(fmatch(pm, 2, 2, node_info=n0, solver = slvr))
   n0_madebad  <- n0
   expect_is(n0_madebad$price, "integer")
   n0_madebad[n0_madebad$name=="A", 'price']  <- .5 # no longer integer
-  expect_error(fmatch(pm, 2, 2, node_info=n0_madebad))
+  expect_error(fmatch(pm, 2, 2, node_info=n0_madebad), solver = slvr)
 
   expect_false(n0[n0$name=="A",'upstream_not_down']) # 'A' is downstream,
   n1  <- new("NodeInfo", n0[n0$name!="A",])#  so we can pass a
   expect_gt(nrow(n0), nrow(n1)) # NodeInfo that doesn't mention it.
-  expect_silent(fmatch(pm, 2, 2, node_info=n1))
+  expect_silent(fmatch(pm, 2, 2, node_info=n1, solver = slvr))
+})
+
+test_that("LEMON solvers", {
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+  pm <- edgelist(m)
+
+  expect_error(fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm)))
+
+
+  f_lemon <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                    solver = slvr)
+  f_cycle <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                    solver = LEMON("CycleCancelling"))
+  f_capac <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                    solver = LEMON("CapacityScaling"))
+  f_costs <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                    solver = LEMON("CostScaling"))
+  f_netwo <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                    solver = LEMON("NetworkSimplex"))
+
+  expect_identical(f_lemon, f_cycle)
+  expect_identical(f_lemon, f_capac)
+  expect_identical(f_lemon, f_costs)
+  expect_identical(f_lemon, f_netwo)
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    f_relax <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
+                      solver = "RELAX-IV")
+    expect_identical(f_relax, f_lemon)
+  }
+
 })

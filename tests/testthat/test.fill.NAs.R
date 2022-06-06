@@ -166,10 +166,11 @@ test_that("strata() function handling", {
   # The following line should not error per #103
   glm(z ~ x + x.NA + strata(s), family=binomial, data=res3)
 
-  res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
-  expect_false(any(is.na(res4$s)))
+  # Our version of `strata` doesn't support na.group
+  #res4 <- fill.NAs(z ~ x + strata(s, na.group = TRUE), data = data.NAs)
+  #expect_false(any(is.na(res4$s)))
   # Again, this should not error per #103
-  glm(z ~ x + x.NA + strata(s, na.group=TRUE), family=binomial, data=res4)
+  #glm(z ~ x + x.NA + strata(s, na.group=TRUE), family=binomial, data=res4)
 
   ## checking for terms attribute on the returned data.frame
   tt <- terms(res1)

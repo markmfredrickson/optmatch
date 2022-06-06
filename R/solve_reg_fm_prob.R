@@ -21,15 +21,18 @@
 ##* @param distspec InfinitySparseMatrix, matrix, etc (must have a `prepareMatching()` method)
 ##* @param min.cpt double, minimum permissible ratio of controls per treatment
 ##* @param max.cpt double, maximum permissible ratio of controls per treatment
-##* @param tolerance 
-##* @param omit.fraction 
-##* @return 
+##* @param tolerance
+##* @param omit.fraction
+##* @return
 ##* @keywords internal
 
-solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
-                              max.cpt, tolerance, omit.fraction=NULL
-                              )
-{
+solve_reg_fm_prob <- function(node_info,
+                              distspec,
+                              min.cpt,
+                              max.cpt,
+                              tolerance,
+                              omit.fraction=NULL,
+                              solver) {
 
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -46,7 +49,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
   if (!all(colnames %in% dimnames(distspec)[[2]])) {
     stop("node_info colnames must be colnames for \'distspec\'")
   }
- 
+
   # distance must have an edgelist method
   if (!hasMethod("edgelist", class(distspec))) {
     stop("Argument \'distspec\' must have a \'edgelist\' method")
@@ -93,7 +96,7 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
     names(ans) <- c(rownames, colnames)
     return(list(cells=ans, err=0, MCFSolution=NULL))
   }
-    
+
 
     old.o <- options(warn=-1)
     epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
@@ -102,18 +105,16 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
             } else epsilon_lower_lim
     options(old.o)
 
-    if (all(abs(dm$'dist'- 0) < sqrt(.Machine$double.eps)))
-    {
-        dm$'dist'  <- rep(1L, length(dm$'dist')) # so we'll be routed to intSolve()
-        }
-    temp <-
-        if (is.integer(dm$'dist'))
-        {
-            intSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info)
-        } else
-        {
-            doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info, rfeas, cfeas, epsilon)
-        }
+  if (all(abs(dm$'dist'- 0) < sqrt(.Machine$double.eps))) {
+    dm$'dist'  <- rep(1L, length(dm$'dist')) # so we'll be routed to intSolve()
+  }
+  temp <-
+    if (is.integer(dm$'dist')) {
+      intSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info, solver)
+    } else {
+      doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info,
+                  rfeas, cfeas, epsilon, solver)
+    }
 
   temp$treated <- factor(temp[['i']]) # levels of these factors now convey
   temp$control <- factor(temp[['j']]) # treatment/control distinction
@@ -152,29 +153,29 @@ solve_reg_fm_prob <- function(node_info, distspec, min.cpt,
 
 
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
-                        rfeas, cfeas, epsilon) 
+                        rfeas, cfeas, epsilon, solver)
 {
     dm_distance  <- dm$'dist' #Used below in roundoff error crude estimate
     dm$'dist'  <- as.integer(ceiling(.5 + dm$'dist' / epsilon))
     if (!is.null(node_info))
         node_info$price  <-
             as.integer(ifelse(abs(node_info$price) <sqrt(.Machine$double.eps),
-                              0, 
+                              0,
                               ceiling(node_info$price / epsilon)
                               )
                        )
-    
+
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                       node_info = node_info)
-    
+                       node_info = node_info, solver = solver)
+
     if (!is.null(intsol$MCFSolution))
     {
         intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
-        
+
         intsol$MCFSolution@nodes[,'price']  <-
             intsol$MCFSolution@nodes[['price']] * epsilon
     }
-    
+
     intsol$maxerr  <-
         if (any(is.na(intsol$solution) |
                 intsol$solution<0)
@@ -185,27 +186,28 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                       (sum(rfeas) > 1 & sum(cfeas) > 1) *
                       (sum(rfeas) + sum(cfeas) - 2 - sum(intsol$solution)) * epsilon
               }
-    
+
   return(intsol)
 
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info)
-{
-    stopifnot(is(dm, "EdgeList"), is(node_info, "NodeInfo"))
-    if (!is.integer(node_info[['price']]))
-    {
-        price_col_position  <- which(node_info@names=="price")
-        node_info@.Data[[price_col_position]]  <-
-            as.integer(round(node_info[['price']]))
-    }
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver) {
+  stopifnot(is(dm, "EdgeList"), is(node_info, "NodeInfo"))
+  if (!is.integer(node_info[['price']])) {
+    price_col_position  <- which(node_info@names=="price")
+    node_info@.Data[[price_col_position]]  <-
+      as.integer(round(node_info[['price']]))
+  }
 
-    fmatch(dm, max.row.units = ceiling(1/min.cpt),
-           max.col.units = ceiling(max.cpt),
-           min.col.units = max(1, floor(min.cpt)),
-           f=f.ctls, node_info =node_info)
-    }
+  fmatch(dm,
+         max.row.units = ceiling(1/min.cpt),
+         max.col.units = ceiling(max.cpt),
+         min.col.units = max(1, floor(min.cpt)),
+         f = f.ctls,
+         node_info = node_info,
+         solver = solver)
+}
 
 ##* Small helper function to turn a solution data.frame into a factor of matches
 ##* @keywords internal
@@ -224,7 +226,7 @@ solution2factor <- function(s) {
                            )
   names(control.links)  <- levels(s2[['control']])
   reduced  <- s2[!duplicated(s2[['control']]),,drop=FALSE]
-  control.links[as.character(reduced[['control']])]  <- 
+  control.links[as.character(reduced[['control']])]  <-
       reduced[['treated']]
 
   ## Treated units are labeled the same as the
@@ -237,7 +239,7 @@ solution2factor <- function(s) {
                            )
   names(treated.links)  <- levels(s2[['treated']])
   reduced  <- s2[!duplicated(s2[['treated']]), , drop=FALSE]
-  treated.links[as.character(reduced[['treated']])]  <- 
+  treated.links[as.character(reduced[['treated']])]  <-
     control.links[as.character(reduced[['control']])]
 
   ## join the links. (Note that `c()` drops the factor
@@ -248,7 +250,7 @@ solution2factor <- function(s) {
 ##* Make shell of node table, as required by `fmatch()`
 ##*
 ##* For now, only name and upstream_not_down cols are meaningful
-##* @title MCF node table for ordinary full matches 
+##* @title MCF node table for ordinary full matches
 ##* @param rownames character
 ##* @param colnames character
 ##* @return NodeInfo
@@ -266,5 +268,3 @@ nodes_shell_fmatch <- function(rownames, colnames) {
                        )
     new("NodeInfo", ans)
           }
-          
-

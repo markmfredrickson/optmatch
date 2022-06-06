@@ -1,34 +1,34 @@
 Package: optmatch
-Version: 1.0.0.9001
+Version: 0.10.3.9001
 Title: Functions for Optimal Matching
-Description: Distance based bipartite matching using the RELAX-IV minimum cost flow solver,
-    oriented to matching of treatment and control groups in observational
-    studies. Routines are provided to generate distances from generalised linear models (propensity
-    score matching), formulas giving variables on which to limit matched distances, stratified or
-    exact matching directives, or calipers, alone or in combination.
-Author: Ben B. Hansen <ben.hansen@umich.edu>, Mark Fredrickson
-    <mark.m.fredrickson@gmail.com>, Josh Errickson <jerrick@umich.edu>,
-    Josh Buckner, Adam Rauh and Peter Solenberger, with embedded Fortran code due to
-    Dimitri P. Bertsekas <dimitrib@mit.edu> and Paul Tseng
-Maintainer: Josh Errickson <jerrick@umich.edu>
+Description: Distance based bipartite matching using minimum cost flow, oriented
+    to matching of treatment and control groups in observational studies (Hansen
+    and Klopfer 2006 <doi:10.1198/106186006X137047>). Routines are provided to
+    generate distances from generalised linear models (propensity score
+    matching), formulas giving variables on which to limit matched distances,
+    stratified or exact matching directives, or calipers, alone or in
+    combination.
+Authors@R: c(person("Ben", "Hansen", role = "aut", email = "ben.hansen@umich.edu"),
+             person("Mark", "Fredrickson", role = "aut", email = "mark.m.fredrickson@gmail.com"),
+             person("Josh", "Errickson", role = c("cre","aut"), email = "jerrick@umich.edu"),
+             person("Josh", "Buckner", role = "aut"),
+             person("Adam", "Rauh", role = "ctb"))
 LazyData: true
-Depends:
-    R (>= 3.5.0),
-    survival
+Depends: R (>= 3.5.0)
 LinkingTo: Rcpp
 Imports:
     Rcpp,
-    RItools,
-    digest,
     dplyr,
     stats,
     tibble,
     methods,
     graphics,
-    survey
+    rlemon
 Suggests:
+    RItools,
     boot,
     biglm,
+    survey,
     testthat (>= 0.11.0),
     roxygen2,
     brglm,
@@ -37,13 +37,17 @@ Suggests:
     rmarkdown,
     markdown,
     pander,
-    xtable
+    xtable,
+    rrelaxiv
 Enhances:
     CBPS,
     haven
-License: file LICENSE
-URL: https://github.com/markmfredrickson/optmatch
+License: MIT + file LICENSE
+License_is_FOSS: yes
+License_restricts_use: no
+URL: https://github.com/markmfredrickson/optmatch, https://markmfredrickson.github.io/optmatch/
 BugReports: https://github.com/markmfredrickson/optmatch/issues
+Additional_repositories: https://errickson.net/rrelaxiv
 Collate:
     'DenseMatrix.R'
     'InfinitySparseMatrix.R'
@@ -76,9 +80,10 @@ Collate:
     'pairmatch.R'
     'print.optmatch.R'
     'print.optmatch.dlist.R'
-    'relaxinfo.R'
     'scores.R'
     'solve_reg_fm_prob.R'
+    'solver.R'
+    'strata.R'
     'stratumStructure.R'
     'summary.ism.R'
     'summary.optmatch.R'
@@ -88,3 +93,4 @@ Collate:
 VignetteBuilder: knitr
 RoxygenNote: 7.2.0
 Encoding: UTF-8
+Remotes: josherrickson/rrelaxiv

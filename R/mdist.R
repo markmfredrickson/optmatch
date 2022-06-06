@@ -64,10 +64,10 @@ setOldClass(c("optmatch.dlist", "list"))
 ##'   grouping. \code{z ~ s} subsets the data only computing distances
 ##'   within the subsets formed by \code{s}. See method notes, below,
 ##'   for additional formula options.
-##' @param data Data where the variables references in `x` live.
-##' @param subset If non-NULL, the subset of `data` to be used.
+##' @param data Data where the variables references in \code{x} live.
+##' @param subset If non-\code{NULL}, the subset of \code{data} to be used.
 ##' @param standardization.scale A function to scale the distances; by
-##'   default uses `mad`.
+##'   default uses \code{mad}.
 ##' @param trtgrp Dummy variable for treatment group membership.
 ##' @param ... Additional method arguments. Most methods require a
 ##'   'data' argument.

@@ -13,6 +13,7 @@ fullmatch(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
+  solver = "",
   ...
 )
 
@@ -24,6 +25,7 @@ full(
   mean.controls = NULL,
   tol = 0.001,
   data = NULL,
+  solver = "",
   ...
 )
 }
@@ -118,7 +120,28 @@ is considered to be a character vector of names. Useful to pass if you want to
 combine a match (using, e.g., \code{cbind}) with the data that were used to
 generate it (for example, in a propensity score matching).}
 
-\item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within}) 
+\item{solver}{Choose which solver to use. Currently implemented are RELAX-IV
+  and LEMON. Default of \code{""}, a blank string, will use RELAX-IV if the
+  \strong{rrelaxiv} package is installed, otherwise will use LEMON.
+
+To explicitly use RELAX-IV, pass string "RELAX-IV".
+
+To use LEMON, pass string "LEMON". Optionally, to specify which algorithm
+LEMON will use, pass the function \link{LEMON} with argument for the
+algorithm name, "CycleCancelling", "CapacityScaling", "CostScaling", and
+"NetworkSimplex". See this site for details on their differences:
+\url{https://lemon.cs.elte.hu/pub/doc/latest/a00606.html}. CycleCancelling is
+the default.
+
+The CycleCancelling algorithm seems to produce results most closely
+resembling those of optmatch versions prior to 1.0. We have observed the
+other LEMON algorithms to produce different results when the
+\code{mean.controls} is unspecified, or specified in such a way as to produce
+an infeasible matching problem. When using a LEMON algorithm other than
+CycleCancelling, we recommend setting the \code{fullmatch_try_recovery}
+option to \code{FALSE}.}
+
+\item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within})
 or to specific methods.}
 }
 \value{

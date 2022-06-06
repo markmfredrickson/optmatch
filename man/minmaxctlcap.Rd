@@ -5,9 +5,9 @@
 \alias{minControlsCap}
 \title{Set thinning and thickening caps for full matching}
 \usage{
-maxControlsCap(distance, min.controls = NULL)
+maxControlsCap(distance, min.controls = NULL, solver = "")
 
-minControlsCap(distance, max.controls = NULL)
+minControlsCap(distance, max.controls = NULL, solver = "")
 }
 \arguments{
 \item{distance}{Either a matrix of non-negative, numeric
@@ -17,6 +17,9 @@ discrepancies, or a list of such matrices. (See
 \item{min.controls}{Optionally, set limits on the minimum number
 of controls per matched set.  (Only makes sense for
 \code{maxControlsCap}.)}
+
+\item{solver}{Choose which solver to use. See \code{help(fullmatch)}
+for details.}
 
 \item{max.controls}{Optionally, set limits on the maximum number
 of controls per matched set.  (Only makes sense for

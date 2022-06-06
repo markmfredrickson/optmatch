@@ -402,12 +402,12 @@ test_that("matrix, ISM methods' within args",{
   z <- rep(c(0,1), 6)
   b <- rep(1:3, 4)
   names(z) <- names(scores) <- letters[1:12]
-  ez <- exactMatch(z ~ b)  
+  ez <- exactMatch(z ~ b)
   sISM  <- match_on(scores, z=z)
   expect_s4_class(sISM, "DenseMatrix")
   expect_equivalent(match_on(sISM, within=ez), sISM+ez)
   sISM2  <- as.InfinitySparseMatrix(sISM)
-  expect_equivalent(match_on(sISM2, within=ez), sISM+ez)  
+  expect_equivalent(match_on(sISM2, within=ez), sISM+ez)
 })
 
 test_that("use of matrix, ISM, BISM methods w/ caliper arg", {
@@ -498,16 +498,6 @@ test_that("Issue #44", {
   res.cal.w <- match_on(scores, z = z, within = www, caliper = 1)
   expect_equal(max(res.cal.w), 1)
 
-  # this is the test case from:
-  # https://github.com/markmfredrickson/optmatch/issues/44
-
-  coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
-  names(coxps) <- row.names(heart)
-  coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
-  expect_true(max(coxmoA) <= 1)
-
-  coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
-  expect_true(max(coxmoC) <= 1)
 
 })
 
@@ -558,10 +548,10 @@ test_that("standardization scale from within match_on", {
 
   expect_silent(result.glm1 <- match_on(test.glm, standardization.scale=mad))
   expect_equivalent(result.glm1, result.glm0)
-  
+
   expect_silent(result.glm2 <- match_on(test.glm, standardization.scale=sd))
   expect_is(result.glm2, "matrix")
-  
+
   expect_silent(result.glm4 <- match_on(test.glm, standardization.scale=1))
   expect_is(result.glm4, "matrix")
 })

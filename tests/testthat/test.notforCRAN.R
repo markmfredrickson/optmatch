@@ -78,26 +78,33 @@ pairmatch_nodeinfo  <- function(edges) {
 }
 test_that("Hinting decreases runtimes",{
   N <- 1000
-  X <- data.frame(X1 = rnorm(N), 
-                  X2 = rnorm(N, mean = runif(N, -5, 5)), 
+  X <- data.frame(X1 = rnorm(N),
+                  X2 = rnorm(N, mean = runif(N, -5, 5)),
                   X3 = as.factor(sample(letters[1:5], N, replace = T)))
   mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
   coefs <- runif(dim(mm)[2], -2, 2)
-  logits <- as.vector(coefs %*% t(mm)) 
-  DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)  
+  logits <- as.vector(coefs %*% t(mm))
+  DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
   m <- match_on(x = Z ~ X1 + X2 + X3, data = DATA)
   if (nrow(m) > ncol(m)) m <- t(m)
   ff <- nrow(m)/ncol(m)
   pm <- edgelist(m)
   pm$dist <- as.integer(100*pm$dist)
   nodes_dummy <- pairmatch_nodeinfo(pm)
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    slvr <- "RELAX-IV"
+  } else {
+    slvr <- "LEMON"
+  }
+
   t0  <- system.time(res0 <- fmatch(pm, 1, 1, 1, f=ff,
-                                   node_info=nodes_dummy)
+                                   node_info=nodes_dummy, solver = slvr)
                      )
   expect_false(is.null(mcfs0  <-  res0$MCFSolution))
   n0  <-  mcfs0@nodes
-  t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0))
-  expect_gt(t0['elapsed'], 
+  t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0,
+                                    solver = slvr))
+  expect_gt(t0['elapsed'],
             t1['elapsed'])
 })
 ### next tests disabled due to an odd scoping-related error
@@ -129,8 +136,8 @@ if (FALSE) {
     test.design <- svydesign(~1, probs=1, data=test.data)
     sglm <- svyglm(Z ~ X1 + X2, test.design, family = binomial())
     expect_silent(res.svy0 <- match_on(sglm, data=test.data, standardization.scale=1))
-    expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))    
-    expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))   
+    expect_silent(res.svy1 <- match_on(sglm, data=test.data, standardization.scale=svy_sd))
+    expect_silent(res.svy2 <- match_on(sglm, data=test.data, standardization.scale=svy_mad))
     ## Comparisons to glm: currently failing, disabled pending investigation.
     ## First step: figure out whether sglm/aglm are returning the same
     ## linear predictors.
@@ -152,3 +159,61 @@ if (FALSE) {
 }
 }
 ###)
+
+
+test_that("survival::strata masking doesn't break", {
+  data(nuclearplants)
+
+  # survey depends on survival, so need to remove both prior to this test
+  detach("package:survey")
+  detach("package:survival")
+
+  expect_true(!any(grepl("package:survival", search())))
+
+  m1 <- match_on(pr ~ cost, within=exactMatch(pr ~ pt, data=nuclearplants),
+                  data=nuclearplants)
+  m2 <- match_on(pr ~ cost + strata(pt), data=nuclearplants)
+  m2b <- match_on(pr ~ cost, data=nuclearplants)
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+
+  expect_true(is(m1, "BlockedInfinitySparseMatrix"))
+
+  expect_true(is(m2, "BlockedInfinitySparseMatrix"))
+  expect_true(all.equal(m1, m2, check.attributes=FALSE))
+  expect_true(!isTRUE(all.equal(m2, m2b, check.attributes=FALSE)))
+
+  if (require(survival)) {
+    # Since we have our own optmatch::survival, a basic test
+    # to ensure things still work if **survival** gets loaded and
+    # survival::strata overloads optmatch::strata
+
+    expect_true(any(grepl("package:survival", search())))
+
+    sm2 <- match_on(pr ~ cost + strata(pt), data=nuclearplants)
+
+    expect_identical(m2, sm2)
+
+    detach("package:survival")
+
+  }
+
+
+
+})
+
+
+test_that("cox model testing", {
+  # this is the test case from:
+  # https://github.com/markmfredrickson/optmatch/issues/44
+
+  if (require(survival)) {
+    coxps <- predict(coxph(Surv(start, stop, event) ~ age + year + transplant + cluster(id), data=heart))
+    names(coxps) <- row.names(heart)
+    coxmoA <- match_on(coxps, z = heart$event, caliper = 1)
+    expect_true(max(coxmoA) <= 1)
+
+    coxmoC <- match_on(coxps, within = exactMatch(event ~ transplant, data = heart), z = heart$event, caliper = 1)
+    expect_true(max(coxmoC) <= 1)
+  }
+})

@@ -19,11 +19,11 @@
 \item{object}{The \code{optmatch} object to summarize.}
 
 \item{propensity.model}{An optional propensity model (the result of
-a call to \code{glm}) to use when summarizing the match. Using
-the \code{RItools} package, an additional chi-squared test will
+a call to \code{glm}) to use when summarizing the match. If the
+\pkg{RItools} package is installed, an additional chi-squared test will
 be performed on the average differences between treated and
 control units on each variable used in the model. See the
-\code{xBalance} function in the \code{RItools} package for more
+\code{xBalance} function in the \pkg{RItools} package for more
 details.}
 
 \item{...}{Additional arguments to pass to \code{xBalance} when
