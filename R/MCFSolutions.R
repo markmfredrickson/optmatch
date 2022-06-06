@@ -29,7 +29,7 @@ setValidity("SubProbInfo", function(object){
     if (anyDuplicated(object[['groups']]))
         errors  <- c(errors,
                      'Duplicates in "groups", or subproblems with same name.')
-    if (length(errors)==0) TRUE else errors  
+    if (length(errors)==0) TRUE else errors
 })
 setClass("NodeInfo", contains="data.frame",
          prototype=
@@ -63,8 +63,8 @@ setValidity("NodeInfo", function(object){
                      'Col "upstream_not_down" should have type logical.')
     if (!is.integer(object[['supply']]))
         errors  <- c(errors,
-                     'Col "supply" should have type integer.')    
-    if (length(errors)==0) TRUE else errors      
+                     'Col "supply" should have type integer.')
+    if (length(errors)==0) TRUE else errors
 })
 
 ##' @importFrom tibble as_tibble
@@ -73,16 +73,16 @@ setAs("NodeInfo", "tbl_df", function(from){
     nl  <- node.labels(from)
     nl  <- factor(nl, levels=nl)
     nl  <- enframe(nl, name= NULL, value = "nodelabels")
-    from  <- asS3(from) # circumvent as.tibble warning about dropping S4 
+    from  <- asS3(from) # circumvent as.tibble warning about dropping S4
     ans <- as_tibble(from, rownames=NULL)
     cbind(ans, nl)
 })
 
 setClass("ArcInfo", slots=c(matches="data.frame", bookkeeping="data.frame"),
          prototype=
-             prototype(matches=data.frame(groups = factor(), upstream = factor(), 
+             prototype(matches=data.frame(groups = factor(), upstream = factor(),
                                           downstream = factor(), stringsAsFactors=FALSE),
-                       bookkeeping=data.frame(groups = factor(), start = factor(), 
+                       bookkeeping=data.frame(groups = factor(), start = factor(),
                                               end = factor(), flow=integer(0),
                                               capacity=integer(0), stringsAsFactors=FALSE)
                        )
@@ -120,7 +120,7 @@ setValidity("ArcInfo", function(object){
     if (!all(object@bookkeeping[['flow']]<=object@bookkeeping[['capacity']]))
         errors  <- c(errors,
                      'in @bookkeeping, flow can be no greater than capacity.')
-    if (length(errors)==0) TRUE else errors      
+    if (length(errors)==0) TRUE else errors
 })
 
 
@@ -180,7 +180,7 @@ setValidity("MCFSolutions", function(object){
                 errors  <- c(errors,
                              "Detected subproblems ('groups') in @arcs@bookkeeping that aren't in @subproblems.")
     }
-    if (length(errors)==0) TRUE else errors      
+    if (length(errors)==0) TRUE else errors
 })
 
 setClass("FullmatchMCFSolutions",
@@ -197,7 +197,7 @@ setValidity("FullmatchMCFSolutions", function(object){
         errors  <- c(errors,
                      "Need '(_Sink_)', '(_End_)' nodes.")
     ## (Could probably do more checking here...)
-    if (length(errors)==0) TRUE else errors    
+    if (length(errors)==0) TRUE else errors
 })
 ####################################################################
 ##########                  Methods            #####################
@@ -212,7 +212,7 @@ rbind_data_frame  <- function(...)
     rbind.data.frame(..., make.row.names=FALSE, stringsAsFactors=FALSE)
 
 ##* Generate combine (`c()`) functions for S4-typed data frames
-##* 
+##*
 ##* @param thetype character, name of S4 type
 ##* @return function to do combine (`c()`) on object of class thetype
 ##* @keywords internal
@@ -236,10 +236,10 @@ setMethod("c", signature(x="NodeInfo"),
 setMethod("c", signature(x="ArcInfo"),
           definition=function(x, ...) {
               objs = list(...)
-              
+
               mlist  <- lapply(objs, function(x) slot(x, "matches"))
               ans_m  <- do.call(rbind_data_frame, mlist)
-                                
+
               blist  <- lapply(objs, function(x) slot(x, "bookkeeping"))
               ans_b  <- do.call(rbind_data_frame, blist)
 
@@ -248,7 +248,7 @@ setMethod("c", signature(x="ArcInfo"),
                   ans_m  <- rbind_data_frame(slot(x, "matches"), ans_m)
                   ans_b  <- rbind_data_frame(slot(x, "bookkeeping"), ans_b)
               }
-              
+
               new("ArcInfo", matches=ans_m, bookkeeping=ans_b)
           })
 setMethod("c", signature(x="MCFSolutions"),
@@ -296,7 +296,7 @@ setMethod("nodeinfo", "optmatch", function(x) {
 setMethod("nodeinfo", "ANY", function(x) NULL)
 ## node information setter.  Note presumptions of a single `group`,
 ## and that the new nodes are a superset of the old ones. (The one-
-## group presumption is only b/c I didn't need it for more than 1 group.) 
+## group presumption is only b/c I didn't need it for more than 1 group.)
 ## Note also that they're lined up on the basis of their name column,
 ## not their node.labels.
 setGeneric("nodeinfo<-", function(x, value) standardGeneric("nodeinfo<-"))
@@ -336,8 +336,9 @@ setMethod("nodeinfo<-", "ANY", function(x, value) stop("Not implemented."))
 ## node labels
 setGeneric("node.labels", function(x) standardGeneric("node.labels"))
 setGeneric("node.labels<-", function(x, value) standardGeneric("node.labels<-"))
+#' @importFrom stats setNames
 setMethod("node.labels", "NodeInfo",
-          function(x) setNames(row.names(x), nm=x[['name']])
+          function(x) stats::setNames(row.names(x), nm=x[['name']])
           )
 setMethod("node.labels", "MCFSolutions", function(x) node.labels(x@nodes))
 setMethod("node.labels", "optmatch", function(x) {
@@ -349,7 +350,7 @@ setMethod("node.labels<-", "NodeInfo",
           function(x, value) {
               row.names(x) <- value
               x
-          } 
+          }
           )
 ##' @title Reset implicit node labels of an ArcInfo object
 ##' @param x an ArcInfo object
@@ -411,7 +412,7 @@ setMethod("node.labels<-", "MCFSolutions",
               x@arcs  <-
                   revise_ArcInfo_nodelabels(x@arcs, value)
               x
-          } 
+          }
           )
 setMethod("node.labels<-", "optmatch", function(x, value) {
     mcfs  <- attr(x, "MCFSolutions")
@@ -426,7 +427,7 @@ setMethod("node.labels<-", "ANY", function(x, value) NULL)
 
 ## Function to update a node table's prices and supplies
 ## using from a second node table carrying price and supply
-## info about a subset of the first table's nodes. The two 
+## info about a subset of the first table's nodes. The two
 ## tables will be aligned using their "name" columns,
 ## not their node.labels (rownames).
 update.NodeInfo  <- function(old, new, ...)
@@ -438,7 +439,7 @@ update.NodeInfo  <- function(old, new, ...)
     price_col_position_new  <- which(new@names=="price")
     old@.Data[[price_col_position_old]][positions]  <-
         new@.Data[[price_col_position_new]]
-    
+
     supply_col_position_old  <- which(old@names=="supply")
     supply_col_position_new  <- which(new@names=="supply")
     old@.Data[[supply_col_position_old]][positions]  <-
@@ -446,7 +447,7 @@ update.NodeInfo  <- function(old, new, ...)
 
     old
 }
-##* `dplyr::filter()` method for NodeInfo's. 
+##* `dplyr::filter()` method for NodeInfo's.
 ##' @export
 filter.NodeInfo  <- function(.data, ...) {
     x  <- as(.data, "tbl_df")

@@ -28,17 +28,18 @@ setValidity("EdgeList", function(object) {
 t.EdgeList  <- function(x) new("EdgeList", tibble(dist=x[['dist']], i=x[['j']], j=x[['i']]))
 #' @export
 dim.EdgeList  <- base::dim.data.frame
-##' 
+##'
 ##' If y is a named character vector, then the names should
 ##' correspond to whatever in x would otherwise (i.e. if y were NULL)
 ##' translate to the levels set of the nodes-representing columns, while
-##' the values themselves give the new levels. 
+##' the values themselves give the new levels.
 ##' @title Create EdgeList object
 ##' @param x object to convert to edgelist
 ##' @param y named character vector giving levels for nodes-representing columns, or NULL
 ##' @return EdgeList
 ##' @author Ben Hansen
 ##' @keywords internal
+##' @importFrom stats complete.cases
 setGeneric("edgelist", function(x, y=NULL) { stop("Not implemented.") })
 setMethod("edgelist", c(x = "InfinitySparseMatrix"), function(x, y=NULL) {
     if (is.null(y))
@@ -69,22 +70,22 @@ setMethod("edgelist", c(x = "EdgeList"), function(x, y=NULL) {
                        j = factor(x[['j']], levels=names(y), labels=unname(y)),
                        dist = x[['dist']]
                        )
-    ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
+    ccs  <- stats::complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
 setMethod("edgelist", c(x = "tbl_df"), function(x, y=NULL) {
     stopifnot(ncol(x)==3,
               setequal(colnames(x), c('i', 'j', 'dist')),
-              is.factor(x$i) || !is.null(y), 
+              is.factor(x$i) || !is.null(y),
               is.numeric(x$dist)
               )
-    
-    ccs <- complete.cases(x)# to remove rows involving i/j not in y
-    
-    if (identical(colnames(x), c('i', 'j', 'dist')) && 
-        is.factor(x$i) && is.factor(x$j) && is.numeric(x$dist) && 
+
+    ccs <- stats::complete.cases(x)# to remove rows involving i/j not in y
+
+    if (identical(colnames(x), c('i', 'j', 'dist')) &&
+        is.factor(x$i) && is.factor(x$j) && is.numeric(x$dist) &&
         (is.null(y) || identical(levels(x[['i']]), y)) &&
-        identical(levels(x$i), levels(x$j)) & 
+        identical(levels(x$i), levels(x$j)) &
         all(ccs)
         )
         return(new("EdgeList", x))
@@ -97,12 +98,12 @@ setMethod("edgelist", c(x = "tbl_df"), function(x, y=NULL) {
                        j= factor(x[['j']], levels=names(y), labels=unname(y)),
                        dist=x[['dist']]
         )
-    new("EdgeList", elist[ccs,])    
+    new("EdgeList", elist[ccs,])
     })
 setMethod("edgelist", c(x = "data.frame"), function(x, y=NULL){
     stopifnot(ncol(x)==3,
               setequal(colnames(x), c('i', 'j', 'dist')),
-              is.factor(x$i) || !is.null(y), 
+              is.factor(x$i) || !is.null(y),
               is.numeric(x$dist)
               )
     if (is.null(y))
@@ -114,7 +115,7 @@ setMethod("edgelist", c(x = "data.frame"), function(x, y=NULL){
                        j= factor(x[['j']], levels=names(y), labels=unname(y)),
                        dist=x[['dist']]
                        )
-    ccs  <- complete.cases(elist) # to remove rows involving i/j not in y
+    ccs  <- stats::complete.cases(elist) # to remove rows involving i/j not in y
     new("EdgeList", elist[ccs,])
     })
 
