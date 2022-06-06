@@ -137,8 +137,14 @@ setMethod("is_matchable", c(distspec="EdgeList"),
                   ans  <- ans | (node_names %in% distspec$'j')
               ans
           })
+
 ##' @export
 filter.EdgeList <- function(.data, ...) {
     .data  <- asS3(.data)
     filter(.data, ...)
     }
+
+#' @export
+as.data.frame.EdgeList <- function(x, row.names = NULL, optional = FALSE, ...) {
+  as.data.frame(x@.Data, col.names = x@names, ...)
+}

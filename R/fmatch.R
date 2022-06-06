@@ -129,20 +129,16 @@ fmatch <- function(distance, max.row.units, max.col.units,
 
   ## Bypass solver if problem is recognizably infeasible
   if ( (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
-       (mxr==1L & nt * mnc > n.mc) |# min.col.units too high  
-       (nt * mxc < n.mc) #max.col.units too low
-      )
-  {
-    return(
-      c(data.frame(distance,
-                   solution = rep(-1L, narcs),
-                   check.names=FALSE,
-                   row.names=NULL
-                   ),
-        list(maxerr=0),
-        list(MCFSolution=NULL)
-        )
-      )
+       (mxr==1L & nt * mnc > n.mc) | #min.col.units too high
+       (nt * mxc < n.mc)) { #max.col.units too low
+
+    out <- as.data.frame(distance, row.names = NULL)
+    out$solution <- rep(-1L, narcs)
+    return(c(
+      out,
+      list(maxerr = 0),
+      list(MCFSolution = NULL)
+    ))
   }
 
   ##  Min-Cost-Flow representation of problem  ####
@@ -231,10 +227,8 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ## Material used to create s3 optmatch object:
   feas <- fop$feasible1
   x <- feas * fop$x1 - (1 - feas)
-  obj <-data.frame(distance,
-                   solution = x[seq.int(from=min(1L, narcs), to=narcs)],
-                   check.names=FALSE,
-                   row.names=NULL)
+  obj <- as.data.frame(distance, row.names = NULL)
+  obj$solution <-  x[seq.int(from=min(1L, narcs), to=narcs)]
 
   #### Recover node prices, store in nodes table ##
   ## In full matching, each upstream (row) or downstream (column) node starts
