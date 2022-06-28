@@ -30,7 +30,7 @@ variables used in the formula \code{x}.}
 observations to be used}
 
 \item{na.action}{A function which indicates what should happen when
-the data contain `NA's}
+the data contain \code{NA}s}
 }
 \value{
 A matrix like object, which is suitable to be given as

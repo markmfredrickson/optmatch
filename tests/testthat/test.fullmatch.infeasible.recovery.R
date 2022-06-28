@@ -306,7 +306,9 @@ test_that("fullmatch_try_recovery", {
   options("fullmatch_try_recovery" = TRUE)
   # back to fixing.
   expect_warning(expect_true(any(is.na(fullmatch(mm, data=nuclearplants, max.controls = 2)))))
+
 })
+
 
 
 test_that("n_t > n_c", {

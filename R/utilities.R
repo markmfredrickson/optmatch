@@ -60,26 +60,45 @@ setMethod("toZ", "character", function(x) {
 
 setMethod("toZ", "factor", function(x) {
   stop(paste("Factor treatment indicators no longer supported.\n",
-             "Convert into a numeric or logical vector."))
+            "Convert into a numeric or logical vector."))
 })
 
-#' (Internal) Remove the call before digesting a distance so things
-#' like omitting caliper and calling caliper=NULL give the same digest
+#' (Internal) Hashing functions for various distance objects
 #' #
 #' @param dist Distance object to hash. Must be one of
 #'   \code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
 #'   \code{DenseMatrix}, \code{matrix}, or \code{distmatch.dlist}.
 #' @return Hash on the distance object with a null \code{call}
-#' @importFrom digest digest
 #' @keywords internal
-dist_digest <- function(dist) {
-  if (class(dist)[1] %in% c("InfinitySparseMatrix", "BlockedInfinitySparseMatrix", "optmatch.dlist", "DenseMatrix", "matrix")) {
-    csave <- attr(dist, "call")
-    attr(dist, "call") <- NULL
-    out <- digest::digest(dist)
-    return(out)
-  }
-  stop("Must pass distance object")
+#' @rdname hash_dist
+hash_dist <- function(dist) {
+  UseMethod("hash_dist")
+}
+
+#' @rdname hash_dist
+hash_dist.DenseMatrix <- function(dist)  {
+  hash_dist(dist@.Data)
+}
+
+#' @rdname hash_dist
+hash_dist.matrix <- function(dist)  {
+  sum(dist[is.finite(dist)]) + nrow(dist) + ncol(dist)
+}
+
+#' @rdname hash_dist
+hash_dist.InfinitySparseMatrix <- function(dist) {
+  sum(dist@.Data) + sum(dist@rows) + sum(dist@cols)
+}
+
+#' @rdname hash_dist
+hash_dist.BlockedInfinitySparseMatrix <- function(dist) {
+  hash_dist(as.InfinitySparseMatrix(dist))
+}
+
+#' @rdname hash_dist
+hash_dist.optmatch.dlist <- function(dist) {
+  warning("optmatch.dlist objects are deprecated")
+  1
 }
 
 #' (Internal) If the x argument does not exist for

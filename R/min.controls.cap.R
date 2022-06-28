@@ -25,6 +25,9 @@
 ##' @param min.controls Optionally, set limits on the minimum number
 ##'   of controls per matched set.  (Only makes sense for
 ##'   \code{maxControlsCap}.)
+##' @param solver Choose which solver to use. See \code{help(fullmatch)}
+##' for details.
+##'
 ##' @return For \code{minControlsCap},
 ##'   \code{strictest.feasible.min.controls} and
 ##'   \code{given.max.controls}. For \code{maxControlsCap},
@@ -54,7 +57,7 @@
 ##' @keywords optimize
 ##' @export
 ##' @rdname minmaxctlcap
-minControlsCap <- function(distance, max.controls=NULL)
+minControlsCap <- function(distance, max.controls=NULL, solver = "")
 {
   distance <- as.matrix(distance) # cast ISM to matrix, temporary
   if (!is.list(distance) & !is.matrix(distance))
@@ -65,12 +68,14 @@ minControlsCap <- function(distance, max.controls=NULL)
     tmp <- maxControlsCap(t(distance),  min.controls=
                                           switch(1+is.null(max.controls),
                                                  ifelse(max.controls>=1, 1/ceiling(max.controls),
-                                                        floor(1/max.controls) ), NULL))
+                                                        floor(1/max.controls) ), NULL),
+                          solver = solver)
   } else   {
     tmp <- maxControlsCap(lapply(distance, t), min.controls=
                                                  switch(1+is.null(max.controls),
                ifelse(max.controls>=1, 1/ceiling(max.controls),
-                      floor(1/max.controls) ), NULL))
+                      floor(1/max.controls) ), NULL),
+               solver = solver)
   }
 
   list(strictest.feasible.min.controls=

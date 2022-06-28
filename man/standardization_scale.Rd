@@ -9,11 +9,12 @@ standardization_scale(x, trtgrp, standardizer = NULL, svydesign_ = NULL)
 \arguments{
 \item{x}{numeric variable}
 
-\item{trtgrp}{logical or numeric.  If numeric, coerced to `T`/`F` via `!`}
+\item{trtgrp}{logical or numeric. If numeric, coerced to logical via \code{!}}
 
 \item{standardizer}{function, \code{NULL} or numeric of length 1}
 
-\item{svydesign_}{ordinarily \code{NULL}, but may also be a \code{survey.design2}; see Details.}
+\item{svydesign_}{ordinarily \code{NULL}, but may also be a
+\code{survey.design2}; see Details.}
 }
 \value{
 numeric of length 1

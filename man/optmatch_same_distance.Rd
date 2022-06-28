@@ -2,28 +2,32 @@
 % Please edit documentation in R/Optmatch.R
 \name{optmatch_same_distance}
 \alias{optmatch_same_distance}
-\title{Checks if the distance \code{newdist} is identical to the distance used to
-generate the optmatch object \code{obj}.}
+\title{Checks if two distances are equivalent. \code{x} and \code{y} can be
+distances (\code{InfinitySparseMatrix}, \code{BlockedInfinitySparseMatrix},
+or \code{DenseMatrix}), or they can be \code{optmatch} objects.}
 \usage{
-optmatch_same_distance(obj, newdist)
+optmatch_same_distance(x, y)
 }
 \arguments{
-\item{obj}{An optmatch object.}
+\item{x}{A distances (\code{InfinitySparseMatrix},
+\code{BlockedInfinitySparseMatrix}, or \code{DenseMatrix}), or
+\code{optmatch} object.}
 
-\item{newdist}{A distance}
+\item{y}{A distances (\code{InfinitySparseMatrix},
+\code{BlockedInfinitySparseMatrix}, or \code{DenseMatrix}), or
+\code{optmatch} object.}
 }
 \value{
 Boolean whether the two distance specifications are identical.
 }
 \description{
-To save space, optmatch objects merely store a hash of the distance matrix
-instead of the original object. This checks if the hash of \code{newdist} is
-identical to the hash currently saved in \code{obj}.
+To save space, \code{optmatch} objects merely store a hash of the distance
+matrix instead of the original object. Any distance objects are hashed before
+comparison.
 }
 \details{
-Note that the distance is hashed with its \code{call} set to
-\code{NULL}. (This avoids issues where, for example, \code{match_on(Z~X,
-data=d, caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical
-matches (since the default argument to \code{caliper} is \code{NULL}) but
-distinct calls.)
+Note that the distance is hashed with its \code{call} set to \code{NULL}.
+(This avoids issues where, for example, \code{match_on(Z~X, data=d,
+caliper=NULL)} and \code{match_on(Z~X, data=d)} produce identical matches but
+have differing \code{call}s.)
 }

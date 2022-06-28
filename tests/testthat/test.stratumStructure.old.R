@@ -37,10 +37,17 @@ test_that("stratumStructure old", {
                        data=nuclearplants),
                    standardization.scale = sd,
                    within = exactMatch(pr ~ pt, nuclearplants))
-  expect_warning(s5 <- stratumStructure(fullmatch(psd2,min.controls=1,max.controls=1, data=nuclearplants)))
-  expect_warning(s6 <- stratumStructure(fullmatch(psd2,min.controls=3,max.controls=3, data=nuclearplants)))
-  expect_true(all(sapply(strsplit(names(s5), ":"), "[", 2) <= 1))
-  expect_true(all(sapply(strsplit(names(s6), ":"), "[", 2) <= 3))
+  expect_warning(s5 <- stratumStructure(fullmatch(psd2,
+                                                  min.controls = 1,
+                                                  max.controls = 1,
+                                                  data = nuclearplants)))
+  expect_warning(s6 <- stratumStructure(fullmatch(psd2, min.controls = 3,
+                                                  max.controls = 3,
+                                                  data = nuclearplants)))
+  expect_true(all(as.numeric(vapply(strsplit(names(s5), ":"), "[", 2,
+                                    FUN.VALUE = character(1))) <= 1))
+  expect_true(all(as.numeric(vapply(strsplit(names(s6), ":"), "[", 2,
+                                    FUN.VALUE = character(1))) <= 3))
 
 
   ### Tests of min.controls, max.controls

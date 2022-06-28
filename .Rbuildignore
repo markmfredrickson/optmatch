@@ -2,9 +2,8 @@
 ^doc$
 Makefile
 load.R
+release.R
 check.R
-checkspelling.R
-lexicon.txt
 ^data-raw$
 .pkgexclude
 vignettes/Sweave.sty
@@ -17,5 +16,11 @@ man-roxygen
 README.md
 .github
 ^revdep$
-cran-comments.md
 ^CRAN-RELEASE$
+cran-comments.md
+^LICENSE\.md$
+^cran-comments\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

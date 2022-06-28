@@ -1,6 +1,11 @@
+#' @importFrom rlemon MinCostFlow
 fmatch <- function(distance, max.row.units, max.col.units,
-			min.col.units = 1, f = 1, stability.increment=1L)
+                   min.col.units = 1, f = 1, stability.increment = 1L,
+                   solver)
 {
+  # checks solver and evaluates LEMON() if neccessary
+  solver <- handleSolver(solver)
+
   if(!inherits(distance, "data.frame") & !all(colnames("data.frame") %in% c("treated", "control", "distance"))) {
     stop("Distance argument is not a canonical matching problem (an adjacency list of the graph): A data.frame with columns `treated`, `control`, `distance`.")
   }
@@ -84,10 +89,12 @@ fmatch <- function(distance, max.row.units, max.col.units,
   sinkId   <- nt + nc + 2
   bufferId <- nt + nc + 3
 
+  nnodes <- bufferId
+
   dists <- c(dists,
              rep(0, nt), # t to end
              rep(0, nc), # c to buffer
-             rep(0, 1),  # buffer to end 
+             rep(0, 1),  # buffer to end
              rep(0, nc)) # c to sink
 
   startn <- c(startn,
@@ -106,7 +113,7 @@ fmatch <- function(distance, max.row.units, max.col.units,
   ucap <- c(ucap,
             rep(mxc - mnc, nt), # t to end
             rep(mxr - 1, nc),   # c to buffer
-            k_minus_v,            # buffer to end 
+            k_minus_v,            # buffer to end
             rep(1, nc))         # c to sink
 
   # supply
@@ -116,49 +123,35 @@ fmatch <- function(distance, max.row.units, max.col.units,
          -round(f * nc), # sink
          0)              # buffer)
 
-  # If the user specifies using the old version of the relax algorithm. The `if` will be
-  # FALSE if use_fallback_optmatch_solver is anything but TRUE, including NULL.
-  # We have to duplicate the .Fortran code to make R CMD Check not complain about "registration" problems
-  if (identical(options()$use_fallback_optmatch_solver, TRUE)) {
-    fop <- .Fortran("relaxalgold",
-                    as.integer(nc + nt + 3),
-                    as.integer(length(startn)),
-                    as.integer(startn),
-                    as.integer(endn),
-                    as.integer(dists),
-                    as.integer(ucap),
-                    as.integer(b),
-                    x1=integer(length(startn)),
-                    crash1=as.integer(0),
-                    large1=as.integer(.Machine$integer.max/4),
-                    feasible1=integer(1),
-                    NAOK = FALSE,
-                    DUP = TRUE,
-                    PACKAGE = "optmatch")
-  } else {
-    fop <- .Fortran("relaxalg",
-                    as.integer(nc + nt + 3),
-                    as.integer(length(startn)),
-                    as.integer(startn),
-                    as.integer(endn),
-                    as.integer(dists),
-                    as.integer(ucap),
-                    as.integer(b),
-                    x1=integer(length(startn)),
-                    crash1=as.integer(0),
-                    large1=as.integer(.Machine$integer.max/4),
-                    feasible1=integer(1),
-                    NAOK = FALSE,
-                    DUP = TRUE,
-                    PACKAGE = "optmatch")
+  if (solver == "RELAX-IV") {
+    fop <- rrelaxiv::.RELAX_IV(n1 = as.integer(nnodes),
+                               na1 = as.integer(length(startn)),
+                               startn1 = as.integer(startn),
+                               endn1 = as.integer(endn),
+                               c1 = as.integer(dists),
+                               u1 = as.integer(ucap),
+                               b1 = as.integer(b),
+                               rc1 = as.integer(dists), # all dual price =  0, so reduced
+                                                        # cost  is set equal to cost
+                               crash1 = as.integer(0),
+                               large1 = as.integer(.Machine$integer.max/4))
+
+    feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
+                               (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
+
+    x <- feas * fop$x1 - (1 - feas)
   }
-
-
-  feas <- fop$feasible1 & ((mnc*nt <= round(f*nc) & mxc*nt >= round(f*nc)) |
-            (round(f*nc) <= nt & round(f*nc)*mxr >= nt))
-
-  x <- feas * fop$x1 - (1 - feas)
-
+  if (grepl("^LEMON", solver)) {
+    algorithm <- gsub("^LEMON\\.", "", solver)
+    lout <- rlemon::MinCostFlow(arcSources = as.integer(startn),
+                                arcTargets = as.integer(endn),
+                                arcCapacities = as.integer(ucap),
+                                arcCosts = as.integer(dists),
+                                nodeSupplies = as.integer(b),
+                                numNodes = as.integer(nnodes),
+                                algorithm = algorithm)
+    x <- as.numeric(lout[[1]])
+  }
   ans <- numeric(narcs)
   ans <- x[1:narcs]
   return(cbind(distance, solution = ans))

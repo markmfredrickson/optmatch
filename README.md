@@ -1,9 +1,14 @@
-# Optmatch: Optimal Fullmatching for R
+# optmatch: Optimal Fullmatching for R
 
+
+Package website: [release](https://markmfredrickson.github.io/optmatch) | [development](https://markmfredrickson.github.io/optmatch/dev)
+
+<!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/optmatch)](https://cran.r-project.org/package=optmatch)
-[![R-build-check](https://github.com/markmfredrickson/optmatch/workflows/R-build-check/badge.svg)](https://github.com/markmfredrickson/optmatch/actions)
+[![R-CMD-check](https://github.com/markmfredrickson/optmatch/workflows/R-CMD-check/badge.svg)](https://github.com/markmfredrickson/optmatch/actions)
+<!-- badges: end -->
 
-The `optmatch` package implements the optimal full matching algorithm for
+The **optmatch** package implements the optimal full matching algorithm for
 bipartite matching problems. Given a matrix describing the distances between
 two groups (where one group is represented by row entries, and the other by
 column entries), the algorithm finds a matching between units that
@@ -15,12 +20,34 @@ more on the application and its implementation, see:
     Hansen, B.B. and Klopfer, S.O. (2006) Optimal full matching and
      related designs via network flows, JCGS 15 609-627.
 
-`optmatch` is available on [CRAN](https://cran.r-project.org):
+**optmatch** is available on [CRAN](https://cran.r-project.org):
 
     > install.packages("optmatch")
     > library("optmatch")
 
-## Using Optmatch
+## Choice of solvers
+
+There are two different packages implementing the actual solver which can be used.
+
+- The default, starting in 0.10.0, is the [LEMON graph
+  library](https://lemon.cs.elte.hu/trac/lemon)'s Min Cost Flow solver,
+  implemented in the
+  [**rlemon**](https://cran.r-project.org/web/packages/rlemon/index.html)
+  package.
+- In previous versions, the default was the RELAX-IV solver, which is now
+  implemented in the [**rrelaxiv**](https://github.com/josherrickson/rrelaxiv/)
+  package.
+
+Users wishing to utilize the RELAX-IV solver must install **rrelaxiv**
+separately, see that page for details. Once installed, RELAX-IV becomes the
+default solver.
+
+The LEMON solver has four separate algorithms implemented, Cycle Cancelling (the
+default), Network Simplex, Cost Scaling, and Capacity Scaling. Each has its own
+trade-offs and performance quirks. See `help(fullmatch)` for details of how to
+choose which is being used.
+
+## Using optmatch
 
 In addition to the optimal full matching algorithm, the package contains
 useful functions for generating distance specifications, combining and editing
@@ -67,7 +94,7 @@ groups on observed covariates, see the
 These two groups are different, but how different are individual treated units
 from individual control units? In answering this question, we will produce
 several distance specifications: matrices of treated units (rows) by control
-units (columns) with entries denoting distances. `optmatch` provides several
+units (columns) with entries denoting distances. **optmatch** provides several
 ways of generating these matrices so that you don't have to do it by hand.
 
 Let's begin with a simple Euclidean distance on the space defined by `W`:
@@ -109,7 +136,7 @@ than the caliper value will be replaced by `Inf`, an unmatchable value. The
 detail in the next section.
 
 The final convenience method of `match_on` is using an arbitrary function. This
-function is probably most useful for advanced users of `optmatch`. See the
+function is probably most useful for advanced users of **optmatch**. See the
 documentation of the `match_on` function for more details on how to write your
 own arbitrary computation functions.
 
@@ -171,7 +198,7 @@ the interesting cases:
     tmp <- exactMatch(z ~ w2, data = W)
     distances$exact <- match_on(z ~ w1, data = W, within = tmp)
 
-Users of previous versions of `optmatch` may notice that the `within`
+Users of previous versions of **optmatch** may notice that the `within`
 argument is similar to the old `structure.formula` argument. Like
 `within`, `structure.formula` focused distance on within strata pairs.
 Unlike `structure.formula`, the `within` argument allows using *any*
@@ -213,7 +240,7 @@ the group to throw away, giving better odds of successfully finding a matching
 solution.
 
 Once one has generated a match, you may wish to view the results. The results
-of calls to `fullmatch` or `pairmatch` produce `optmatch` objects (specialized
+of calls to `fullmatch` or `pairmatch` produce **optmatch** objects (specialized
 factors). This object has a special option to the `print` method which groups
 the units by factor level:
 
@@ -230,17 +257,17 @@ otherwise results are not guaranteed to be in the same order as your original
 
 ##  Using a development version of Optmatch
 
-This section will help you get the latest development version of `optmatch` and
+This section will help you get the latest development version of **optmatch** and
 start using the latest features. Before starting, you should know which branch
 you wish to install. Currently, the "master" branch is the main code base.
 Additional features are added in their own branches. A list of branches is
-available at (the optmatch project
+available at (the **optmatch** project
 page)[https://github.com/markmfredrickson/optmatch].
 
 ### Installing a development version
 
-You must have the Fortran extensions for package building included. These can be
-had from CRAN: [OS X](https://cran.r-project.org/bin/macosx/tools/),
+You may need additional compilers as distributed by CRAN:
+[OS X](https://cran.r-project.org/bin/macosx/tools/),
 [Windows](https://cran.r-project.org/bin/windows/Rtools/).
 
 We recommend using `dev_mode` from the `devtools` package to install
@@ -284,12 +311,12 @@ package hasn't already been loaded otherwise) -- while _not_ in `dev_mode`, then
 you'll get whatever version of the package may be installed in your library
 tree, not this development version.
 
-If you want to switch between versions of `RItools`, we suggest re-starting R.
+If you want to switch between versions of **optmatch**, we suggest re-starting R.
 
-## Developing for Optmatch
+## Developing for **optmatch**
 
-You may use RStudio to develop for Optmatch, by opening the `optmatch.Rproj` file.
-We suggest you ensure all required dependencies are installed by running
+You may use RStudio to develop for **optmatch**, by opening the `optmatch.Rproj`
+file. We suggest you ensure all required dependencies are installed by running
 
 ```{r}
 devtools::install_deps(dependencies = TRUE)
@@ -308,7 +335,7 @@ You can generate all `.Rd` documents from the `Roxygen` code using Build ->
 Document.
 
 Finally, you can use Build -> Build and Reload or Build -> Clean and Rebuild to
-load an updated version of `optmatch` in your current RStudio session.
+load an updated version of **optmatch** in your current RStudio session.
 Alternatively, to install the developed version permanently, use Build -> Build
 Binary Version, followed by
 
@@ -323,15 +350,22 @@ remove.packages("optmatch")
 install.packages("optmatch")
 ```
 
+Note: If you are building for release on CRAN, you need to ensure vignettes are
+compacted. This should be enabled automatically in the .Rproj file, but if not
+see [this stackoverflow answer](https://stackoverflow.com/a/53706965/905101) for
+some concerns about dealing with this with RStudio.
+
 If you prefer not to use RStudio, you can develop using Make.
 
 - `make test`: Run the full test suite.
 - `make document`: Update all documentation from Roxygen inline comments.
-- `make interactive`: Start up an interactive session with `optmatch` loaded.
+- `make interactive`: Start up an interactive session with **optmatch** loaded.
+  (`make interactive-emacs` will start the session inside emacs.)
 - `make check`: Run `R CMD check` on the package
 - `make build`: Build a binary package.
 - `make vignette`: Builds any vignettes in `vignettes/` directory
 - `make clean`: Removes files built by `make vignette`, `make document` or `make check`.
    Should not be generally necessary, but can be useful for debugging.
+- `make release`: Starts an interactive R session to submit a release to CRAN.
 
 When your change is ready, make a pull request on github.

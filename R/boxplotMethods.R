@@ -65,10 +65,9 @@ are there missing values in data?")
   }
 #' @export
 #' @importFrom graphics boxplot
-#' @importFrom survey svyboxplot
 boxplot.svyglm <- function(x, xlab="Group", ylab=expression(paste(X, symbol("\242"), hat(beta))), main="Overlap on fitted scores",varwidth=TRUE, horizontal=FALSE, ...)
 {
-
+  if (requireNamespace("survey", quietly = TRUE)) {
     dependent.variable <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
     dependent.variable  <- as.factor(dependent.variable)
         linear.score <- x$linear.predictors
@@ -83,4 +82,8 @@ boxplot.svyglm <- function(x, xlab="Group", ylab=expression(paste(X, symbol("\24
       }
     }
     survey::svyboxplot(linear.score ~ dependent.variable, design=x$survey.design, main=main, varwidth=varwidth, horizontal=horizontal, ...)
+  } else {
+    stop("'survey' package must be installed")
+  }
+  NULL
 }

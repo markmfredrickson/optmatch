@@ -43,11 +43,11 @@ test_that("ISM => nodes and arcs", {
   expect_equal(unique(res.ISM$treated), as.factor(c("D", "E")))
   expect_equal(unique(res.ISM$control), as.factor(c("A", "B", "C")))
 
-  # NA's and NaN's the same as Inf's  
+  # NA's and NaN's the same as Inf's
   mm  <- m
   mm[is.infinite(m)]  <- c(NA_real_, NaN)
   expect_equal(prepareMatching(as.InfinitySparseMatrix(mm)), res.ISM)
-  
+
 })
 
 test_that("Subproblems", {
@@ -61,8 +61,9 @@ test_that("Subproblems", {
   res.em <- subproblems(em)
   expect_equal(length(res.em), 2)
 
-  expect_true(all(sapply(res.em, function(i) {
-    validDistanceSpecification(i)})))
+  expect_true(all(vapply(res.em,
+                         validDistanceSpecification,
+                         logical(1))))
 
   m1 <- matrix(0, nrow = 2, ncol = 3,
     dimnames = list(treated = c("b", "d"), control = c("a", "c", "e")))
