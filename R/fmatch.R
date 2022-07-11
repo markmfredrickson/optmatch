@@ -1,6 +1,7 @@
 #' @importFrom rlemon MinCostFlow
 fmatch <- function(distance, max.row.units, max.col.units,
                    min.col.units = 1, f = 1, stability.increment = 1L,
+                   shared_treatment_excess = NULL,
                    solver)
 {
   # checks solver and evaluates LEMON() if neccessary
@@ -109,17 +110,22 @@ fmatch <- function(distance, max.row.units, max.col.units,
             endId,             # buffer to tend
             rep(sinkId, nc))   # c to sink
 
-  k_minus_v <- getOption("opmatch_k_v", default = (mxc * nt - round(f * nc))) # for now, not part of the interface
+  overflow_sink <- (mxc * nt - round(f * nc))
+
+  if (is.null(shared_treatment_excess)) {
+    shared_treatment_excess <- overflow_sink
+  }
+
   ucap <- c(ucap,
             rep(mxc - mnc, nt), # t to end
             rep(mxr - 1, nc),   # c to buffer
-            k_minus_v,            # buffer to end
+            shared_treatment_excess, # buffer to end
             rep(1, nc))         # c to sink
 
   # supply
   b <- c(rep(mxc, nt), # treated nodes
          rep(0, nc),   # control
-         -(mxc * nt - round(f * nc)), # end
+         -overflow_sink, # end
          -round(f * nc), # sink
          0)              # buffer)
 

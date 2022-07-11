@@ -740,3 +740,24 @@ test_that("LEMON solvers", {
 
 
 })
+
+test_that("shared_treatment_excess argument", {
+  d <- data.frame(
+    x = c(0, 0, 1, 0, 2, 3),
+    z = c(1, 1, 1, 0, 0, 0))
+  f1 <- fullmatch(z ~ x, data = d)
+  # should match T1, T2, C1 and T3, C2, C3
+  expect_equal(nlevels(f1), 2)
+  # the previous match had an excess of 1 (two treated - one set = 1)
+  # so if we set maximum excess to 0, we should get no treatment sharing controls
+  # the best match with this restriction is pairs
+  f2 <- fullmatch(z ~ x, data = d, shared_treatment_excess = 0)
+  expect_equal(nlevels(f2), 3)
+
+  ## this is not possible, future versions might want to detect failure earlier
+  ## but for now, we'll let the solver tell us it can't be done
+  d2 <- data.frame(
+    x = c(0, 0, 1, 0, 2),
+    z = c(1, 1, 1, 0, 0))
+  expect_warning(fullmatch(z ~ x, data = d2, shared_treatment_excess = 0), "Matching failed")
+})

@@ -1,5 +1,6 @@
 SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
                         max.cpt, tolerance, omit.fraction=NULL, matched.distances=FALSE,
+                        shared_treatment_excess = NULL,
                         solver)
 {
   if (min.cpt <=0 | max.cpt<=0) {
@@ -106,6 +107,7 @@ SubDivStrat <- function(rownames, colnames, distspec, min.cpt,
              max.row.units = ceiling(1/min.cpt),
              max.col.units = ceiling(max.cpt),
              min.col.units = max(1, floor(min.cpt)), f=f.ctls,
+             shared_treatment_excess = shared_treatment_excess,
              solver = solver)
 
     }
