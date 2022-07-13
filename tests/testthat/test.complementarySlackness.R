@@ -273,5 +273,13 @@ test_that("Verifying solvers get correct node prices", {
   expect_equal(primal2_relax, dual2_relax, tol = mytol)
   expect_equal(primal2_lemon, dual2_lemon, tol = mytol)
 
+  lemons <-  c("CycleCancelling", "CapacityScaling",
+                               "CostScaling", "NetworkSimplex")
+
+  for (solver in lemons) {
+    np2_solver <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = LEMON(solver))
+    mcf2_solver <- attr(np2_solver, "MCFSolutions")
+    expect_equal(evaluate_dual(npm2, mcf2_solver), dual2_lemon, label = solver, tol = mytol)
+  }
 })
 
