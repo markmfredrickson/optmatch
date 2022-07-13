@@ -161,6 +161,9 @@ fmatch <- function(distance,
                        stringsAsFactors=FALSE
                        )
             )
+
+  endID <- nt + nc + 1L
+  sinkID <- endID + 1L
     node.labels(nodes)  <- nodes[['name']] # new convention per i166
 
     if ( !all(node_info[['price']]==0) )
@@ -184,8 +187,8 @@ fmatch <- function(distance,
       data.frame(groups=factor(rep(NA_character_, nt +2L*nc)),
                  start=c(1L:(nt + nc), # ~ c(row.units, col.units)
                          nt + 1L:nc), # ~ col.units
-                 end=c(rep(nt + nc + 1L, nc + nt), # nt + nc+ 1L ~ '(_End_)'
-                       rep(nt + nc + 2L, nc) ), # nt + nc + 2L ~ '(_Sink_)'
+                 end=c(rep(endID, nc + nt),
+                       rep(sinkID, nc) ),
           flow=0L,
           capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
                  )
@@ -220,13 +223,12 @@ fmatch <- function(distance,
                                 arcCosts = c(distance[['dist']],
                                              rep(0L, nrow(bookkeeping))),
                                 nodeSupplies = nodes$supply,
-                                numNodes = as.integer(nc + nt + 2L),
+                                numNodes = nrow(nodes),
                                 algorithm = algorithm)
-
     x <- as.numeric(lout[[1]])
     nodes[, "price"] <- lout[[2]]
-    nodes[, "price"][nrow(nodes)] <- lout[[2]][nrow(nodes) - 1]
-    nodes[, "price"][nrow(nodes) - 1] <- 0
+
+    nodes[, "price"] <- (nodes[, "price"] - nodes[, "price"][endID]) * -1
   }
   if (solver == "RELAX-IV") {
     fop <- rrelaxiv::.RELAX_IV(n1=as.integer(nc + nt + 2L),
@@ -255,9 +257,9 @@ fmatch <- function(distance,
     ## from. Imposing a convention that the price of End is 0, the prices of
     ## these upstream and downstream nodes are just the opposites of the reduced
     ## costs of the arcs they begin.
-    End_rownum_in_nodes_table  <- which(nodes$name=="(_End_)")
+    End_rownum_in_nodes_table  <- endID
     stopifnot(length(End_rownum_in_nodes_table)==1)
-    is_downarc  <-  ( bookkeeping[['end']] == End_rownum_in_nodes_table )
+    is_downarc  <-  ( bookkeeping[['end']] == endID )
     downarc_redcosts  <- fop$rc1[c(rep(FALSE, narcs), is_downarc )]
     nodes[bookkeeping[['start']][ is_downarc ], "price"]  <-
       -1L * downarc_redcosts

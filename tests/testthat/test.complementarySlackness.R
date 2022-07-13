@@ -19,7 +19,7 @@ make_known_optimal <- function(flipped=FALSE) {
                      supply = c(1L, 1L, 0L, 0L, 0L, -2L),
                      groups = factor(rep("a", 6))))
     node.labels(nodes)  <- nodes[['name']]
-    
+
     arcs <- new("ArcInfo",
                 matches = data.frame(
                     groups = factor(rep("a", 2)),
@@ -87,7 +87,7 @@ make_known_optimal_fullm <- function(flipped=FALSE)
                 ),
                 bookkeeping=data.frame(
                     groups=factor("b"),
-                    start=factor(c(1, 2, 3, 4, 5, 4, 5),levels=node.labels(nodes)), 
+                    start=factor(c(1, 2, 3, 4, 5, 4, 5),levels=node.labels(nodes)),
                     end=factor(c(7, 7, 7, 7, 7, 6, 6),levels=node.labels(nodes)),
                     flow=as.integer(c(1, 1, 1, 1, 0, 1, 1)),
                     capacity=as.integer(c(1, 1, 1, 2, 2, 1, 1))
@@ -118,7 +118,7 @@ test_that("Compute primal", {
     ## 'flipped' variant
     opt.f  <- make_known_optimal(flipped=TRUE)
     expect_equal(evaluate_primal(opt.f$m, opt.f$mcf), 4)
-    
+
 })
 test_that("Compute Lagrangian", {
     opt <- make_known_optimal()
@@ -138,7 +138,7 @@ test_that("Compute Lagrangian", {
 
     ## simple f.m. problem (with both End and Sink bookkeeping nodes)
     optfm  <- make_known_optimal_fullm()
-    expect_equal(evaluate_lagrangian(optfm$m, optfm$mcf), 4)    
+    expect_equal(evaluate_lagrangian(optfm$m, optfm$mcf), 4)
     ## 'flipped' variant
     opt.f  <- make_known_optimal(flipped=TRUE)
     expect_equal(evaluate_lagrangian(opt.f$m, opt.f$mcf), 4)
@@ -147,7 +147,7 @@ test_that("Compute Lagrangian", {
 
 test_that("Compute dual functional", {
     opt <- make_known_optimal()
- 
+
     ## since the above arcs represent the optimum, the dual functional at this point should be equal to the
     ## primal objective function (ie., the sum of matched distances).
     expect_equal(evaluate_dual(opt$m, opt$mcf), 4)
@@ -164,7 +164,7 @@ test_that("Compute dual functional", {
 
     ## simple f.m. problem (with both End and Sink bookkeeping nodes)
     optfm  <- make_known_optimal_fullm()
-    expect_equal(evaluate_dual(optfm$m, optfm$mcf), 4)    
+    expect_equal(evaluate_dual(optfm$m, optfm$mcf), 4)
     ## 'flipped' variant
     opt.f  <- make_known_optimal(flipped=TRUE)
     expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 4)
@@ -204,7 +204,7 @@ test_that("Compute primal", {
 test_that("Compute Lagrangian", {
     opt <- make_known_2subprobs()
     ## since the above arcs represents the optimal, the lagrangian
-    ## at this point should be equal to the primal 
+    ## at this point should be equal to the primal
     ## objective function (ie., the sum of matched distances).
     expect_equal(evaluate_lagrangian(opt$m, opt$mcf), 8)
     ## 'flipped' variant
@@ -215,11 +215,63 @@ test_that("Compute Lagrangian", {
 test_that("Compute dual functional", {
     opt <- make_known_2subprobs()
     ## since the above arcs represents the optimal, the dual
-    ## functional at this point should be equal to the primal 
+    ## functional at this point should be equal to the primal
     ## objective function (ie., the sum of matched distances).
     expect_equal(evaluate_dual(opt$m, opt$mcf), 8)
     ## 'flipped' variant
     opt.f  <- make_known_2subprobs(flipped=c(FALSE,TRUE))
     expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 8)
+})
+
+test_that("Verifying solvers get correct node prices", {
+  mytol <- .Machine$double.eps^(1/4)
+  x <- 1:5
+  z <- c(1, 1, 0, 0, 1)
+  units <- paste0("u", 1:5)
+  names(x) <- names(z) <- units
+  df <- data.frame(x, z)
+  mm <- match_on(z ~ x, data = df)
+
+  mmm <- as.matrix(mm)
+  min_dist <- sum(mmm[1:2, 1]) + mm[3, 2]
+
+  match_relax <- fullmatch(mm, data = df, solver = "RELAX-IV")
+  match_lemon <- fullmatch(mm, data = df, solver = "LEMON")
+  mcfs_relax <- attr(match_relax, "MCFSolutions")
+  mcfs_lemon <- attr(match_lemon, "MCFSolutions")
+
+  expect_equal(evaluate_primal(mm, mcfs_relax), min_dist)
+  expect_equal(evaluate_primal(mm, mcfs_lemon), min_dist)
+
+  expect_equal(evaluate_dual(mm, mcfs_relax), min_dist, tolerance = mytol)
+  expect_equal(evaluate_dual(mm, mcfs_lemon), min_dist)
+
+  ## some examples from the nuclearplants data set
+
+  data(nuclearplants)
+  npm <- match_on(pt ~ . - pt, data = nuclearplants)
+  np_relax <- fullmatch(npm, data = nuclearplants, solver = "RELAX-IV")
+  np_lemon <- fullmatch(npm, data = nuclearplants, solver = "LEMON")
+  primal_relax <- evaluate_primal(npm, attr(np_relax, "MCFSolutions"))
+  primal_lemon <- evaluate_primal(npm, attr(np_lemon, "MCFSolutions"))
+  dual_relax <- evaluate_dual(npm, attr(np_relax, "MCFSolutions"))
+  dual_lemon <- evaluate_dual(npm, attr(np_lemon, "MCFSolutions"))
+
+  expect_equal(primal_relax, primal_lemon, tol = mytol)
+  expect_equal(primal_relax, dual_relax, tol = mytol)
+  expect_equal(primal_lemon, dual_lemon, tol = mytol)
+
+  npm2 <- match_on(pr ~ cost + t1, data = nuclearplants)
+  np2_relax <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = "RELAX-IV")
+  np2_lemon <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = "LEMON")
+  primal2_relax <- evaluate_primal(npm2, attr(np2_relax, "MCFSolutions"))
+  primal2_lemon <- evaluate_primal(npm2, attr(np2_lemon, "MCFSolutions"))
+  dual2_relax <- evaluate_dual(npm2, attr(np2_relax, "MCFSolutions"))
+  dual2_lemon <- evaluate_dual(npm2, attr(np2_lemon, "MCFSolutions"))
+
+  expect_equal(primal2_relax, primal2_lemon, tol = mytol)
+  expect_equal(primal2_relax, dual2_relax, tol = mytol)
+  expect_equal(primal2_lemon, dual2_lemon, tol = mytol)
+
 })
 
