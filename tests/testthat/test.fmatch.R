@@ -179,15 +179,17 @@ test_that("LEMON solvers", {
   f_netwo <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
                     solver = LEMON("NetworkSimplex"))
 
-  expect_identical(f_lemon, f_cycle)
-  expect_identical(f_lemon, f_capac)
-  expect_identical(f_lemon, f_costs)
-  expect_identical(f_lemon, f_netwo)
+  ## other aspects, like node prices, might not be identical,
+  ## even if they lead to the same solution
+  expect_identical(f_lemon$solution, f_cycle$solution)
+  expect_identical(f_lemon$solution, f_capac$solution)
+  expect_identical(f_lemon$solution, f_costs$solution)
+  expect_identical(f_lemon$solution, f_netwo$solution)
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
     f_relax <- fmatch(pm, 2, 2, node_info=pairmatch_nodeinfo(pm),
                       solver = "RELAX-IV")
-    expect_identical(f_relax, f_lemon)
+    expect_identical(f_relax$solution, f_lemon$solution)
   }
 
 })
