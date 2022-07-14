@@ -223,6 +223,8 @@ test_that("Compute dual functional", {
     expect_equal(evaluate_dual(opt.f$m, opt.f$mcf), 8)
 })
 
+context("Solvers give back optimal solutions")
+
 test_that("Verifying solvers get correct node prices", {
   mytol <- .Machine$double.eps^(1/4)
   x <- 1:5
@@ -281,5 +283,28 @@ test_that("Verifying solvers get correct node prices", {
     mcf2_solver <- attr(np2_solver, "MCFSolutions")
     expect_equal(evaluate_dual(npm2, mcf2_solver), dual2_lemon, label = solver, tol = mytol)
   }
+
+  # this data frme is just to silence some warnings from fullmatch
+  d <- data.frame(rep(1, 6))
+  rownames(d) <- LETTERS[1:6]
+
+  # this little example was leading to different prices right out of fmatch
+  v <- c(1, Inf, 2,
+         2, 1, Inf,
+         3, 2, 1)
+  m <- matrix(v, nrow = 3, ncol = 3)
+  colnames(m) <- c("A", "B", "C")
+  rownames(m) <- c("D", "E", "F")
+  mm <- as.InfinitySparseMatrix(m)
+  mm_lemon <- fullmatch(mm, data = d)
+  mm_mcfs  <- attr(mm_lemon, "MCFSolutions")
+  mm_dual <- evaluate_dual(mm, mm_mcfs)
+
+  for (solver in lemons) {
+    np2_solver <- fullmatch(mm, solver = LEMON(solver), data = d)
+    mcf2_solver <- attr(np2_solver, "MCFSolutions")
+    expect_equal(evaluate_dual(mm, mcf2_solver), mm_dual, label = solver, tol = mytol)
+  }
+
 })
 

@@ -3,28 +3,7 @@
 ################################################################################
 
 context("pairmatch function")
-
-# test whether two matches are the same. Uses all.equal on exceedances
-# to ignore errors below some tolerance. After checking those, strips
-# attributes that may differ but not break `identical` status.
-match_equal <- function(match1, match2, ignore.solver = TRUE) {
-  expect_true(all.equal(attr(match1, "exceedances"),
-                        attr(match2, "exceedances")))
-
-  attr(match1, "hashed.distance") <- NULL
-  attr(match2, "hashed.distance") <- NULL
-  attr(match1, "exceedances") <- NULL
-  attr(match2, "exceedances") <- NULL
-  attr(match1, "call") <- NULL
-  attr(match2, "call") <- NULL
-  if (!ignore.solver) {
-    attr(match1, "solver") <- NULL
-    attr(match2, "solver") <- NULL
-  }
-
-  expect_true(identical(match1, match2))
-}
-
+source("utilities.R")
 
 test_that("No cross strata matches", {
   # test data
@@ -413,14 +392,14 @@ test_that('Hints accepted',{
                      x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
   mo  <- match_on(z ~ x, data=data)
   p1a <- pairmatch(mo, data = data, tol=0.1)
-  expect_is(attr(p1a, "MCFSolutions"), "FullmatchMCFSolutions")  
+  expect_is(attr(p1a, "MCFSolutions"), "FullmatchMCFSolutions")
   expect_silent(pairmatch(mo, data = data, tol=0.0001, hint=p1a))
   mos <- match_on(z ~ x + strata(fac), data=data)
   p1b <- pairmatch(mos, data = data, tol=0.1)
   expect_is(attr(p1b, "MCFSolutions"), "FullmatchMCFSolutions")
   expect_warning(pairmatch(mos, data = data, tol=0.0001, hint=p1a) , "ignoring")
   expect_silent(pairmatch(mos, data = data, tol=0.0001, hint=p1b))
-})  
+})
 test_that("If matching fails, we should give a warning", {
   m <- match_on(pr ~ cost, data = nuclearplants)
   # One subproblem, matching fails
@@ -455,17 +434,17 @@ test_that("LEMON solvers", {
                   solver = LEMON("CostScaling"))
   p6 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
                   solver = LEMON("NetworkSimplex"))
-
-  match_equal(p1, p2, ignore.solver = FALSE)
-  match_equal(p1, p3, ignore.solver = FALSE)
-  match_equal(p1, p4, ignore.solver = FALSE)
-  match_equal(p1, p5, ignore.solver = FALSE)
-  match_equal(p1, p6, ignore.solver = FALSE)
+  mytol <- .Machine$double.eps^(1/4)
+  match_equal(p1, p2, ignore.solver = FALSE, tol = mytol)
+  match_equal(p1, p3, ignore.solver = FALSE, tol = mytol)
+  match_equal(p1, p4, ignore.solver = FALSE, tol = mytol)
+  match_equal(p1, p5, ignore.solver = FALSE, tol = mytol)
+  match_equal(p1, p6, ignore.solver = FALSE, tol = mytol)
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
     p7 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
                     solver = "RELAX-IV")
-    match_equal(p1, p7, ignore.solver = FALSE)
+    match_equal(p1, p7, ignore.solver = FALSE, tol = mytol)
   }
 
 
