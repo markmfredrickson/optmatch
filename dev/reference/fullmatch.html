@@ -4,7 +4,7 @@ creating a treatment-by-control discrepancy matrix indicating desirability and
 permissibility of potential matches (or optionally an already created such
 discrepancy matrix), create optimal full matches of members of the groups.
 Optionally, incorporate restrictions on matched sets' ratios of treatment to
-control units."><title>Optimal full matching — fullmatch • optmatch</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Optimal full matching — fullmatch"><meta property="og:description" content="Given two groups, such as a treatment and a control group, and a method of
+control units."><title>Optimal full matching — fullmatch • optmatch</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Optimal full matching — fullmatch"><meta property="og:description" content="Given two groups, such as a treatment and a control group, and a method of
 creating a treatment-by-control discrepancy matrix indicating desirability and
 permissibility of potential matches (or optionally an already created such
 discrepancy matrix), create optimal full matches of members of the groups.
@@ -74,29 +74,29 @@ control units.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fullmatch</span><span class="op">(</span>
-  <span class="va">x</span>,
-  min.controls <span class="op">=</span> <span class="fl">0</span>,
-  max.controls <span class="op">=</span> <span class="cn">Inf</span>,
-  omit.fraction <span class="op">=</span> <span class="cn">NULL</span>,
-  mean.controls <span class="op">=</span> <span class="cn">NULL</span>,
-  tol <span class="op">=</span> <span class="fl">0.001</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  solver <span class="op">=</span> <span class="st">""</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">full</span><span class="op">(</span>
-  <span class="va">x</span>,
-  min.controls <span class="op">=</span> <span class="fl">0</span>,
-  max.controls <span class="op">=</span> <span class="cn">Inf</span>,
-  omit.fraction <span class="op">=</span> <span class="cn">NULL</span>,
-  mean.controls <span class="op">=</span> <span class="cn">NULL</span>,
-  tol <span class="op">=</span> <span class="fl">0.001</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  solver <span class="op">=</span> <span class="st">""</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fullmatch</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  min.controls <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  max.controls <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  omit.fraction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mean.controls <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tol <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  solver <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">full</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  min.controls <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  max.controls <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  omit.fraction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mean.controls <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tol <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  solver <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -112,6 +112,8 @@ non-negative discrepancies, each indicating the permissibility and
 desirability of matching the unit corresponding to its row (a 'treatment') to
 the unit corresponding to its column (a 'control'); or, better, a distance
 specification as produced by <code><a href="match_on-methods.html">match_on</a></code>.</p></dd>
+
+
 <dt>min.controls</dt>
 <dd><p>The minimum ratio of controls to treatments that is to
 be permitted within a matched set: should be non-negative and finite.  If
@@ -123,6 +125,8 @@ reciprocal of a whole number.</p>
 separately specifying the minimum permissible ratio of controls to treatments
 for each subclass.  The names of this vector should include names of all
 subproblems <code>distance</code>.</p></dd>
+
+
 <dt>max.controls</dt>
 <dd><p>The maximum ratio of controls to treatments that is
 to be permitted within a matched set: should be positive and numeric.
@@ -133,6 +137,8 @@ nearest whole number or reciprocal of a whole number.</p>
 <code><a href="exactMatch.html">exactMatch</a></code>), <code>max.controls</code> may be a named numeric vector
 separately specifying the maximum permissible ratio of controls to treatments
 in each subclass.</p></dd>
+
+
 <dt>omit.fraction</dt>
 <dd><p>Optionally, specify what fraction of controls or treated
 subjects are to be rejected.  If <code>omit.fraction</code> is a positive fraction
@@ -150,6 +156,8 @@ controls to be rejected in each subproblem, a parameter that can be made to
 differ by subclass by setting <code>omit.fraction</code> equal to a named numeric
 vector of fractions.</p>
 <p>At most one of <code>mean.controls</code> and <code>omit.fraction</code> can be non-<code>NULL</code>.</p></dd>
+
+
 <dt>mean.controls</dt>
 <dd><p>Optionally, specify the average number of controls per
 treatment to be matched. Must be no less than than <code>min.controls</code> and no
@@ -165,6 +173,8 @@ controls per treatment per subproblem, a parameter that can be made to
 differ by subclass by setting <code>mean.controls</code> equal to a named numeric
 vector.</p>
 <p>At most one of <code>mean.controls</code> and <code>omit.fraction</code> can be non-<code>NULL</code>.</p></dd>
+
+
 <dt>tol</dt>
 <dd><p>Because of internal rounding, <code>fullmatch</code> may
 solve a slightly different matching problem than the one
@@ -176,6 +186,8 @@ which <code>fullmatch</code>'s output is permitted to differ from an
 optimal solution to the original problem, as measured by the
 sum of discrepancies for all treatments and controls placed
 into the same matched sets.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Optional <code>data.frame</code> or <code>vector</code> to use to get order
 of the final matching factor. If a <code>data.frame</code>, the <code>rownames</code>
@@ -183,6 +195,8 @@ are used. If a vector, the <code>names</code> are first tried, otherwise the con
 is considered to be a character vector of names. Useful to pass if you want to
 combine a match (using, e.g., <code>cbind</code>) with the data that were used to
 generate it (for example, in a propensity score matching).</p></dd>
+
+
 <dt>solver</dt>
 <dd><p>Choose which solver to use. Currently implemented are RELAX-IV
   and LEMON. Default of <code>""</code>, a blank string, will use RELAX-IV if the
@@ -201,13 +215,18 @@ other LEMON algorithms to produce different results when the
 an infeasible matching problem. When using a LEMON algorithm other than
 CycleCancelling, we recommend setting the <code>fullmatch_try_recovery</code>
 option to <code>FALSE</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments, passed to <code>match_on</code> (e.g. <code>within</code>)
 or to specific methods.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="optmatch.html">optmatch</a></code> object (<code>factor</code>) indicating matched groups.</p>
+    
+
+<p>A <code><a href="optmatch.html">optmatch</a></code> object (<code>factor</code>) indicating matched groups.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -265,65 +284,65 @@ computation time). To check the large problem threshold, use
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">### Full matching on a Mahalanobis distance.</span></span>
-<span class="r-in"><span class="op">(</span> <span class="va">fm1</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">### Full matching on a Mahalanobis distance.</span></span></span>
+<span class="r-in"><span><span class="op">(</span> <span class="va">fm1</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.3  1.3  1.8  1.8  1.3  1.5  1.3  1.9 1.10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.3  1.6  1.3  1.3  1.3  1.8  1.9 1.10 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm1</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Structure of matched sets:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:1  1:2  1:3 1:5+ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    7    1    1    1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Effective Sample Size:  11.7 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (equivalent number of matched pairs).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Full matching with restrictions.</span></span>
-<span class="r-in"><span class="op">(</span> <span class="va">fm2</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, min.controls <span class="op">=</span> <span class="fl">.5</span>, max.controls <span class="op">=</span> <span class="fl">4</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Full matching with restrictions.</span></span></span>
+<span class="r-in"><span><span class="op">(</span> <span class="va">fm2</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, min.controls <span class="op">=</span> <span class="fl">.5</span>, max.controls <span class="op">=</span> <span class="fl">4</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.3  1.1  1.1  1.8  1.2  1.3  1.3  1.5  1.3  1.8  1.8  1.3  1.5  1.5  1.9  1.8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7  1.7  1.6  1.9 1.10  1.9  1.8  1.9 1.10 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm2</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Structure of matched sets:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:1 1:2 1:3 1:4 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   5   1   1   3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Effective Sample Size:  12.6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (equivalent number of matched pairs).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Full matching to half of available controls.</span></span>
-<span class="r-in"><span class="op">(</span> <span class="va">fm3</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, omit.fraction <span class="op">=</span> <span class="fl">.5</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Full matching to half of available controls.</span></span></span>
+<span class="r-in"><span><span class="op">(</span> <span class="va">fm3</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, omit.fraction <span class="op">=</span> <span class="fl">.5</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.1  1.1 1.10  1.2 &lt;NA&gt; &lt;NA&gt;  1.3  1.3  1.8 &lt;NA&gt; &lt;NA&gt;  1.5 &lt;NA&gt;  1.9 &lt;NA&gt; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 &lt;NA&gt;  1.6 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.8  1.9 1.10 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm3</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Structure of matched sets:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:1 1:2 0:1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   9   1  11 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Effective Sample Size:  10.3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (equivalent number of matched pairs).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Full matching attempts recovery when the initial restrictions are infeasible.</span></span>
-<span class="r-in"><span class="co">### Limiting max.controls = 1 allows use of only 10 of 22 controls.</span></span>
-<span class="r-in"><span class="op">(</span> <span class="va">fm4</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, max.controls <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Full matching attempts recovery when the initial restrictions are infeasible.</span></span></span>
+<span class="r-in"><span><span class="co">### Limiting max.controls = 1 allows use of only 10 of 22 controls.</span></span></span>
+<span class="r-in"><span><span class="op">(</span> <span class="va">fm4</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, max.controls <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.1  1.1 1.10  1.2 &lt;NA&gt; &lt;NA&gt;  1.3  1.3  1.8 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.9 &lt;NA&gt; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.7  1.4  1.4  1.5  1.2  1.6  1.5  1.7 &lt;NA&gt;  1.6 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.8  1.9 1.10 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm4</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Structure of matched sets:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:1 0:1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  10  12 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Effective Sample Size:  10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (equivalent number of matched pairs).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="co">### To recover restrictions</span></span>
-<span class="r-in"><span class="fu"><a href="optmatch_restrictions.html">optmatch_restrictions</a></span><span class="op">(</span><span class="va">fm4</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co">### To recover restrictions</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="optmatch_restrictions.html">optmatch_restrictions</a></span><span class="op">(</span><span class="va">fm4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $min.controls</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -333,27 +352,27 @@ computation time). To check the large problem threshold, use
 <span class="r-out co"><span class="r-pr">#&gt;</span> $omit.fraction</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5454545</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Full matching within a propensity score caliper.</span></span>
-<span class="r-in"><span class="va">ppty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="op">(</span><span class="va">pr</span> <span class="op">+</span> <span class="va">cost</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">### Note that units without counterparts within the caliper are automatically dropped.</span></span>
-<span class="r-in"><span class="co">### For more complicated models, create a distance matrix and pass it to fullmatch.</span></span>
-<span class="r-in"><span class="va">mhd</span> <span class="op">&lt;-</span> <span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="caliper-methods.html">caliper</a></span><span class="op">(</span><span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">ppty</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">(</span> <span class="va">fm5</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">mhd</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Full matching within a propensity score caliper.</span></span></span>
+<span class="r-in"><span><span class="va">ppty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="op">(</span><span class="va">pr</span> <span class="op">+</span> <span class="va">cost</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">### Note that units without counterparts within the caliper are automatically dropped.</span></span></span>
+<span class="r-in"><span><span class="co">### For more complicated models, create a distance matrix and pass it to fullmatch.</span></span></span>
+<span class="r-in"><span><span class="va">mhd</span> <span class="op">&lt;-</span> <span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="caliper-methods.html">caliper</a></span><span class="op">(</span><span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">ppty</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">(</span> <span class="va">fm5</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">mhd</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.9 &lt;NA&gt;  1.2  1.1 &lt;NA&gt; &lt;NA&gt;  1.2  1.2  1.2  1.2 &lt;NA&gt;  1.2  1.2  1.4  1.1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1.5  1.3  1.3  1.4  1.2  1.5  1.2  1.5 &lt;NA&gt;  1.4  1.7 &lt;NA&gt;  1.2  1.7  1.3  1.9 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm5</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Structure of matched sets:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:0  2:1  1:1  1:2 1:5+  0:1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1    2    3    1    1    6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Effective Sample Size:  8.8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (equivalent number of matched pairs).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Propensity balance assessment. Requires RItools package.</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm5</span>,<span class="va">ppty</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Propensity balance assessment. Requires RItools package.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm5</span>,<span class="va">ppty</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: RItools</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: SparseM</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -370,11 +389,11 @@ computation time). To check the large problem threshold, use
 <span class="r-out co"><span class="r-pr">#&gt;</span> Balance test overall result:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   chisquare df p.value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        7.93  9   0.542</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### The order of the names in the match factor is the same</span></span>
-<span class="r-in"><span class="co">### as the nuclearplants data.frame since we used the data argument</span></span>
-<span class="r-in"><span class="co">### when calling fullmatch. The order would be unspecified otherwise.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">nuclearplants</span>, matches <span class="op">=</span> <span class="va">fm5</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### The order of the names in the match factor is the same</span></span></span>
+<span class="r-in"><span><span class="co">### as the nuclearplants data.frame since we used the data argument</span></span></span>
+<span class="r-in"><span><span class="co">### when calling fullmatch. The order would be unspecified otherwise.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">nuclearplants</span>, matches <span class="op">=</span> <span class="va">fm5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     cost  date t1 t2  cap pr ne ct bw cum.n pt matches</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> H 460.05 68.58 14 46  687  0  1  0  0    14  0    &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> I 452.99 67.33 10 73 1065  0  0  1  0     1  0     1.9</span>
@@ -408,24 +427,24 @@ computation time). To check the large problem threshold, use
 <span class="r-out co"><span class="r-pr">#&gt;</span> a 280.36 67.83 12 71  886  1  0  0  1    11  1     1.7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> b 217.38 67.25 13 72  745  1  0  0  0     8  1     1.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c 270.71 67.83  7 80  886  1  0  0  1    11  1     1.9</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Match in subgroups only. There are a few ways to specify this.</span></span>
-<span class="r-in"><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span>
-<span class="r-in">                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="fu"><a href="strata.html">strata</a></span><span class="op">(</span><span class="va">pt</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">### Matching on propensity scores within matching in subgroups only:</span></span>
-<span class="r-in"><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data<span class="op">=</span><span class="va">nuclearplants</span>, family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>,</span>
-<span class="r-in">                data<span class="op">=</span><span class="va">nuclearplants</span>,</span>
-<span class="r-in">                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">m4</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span>
-<span class="r-in">                    family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>,</span>
-<span class="r-in">                data<span class="op">=</span><span class="va">nuclearplants</span>,</span>
-<span class="r-in">                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">m5</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="fu"><a href="strata.html">strata</a></span><span class="op">(</span><span class="va">pt</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span>
-<span class="r-in">                    family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># Including `strata(foo)` inside a glm uses `foo` in the model as</span></span>
-<span class="r-in"><span class="co"># well, so here m4 and m5 are equivalent. m3 differs in that it does</span></span>
-<span class="r-in"><span class="co"># not include `pt` in the glm.</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Match in subgroups only. There are a few ways to specify this.</span></span></span>
+<span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span></span>
+<span class="r-in"><span>                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="fu"><a href="strata.html">strata</a></span><span class="op">(</span><span class="va">pt</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">### Matching on propensity scores within matching in subgroups only:</span></span></span>
+<span class="r-in"><span><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span>, data<span class="op">=</span><span class="va">nuclearplants</span>, family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                data<span class="op">=</span><span class="va">nuclearplants</span>,</span></span>
+<span class="r-in"><span>                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m4</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span></span>
+<span class="r-in"><span>                    family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                data<span class="op">=</span><span class="va">nuclearplants</span>,</span></span>
+<span class="r-in"><span>                within<span class="op">=</span><span class="fu"><a href="exactMatch.html">exactMatch</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m5</span> <span class="op">&lt;-</span> <span class="fu">fullmatch</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="fu"><a href="strata.html">strata</a></span><span class="op">(</span><span class="va">pt</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span>,</span></span>
+<span class="r-in"><span>                    family<span class="op">=</span><span class="va">binomial</span><span class="op">)</span>, data<span class="op">=</span><span class="va">nuclearplants</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Including `strata(foo)` inside a glm uses `foo` in the model as</span></span></span>
+<span class="r-in"><span><span class="co"># well, so here m4 and m5 are equivalent. m3 differs in that it does</span></span></span>
+<span class="r-in"><span><span class="co"># not include `pt` in the glm.</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -437,7 +456,7 @@ computation time). To check the large problem threshold, use
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>
