@@ -229,6 +229,10 @@ fmatch <- function(distance,
     nodes[, "price"] <- lout[[2]]
 
     nodes[, "price"] <- (nodes[, "price"] - nodes[, "price"][endID]) * -1
+
+    if (lout[[4]] != "OPTIMAL" || all(x == -1)) {
+      x <- integer(length(x)) # fill a vector with zeros
+    }
   }
   if (solver == "RELAX-IV") {
     fop <- rrelaxiv::.RELAX_IV(n1=as.integer(nc + nt + 2L),
@@ -246,7 +250,7 @@ fmatch <- function(distance,
 
     ## Material used to create s3 optmatch object:
     feas <- fop$feasible1
-    x <- feas * fop$x1 - (1 - feas)
+    x <- feas * fop$x1
 
     #### Recover node prices, store in nodes table ##
     ## In full matching, each upstream (row) or downstream (column) node starts
