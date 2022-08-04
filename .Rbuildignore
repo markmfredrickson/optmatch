@@ -7,6 +7,7 @@ check.R
 ^data-raw$
 .pkgexclude
 vignettes/Sweave.sty
+vignettes/MCFSolutions.Rmd
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
