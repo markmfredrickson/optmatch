@@ -42,6 +42,7 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/MCFSolutions.html">Classes and methods for min-cost flow solutions</a>
     <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
@@ -544,7 +545,7 @@
 ## strata(ps.pm2)NA                  0.0     0.5      -1   -3  
 ## ---Overall Test---
 ##         chisquare df p.value
-## unstrat        13 18     0.8</code></pre>
+## unstrat        14 18     0.7</code></pre>
 <p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> loaded, then this will call <code>xBalance</code> in the background, reporting the summary chi-square test results.</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm2, psm)</span>
 <span id="cb34-2"><a href="#cb34-2"></a><span class="co">## Structure of matched sets:</span></span>
@@ -555,7 +556,7 @@
 <span id="cb34-7"><a href="#cb34-7"></a><span class="co">## </span></span>
 <span id="cb34-8"><a href="#cb34-8"></a><span class="co">## Balance test overall result:</span></span>
 <span id="cb34-9"><a href="#cb34-9"></a><span class="co">##   chisquare df p.value</span></span>
-<span id="cb34-10"><a href="#cb34-10"></a><span class="co">##        9.96  9   0.354</span></span></code></pre></div>
+<span id="cb34-10"><a href="#cb34-10"></a><span class="co">##        9.48  9   0.394</span></span></code></pre></div>
 <p><strong>Exercise.</strong></p>
 <p>Try out {at least 3} different combinations of propensity score and Mahalanobis matching. Identify the matches that gives:</p>
 <ol style="list-style-type: decimal">
@@ -584,9 +585,9 @@
 <p>This is a common and useful operation, and <strong>optmatch</strong> is designed to help you do it via a <code>strata</code> term in the matching formula.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm), <span class="dt">data=</span>nuclearplants)</span>
 <span id="cb36-2"><a href="#cb36-2"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
-<span id="cb36-3"><a href="#cb36-3"></a><span class="co">## &lt;NA&gt;  1.2  1.2 &lt;NA&gt;  1.4 &lt;NA&gt; &lt;NA&gt;  1.7  1.6  1.6 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.4 &lt;NA&gt;  1.1 </span></span>
+<span id="cb36-3"><a href="#cb36-3"></a><span class="co">## &lt;NA&gt;  1.1  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; &lt;NA&gt;  1.4  1.3  1.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.2 &lt;NA&gt;  1.8 </span></span>
 <span id="cb36-4"><a href="#cb36-4"></a><span class="co">##    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span></span>
-<span id="cb36-5"><a href="#cb36-5"></a><span class="co">## 1.10  1.7  1.8  1.8 &lt;NA&gt;  1.9  1.9 1.10 &lt;NA&gt; &lt;NA&gt;  1.3 &lt;NA&gt;  1.5  1.1  1.3  1.5</span></span>
+<span id="cb36-5"><a href="#cb36-5"></a><span class="co">##  1.7  1.4  1.5  1.5 &lt;NA&gt;  1.6  1.6  1.7 &lt;NA&gt; &lt;NA&gt;  1.9 &lt;NA&gt; 1.10  1.8  1.9 1.10</span></span>
 <span id="cb36-6"><a href="#cb36-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm) <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(pt), <span class="dt">data=</span>nuclearplants)</span>
 <span id="cb36-7"><a href="#cb36-7"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
 <span id="cb36-8"><a href="#cb36-8"></a><span class="co">## &lt;NA&gt;  0.1  0.1 &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt;  0.4  0.3  0.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt; </span></span>

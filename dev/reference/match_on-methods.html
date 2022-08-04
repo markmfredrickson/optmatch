@@ -44,6 +44,7 @@ in much the same way as dense matrices."><meta name="robots" content="noindex"><
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/MCFSolutions.html">Classes and methods for min-cost flow solutions</a>
     <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
@@ -438,7 +439,7 @@ matches involving them are forbidden.)</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   H   I   A   J   B   K   L   M   C   N   O   P   Q   R   S   T   U   D   V   E </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.5 0.1 0.3 0.2 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.5 0.3 0.2 0.1 0.1 0.5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   W   F   X   G   Y   Z   d   e   f   a   b   c </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.1 0.3 0.2 0.3 0.3 1.2 1.3 1.1 1.1 1.2 1.3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.1 0.3 0.2 0.3 0.3 1.2 1.1 1.3 1.1 1.2 1.3 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### Propensity score matching with a propensity score caliper:</span></span></span>
 <span class="r-in"><span><span class="va">match_on.examples</span><span class="op">$</span><span class="va">pscal</span> <span class="op">&lt;-</span> <span class="va">match_on.examples</span><span class="op">$</span><span class="va">ps1</span> <span class="op">+</span> <span class="fu"><a href="caliper-methods.html">caliper</a></span><span class="op">(</span><span class="va">match_on.examples</span><span class="op">$</span><span class="va">ps1</span>, <span class="fl">1</span><span class="op">)</span></span></span>

@@ -7,6 +7,9 @@
     <loc>https://markmfredrickson.github.io/optmatch/dev/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/MCFSolutions.html</loc>
+  </url>
+  <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/articles/fullmatch-vignette.html</loc>
   </url>
   <url>
@@ -73,7 +76,13 @@
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/distUnion.html</loc>
   </url>
   <url>
+    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/edgelist.html</loc>
+  </url>
+  <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/effectiveSampleSize.html</loc>
+  </url>
+  <url>
+    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/evaluate_primal.html</loc>
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/exactMatch.html</loc>
@@ -124,6 +133,9 @@
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/maxCaliper.html</loc>
   </url>
   <url>
+    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/mcf_c_fns.html</loc>
+  </url>
+  <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/mdist.html</loc>
   </url>
   <url>
@@ -167,6 +179,9 @@
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/print.optmatch.html</loc>
+  </url>
+  <url>
+    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/revise_ArcInfo_nodelabels.html</loc>
   </url>
   <url>
     <loc>https://markmfredrickson.github.io/optmatch/dev/reference/scoreCaliper.html</loc>
