@@ -462,7 +462,6 @@ update.NodeInfo  <- function(old, new, ...)
     old
 }
 ##* `dplyr::filter()` method for NodeInfo's.
-##' @export
 filter.NodeInfo  <- function(.data, ...) {
     x  <- as(.data, "tbl_df")
     ans  <- filter(x, ...)
