@@ -76,7 +76,7 @@
       <img src="" class="logo" alt=""><h1>Matching in R using the optmatch and RItools packages</h1>
                         <h4 data-toc-skip class="author">Ben B. Hansen, Mark Fredrickson, Josh Errickson, and Josh Buckner</h4>
             
-            <h4 data-toc-skip class="date">2022-07-17</h4>
+            <h4 data-toc-skip class="date">2022-08-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/markmfredrickson/optmatch/blob/HEAD/vignettes/fullmatch-vignette.Rmd" class="external-link"><code>vignettes/fullmatch-vignette.Rmd</code></a></small>
       <div class="d-none name"><code>fullmatch-vignette.Rmd</code></div>
@@ -390,11 +390,11 @@
 <p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package’s <code>xBalance</code> function zeroes in on balance, and facilitates checking balance on multiple variables at the same time. Here are some examples:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="op">&gt;</span><span class="st"> </span></span>
 <span id="cb23-2"><a href="#cb23-2"></a><span class="er">&gt;</span><span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>t2, <span class="dt">report=</span><span class="st">"all"</span>, <span class="dt">data=</span>nuke.nopt)</span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="co">##      strata unstrat                                                           </span></span>
-<span id="cb23-4"><a href="#cb23-4"></a><span class="co">##      stat      pr=0    pr=1 adj.diff adj.diff.null.sd std.diff    z           </span></span>
-<span id="cb23-5"><a href="#cb23-5"></a><span class="co">## vars                                                                          </span></span>
-<span id="cb23-6"><a href="#cb23-6"></a><span class="co">## cap         803.263 883.000  79.737           92.220   0.380   0.865          </span></span>
-<span id="cb23-7"><a href="#cb23-7"></a><span class="co">## t2          59.526  66.857   7.331            4.547    0.738   1.612          </span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="co">##      strata():   unstrat                                        </span></span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="co">##      stat      Treatment Control adj.diff std.diff    z         </span></span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="co">## vars                                                            </span></span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="co">## cap                883     803       79.7    0.38    0.86       </span></span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="co">## t2                 66.9    59.5      7.33    0.74    1.61       </span></span>
 <span id="cb23-8"><a href="#cb23-8"></a><span class="co">## ---Overall Test---</span></span>
 <span id="cb23-9"><a href="#cb23-9"></a><span class="co">##         chisquare df p.value</span></span>
 <span id="cb23-10"><a href="#cb23-10"></a><span class="co">## unstrat      2.71  2   0.258</span></span>
@@ -404,11 +404,11 @@
 <span id="cb23-14"><a href="#cb23-14"></a><span class="op">+</span><span class="st">          </span><span class="dt">strata=</span> pm,</span>
 <span id="cb23-15"><a href="#cb23-15"></a><span class="op">+</span><span class="st">          </span><span class="dt">data=</span>nuke.nopt,</span>
 <span id="cb23-16"><a href="#cb23-16"></a><span class="op">+</span><span class="st">          </span><span class="dt">report=</span><span class="kw">c</span>(<span class="st">"adj.mean.diffs"</span>, <span class="st">"std"</span>, <span class="st">"z"</span>))</span>
-<span id="cb23-17"><a href="#cb23-17"></a><span class="co">##      strata    strat                         </span></span>
-<span id="cb23-18"><a href="#cb23-18"></a><span class="co">##      stat   adj.diff std.diff    z           </span></span>
-<span id="cb23-19"><a href="#cb23-19"></a><span class="co">## vars                                         </span></span>
-<span id="cb23-20"><a href="#cb23-20"></a><span class="co">## cap          1.71429  0.00818 0.35698        </span></span>
-<span id="cb23-21"><a href="#cb23-21"></a><span class="co">## t2           4.71429  0.47444 1.16892</span></span></code></pre></div>
+<span id="cb23-17"><a href="#cb23-17"></a><span class="co">##      strata():    strat              </span></span>
+<span id="cb23-18"><a href="#cb23-18"></a><span class="co">##      stat      adj.diff std.diff    z</span></span>
+<span id="cb23-19"><a href="#cb23-19"></a><span class="co">## vars                                 </span></span>
+<span id="cb23-20"><a href="#cb23-20"></a><span class="co">## cap                1.71     0.01 0.36</span></span>
+<span id="cb23-21"><a href="#cb23-21"></a><span class="co">## t2                 4.71     0.47 1.17</span></span></code></pre></div>
 <p><strong>Exercises.</strong></p>
 <ol style="list-style-type: decimal">
 <li>Compare <code>pm</code>, <code>tm</code> and the unmatched samples in terms of balance on <code>t2</code>.</li>
@@ -521,23 +521,30 @@
 <p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-36-1.png" width="480"></p>
 <pre><code>## NULL
 &gt; print(myb, digits=1)
-##       strata  Unadj                                ps.pm2                               
-##       stat     pr=0   pr=1 std.diff    z             pr=0   pr=1 std.diff    z          
-## vars                                                                                    
-## date         68.62  68.50    -0.11   -0.31         68.68  68.50    -0.18   -0.29        
-## t1           13.64  14.00    0.11    0.28          14.30  14.00    -0.09   -0.15        
-## t2           59.32  69.10    1.03    2.47   *      62.60  69.10    0.69    1.39         
-## cap          805.18 869.80   0.34    0.89          889.60 869.80   -0.10   -0.28        
-## ne           0.27   0.20     -0.16   -0.43         0.10   0.20     0.22    0.58         
-## ct           0.45   0.30     -0.31   -0.81         0.20   0.30     0.20    0.45         
-## bw           0.18   0.20     0.05    0.12          0.20   0.20     0.00    0.00         
-## cum.n        8.73   8.10     -0.10   -0.26         8.60   8.10     -0.08   -0.22        
+##                    strata():   unstrat                      
+##                    stat      Treatment Control std.diff    z
+## vars                                                        
+## date                              69      69        0    0  
+## t1                                14      14        0    0  
+## t2                                69      59        1    2  
+## cap                               870     805       0    1  
+## ne                                0.2     0.3       0    0  
+## ct                                0.3     0.5       0   -1  
+## bw                                0.2     0.2       0    0  
+## cum.n                             8       9         0    0  
+## strata(ps.pm2)1.10                0.10    0.05      0    1  
+## strata(ps.pm2)1.2                 0.10    0.05      0    1  
+## strata(ps.pm2)1.3                 0.10    0.05      0    1  
+## strata(ps.pm2)1.4                 0.10    0.05      0    1  
+## strata(ps.pm2)1.5                 0.10    0.05      0    1  
+## strata(ps.pm2)1.6                 0.10    0.05      0    1  
+## strata(ps.pm2)1.7                 0.10    0.05      0    1  
+## strata(ps.pm2)1.8                 0.10    0.05      0    1  
+## strata(ps.pm2)1.9                 0.10    0.05      0    1  
+## strata(ps.pm2)NA                  0.0     0.5      -1   -3  
 ## ---Overall Test---
-##        chisquare df p.value
-## Unadj         11  8     0.2
-## ps.pm2         8  8     0.4
-## ---
-## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</code></pre>
+##         chisquare df p.value
+## unstrat        13 18     0.8</code></pre>
 <p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> loaded, then this will call <code>xBalance</code> in the background, reporting the summary chi-square test results.</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm2, psm)</span>
 <span id="cb34-2"><a href="#cb34-2"></a><span class="co">## Structure of matched sets:</span></span>
