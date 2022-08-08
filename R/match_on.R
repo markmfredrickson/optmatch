@@ -83,7 +83,7 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #'   a fitted propensity score model. From this it extracts distances on the
 #'   \emph{linear} propensity score: fitted values of the linear predictor, the
 #'   link function applied to the estimated conditional probabilities, as opposed
-#'   to the estimated conditional probabilities themselves (Rosenbaum \& Rubin,
+#'   to the estimated conditional probabilities themselves (Rosenbaum & Rubin,
 #'   1985).  For example, a logistic model (\code{glm} with
 #'   \code{family=binomial()}) has the logit function as its link, so from such
 #'   models \code{match_on} computes distances in terms of logits of the

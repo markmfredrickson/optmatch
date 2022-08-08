@@ -7,7 +7,7 @@
 #'
 #' Like \code{predict}, its default predictions from a \code{glm} are on
 #' the scale of the linear predictor, not the scale of the response; see
-#' Rosenbaum \& Rubin (1985).  (This default can
+#' Rosenbaum \ Rubin (1985).  (This default can
 #' be overridden by specifying \code{type="response"}.)
 #' In contrast to \code{predict}, if \code{scores} isn't given an explicit
 #' \code{newdata} argument then it attempts to reconstruct one from the context
