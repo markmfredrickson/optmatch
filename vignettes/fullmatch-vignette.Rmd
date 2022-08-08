@@ -163,7 +163,6 @@ try connecting up below the units that `pairmatch()` has placed in the
 same matched sets.
 
 ```{r, results="asis", echo=FALSE, warning=FALSE}
-library(pander)
 a <- with(nuke.nopt, data.frame(
                          Plant=row.names(nuke.nopt),
                          Date=round(date-65, 1),
@@ -178,8 +177,12 @@ rownames(a) <- NULL
 rownames(b) <- NULL
 
 c <- cbind(data.frame(rbind(as.matrix(a), matrix(nrow=nrow(b)-nrow(a), ncol=3))), b)
-pandoc.table(c, style="multiline", missing="",
-             caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
+if (requireNamespace("pander", quietly = TRUE)) {
+  pander::pandoc.table(c, style="multiline", missing="",
+                       caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
+} else {
+  show(p)
+}
 ```
 
 For basic summary information about this match, try
