@@ -557,8 +557,7 @@ test_that("standardization scale from within match_on", {
 })
 
 test_that("standardization_scale with svyglm",{
-  if (require("survey"))
-  {
+  if (require("survey")) {
     data(api)
     d<-svydesign(id=~1, probs=1, data=apistrat)
     sglm <- svyglm(sch.wide~ell+meals+mobility, design=d,
@@ -590,8 +589,11 @@ test_that("standardization_scale with svyglm",{
                                      svydesign_ = sglm_w$'survey.design')
     expect_true(is.numeric(sd_sglm_w))
     expect_gt(sd_sglm_w, 0)
+  } else {
+    expect_true(TRUE) # avoiding empty test warning
   }
 })
+
 test_that("Building exactMatch from formula with strata", {
 
   d <- data.frame(x = rnorm(8),
