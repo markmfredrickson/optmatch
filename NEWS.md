@@ -1,4 +1,4 @@
- ## Changes in **optmatch** Version 0.10.4
+## Changes in **optmatch** Version 0.10.4
 
 - When including factor variables on the right hand side of the formula passed
   into `match_on()`, now more simply calculates the contrast to enable more
