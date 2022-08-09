@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="optmatch">
-<title>Matching in R using the optmatch and RItools packages • optmatch</title>
+<title>Matching in R using the optmatch package • optmatch</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Matching in R using the optmatch and RItools packages">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Matching in R using the optmatch package">
 <meta property="og:description" content="optmatch">
 <meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -27,7 +27,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.3.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.4.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/MCFSolutions.html">Classes and methods for min-cost flow solutions</a>
-    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
+    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch package</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
   </div>
@@ -74,10 +74,10 @@
 
 <script src="fullmatch-vignette_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Matching in R using the optmatch and RItools packages</h1>
+      <img src="" class="logo" alt=""><h1>Matching in R using the optmatch package</h1>
                         <h4 data-toc-skip class="author">Ben B. Hansen, Mark Fredrickson, Josh Errickson, and Josh Buckner</h4>
             
-            <h4 data-toc-skip class="date">2022-08-05</h4>
+            <h4 data-toc-skip class="date">2022-08-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/markmfredrickson/optmatch/blob/HEAD/vignettes/fullmatch-vignette.Rmd" class="external-link"><code>vignettes/fullmatch-vignette.Rmd</code></a></small>
       <div class="d-none name"><code>fullmatch-vignette.Rmd</code></div>
@@ -105,16 +105,14 @@
 <h3 id="outfitting-your-r-with-the-proper-add-ons">Outfitting your <em>R</em> with the proper add-ons<a class="anchor" aria-label="anchor" href="#outfitting-your-r-with-the-proper-add-ons"></a>
 </h3>
 <p><em>R</em> add-on packages are available to install directly from <em>R</em>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"optmatch"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"RItools"</span>)</span></code></pre></div>
-<p>These commands will ask you to select a CRAN server. Any server will do. You may also be asked whether you’d like to set up a “personal library to install packages into”; if so, answer yes. (The default personal library location that <em>R</em> will suggest should be OK.) You’ll only need to run these commands the first time you want to use <strong>optmatch</strong> or <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> on a particular computer, or when you install a new version of <em>R</em>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"optmatch"</span>)</span></code></pre></div>
+<p>Thi command will ask you to select a CRAN server. Any server will do. You may also be asked whether you’d like to set up a “personal library to install packages into”; if so, answer yes. (The default personal library location that <em>R</em> will suggest should be OK.) You’ll only need to run these commands the first time you want to use <strong>optmatch</strong> on a particular computer, or when you install a new version of <em>R</em>.</p>
 </div>
 <div class="section level3">
 <h3 id="setting-up-the-r-environment-for-matching">Setting up the <em>R</em> environment for matching<a class="anchor" aria-label="anchor" href="#setting-up-the-r-environment-for-matching"></a>
 </h3>
 <p>Attach extension packages that we’ll be using for matching and associated diagnostics:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(optmatch)</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(RItools)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(optmatch)</span></code></pre></div>
 <p>You’ll do this each time you start a new <em>R</em> session and want to run matching commands.</p>
 <p>To load the nuclear plants data, enter</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(nuclearplants)</span></code></pre></div>
@@ -388,28 +386,32 @@
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">lm</span>(cap <span class="op">~</span><span class="st"> </span>pr <span class="op">+</span><span class="st"> </span>pm, <span class="dt">data =</span> nuke.nopt))<span class="op">$</span>coeff[<span class="st">"pr"</span>,]</span>
 <span id="cb22-2"><a href="#cb22-2"></a><span class="co">##   Estimate Std. Error    t value   Pr(&gt;|t|) </span></span>
 <span id="cb22-3"><a href="#cb22-3"></a><span class="co">##  1.7142857  5.1395492  0.3335479  0.7500689</span></span></code></pre></div>
-<p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package’s <code>xBalance</code> function zeroes in on balance, and facilitates checking balance on multiple variables at the same time. Here are some examples:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="op">&gt;</span><span class="st"> </span></span>
-<span id="cb23-2"><a href="#cb23-2"></a><span class="er">&gt;</span><span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>t2, <span class="dt">report=</span><span class="st">"all"</span>, <span class="dt">data=</span>nuke.nopt)</span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="co">##      strata():   unstrat                                        </span></span>
-<span id="cb23-4"><a href="#cb23-4"></a><span class="co">##      stat      Treatment Control adj.diff std.diff    z         </span></span>
-<span id="cb23-5"><a href="#cb23-5"></a><span class="co">## vars                                                            </span></span>
-<span id="cb23-6"><a href="#cb23-6"></a><span class="co">## cap                883     803       79.7    0.38    0.86       </span></span>
-<span id="cb23-7"><a href="#cb23-7"></a><span class="co">## t2                 66.9    59.5      7.33    0.74    1.61       </span></span>
-<span id="cb23-8"><a href="#cb23-8"></a><span class="co">## ---Overall Test---</span></span>
-<span id="cb23-9"><a href="#cb23-9"></a><span class="co">##         chisquare df p.value</span></span>
-<span id="cb23-10"><a href="#cb23-10"></a><span class="co">## unstrat      2.71  2   0.258</span></span>
-<span id="cb23-11"><a href="#cb23-11"></a><span class="co">## ---</span></span>
-<span id="cb23-12"><a href="#cb23-12"></a><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span>
-<span id="cb23-13"><a href="#cb23-13"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>t2,</span>
-<span id="cb23-14"><a href="#cb23-14"></a><span class="op">+</span><span class="st">          </span><span class="dt">strata=</span> pm,</span>
-<span id="cb23-15"><a href="#cb23-15"></a><span class="op">+</span><span class="st">          </span><span class="dt">data=</span>nuke.nopt,</span>
-<span id="cb23-16"><a href="#cb23-16"></a><span class="op">+</span><span class="st">          </span><span class="dt">report=</span><span class="kw">c</span>(<span class="st">"adj.mean.diffs"</span>, <span class="st">"std"</span>, <span class="st">"z"</span>))</span>
-<span id="cb23-17"><a href="#cb23-17"></a><span class="co">##      strata():    strat              </span></span>
-<span id="cb23-18"><a href="#cb23-18"></a><span class="co">##      stat      adj.diff std.diff    z</span></span>
-<span id="cb23-19"><a href="#cb23-19"></a><span class="co">## vars                                 </span></span>
-<span id="cb23-20"><a href="#cb23-20"></a><span class="co">## cap                1.71     0.01 0.36</span></span>
-<span id="cb23-21"><a href="#cb23-21"></a><span class="co">## t2                 4.71     0.47 1.17</span></span></code></pre></div>
+<p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package’s <code><a href="https://rdrr.io/pkg/RItools/man/balanceTest.html" class="external-link">RItools::balanceTest()</a></code> function zeroes in on balance, and facilitates checking balance on multiple variables at the same time. Here are some examples:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"RItools"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(RItools)</span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">balanceTest</span>(pr <span class="op">~</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>t2, <span class="dt">data =</span> nuke.nopt)</span></code></pre></div>
+<pre><code><span><span class="co">##      strata():        --                                        </span></span>
+<span><span class="co">##      stat      Treatment Control adj.diff std.diff    z         </span></span>
+<span><span class="co">## vars                                                            </span></span>
+<span><span class="co">## cap                883     803       79.7    0.39    0.86       </span></span>
+<span><span class="co">## t2                 66.9    59.5      7.33    0.68    1.61       </span></span>
+<span><span class="co">## ---Overall Test---</span></span>
+<span><span class="co">##    chisquare df p.value</span></span>
+<span><span class="co">## --      2.71  2   0.258</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">balanceTest</span>(pr <span class="op">~</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(pm) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> nuke.nopt)</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="co"># The `- 1` suppresses the unmatched output to make the output cleaner</span></span></code></pre></div>
+<pre><code><span><span class="co">##      strata():        pm                                         </span></span>
+<span><span class="co">##      stat      Treatment Control adj.diff std.diff    z          </span></span>
+<span><span class="co">## vars                                                             </span></span>
+<span><span class="co">## cap               883     881        1.71   0.01    0.36         </span></span>
+<span><span class="co">## t2                66.9    62.1      4.71    0.45    1.17         </span></span>
+<span><span class="co">## ---Overall Test---</span></span>
+<span><span class="co">##    chisquare df p.value</span></span>
+<span><span class="co">## pm      2.02  2   0.364</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
 <p><strong>Exercises.</strong></p>
 <ol style="list-style-type: decimal">
 <li>Compare <code>pm</code>, <code>tm</code> and the unmatched samples in terms of balance on <code>t2</code>.</li>
@@ -427,136 +429,126 @@
 <h3 id="propensity-score-fitting-in-r">Propensity score fitting in <em>R</em><a class="anchor" aria-label="anchor" href="#propensity-score-fitting-in-r"></a>
 </h3>
 <p>Logistic regression models are fit in <em>R</em> using the function <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, with <code>family</code> argument set to <code>binomial</code>. Example:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="op">&gt;</span><span class="st"> </span>psm &lt;-<span class="st"> </span><span class="kw">glm</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span><span class="st"> </span>pt,</span>
-<span id="cb24-2"><a href="#cb24-2"></a><span class="op">+</span><span class="st">            </span><span class="dt">family =</span> binomial, <span class="dt">data =</span> nuclearplants)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="op">&gt;</span><span class="st"> </span>psm &lt;-<span class="st"> </span><span class="kw">glm</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span><span class="st"> </span>pt,</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="op">+</span><span class="st">            </span><span class="dt">family =</span> binomial, <span class="dt">data =</span> nuclearplants)</span></code></pre></div>
 <p>The fitted logistic regression is then stored in the object <code>psm</code>. The propensity scores can be accessed with <code>psm$fitted.values</code> (estimated probabilities) or <code>scores(psm)</code> (estimated logits of probabilities).</p>
 <p>It’s often a good idea to compare the groups’ distributions on the propensity score.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">boxplot</span>(psm)</span></code></pre></div>
-<p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-29-1.png" width="480"></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">boxplot</span>(psm)</span></code></pre></div>
+<p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-33-1.png" width="480"></p>
 <p>The groups do overlap, if not greatly. It may be wise to restrict the sample to the region of overlap, at least roughly. A propensity caliper would help with this.</p>
 <p>First, let’s match directly on the propensity score without restricting the sample to the region of overlap.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm, <span class="dt">data =</span> nuclearplants)</span>
-<span id="cb26-2"><a href="#cb26-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm)</span>
-<span id="cb26-3"><a href="#cb26-3"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb26-4"><a href="#cb26-4"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb26-5"><a href="#cb26-5"></a><span class="co">##  10  12 </span></span>
-<span id="cb26-6"><a href="#cb26-6"></a><span class="co">## Effective Sample Size:  10 </span></span>
-<span id="cb26-7"><a href="#cb26-7"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm, <span class="dt">data =</span> nuclearplants)</span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm)</span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="co">##  10  12 </span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="co">## Effective Sample Size:  10 </span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
 <p>To restrict to the overlapping region, we want to imply a caliper to the distances generated by the propensity score model. To do this requires a more explicit generation of the match, involving separate steps for generation of the distances followed by matching upon those distances.</p>
 <p>First, we create a distance matrix based upon <code>psm</code>:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="op">&gt;</span><span class="st"> </span>psm.dist &lt;-<span class="st"> </span><span class="kw">match_on</span>(psm, <span class="dt">data=</span>nuclearplants)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="op">&gt;</span><span class="st"> </span>psm.dist &lt;-<span class="st"> </span><span class="kw">match_on</span>(psm, <span class="dt">data=</span>nuclearplants)</span></code></pre></div>
 <p><code>psm.dist</code> is a matrix with an entry corresponding to the distance between each potential pair of treatment and control units. We can caliper directly on this distance matrix,</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">caliper</span>(psm.dist, <span class="dv">2</span>)</span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="co">##        control</span></span>
-<span id="cb28-3"><a href="#cb28-3"></a><span class="co">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T U   V   W   X   Y</span></span>
-<span id="cb28-4"><a href="#cb28-4"></a><span class="co">##       A Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb28-5"><a href="#cb28-5"></a><span class="co">##       B Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb28-6"><a href="#cb28-6"></a><span class="co">##       C Inf   0   0 Inf Inf   0   0   0 Inf   0   0   0   0 0 Inf   0   0 Inf</span></span>
-<span id="cb28-7"><a href="#cb28-7"></a><span class="co">##       D Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf   0 Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb28-8"><a href="#cb28-8"></a><span class="co">##       E Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0   0 Inf</span></span>
-<span id="cb28-9"><a href="#cb28-9"></a><span class="co">##       F Inf   0 Inf Inf Inf   0 Inf   0 Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
-<span id="cb28-10"><a href="#cb28-10"></a><span class="co">##       G Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb28-11"><a href="#cb28-11"></a><span class="co">##       a Inf   0 Inf Inf Inf Inf Inf Inf Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
-<span id="cb28-12"><a href="#cb28-12"></a><span class="co">##       b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb28-13"><a href="#cb28-13"></a><span class="co">##       c Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb28-14"><a href="#cb28-14"></a><span class="co">##        control</span></span>
-<span id="cb28-15"><a href="#cb28-15"></a><span class="co">## treated   Z d   e   f</span></span>
-<span id="cb28-16"><a href="#cb28-16"></a><span class="co">##       A Inf 0 Inf Inf</span></span>
-<span id="cb28-17"><a href="#cb28-17"></a><span class="co">##       B   0 0 Inf   0</span></span>
-<span id="cb28-18"><a href="#cb28-18"></a><span class="co">##       C   0 0 Inf   0</span></span>
-<span id="cb28-19"><a href="#cb28-19"></a><span class="co">##       D Inf 0 Inf Inf</span></span>
-<span id="cb28-20"><a href="#cb28-20"></a><span class="co">##       E   0 0 Inf   0</span></span>
-<span id="cb28-21"><a href="#cb28-21"></a><span class="co">##       F   0 0 Inf   0</span></span>
-<span id="cb28-22"><a href="#cb28-22"></a><span class="co">##       G   0 0 Inf   0</span></span>
-<span id="cb28-23"><a href="#cb28-23"></a><span class="co">##       a   0 0 Inf   0</span></span>
-<span id="cb28-24"><a href="#cb28-24"></a><span class="co">##       b Inf 0 Inf Inf</span></span>
-<span id="cb28-25"><a href="#cb28-25"></a><span class="co">##       c   0 0 Inf   0</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">caliper</span>(psm.dist, <span class="dv">2</span>)</span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="co">##        control</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a><span class="co">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T U   V   W   X   Y</span></span>
+<span id="cb31-4"><a href="#cb31-4"></a><span class="co">##       A Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-5"><a href="#cb31-5"></a><span class="co">##       B Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-6"><a href="#cb31-6"></a><span class="co">##       C Inf   0   0 Inf Inf   0   0   0 Inf   0   0   0   0 0 Inf   0   0 Inf</span></span>
+<span id="cb31-7"><a href="#cb31-7"></a><span class="co">##       D Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf   0 Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-8"><a href="#cb31-8"></a><span class="co">##       E Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0   0 Inf</span></span>
+<span id="cb31-9"><a href="#cb31-9"></a><span class="co">##       F Inf   0 Inf Inf Inf   0 Inf   0 Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
+<span id="cb31-10"><a href="#cb31-10"></a><span class="co">##       G Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-11"><a href="#cb31-11"></a><span class="co">##       a Inf   0 Inf Inf Inf Inf Inf Inf Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
+<span id="cb31-12"><a href="#cb31-12"></a><span class="co">##       b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-13"><a href="#cb31-13"></a><span class="co">##       c Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-14"><a href="#cb31-14"></a><span class="co">##        control</span></span>
+<span id="cb31-15"><a href="#cb31-15"></a><span class="co">## treated   Z d   e   f</span></span>
+<span id="cb31-16"><a href="#cb31-16"></a><span class="co">##       A Inf 0 Inf Inf</span></span>
+<span id="cb31-17"><a href="#cb31-17"></a><span class="co">##       B   0 0 Inf   0</span></span>
+<span id="cb31-18"><a href="#cb31-18"></a><span class="co">##       C   0 0 Inf   0</span></span>
+<span id="cb31-19"><a href="#cb31-19"></a><span class="co">##       D Inf 0 Inf Inf</span></span>
+<span id="cb31-20"><a href="#cb31-20"></a><span class="co">##       E   0 0 Inf   0</span></span>
+<span id="cb31-21"><a href="#cb31-21"></a><span class="co">##       F   0 0 Inf   0</span></span>
+<span id="cb31-22"><a href="#cb31-22"></a><span class="co">##       G   0 0 Inf   0</span></span>
+<span id="cb31-23"><a href="#cb31-23"></a><span class="co">##       a   0 0 Inf   0</span></span>
+<span id="cb31-24"><a href="#cb31-24"></a><span class="co">##       b Inf 0 Inf Inf</span></span>
+<span id="cb31-25"><a href="#cb31-25"></a><span class="co">##       c   0 0 Inf   0</span></span></code></pre></div>
 <p>Entries which are <code>Inf</code> will never be matched. Adding the caliper to <code>psm.dist</code> will disallow matching between units which differ by more than 2 standard deviations.</p>
 <p>(Note that this differs from the previous use of <code>caliper</code> directly in <code>pairmatch</code>, where the caliper is applied directly to the distances instead of smartly upon the standard deviations between the propensity scores.)</p>
 <p>Combining the above, we can now</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm2 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm.dist, <span class="dt">data =</span> nuclearplants)</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm3 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(psm.dist, <span class="dv">2</span>), <span class="dt">data =</span> nuclearplants)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(ps.pm, ps.pm2, <span class="dt">check.attributes=</span><span class="ot">FALSE</span>)</span>
-<span id="cb29-4"><a href="#cb29-4"></a><span class="co">## [1] TRUE</span></span>
-<span id="cb29-5"><a href="#cb29-5"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(ps.pm, ps.pm3, <span class="dt">check.attributes=</span><span class="ot">FALSE</span>)</span>
-<span id="cb29-6"><a href="#cb29-6"></a><span class="co">## [1] "8 string mismatches"</span></span>
-<span id="cb29-7"><a href="#cb29-7"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm3)</span>
-<span id="cb29-8"><a href="#cb29-8"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb29-9"><a href="#cb29-9"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb29-10"><a href="#cb29-10"></a><span class="co">##  10  12 </span></span>
-<span id="cb29-11"><a href="#cb29-11"></a><span class="co">## Effective Sample Size:  10 </span></span>
-<span id="cb29-12"><a href="#cb29-12"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm2 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm.dist, <span class="dt">data =</span> nuclearplants)</span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="op">&gt;</span><span class="st"> </span>ps.pm3 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(psm.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(psm.dist, <span class="dv">2</span>), <span class="dt">data =</span> nuclearplants)</span>
+<span id="cb32-3"><a href="#cb32-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(ps.pm, ps.pm2, <span class="dt">check.attributes=</span><span class="ot">FALSE</span>)</span>
+<span id="cb32-4"><a href="#cb32-4"></a><span class="co">## [1] TRUE</span></span>
+<span id="cb32-5"><a href="#cb32-5"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(ps.pm, ps.pm3, <span class="dt">check.attributes=</span><span class="ot">FALSE</span>)</span>
+<span id="cb32-6"><a href="#cb32-6"></a><span class="co">## [1] "8 string mismatches"</span></span>
+<span id="cb32-7"><a href="#cb32-7"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm3)</span>
+<span id="cb32-8"><a href="#cb32-8"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb32-9"><a href="#cb32-9"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb32-10"><a href="#cb32-10"></a><span class="co">##  10  12 </span></span>
+<span id="cb32-11"><a href="#cb32-11"></a><span class="co">## Effective Sample Size:  10 </span></span>
+<span id="cb32-12"><a href="#cb32-12"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
 <p>Or you could match within calipers of the propensity score on some other distance, perhaps Mahalanobis distances based on selected covariates as recommended by Rubin and Thomas (2000, JASA) and others. For Mahalanobis matching on <code>date</code>, <code>cap</code> and the propensity score, for instance, combined with a propensity caliper of 1 pooled sd.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="op">&gt;</span><span class="st"> </span>mhd1 &lt;-<span class="st"> </span><span class="kw">match_on</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm), <span class="dt">data=</span>nuclearplants)</span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="op">&gt;</span><span class="st"> </span>mhpc.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(mhd1, <span class="dt">caliper=</span><span class="dv">1</span>, <span class="dt">data=</span>nuclearplants)</span>
-<span id="cb30-3"><a href="#cb30-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(mhpc.pm) <span class="co"># oops</span></span>
-<span id="cb30-4"><a href="#cb30-4"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb30-5"><a href="#cb30-5"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb30-6"><a href="#cb30-6"></a><span class="co">##  10  12 </span></span>
-<span id="cb30-7"><a href="#cb30-7"></a><span class="co">## Effective Sample Size:  10 </span></span>
-<span id="cb30-8"><a href="#cb30-8"></a><span class="co">## (equivalent number of matched pairs).</span></span>
-<span id="cb30-9"><a href="#cb30-9"></a><span class="op">&gt;</span><span class="st"> </span>mhpc.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(mhd1, <span class="dt">caliper=</span><span class="dv">2</span>, <span class="dt">data=</span>nuclearplants)</span>
-<span id="cb30-10"><a href="#cb30-10"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(mhpc.pm) <span class="co"># better!</span></span>
-<span id="cb30-11"><a href="#cb30-11"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb30-12"><a href="#cb30-12"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb30-13"><a href="#cb30-13"></a><span class="co">##  10  12 </span></span>
-<span id="cb30-14"><a href="#cb30-14"></a><span class="co">## Effective Sample Size:  10 </span></span>
-<span id="cb30-15"><a href="#cb30-15"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="op">&gt;</span><span class="st"> </span>mhd1 &lt;-<span class="st"> </span><span class="kw">match_on</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm), <span class="dt">data=</span>nuclearplants)</span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="op">&gt;</span><span class="st"> </span>mhpc.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(mhd1, <span class="dt">caliper=</span><span class="dv">1</span>, <span class="dt">data=</span>nuclearplants)</span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(mhpc.pm) <span class="co"># oops</span></span>
+<span id="cb33-4"><a href="#cb33-4"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb33-6"><a href="#cb33-6"></a><span class="co">##  10  12 </span></span>
+<span id="cb33-7"><a href="#cb33-7"></a><span class="co">## Effective Sample Size:  10 </span></span>
+<span id="cb33-8"><a href="#cb33-8"></a><span class="co">## (equivalent number of matched pairs).</span></span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="op">&gt;</span><span class="st"> </span>mhpc.pm &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(mhd1, <span class="dt">caliper=</span><span class="dv">2</span>, <span class="dt">data=</span>nuclearplants)</span>
+<span id="cb33-10"><a href="#cb33-10"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(mhpc.pm) <span class="co"># better!</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb33-12"><a href="#cb33-12"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb33-13"><a href="#cb33-13"></a><span class="co">##  10  12 </span></span>
+<span id="cb33-14"><a href="#cb33-14"></a><span class="co">## Effective Sample Size:  10 </span></span>
+<span id="cb33-15"><a href="#cb33-15"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="checking-balance-in-general">Checking balance in general<a class="anchor" aria-label="anchor" href="#checking-balance-in-general"></a>
 </h3>
 <p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> package has a convenient function for checking balance on many variables simultaneously. To get a sense of what it does, try this:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(RItools)</span>
-<span id="cb31-2"><a href="#cb31-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n, <span class="dt">data =</span> nuclearplants)</span>
-<span id="cb31-3"><a href="#cb31-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span><span class="st"> </span>pt <span class="op">+</span></span>
-<span id="cb31-4"><a href="#cb31-4"></a><span class="op">+</span><span class="st">              </span><span class="kw">strata</span>(ps.pm2) <span class="dv">-1</span>, <span class="co"># the `-1` just focuses the output a little</span></span>
-<span id="cb31-5"><a href="#cb31-5"></a><span class="op">+</span><span class="st">          </span><span class="dt">data =</span> nuclearplants)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">balanceTest</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n,</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="op">+</span><span class="st">             </span><span class="dt">data =</span> nuclearplants)</span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">balanceTest</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span><span class="st"> </span>pt <span class="op">+</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="op">+</span><span class="st">               </span><span class="kw">strata</span>(ps.pm2) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>,</span>
+<span id="cb34-5"><a href="#cb34-5"></a><span class="op">+</span><span class="st">             </span><span class="dt">data =</span> nuclearplants)</span></code></pre></div>
 <p>It can in the same display compare matching to no matching, on any of a number of axes. Here is a demonstration:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="op">&gt;</span><span class="st"> </span>myb &lt;-<span class="st"> </span><span class="kw">xBalance</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span></span>
-<span id="cb32-2"><a href="#cb32-2"></a><span class="op">+</span><span class="st">                 </span><span class="kw">strata</span>(ps.pm2),</span>
-<span id="cb32-3"><a href="#cb32-3"></a><span class="op">+</span><span class="st">                 </span><span class="dt">data =</span> nuclearplants,</span>
-<span id="cb32-4"><a href="#cb32-4"></a><span class="op">+</span><span class="st">                 </span><span class="dt">report =</span> <span class="kw">c</span>(<span class="st">"adj.means"</span>, <span class="st">"std.diffs"</span>,</span>
-<span id="cb32-5"><a href="#cb32-5"></a><span class="op">+</span><span class="st">                            "z.scores"</span>, <span class="st">"chisquare.test"</span>))</span>
-<span id="cb32-6"><a href="#cb32-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">plot</span>(myb)</span></code></pre></div>
-<p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-36-1.png" width="480"></p>
-<pre><code>## NULL
-&gt; print(myb, digits=1)
-##                    strata():   unstrat                      
-##                    stat      Treatment Control std.diff    z
-## vars                                                        
-## date                              69      69        0    0  
-## t1                                14      14        0    0  
-## t2                                69      59        1    2  
-## cap                               870     805       0    1  
-## ne                                0.2     0.3       0    0  
-## ct                                0.3     0.5       0   -1  
-## bw                                0.2     0.2       0    0  
-## cum.n                             8       9         0    0  
-## strata(ps.pm2)1.10                0.10    0.05      0    1  
-## strata(ps.pm2)1.2                 0.10    0.05      0    1  
-## strata(ps.pm2)1.3                 0.10    0.05      0    1  
-## strata(ps.pm2)1.4                 0.10    0.05      0    1  
-## strata(ps.pm2)1.5                 0.10    0.05      0    1  
-## strata(ps.pm2)1.6                 0.10    0.05      0    1  
-## strata(ps.pm2)1.7                 0.10    0.05      0    1  
-## strata(ps.pm2)1.8                 0.10    0.05      0    1  
-## strata(ps.pm2)1.9                 0.10    0.05      0    1  
-## strata(ps.pm2)NA                  0.0     0.5      -1   -3  
-## ---Overall Test---
-##         chisquare df p.value
-## unstrat        14 18     0.7</code></pre>
-<p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> loaded, then this will call <code>xBalance</code> in the background, reporting the summary chi-square test results.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm2, psm)</span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb34-3"><a href="#cb34-3"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb34-4"><a href="#cb34-4"></a><span class="co">##  10  12 </span></span>
-<span id="cb34-5"><a href="#cb34-5"></a><span class="co">## Effective Sample Size:  10 </span></span>
-<span id="cb34-6"><a href="#cb34-6"></a><span class="co">## (equivalent number of matched pairs).</span></span>
-<span id="cb34-7"><a href="#cb34-7"></a><span class="co">## </span></span>
-<span id="cb34-8"><a href="#cb34-8"></a><span class="co">## Balance test overall result:</span></span>
-<span id="cb34-9"><a href="#cb34-9"></a><span class="co">##   chisquare df p.value</span></span>
-<span id="cb34-10"><a href="#cb34-10"></a><span class="co">##        9.48  9   0.394</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="op">&gt;</span><span class="st"> </span>myb &lt;-<span class="st"> </span><span class="kw">balanceTest</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>t1 <span class="op">+</span><span class="st"> </span>t2 <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span>ne <span class="op">+</span><span class="st"> </span>ct <span class="op">+</span><span class="st"> </span>bw <span class="op">+</span><span class="st"> </span>cum.n <span class="op">+</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="op">+</span><span class="st">                      </span><span class="kw">strata</span>(ps.pm2),</span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="op">+</span><span class="st">                    </span><span class="dt">data =</span> nuclearplants)</span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">plot</span>(myb)</span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">print</span>(myb, <span class="dt">digits=</span><span class="dv">1</span>)</span></code></pre></div>
+<pre><code><span><span class="co">##       strata():    ps.pm2                                                --                                        </span></span>
+<span><span class="co">##       stat      Treatment Control adj.diff std.diff    z          Treatment Control adj.diff std.diff    z         </span></span>
+<span><span class="co">## vars                                                                                                               </span></span>
+<span><span class="co">## date                69      69       -0.2     0       -1              69      69       -0.1     0        0         </span></span>
+<span><span class="co">## t1                  14      14       -0.3     0        0              14      14        0.4     0        0         </span></span>
+<span><span class="co">## t2                  69      63        6       1        1              69      59       10       1        2         </span></span>
+<span><span class="co">## cap                 870     890      -20      0        0              870     805       65      0        1         </span></span>
+<span><span class="co">## ne                  0.2     0.1       0.10    0        1              0.2     0.3      -0.07    0        0         </span></span>
+<span><span class="co">## ct                  0.3     0.2       0.1     0        0              0.3     0.5      -0.2     0       -1         </span></span>
+<span><span class="co">## bw                  0.2     0.2      0.00     0        0              0.2     0.2      0.02     0        0         </span></span>
+<span><span class="co">## cum.n               8       9        -0.5     0        0              8       9        -0.6     0        0         </span></span>
+<span><span class="co">## ---Overall Test---</span></span>
+<span><span class="co">##        chisquare df p.value</span></span>
+<span><span class="co">## ps.pm2         9  8     0.3</span></span>
+<span><span class="co">## --            11  8     0.2</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
+<p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-41-1.png" width="480"></p>
+<p>For a very compact representation of the assessment, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong> loaded, then this will call <code><a href="https://rdrr.io/pkg/RItools/man/balanceTest.html" class="external-link">balanceTest()</a></code> in the background, reporting the summary chi-square test results.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(ps.pm2, psm)</span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb37-4"><a href="#cb37-4"></a><span class="co">##  10  12 </span></span>
+<span id="cb37-5"><a href="#cb37-5"></a><span class="co">## Effective Sample Size:  10 </span></span>
+<span id="cb37-6"><a href="#cb37-6"></a><span class="co">## (equivalent number of matched pairs).</span></span>
+<span id="cb37-7"><a href="#cb37-7"></a><span class="co">## </span></span>
+<span id="cb37-8"><a href="#cb37-8"></a><span class="co">## Balance test overall result:</span></span>
+<span id="cb37-9"><a href="#cb37-9"></a><span class="co">##   chisquare df p.value</span></span>
+<span id="cb37-10"><a href="#cb37-10"></a><span class="co">##        9.48  9   0.394</span></span></code></pre></div>
 <p><strong>Exercise.</strong></p>
 <p>Try out {at least 3} different combinations of propensity score and Mahalanobis matching. Identify the matches that gives:</p>
 <ol style="list-style-type: decimal">
@@ -574,71 +566,71 @@
 <h3 id="full-matching-and-matching-with-a-varying-number-of-controls">Full matching and matching with a varying number of controls<a class="anchor" aria-label="anchor" href="#full-matching-and-matching-with-a-varying-number-of-controls"></a>
 </h3>
 <p>Try out for yourself and compare:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt))</span>
-<span id="cb35-2"><a href="#cb35-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt, <span class="dt">min =</span> <span class="dv">1</span>))</span>
-<span id="cb35-3"><a href="#cb35-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt, <span class="dt">min =</span> <span class="dv">2</span>, <span class="dt">max =</span> <span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt))</span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt, <span class="dt">min =</span> <span class="dv">1</span>))</span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(<span class="kw">fullmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt, <span class="dt">min =</span> <span class="dv">2</span>, <span class="dt">max =</span> <span class="dv">3</span>))</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="subclassification-before-matching">Subclassification before matching<a class="anchor" aria-label="anchor" href="#subclassification-before-matching"></a>
 </h3>
 <p>Recall that the data set <code>nuclearplants</code> had 32 observations, 6 of which we excluded. These were plants built under “partial turnkey” guarantees (<code>pt == 1</code>), for which costs are difficult to compare with other plants. We might include the excluded plants by matching them only among themselves. Then we need to subclassify prior to matching.</p>
 <p>This is a common and useful operation, and <strong>optmatch</strong> is designed to help you do it via a <code>strata</code> term in the matching formula.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm), <span class="dt">data=</span>nuclearplants)</span>
-<span id="cb36-2"><a href="#cb36-2"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
-<span id="cb36-3"><a href="#cb36-3"></a><span class="co">## &lt;NA&gt;  1.1  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; &lt;NA&gt;  1.4  1.3  1.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.2 &lt;NA&gt;  1.8 </span></span>
-<span id="cb36-4"><a href="#cb36-4"></a><span class="co">##    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span></span>
-<span id="cb36-5"><a href="#cb36-5"></a><span class="co">##  1.7  1.4  1.5  1.5 &lt;NA&gt;  1.6  1.6  1.7 &lt;NA&gt; &lt;NA&gt;  1.9 &lt;NA&gt; 1.10  1.8  1.9 1.10</span></span>
-<span id="cb36-6"><a href="#cb36-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm) <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(pt), <span class="dt">data=</span>nuclearplants)</span>
-<span id="cb36-7"><a href="#cb36-7"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
-<span id="cb36-8"><a href="#cb36-8"></a><span class="co">## &lt;NA&gt;  0.1  0.1 &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt;  0.4  0.3  0.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt; </span></span>
-<span id="cb36-9"><a href="#cb36-9"></a><span class="co">##    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span></span>
-<span id="cb36-10"><a href="#cb36-10"></a><span class="co">##  0.7  0.4  0.5  0.5 &lt;NA&gt;  0.6  0.6  0.7 &lt;NA&gt; &lt;NA&gt;  1.2  1.1  1.3  1.1  1.2  1.3</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm), <span class="dt">data=</span>nuclearplants)</span>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="co">## &lt;NA&gt;  1.1  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; &lt;NA&gt;  1.4  1.3  1.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.2 &lt;NA&gt;  1.8 </span></span>
+<span id="cb39-4"><a href="#cb39-4"></a><span class="co">##    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span></span>
+<span id="cb39-5"><a href="#cb39-5"></a><span class="co">##  1.7  1.4  1.5  1.5 &lt;NA&gt;  1.6  1.6  1.7 &lt;NA&gt; &lt;NA&gt;  1.9 &lt;NA&gt; 1.10  1.8  1.9 1.10</span></span>
+<span id="cb39-6"><a href="#cb39-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>date <span class="op">+</span><span class="st"> </span>cap <span class="op">+</span><span class="st"> </span><span class="kw">scores</span>(psm) <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(pt), <span class="dt">data=</span>nuclearplants)</span>
+<span id="cb39-7"><a href="#cb39-7"></a><span class="co">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
+<span id="cb39-8"><a href="#cb39-8"></a><span class="co">## &lt;NA&gt;  0.1  0.1 &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt;  0.4  0.3  0.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  0.2 &lt;NA&gt; &lt;NA&gt; </span></span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co">##    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span></span>
+<span id="cb39-10"><a href="#cb39-10"></a><span class="co">##  0.7  0.4  0.5  0.5 &lt;NA&gt;  0.6  0.6  0.7 &lt;NA&gt; &lt;NA&gt;  1.2  1.1  1.3  1.1  1.2  1.3</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="distances">Distances<a class="anchor" aria-label="anchor" href="#distances"></a>
 </h3>
 <p>You’ll often want to do several variations on a match. It may save computation and typing time to store the distance you’re using to match, if you’re going to re-use that distance. To do so, you’ll have to explicitly separate distance-making and matching, two steps that we’ve merged together thus far. We’ll use the <code><a href="../reference/match_on-methods.html">match_on()</a></code> to create distances.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="op">&gt;</span><span class="st"> </span>cap.dist &lt;-<span class="st"> </span><span class="kw">match_on</span>(pr <span class="op">~</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt)</span>
-<span id="cb37-2"><a href="#cb37-2"></a><span class="op">&gt;</span><span class="st"> </span>pm1 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>cap, <span class="dt">data=</span>nuke.nopt)</span>
-<span id="cb37-3"><a href="#cb37-3"></a><span class="op">&gt;</span><span class="st"> </span>pm2 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(cap.dist, <span class="dt">data=</span>nuke.nopt)</span>
-<span id="cb37-4"><a href="#cb37-4"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(pm1, pm2, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb37-5"><a href="#cb37-5"></a><span class="co">## [1] TRUE</span></span>
-<span id="cb37-6"><a href="#cb37-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(pm2)</span>
-<span id="cb37-7"><a href="#cb37-7"></a><span class="co">## Structure of matched sets:</span></span>
-<span id="cb37-8"><a href="#cb37-8"></a><span class="co">## 1:1 0:1 </span></span>
-<span id="cb37-9"><a href="#cb37-9"></a><span class="co">##   7  12 </span></span>
-<span id="cb37-10"><a href="#cb37-10"></a><span class="co">## Effective Sample Size:  7 </span></span>
-<span id="cb37-11"><a href="#cb37-11"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="op">&gt;</span><span class="st"> </span>cap.dist &lt;-<span class="st"> </span><span class="kw">match_on</span>(pr <span class="op">~</span><span class="st"> </span>cap, <span class="dt">data =</span> nuke.nopt)</span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="op">&gt;</span><span class="st"> </span>pm1 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(pr <span class="op">~</span><span class="st"> </span>cap, <span class="dt">data=</span>nuke.nopt)</span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="op">&gt;</span><span class="st"> </span>pm2 &lt;-<span class="st"> </span><span class="kw">pairmatch</span>(cap.dist, <span class="dt">data=</span>nuke.nopt)</span>
+<span id="cb40-4"><a href="#cb40-4"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">all.equal</span>(pm1, pm2, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb40-5"><a href="#cb40-5"></a><span class="co">## [1] TRUE</span></span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">summary</span>(pm2)</span>
+<span id="cb40-7"><a href="#cb40-7"></a><span class="co">## Structure of matched sets:</span></span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="co">## 1:1 0:1 </span></span>
+<span id="cb40-9"><a href="#cb40-9"></a><span class="co">##   7  12 </span></span>
+<span id="cb40-10"><a href="#cb40-10"></a><span class="co">## Effective Sample Size:  7 </span></span>
+<span id="cb40-11"><a href="#cb40-11"></a><span class="co">## (equivalent number of matched pairs).</span></span></code></pre></div>
 <p>What does a matching distance look like? Here’s the upper-left corner of one of them:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">round</span>(cap.dist[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], <span class="dv">1</span>)</span>
-<span id="cb38-2"><a href="#cb38-2"></a><span class="co">##          control</span></span>
-<span id="cb38-3"><a href="#cb38-3"></a><span class="co">## treatment   H   I   J</span></span>
-<span id="cb38-4"><a href="#cb38-4"></a><span class="co">##         A 1.8 0.0 0.0</span></span>
-<span id="cb38-5"><a href="#cb38-5"></a><span class="co">##         B 1.8 0.0 0.0</span></span>
-<span id="cb38-6"><a href="#cb38-6"></a><span class="co">##         C 0.6 1.2 1.2</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">round</span>(cap.dist[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], <span class="dv">1</span>)</span>
+<span id="cb41-2"><a href="#cb41-2"></a><span class="co">##          control</span></span>
+<span id="cb41-3"><a href="#cb41-3"></a><span class="co">## treatment   H   I   J</span></span>
+<span id="cb41-4"><a href="#cb41-4"></a><span class="co">##         A 1.8 0.0 0.0</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a><span class="co">##         B 1.8 0.0 0.0</span></span>
+<span id="cb41-6"><a href="#cb41-6"></a><span class="co">##         C 0.6 1.2 1.2</span></span></code></pre></div>
 <p>(Note the use of square brackets, <code>[</code> and <code>]</code>, for specifying rows and columns of the distance matrix. If you find that this isn’t working on a distance that you’ve produced, try <code>as.matrix(my.dist)[1:3,1:3]</code> or similar.)</p>
 <p>Matching with a caliper of 2 pooled standard deviations on the <code>cap</code> variable:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">round</span>(cap.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="dv">1</span>)</span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="co">##        control</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a><span class="co">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y</span></span>
-<span id="cb39-4"><a href="#cb39-4"></a><span class="co">##       A 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
-<span id="cb39-5"><a href="#cb39-5"></a><span class="co">##       B 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
-<span id="cb39-6"><a href="#cb39-6"></a><span class="co">##       C 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.2 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.4</span></span>
-<span id="cb39-7"><a href="#cb39-7"></a><span class="co">##       D 0.7 Inf Inf 0.1 1.4 0.3 1.2 0.1 1.2 0.0 Inf 1.5 1.2 1.5 Inf 1.8 1.2 0.0</span></span>
-<span id="cb39-8"><a href="#cb39-8"></a><span class="co">##       E 1.7 0.1 0.1 Inf 1.1 Inf 1.2 Inf 1.2 Inf 0.0 1.0 1.3 1.0 0.2 0.7 1.3 Inf</span></span>
-<span id="cb39-9"><a href="#cb39-9"></a><span class="co">##       F 0.7 1.1 1.1 1.5 0.0 1.8 0.2 1.3 0.2 1.4 1.1 0.1 0.2 0.1 1.2 0.4 0.2 1.4</span></span>
-<span id="cb39-10"><a href="#cb39-10"></a><span class="co">##       G 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.1 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.3</span></span>
-<span id="cb39-11"><a href="#cb39-11"></a><span class="co">##        control</span></span>
-<span id="cb39-12"><a href="#cb39-12"></a><span class="co">## treated   Z</span></span>
-<span id="cb39-13"><a href="#cb39-13"></a><span class="co">##       A 0.3</span></span>
-<span id="cb39-14"><a href="#cb39-14"></a><span class="co">##       B 0.3</span></span>
-<span id="cb39-15"><a href="#cb39-15"></a><span class="co">##       C 1.5</span></span>
-<span id="cb39-16"><a href="#cb39-16"></a><span class="co">##       D Inf</span></span>
-<span id="cb39-17"><a href="#cb39-17"></a><span class="co">##       E 0.4</span></span>
-<span id="cb39-18"><a href="#cb39-18"></a><span class="co">##       F 1.4</span></span>
-<span id="cb39-19"><a href="#cb39-19"></a><span class="co">##       G 1.5</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">round</span>(cap.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="dv">1</span>)</span>
+<span id="cb42-2"><a href="#cb42-2"></a><span class="co">##        control</span></span>
+<span id="cb42-3"><a href="#cb42-3"></a><span class="co">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y</span></span>
+<span id="cb42-4"><a href="#cb42-4"></a><span class="co">##       A 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a><span class="co">##       B 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
+<span id="cb42-6"><a href="#cb42-6"></a><span class="co">##       C 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.2 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.4</span></span>
+<span id="cb42-7"><a href="#cb42-7"></a><span class="co">##       D 0.7 Inf Inf 0.1 1.4 0.3 1.2 0.1 1.2 0.0 Inf 1.5 1.2 1.5 Inf 1.8 1.2 0.0</span></span>
+<span id="cb42-8"><a href="#cb42-8"></a><span class="co">##       E 1.7 0.1 0.1 Inf 1.1 Inf 1.2 Inf 1.2 Inf 0.0 1.0 1.3 1.0 0.2 0.7 1.3 Inf</span></span>
+<span id="cb42-9"><a href="#cb42-9"></a><span class="co">##       F 0.7 1.1 1.1 1.5 0.0 1.8 0.2 1.3 0.2 1.4 1.1 0.1 0.2 0.1 1.2 0.4 0.2 1.4</span></span>
+<span id="cb42-10"><a href="#cb42-10"></a><span class="co">##       G 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.1 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.3</span></span>
+<span id="cb42-11"><a href="#cb42-11"></a><span class="co">##        control</span></span>
+<span id="cb42-12"><a href="#cb42-12"></a><span class="co">## treated   Z</span></span>
+<span id="cb42-13"><a href="#cb42-13"></a><span class="co">##       A 0.3</span></span>
+<span id="cb42-14"><a href="#cb42-14"></a><span class="co">##       B 0.3</span></span>
+<span id="cb42-15"><a href="#cb42-15"></a><span class="co">##       C 1.5</span></span>
+<span id="cb42-16"><a href="#cb42-16"></a><span class="co">##       D Inf</span></span>
+<span id="cb42-17"><a href="#cb42-17"></a><span class="co">##       E 0.4</span></span>
+<span id="cb42-18"><a href="#cb42-18"></a><span class="co">##       F 1.4</span></span>
+<span id="cb42-19"><a href="#cb42-19"></a><span class="co">##       G 1.5</span></span></code></pre></div>
 <p>Entries of <code>Inf</code> or <code>NaN</code> in a distance matrix are interpreted as forbidden matches. Thus</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(cap.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="dt">data =</span> nuke.nopt)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">pairmatch</span>(cap.dist <span class="op">+</span><span class="st"> </span><span class="kw">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="dt">data =</span> nuke.nopt)</span></code></pre></div>
 <p>matches on <code>cap</code>, insisting that paired units not differ by more than 2 pooled SDs in <code>cap</code>. If you would prefer to set a requirement on how much paired units can differ in <code>cap</code> in its original units, rather than standard units, then you would have to create <code>cap.dist</code> in a somewhat different way. There’s an example on the help page for <code><a href="../reference/caliper-methods.html">caliper()</a></code>. Enter <code><a href="../reference/caliper-methods.html">help(caliper)</a></code> at the <em>R</em> command line.</p>
 </div>
 <div class="section level3">
@@ -646,21 +638,21 @@
 </h3>
 <p>Below are some suggestions of other data sets you could try this out on.</p>
 <p>For another interesting (toy) data set, you can use the “tli” data set in the <strong><a href="https://cran.r-project.org/package=xtable" class="external-link">xtable</a></strong> package.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"xtable"</span>) <span class="co"># if not already installed</span></span>
-<span id="cb41-2"><a href="#cb41-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(tli, <span class="dt">package =</span> <span class="st">"xtable"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"xtable"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb44-2"><a href="#cb44-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(tli, <span class="dt">package =</span> <span class="st">"xtable"</span>)</span></code></pre></div>
 <p>You might compare test scores for kids with <code>disadvg=="YES"</code> to those of kids with <code>disadvg=="NO"</code> using propensity matching, in some combination with Mahalanobis matching and caliper matching. A check of propensity overlap may inform your decision as to whether to include a propensity caliper. Be sure to check for balance, and do check the structure of the matched sets.</p>
 <p>Three sources of  data can be gotten as follows. First, Paul Rosenbaum has collected many of the data sets discussed in his <em>Design of Observational Studies</em> (2010) into the <strong><a href="https://cran.r-project.org/package=DOS" class="external-link">DOS</a></strong> and <strong><a href="https://cran.r-project.org/package=DOS2" class="external-link">DOS2</a></strong> packages.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"DOS"</span>) <span class="co"># if not already installed</span></span>
-<span id="cb42-2"><a href="#cb42-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"DOS2"</span>) <span class="co"># if not already installed</span></span>
-<span id="cb42-3"><a href="#cb42-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(<span class="dt">package =</span> <span class="st">"DOS"</span>)</span>
-<span id="cb42-4"><a href="#cb42-4"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(<span class="dt">package =</span> <span class="st">"DOS2"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"DOS"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"DOS2"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb45-3"><a href="#cb45-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(<span class="dt">package =</span> <span class="st">"DOS"</span>)</span>
+<span id="cb45-4"><a href="#cb45-4"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(<span class="dt">package =</span> <span class="st">"DOS2"</span>)</span></code></pre></div>
 <p>Second, the “lalonde” data set, discussed by Lalonde (1986, <em>Am. Econom. Rev.</em>), Dehejia and Wahba (1999, <em>JASA</em>) and Smith and Todd (2005, <em>J. Econom.</em>), is bundled with several <em>R</em> packages, including <strong><a href="https://cran.r-project.org/package=arm" class="external-link">arm</a></strong> and <strong><a href="https://cran.r-project.org/package=Matching" class="external-link">Matching</a></strong>. To get it:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"arm"</span>) <span class="co"># if not already installed</span></span>
-<span id="cb43-2"><a href="#cb43-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(lalonde, <span class="dt">package =</span> <span class="st">"arm"</span>)</span>
-<span id="cb43-3"><a href="#cb43-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">help</span>(<span class="st">"lalonde"</span>, <span class="dt">package =</span> <span class="st">"arm"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"arm"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb46-2"><a href="#cb46-2"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">data</span>(lalonde, <span class="dt">package =</span> <span class="st">"arm"</span>)</span>
+<span id="cb46-3"><a href="#cb46-3"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">help</span>(<span class="st">"lalonde"</span>, <span class="dt">package =</span> <span class="st">"arm"</span>)</span></code></pre></div>
 <p>Third, the data used by Connors et al (1996, <em>J. Am. Med. Assoc.</em>) to examine costs, benefits and risks associated with right heart catheterization is bundled with Frank Harrell and collaborators’ <strong><a href="https://cran.r-project.org/package=Hmisc" class="external-link">Hmisc</a></strong> package.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"Hmisc"</span>) <span class="co"># if not already installed</span></span>
-<span id="cb44-2"><a href="#cb44-2"></a><span class="op">&gt;</span><span class="st"> </span>Hmisc<span class="op">:::</span><span class="kw">getHdata</span>(rhc, <span class="dt">what =</span> <span class="st">"all"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">install.packages</span>(<span class="st">"Hmisc"</span>) <span class="co"># if not already installed</span></span>
+<span id="cb47-2"><a href="#cb47-2"></a><span class="op">&gt;</span><span class="st"> </span>Hmisc<span class="op">:::</span><span class="kw">getHdata</span>(rhc, <span class="dt">what =</span> <span class="st">"all"</span>)</span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

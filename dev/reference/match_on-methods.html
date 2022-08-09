@@ -30,7 +30,7 @@ in much the same way as dense matrices."><meta name="robots" content="noindex"><
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.3.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.4.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@ in much the same way as dense matrices."><meta name="robots" content="noindex"><
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/MCFSolutions.html">Classes and methods for min-cost flow solutions</a>
-    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
+    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch package</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
   </div>
@@ -242,7 +242,7 @@ needed to compute sparse distance matrices.</p>
   a fitted propensity score model. From this it extracts distances on the
   <em>linear</em> propensity score: fitted values of the linear predictor, the
   link function applied to the estimated conditional probabilities, as opposed
-  to the estimated conditional probabilities themselves (Rosenbaum \&amp; Rubin,
+  to the estimated conditional probabilities themselves (Rosenbaum &amp; Rubin,
   1985).  For example, a logistic model (<code>glm</code> with
   <code>family=binomial()</code>) has the logit function as its link, so from such
   models <code>match_on</code> computes distances in terms of logits of the
