@@ -1,4 +1,4 @@
-## Changes in **optmatch** Version 0.10.3.9001
+ ## Changes in **optmatch** Version 0.10.4
 
 - When including factor variables on the right hand side of the formula passed
   into `match_on()`, now more simply calculates the contrast to enable more
@@ -6,6 +6,8 @@
 - `dbind()` will now properly support binding more than 26 unique matrices when
   renaming is necessary; in fact it supports up to 18,278 uniquely renamed
   matrices.
+- A few tweaks in documentation, testing and vignettes to satisfy CRAN
+  requirements and harden against loss of dependencies.
 
 ## Changes in **optmatch** Version 0.10.3
 

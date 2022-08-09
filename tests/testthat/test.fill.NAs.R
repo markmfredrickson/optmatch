@@ -44,8 +44,9 @@ test_that("Function expansion", {
     ## right number of columns if 2 of the same variable used
     imputed.fmla <- fill.NAs(a ~ log(c) + sqrt(c), data = sample.df)
     expect_equal(dim(imputed.fmla)[2],  4)
+  } else {
+    expect_true(TRUE) # avoiding empty test warning
   }
-
 })
 
 test_that("Matrices are valid", {

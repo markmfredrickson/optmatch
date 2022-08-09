@@ -8,24 +8,25 @@
 There were 2 note:
 
 ```
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'Josh Errickson <jerrick@umich.edu>'
+❯ checking CRAN incoming feasibility ... NOTE
+  Maintainer: ‘Josh Errickson <jerrick@umich.edu>’
 
-Suggests or Enhances not in mainstream repositories:
-  rrelaxiv
-Availability using Additional_repositories specification:
-  rrelaxiv   yes   https://errickson.net/rrelaxiv
+  Possibly misspelled words in DESCRIPTION:
+    Klopfer (6:9)
 
-* checking package dependencies ... NOTE
-Package suggested but not available for checking: 'rrelaxiv'
+❯ checking package dependencies ... NOTE
+  Package suggested but not available for checking: ‘RItools’
 ```
 
 ## Comments about NOTEs
 
-Optional suggested dependency **rrelaxiv** has a very restrictive license and is
-not being submitted to CRAN. It is listed under `Additional_repositories`.
+Optional suggested dependency **RItools** is currently undergoing a revision to
+return to CRAN. The main goal of this release is to ensure any use of RItools is
+conditional so its absence of CRAN will not cause issues.
+
+"Klopfer" is a proper name.
 
 ## Submission comments
 
-Resubmitting per Uwe Ligges' request to trigger correction of `License_is_FOSS`
-and `License_restricts_use` flags.
+This submission primarily addresses "Packages in Suggests should be used
+conditionally".
