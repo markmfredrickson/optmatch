@@ -7,7 +7,7 @@ default for missing values in its column.  Functions in the formula
 are supported, with transformations happening before NA
 replacement.  The expanded data frame is useful for propensity
 modeling and balance checking when there are covariates with
-missing values."><title>Create missingness indicator variables and non-informatively fill in missing values — fill.NAs • optmatch</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Create missingness indicator variables and non-informatively fill in missing values — fill.NAs"><meta property="og:description" content="Given a data.frame or formula and data,
+missing values."><title>Create missingness indicator variables and non-informatively fill in missing values — fill.NAs • optmatch</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Create missingness indicator variables and non-informatively fill in missing values — fill.NAs"><meta property="og:description" content="Given a data.frame or formula and data,
 fill.NAs() returns an expanded data frame, including a new
 missingness flag for each variable with missing values and
 replacing each missing entry with a value representing a reasonable
@@ -26,7 +26,7 @@ missing values."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@ missing values."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch and RItools packages</a>
+    <a class="dropdown-item" href="../articles/fullmatch-vignette.html">Matching in R using the optmatch package</a>
     <a class="dropdown-item" href="../articles/matching-from-foreign-software.html">Using Optmatch on data in SAS, Stata, etc</a>
     <a class="dropdown-item" href="../articles/matching-within-subgroups.html">Combining Matches Within Subgroups</a>
   </div>
@@ -83,7 +83,7 @@ missing values.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fill.NAs</span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="cn">NULL</span>, all.covs <span class="op">=</span> <span class="cn">FALSE</span>, contrasts.arg <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fill.NAs</span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="cn">NULL</span>, all.covs <span class="op">=</span> <span class="cn">FALSE</span>, contrasts.arg <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -92,14 +92,20 @@ missing values.</p>
 <dd><p>Can be either a data frame (in which case the data
 argument should be <code>NULL</code>) or a formula (in which case data
 must be a data.frame)</p></dd>
+
+
 <dt>data</dt>
 <dd><p>If x is a formula, this must be a data.frame. Otherwise
 it will be ignored.</p></dd>
+
+
 <dt>all.covs</dt>
 <dd><p>Should the response variable be imputed? For
 formula <code>x</code>, this is the variable on the left hand side. For
 <code>data.frame</code> <code>x</code>, the response is considered the first
 column.</p></dd>
+
+
 <dt>contrasts.arg</dt>
 <dd><p>(from <code>model.matrix</code>) A list, whose
 entries are values (numeric matrices or character strings naming
@@ -107,13 +113,17 @@ functions) to be used as replacement values for the
 <code><a href="https://rdrr.io/r/stats/contrasts.html" class="external-link">contrasts</a></code> replacement function and whose names are
 the names of columns of <code>data</code> containing
 <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></code>s.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>data.frame</code> with all <code>NA</code> values replaced with
+    
+
+<p>A <code>data.frame</code> with all <code>NA</code> values replaced with
   mean values and additional indicator columns for each column
-  including missing values. Suitable for directly passing to
-<code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code> or other model building functions to build
+  including missing values. Suitable for directly passing to</p>
+<p></p>
+<p><code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code> or other model building functions to build
   propensity scores.</p>
     </div>
     <div class="section level2">
@@ -168,29 +178,29 @@ problem. This behavior can be overridden by setting <code>all.covs
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">### Extract some representative covariates:</span></span>
-<span class="r-in"><span class="va">np.missing</span> <span class="op">&lt;-</span> <span class="va">nuclearplants</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'t1'</span>, <span class="st">'t2'</span>, <span class="st">'ne'</span>, <span class="st">'ct'</span>, <span class="st">'cum.n'</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"></span>
-<span class="r-in"> <span class="co">### create some missingness in the covariates</span></span>
-<span class="r-in"> <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span class="r-in"> <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
-<span class="r-in"></span>
-<span class="r-in"> <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">   <span class="va">missing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">.1</span>, size <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span>
-<span class="r-in">   <span class="kw">if</span> <span class="op">(</span><span class="va">missing</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">     <span class="va">np.missing</span><span class="op">[</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">missing</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
-<span class="r-in">   <span class="op">}</span></span>
-<span class="r-in"> <span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Restore outcome and treatment variables:</span></span>
-<span class="r-in"><span class="va">np.missing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'cost'</span>, <span class="st">'pr'</span><span class="op">)</span><span class="op">]</span>, <span class="va">np.missing</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### Fit a propensity score but with missing covariate data flagged</span></span>
-<span class="r-in"><span class="co">### and filled in, as in Rosenbaum and Rubin (1984, Appendix):</span></span>
-<span class="r-in"><span class="va">np.filled</span> <span class="op">&lt;-</span> <span class="fu">fill.NAs</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">*</span> <span class="va">t2</span>, <span class="va">np.missing</span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># Look at np.filled to establish what missingness flags were created</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">### Extract some representative covariates:</span></span></span>
+<span class="r-in"><span><span class="va">np.missing</span> <span class="op">&lt;-</span> <span class="va">nuclearplants</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'t1'</span>, <span class="st">'t2'</span>, <span class="st">'ne'</span>, <span class="st">'ct'</span>, <span class="st">'cum.n'</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span> <span class="co">### create some missingness in the covariates</span></span></span>
+<span class="r-in"><span> <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span></span>
+<span class="r-in"><span> <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span> <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>   <span class="va">missing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">.1</span>, size <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   <span class="kw">if</span> <span class="op">(</span><span class="va">missing</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>     <span class="va">np.missing</span><span class="op">[</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">missing</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span>   <span class="op">}</span></span></span>
+<span class="r-in"><span> <span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Restore outcome and treatment variables:</span></span></span>
+<span class="r-in"><span><span class="va">np.missing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">nuclearplants</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'cost'</span>, <span class="st">'pr'</span><span class="op">)</span><span class="op">]</span>, <span class="va">np.missing</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### Fit a propensity score but with missing covariate data flagged</span></span></span>
+<span class="r-in"><span><span class="co">### and filled in, as in Rosenbaum and Rubin (1984, Appendix):</span></span></span>
+<span class="r-in"><span><span class="va">np.filled</span> <span class="op">&lt;-</span> <span class="fu">fill.NAs</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">*</span> <span class="va">t2</span>, <span class="va">np.missing</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Look at np.filled to establish what missingness flags were created</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pr t1 t2 t1:t2 t1.NA t2.NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> H  0 14 46   644 FALSE FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> I  0 10 73   730 FALSE FALSE</span>
@@ -198,66 +208,66 @@ problem. This behavior can be overridden by setting <code>all.covs
 <span class="r-out co"><span class="r-pr">#&gt;</span> J  0 11 67   737 FALSE FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> B  1 11 78   858 FALSE FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> K  0 13 51   663 FALSE FALSE</span>
-<span class="r-in"><span class="op">(</span><span class="va">np.glm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">.</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">np.glm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">.</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = pr ~ ., family = binomial, data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -11.62439     -0.46387      0.01730      0.01814    -15.98365      0.76069  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -44.68131      0.14107      0.44824      0.01413      0.37406      1.17144  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 24.33 	AIC: 36.33</span>
-<span class="r-in"><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="va">`t1:t2`</span> <span class="op">+</span> <span class="va">t1.NA</span> <span class="op">+</span> <span class="va">t2.NA</span>,</span>
-<span class="r-in">                family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 20.21 	AIC: 32.21</span>
+<span class="r-in"><span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">t1</span> <span class="op">+</span> <span class="va">t2</span> <span class="op">+</span> <span class="va">`t1:t2`</span> <span class="op">+</span> <span class="va">t1.NA</span> <span class="op">+</span> <span class="va">t2.NA</span>,</span></span>
+<span class="r-in"><span>                family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA, family = binomial, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -11.62439     -0.46387      0.01730      0.01814    -15.98365      0.76069  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -44.68131      0.14107      0.44824      0.01413      0.37406      1.17144  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 24.33 	AIC: 36.33</span>
-<span class="r-in"><span class="co"># In a non-interactive session, the following may help, as long as</span></span>
-<span class="r-in"><span class="co"># the formula passed to `fill.NAs` (plus any missingness flags) is</span></span>
-<span class="r-in"><span class="co"># the desired formula for the glm.</span></span>
-<span class="r-in"><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 20.21 	AIC: 32.21</span>
+<span class="r-in"><span><span class="co"># In a non-interactive session, the following may help, as long as</span></span></span>
+<span class="r-in"><span><span class="co"># the formula passed to `fill.NAs` (plus any missingness flags) is</span></span></span>
+<span class="r-in"><span><span class="co"># the desired formula for the glm.</span></span></span>
+<span class="r-in"><span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></span><span class="op">(</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span>, family<span class="op">=</span><span class="va">binomial</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  glm(formula = formula(terms(np.filled)), family = binomial, data = np.filled)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -11.62439     -0.46387      0.01730      0.01814    -15.98365      0.76069  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -44.68131      0.14107      0.44824      0.01413      0.37406      1.17144  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    39.75 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 24.33 	AIC: 36.33</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">### produce a matrix of propensity distances based on the propensity model</span></span>
-<span class="r-in"><span class="co">### with fill-in and flagging. Then perform pair matching on it:</span></span>
-<span class="r-in"><span class="fu"><a href="pairmatch.html">pairmatch</a></span><span class="op">(</span><span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">np.glm</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 20.21 	AIC: 32.21</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">### produce a matrix of propensity distances based on the propensity model</span></span></span>
+<span class="r-in"><span><span class="co">### with fill-in and flagging. Then perform pair matching on it:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="pairmatch.html">pairmatch</a></span><span class="op">(</span><span class="fu"><a href="match_on-methods.html">match_on</a></span><span class="op">(</span><span class="va">np.glm</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span>, data<span class="op">=</span><span class="va">np.filled</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.2  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; 1.10 &lt;NA&gt;  1.3  1.9 &lt;NA&gt; &lt;NA&gt;  1.8 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;NA&gt;  1.1  1.1 &lt;NA&gt;  1.2 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.3  1.9  1.3 &lt;NA&gt;  1.4 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.4  1.4  1.6  1.5  1.5  1.6  1.1  1.7 &lt;NA&gt; &lt;NA&gt;  1.7 &lt;NA&gt;  1.3  1.8  1.9 1.10 </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## fill NAs without using treatment contrasts by making a list of contrasts for</span></span>
-<span class="r-in"><span class="co">## each factor ## following hints from https://stackoverflow.com/a/4569239/161808</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">np.missing</span><span class="op">$</span><span class="va">t1F</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">$</span><span class="va">t1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">cov.factors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t1F"</span>,<span class="st">"t2"</span><span class="op">)</span><span class="op">]</span>,<span class="va">is.factor</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">cov.contrasts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="va">np.missing</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cov.factors</span><span class="op">)</span><span class="op">[</span><span class="va">cov.factors</span><span class="op">]</span>,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span>,</span>
-<span class="r-in">  <span class="va">contrasts</span>, contrasts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## make a data frame filling the missing covariate values, but without</span></span>
-<span class="r-in"><span class="co">## excluding any levels of any factors</span></span>
-<span class="r-in"><span class="va">np.noNA2</span><span class="op">&lt;-</span><span class="fu">fill.NAs</span><span class="op">(</span><span class="va">pr</span><span class="op">~</span><span class="va">t1F</span><span class="op">+</span><span class="va">t2</span>,data<span class="op">=</span><span class="va">np.missing</span>,contrasts.arg<span class="op">=</span><span class="va">cov.contrasts</span><span class="op">)</span></span>
-<span class="r-in"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.6  1.4  1.7  1.5  1.2  1.6  1.5  1.7 1.10  1.8 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.8  1.9 1.10 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## fill NAs without using treatment contrasts by making a list of contrasts for</span></span></span>
+<span class="r-in"><span><span class="co">## each factor ## following hints from https://stackoverflow.com/a/4569239/161808</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">np.missing</span><span class="op">$</span><span class="va">t1F</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">$</span><span class="va">t1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cov.factors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">np.missing</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t1F"</span>,<span class="st">"t2"</span><span class="op">)</span><span class="op">]</span>,<span class="va">is.factor</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cov.contrasts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">np.missing</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cov.factors</span><span class="op">)</span><span class="op">[</span><span class="va">cov.factors</span><span class="op">]</span>,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>  <span class="va">contrasts</span>, contrasts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## make a data frame filling the missing covariate values, but without</span></span></span>
+<span class="r-in"><span><span class="co">## excluding any levels of any factors</span></span></span>
+<span class="r-in"><span><span class="va">np.noNA2</span><span class="op">&lt;-</span><span class="fu">fill.NAs</span><span class="op">(</span><span class="va">pr</span><span class="op">~</span><span class="va">t1F</span><span class="op">+</span><span class="va">t2</span>,data<span class="op">=</span><span class="va">np.missing</span>,contrasts.arg<span class="op">=</span><span class="va">cov.contrasts</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -269,7 +279,7 @@ problem. This behavior can be overridden by setting <code>all.covs
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>
