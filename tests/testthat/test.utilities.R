@@ -51,7 +51,7 @@ test_that("toZ", {
 
 test_that("#159 - toZ for labelled", {
   if (requireNamespace("haven", quietly = TRUE)) {
-    Z <- labelled(c(0,1,0), c(Treatment = 1, Control = 0))
+    Z <- haven::labelled(c(0,1,0), c(Treatment = 1, Control = 0))
     expect_is(toZ(Z), "logical")
     expect_length(Z, 3)
     Znum <- as.numeric(Z)
