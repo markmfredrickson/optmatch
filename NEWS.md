@@ -1,3 +1,7 @@
+## Changes in **optmatch** Version 0.10.5
+
+Minor revision to address a failing test.
+
 ## Changes in **optmatch** Version 0.10.4
 
 - When including factor variables on the right hand side of the formula passed
