@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.10.4.9001
+Version: 0.10.5.9001
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using minimum cost flow, oriented
     to matching of treatment and control groups in observational studies ('Hansen'
@@ -46,7 +46,7 @@ Enhances:
 License: MIT + file LICENSE
 License_is_FOSS: yes
 License_restricts_use: no
-URL: https://markmfredrickson.github.io/optmatch/, https://github.com/markmfredrickson/optmatch
+URL: http://optmat.ch, https://github.com/markmfredrickson/optmatch
 BugReports: https://github.com/markmfredrickson/optmatch/issues
 Additional_repositories: https://errickson.net/rrelaxiv
 Collate:
