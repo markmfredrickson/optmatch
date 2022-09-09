@@ -181,7 +181,7 @@ if (requireNamespace("pander", quietly = TRUE)) {
   pander::pandoc.table(c, style="multiline", missing="",
                        caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
 } else {
-  show(p)
+  show(c)
 }
 ```
 
