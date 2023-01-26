@@ -237,7 +237,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY **retval, struct hsearch_data *ht
              available indeces.  */
           if (idx <= hval2)
 	    idx = htab->size + idx - hval2;
-	  else
+          else
 	    idx -= hval2;
 
 	  /* If we visited all entries leave the loop unsuccessfully.  */
