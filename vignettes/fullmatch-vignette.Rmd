@@ -456,10 +456,17 @@ print(myb, digits=1)
 
 ```{r, fig.width=5, fig.height=5, echo = FALSE, fig.alt="Love plot showing the change in balance with and without matching"}
 if (requireNamespace("RItools", quietly = TRUE)) {
-  myb <- RItools::balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
-                                strata(ps.pm2), data = nuclearplants)
-  print(myb, digits=1)
-  plot(myb)
+  tryCatch({
+    myb <- RItools::balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
+                                  strata(ps.pm2), data = nuclearplants)
+    print(myb, digits=1)
+    p <- plot(myb)
+    print(p)
+  }, error = function(e) {
+    cat(paste("RItools is producing an unexpected error. Please report",
+              "this to https://github.com/markmfredrickson/optmatch/issues"))
+  })
+
 } else {
   cat("RItools package not installed properly")
 }
