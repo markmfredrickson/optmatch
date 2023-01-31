@@ -359,7 +359,7 @@ probabilities) or `scores(psm)` (estimated logits of probabilities).
 It's often a good idea to compare the groups' distributions on the
 propensity score.
 
-```{r,fig.width=5, fig.height=5}
+```{r,fig.width=5, fig.height=5, fig.alt="Box plot showing distribution of propensity scores"}
 boxplot(psm)
 ```
 
@@ -454,7 +454,7 @@ plot(myb)
 print(myb, digits=1)
 ```
 
-```{r, fig.width=5, fig.height=5, echo = FALSE}
+```{r, fig.width=5, fig.height=5, echo = FALSE, fig.alt="Love plot showing the change in balance with and without matching"}
 if (requireNamespace("RItools", quietly = TRUE)) {
   myb <- RItools::balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
                                 strata(ps.pm2), data = nuclearplants)
