@@ -91,21 +91,23 @@ test_that("Hinting decreases runtimes",{
   pm <- edgelist(m)
   pm$dist <- as.integer(100*pm$dist)
   nodes_dummy <- pairmatch_nodeinfo(pm)
-  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-    slvr <- "RELAX-IV"
-  } else {
-    slvr <- "LEMON"
-  }
+  for (i in 1:2) {
+    if (i == 1 & requireNamespace("rrelaxiv", quietly = TRUE)) {
+      slvr <- "RELAX-IV"
+    } else {
+      slvr <- "LEMON"
+    }
 
-  t0  <- system.time(res0 <- fmatch(pm, 1, 1, 1, f=ff,
-                                   node_info=nodes_dummy, solver = slvr)
-                     )
-  expect_false(is.null(mcfs0  <-  res0$MCFSolution))
-  n0  <-  mcfs0@nodes
-  t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0,
-                                    solver = slvr))
-  expect_gt(t0['elapsed'],
-            t1['elapsed'])
+    t0  <- system.time(res0 <- fmatch(pm, 1, 1, 1, f=ff,
+                                      node_info=nodes_dummy, solver = slvr)
+                       )
+    expect_false(is.null(mcfs0  <-  res0$MCFSolution))
+    n0  <-  mcfs0@nodes
+    t1  <- system.time(res1 <- fmatch(pm, 1, 1, 1, f=ff, node_info=n0,
+                                      solver = slvr))
+    expect_gt(t0['elapsed'],
+              t1['elapsed'])
+  }
 })
 ### next tests disabled due to an odd scoping-related error
 ### occurring only within the test, not in interactive use.

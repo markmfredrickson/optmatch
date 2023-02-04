@@ -52,14 +52,17 @@ test_that("No Warnings", {
   # omit.fraction is NULL
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    expect_silent(
+    res <- solve_reg_fm_prob(node_info = nodes_shell_fmatch(rownames(d), colnames(d)),
+                       distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
+                       tolerance = tolerance, omit.fraction = NULL, solver = "RELAX-IV")
+  )
     slvr <- "RELAX-IV"
-  } else {
-    slvr <- "LEMON"
   }
   expect_silent(
     res <- solve_reg_fm_prob(node_info = nodes_shell_fmatch(rownames(d), colnames(d)),
                        distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                       tolerance = tolerance, omit.fraction = NULL, solver = slvr)
+                       tolerance = tolerance, omit.fraction = NULL, solver = "LEMON")
   )
 })
 
@@ -72,12 +75,16 @@ test_that("NA for unmatched items", {
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
     slvr <- "RELAX-IV"
-  } else {
-    slvr <- "LEMON"
+    res <- solve_reg_fm_prob(node_info = nodes_shell_fmatch(rownames(d), colnames(d)),
+                     distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
+                     tolerance = tolerance, omit.fraction = NULL, solver = "RELAX-IV")
+
+    expect_equal(length(res$cells), 5)
+
   }
   res <- solve_reg_fm_prob(node_info = nodes_shell_fmatch(rownames(d), colnames(d)),
                      distspec = d, max.cpt = max.cpt, min.cpt = min.cpt,
-                     tolerance = tolerance, omit.fraction = NULL, solver = slvr)
+                     tolerance = tolerance, omit.fraction = NULL, solver = "LEMON")
 
   expect_equal(length(res$cells), 5)
 
