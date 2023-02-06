@@ -21,13 +21,14 @@ pairmatch_nodeinfo  <- function(edges) {
                      )
   new("NodeInfo", adf)
 }
+
+
 for (i in 1:2) {
   if (i == 1 & requireNamespace("rrelaxiv", quietly = TRUE)) {
     slvr <- "RELAX-IV"
   } else {
     slvr <- "LEMON"
   }
-
 
   test_that("fmatch accepts DistanceSpecifications", {
     v <- c(1, Inf, 2,
@@ -145,10 +146,14 @@ for (i in 1:2) {
     expect_false(is.null(mcfs0  <-  res$MCFSolution))
     n0  <-  mcfs0@nodes
     expect_silent(fmatch(pm, 2, 2, node_info=n0, solver = slvr))
-    n0_madebad  <- n0
-    expect_is(n0_madebad$price, "integer")
-    n0_madebad[n0_madebad$name=="A", 'price']  <- .5 # no longer integer
-    expect_error(fmatch(pm, 2, 2, node_info=n0_madebad), solver = slvr)
+
+    if (slvr == "RELAX-IV") {
+      #229
+      n0_madebad  <- n0
+      expect_is(n0_madebad$price, "integer")
+      n0_madebad[n0_madebad$name=="A", 'price']  <- .5 # no longer integer
+      expect_error(fmatch(pm, 2, 2, node_info=n0_madebad, solver = slvr))
+    }
 
     expect_false(n0[n0$name=="A",'upstream_not_down']) # 'A' is downstream,
     n1  <- new("NodeInfo", n0[n0$name!="A",])#  so we can pass a
