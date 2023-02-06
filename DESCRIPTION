@@ -1,5 +1,5 @@
 Package: optmatch
-Version: 0.10.5.9001
+Version: 0.10.6
 Title: Functions for Optimal Matching
 Description: Distance based bipartite matching using minimum cost flow, oriented
     to matching of treatment and control groups in observational studies ('Hansen'
