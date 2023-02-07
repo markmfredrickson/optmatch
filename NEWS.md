@@ -1,4 +1,4 @@
-## Changes in **optmatch** Version 0.10.5
+## Changes in **optmatch** Version 0.10.6
 
 - Adjusted a check to avoid ambiguous failures when using LEMON vs RELAX-IV.
 - Updated CITATION to use `bibentry()`.
