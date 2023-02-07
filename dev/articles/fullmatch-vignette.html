@@ -27,7 +27,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.5.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.6.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@
                         <h4 data-toc-skip class="author">Ben B. Hansen,
 Mark Fredrickson, Josh Errickson, and Josh Buckner</h4>
             
-            <h4 data-toc-skip class="date">2023-02-04</h4>
+            <h4 data-toc-skip class="date">2023-02-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/markmfredrickson/optmatch/blob/HEAD/vignettes/fullmatch-vignette.Rmd" class="external-link"><code>vignettes/fullmatch-vignette.Rmd</code></a></small>
       <div class="d-none name"><code>fullmatch-vignette.Rmd</code></div>
@@ -658,13 +658,8 @@ a number of axes. Here is a demonstration:</p>
 <span><span class="co">## ps.pm2         9  8     0.3</span></span>
 <span><span class="co">## --            11  8     0.2</span></span>
 <span><span class="co">## ---</span></span>
-<span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span>
-<span><span class="co">## Warning: Unknown or uninitialised column: `strata`.</span></span>
-<span><span class="co">## Don't know how to automatically pick scale for object of type <span style="color: #0000BB;">&lt;function&gt;</span>.</span></span>
-<span><span class="co">## Defaulting to continuous.</span></span>
-<span><span class="co">## Don't know how to automatically pick scale for object of type <span style="color: #0000BB;">&lt;function&gt;</span>.</span></span>
-<span><span class="co">## Defaulting to continuous.</span></span>
-<span><span class="co">## RItools is producing an unexpected error. Please report this to https://github.com/markmfredrickson/optmatch/issues</span></span></code></pre>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
+<p><img src="fullmatch-vignette_files/figure-html/unnamed-chunk-41-1.png" alt="Love plot showing the change in balance with and without matching" width="480"></p>
 <p>For a very compact representation of the assessment, call
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the match, passing along the fitted propensity
 model as a second argument. If you’ve got <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong>
