@@ -33,29 +33,31 @@ test_that("Basic Tests", {
 })
 
 test_that("Function expansion", {
-  if (require(splines)) {
+  if (requireNamespace("splines", quietly = TRUE)) {
     # for variables encapsulated in functions, only the variable should be expanded into a NA column
     sample.df <- data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA, 3, 4), 20))
 
-    result <- fill.NAs(a ~ ns(c, df = 3), sample.df)
+    result <- fill.NAs(a ~ splines::ns(c, df = 3), sample.df)
     expect_equal(length(result), 5)
     expect_equal(colnames(result)[1], "a")
 
     ## right number of columns if 2 of the same variable used
     imputed.fmla <- fill.NAs(a ~ log(c) + sqrt(c), data = sample.df)
     expect_equal(dim(imputed.fmla)[2],  4)
-  } else {
-    expect_true(TRUE) # avoiding empty test warning
   }
+  expect_true(TRUE) # avoiding empty test warning
 })
 
 test_that("Matrices are valid", {
-  sample.df <- as.matrix(data.frame(a = 1:100, b = 100:1, c = rep(c(1,2, NA,
-  3, 4), 20)))
+  if (requireNamespace("splines", quietly = FALSE)) {
+    sample.df <- as.matrix(data.frame(a = 1:100, b = 100:1,
+                                      c = rep(c(1, 2, NA, 3, 4), 20)))
 
-  result <- fill.NAs(a ~ ns(c, df = 3), sample.df)
-  expect_equal(length(result), 5)
-  expect_equal(colnames(result)[1], "a")
+    result <- fill.NAs(a ~ splines::ns(c, df = 3), sample.df)
+    expect_equal(length(result), 5)
+    expect_equal(colnames(result)[1], "a")
+  }
+  expect_true(TRUE) # avoid empty test warning
 })
 
 test_that("Results pass to lm()", {

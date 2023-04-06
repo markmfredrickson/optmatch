@@ -3,7 +3,7 @@
 ################################################################################
 
 ## Disabling for now. See issue 104 for details on when to turn this test back on.
-## if (require("RItools")) {
+## if (requireNamespace("RItools", quietly = TRUE)) {
 ##   context("RItools interaction")
 
 ##   test_that("Summary function adds RItools info", {

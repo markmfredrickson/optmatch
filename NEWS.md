@@ -1,3 +1,7 @@
+## Changes in **optmatch** Version 0.10.6.9001
+
+- Hardened tests further against package unavailability
+
 ## Changes in **optmatch** Version 0.10.6
 
 - Adjusted a check to avoid ambiguous failures when using LEMON vs RELAX-IV.

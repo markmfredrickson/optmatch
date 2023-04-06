@@ -10,9 +10,10 @@ test_that("", {
   expect_true("DenseMatrix" %in% class(m2))
   expect_true("BlockedInfinitySparseMatrix" %in% class(m3))
 
-  if ( (require(splines)) ) {
-    m4 <- match_on(pr ~ ns(date,df=3) + cum.n, data = nuclearplants)
-    m5 <- match_on(pr ~ ns(date,df=3) + cum.n, data = nuclearplants, exactMatch(pr ~ pt, data = nuclearplants))
+  if ( (requireNamespace("splines", quietly = TRUE)) ) {
+    m4 <- match_on(pr ~ splines::ns(date,df=3) + cum.n, data = nuclearplants)
+    m5 <- match_on(pr ~ splines::ns(date,df=3) + cum.n, data = nuclearplants,
+                   exactMatch(pr ~ pt, data = nuclearplants))
     expect_true("DenseMatrix" %in% class(m4))
     expect_true("BlockedInfinitySparseMatrix" %in% class(m5))
   }
