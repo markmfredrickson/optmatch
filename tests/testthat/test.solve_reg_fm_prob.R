@@ -95,3 +95,27 @@ test_that("NA is true, not string", {
                                  within = exactMatch(pr ~ pt, data = nuclearplants)))
   expect_true(all(is.na(f1)))
 })
+test_that("tolerance relaxed if provided distances get too big",{
+### Example thanks to Noah Greifer. 
+d <- match_on(pr ~ cost, data = nuclearplants)
+d@.Data[1]  <- 3e14
+expect_silent(fullmatch(d, data=nuclearplants))
+### Based on a matching problem that was incorrectly marked infeasible.
+### This subproblem errored instead, but same general concept.   
+    mdat  <-
+        data.frame(z=c(rep(F, 5), rep(T, 14), rep(F, 9)),
+                   x=c(-3.645e+15, -2.962e+15, 7.199e+14,
+                       3.204e+14,  -2.262e+14, 4.467e+14,
+                       -2.599e+14, 2.664e+14,  -2.866e+15,
+                       -3.098e+14, -8.89e+14,  -3.487e+14,
+                       5.981e+14,  -1.278e+14, -3.748e+15,
+                       4.056e+14,  -2.895e+14, -7.817e+14,
+                       -1.102e+14, -3.048e+14, -9.327e+13,
+                       -2.734e+14, 3.953e+14,  -8.083e+14,
+                       -1.885e+14, -3.315e+14, 2.389e+14,
+                       -7.801e+14)
+                   )
+    mdat  <- as.matrix(mdat)
+    row.names(mdat)  <- 1:nrow(mdat)
+    expect_silent(pm  <- pairmatch(mdat[,"x"], z=mdat[,"z"], data=mdat))
+})

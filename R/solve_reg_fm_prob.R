@@ -101,7 +101,7 @@ solve_reg_fm_prob <- function(node_info,
     old.o <- options(warn=-1)
     epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
     epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
-                min(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
+                max(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
             } else epsilon_lower_lim
     options(old.o)
 
