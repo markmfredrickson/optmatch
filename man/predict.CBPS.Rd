@@ -4,10 +4,10 @@
 \alias{predict.CBPS}
 \title{(Internal) Predict for CBPS objects}
 \usage{
-\method{predict}{CBPS}(x, newdata = NULL, type = c("link", "response"), ...)
+\method{predict}{CBPS}(object, newdata = NULL, type = c("link", "response"), ...)
 }
 \arguments{
-\item{x}{A CBPS object}
+\item{object}{A CBPS object}
 
 \item{newdata}{Unused.}
 
