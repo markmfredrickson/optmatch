@@ -444,22 +444,22 @@ setMethod("node.labels<-", "ANY", function(x, value) NULL)
 ## info about a subset of the first table's nodes. The two
 ## tables will be aligned using their "name" columns,
 ## not their node.labels (rownames).
-update.NodeInfo  <- function(old, new, ...)
+update.NodeInfo  <- function(object, new, ...)
 {
-    stopifnot(is(old, "NodeInfo"), is(new, "NodeInfo"),
-              !any(is.na(positions  <- match(new[['name']], old[['name']])))
+    stopifnot(is(object, "NodeInfo"), is(new, "NodeInfo"),
+              !any(is.na(positions  <- match(new[['name']], object[['name']])))
               )
-    price_col_position_old  <- which(old@names=="price")
+    price_col_position_old  <- which(object@names=="price")
     price_col_position_new  <- which(new@names=="price")
-    old@.Data[[price_col_position_old]][positions]  <-
+    object@.Data[[price_col_position_old]][positions]  <-
         new@.Data[[price_col_position_new]]
 
-    supply_col_position_old  <- which(old@names=="supply")
+    supply_col_position_old  <- which(object@names=="supply")
     supply_col_position_new  <- which(new@names=="supply")
-    old@.Data[[supply_col_position_old]][positions]  <-
+    object@.Data[[supply_col_position_old]][positions]  <-
         new@.Data[[supply_col_position_new]]
 
-    old
+    object
 }
 ##* `dplyr::filter()` method for NodeInfo's.
 filter.NodeInfo  <- function(.data, ...) {
