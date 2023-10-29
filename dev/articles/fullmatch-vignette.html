@@ -27,7 +27,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.6.9001</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.10.6.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@
                         <h4 data-toc-skip class="author">Ben B. Hansen,
 Mark Fredrickson, Josh Errickson, and Josh Buckner</h4>
             
-            <h4 data-toc-skip class="date">2023-10-25</h4>
+            <h4 data-toc-skip class="date">2023-10-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/markmfredrickson/optmatch/blob/HEAD/vignettes/fullmatch-vignette.Rmd" class="external-link"><code>vignettes/fullmatch-vignette.Rmd</code></a></small>
       <div class="d-none name"><code>fullmatch-vignette.Rmd</code></div>
@@ -191,19 +191,19 @@ comparisons.</p>
 do</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">pairmatch</span>(pr <span class="sc">~</span> cap, <span class="at">data =</span> nuke.nopt)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T </span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="do">## &lt;NA&gt;  1.2  1.1  1.1  1.2 &lt;NA&gt;  1.3 &lt;NA&gt;  1.3  1.7 &lt;NA&gt; &lt;NA&gt;  1.4  1.5 &lt;NA&gt; &lt;NA&gt; </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="do">## &lt;NA&gt;  1.1  1.1  1.2  1.2 &lt;NA&gt;  1.7 &lt;NA&gt;  1.3 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;  1.4  1.5  1.3 &lt;NA&gt; </span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    U    D    V    E    W    F    X    G    Y    Z </span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  1.6  1.4 &lt;NA&gt;  1.5 &lt;NA&gt;  1.6 &lt;NA&gt;  1.7 &lt;NA&gt; &lt;NA&gt;</span></span></code></pre></div>
 <p>For a more readable report of who gets matched to whom, type</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">print</span>(<span class="fu">pairmatch</span>(pr <span class="sc">~</span> cap, <span class="at">data =</span> nuke.nopt), <span class="at">grouped =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  Group Members</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.1    A, J</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.2    I, B</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.3    L, C</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.1    I, A</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.2    J, B</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.3    C, S</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.4    Q, D</span></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.5    R, E</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.6    U, F</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.7    N, G</span></span></code></pre></div>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">##    1.7    L, G</span></span></code></pre></div>
 <p>For matching on both <code>date</code> and <code>cap</code>, you’d
 type <code>pairmatch(pr ~ cap + date, ...)</code> instead of
 <code>pairmatch(pr ~ cap, ...)</code>. We’ll talk later about how this
@@ -466,7 +466,7 @@ parentheses.)</p>
 into account.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">summary</span>(<span class="fu">lm</span>(cap <span class="sc">~</span> pr <span class="sc">+</span> pm, <span class="at">data =</span> nuke.nopt))<span class="sc">$</span>coeff[<span class="st">"pr"</span>,]</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   Estimate Std. Error    t value   Pr(&gt;|t|) </span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  1.7142857  5.1395492  0.3335479  0.7500689</span></span></code></pre></div>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="do">## -6.5714286  4.2865079 -1.5330495  0.1761543</span></span></code></pre></div>
 <p>The <strong><a href="https://cran.r-project.org/package=RItools" class="external-link">RItools</a></strong>
 package’s <code><a href="https://rdrr.io/pkg/RItools/man/balanceTest.html" class="external-link">RItools::balanceTest()</a></code> function zeroes in on
 balance, and facilitates checking balance on multiple variables at the
@@ -489,11 +489,11 @@ same time. Here are some examples:</p>
 <pre><code><span><span class="co">##      strata():        pm                                         </span></span>
 <span><span class="co">##      stat      Treatment Control adj.diff std.diff    z          </span></span>
 <span><span class="co">## vars                                                             </span></span>
-<span><span class="co">## cap               883     881        1.71   0.01    0.36         </span></span>
-<span><span class="co">## t2                66.9    62.1      4.71    0.45    1.17         </span></span>
+<span><span class="co">## cap               883     890       -6.57   -0.03   -1.40        </span></span>
+<span><span class="co">## t2                66.9    61.3      5.57     0.54    1.49        </span></span>
 <span><span class="co">## ---Overall Test---</span></span>
 <span><span class="co">##    chisquare df p.value</span></span>
-<span><span class="co">## pm      2.02  2   0.364</span></span>
+<span><span class="co">## pm      6.73  2  0.0345</span></span>
 <span><span class="co">## ---</span></span>
 <span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
 <p><strong>Exercises.</strong></p>
@@ -595,7 +595,7 @@ deviations between the propensity scores.)</p>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">all.equal</span>(ps.pm, ps.pm2, <span class="at">check.attributes=</span><span class="cn">FALSE</span>)</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] TRUE</span></span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">all.equal</span>(ps.pm, ps.pm3, <span class="at">check.attributes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "8 string mismatches"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "7 string mismatches"</span></span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">summary</span>(ps.pm3)</span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Structure of matched sets:</span></span>
 <span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:1 0:1 </span></span>
@@ -645,17 +645,17 @@ a number of axes. Here is a demonstration:</p>
 <pre><code><span><span class="co">##       strata():    ps.pm2                                                --                                        </span></span>
 <span><span class="co">##       stat      Treatment Control adj.diff std.diff    z          Treatment Control adj.diff std.diff    z         </span></span>
 <span><span class="co">## vars                                                                                                               </span></span>
-<span><span class="co">## date                68      69       -0.2     0       -1              68      69       -0.1     0        0         </span></span>
+<span><span class="co">## date                68      69       -0.2     0        0              68      69       -0.1     0        0         </span></span>
 <span><span class="co">## t1                  14      14       -0.3     0        0              14      14        0.4     0        0         </span></span>
-<span><span class="co">## t2                  69      63        6       1        1              69      59       10       1        2         </span></span>
+<span><span class="co">## t2                  69      63        6       1        2              69      59       10       1        2         </span></span>
 <span><span class="co">## cap                 870     890      -20      0        0              870     805       65      0        1         </span></span>
 <span><span class="co">## ne                  0.2     0.1       0.10    0        1              0.2     0.3      -0.07    0        0         </span></span>
 <span><span class="co">## ct                  0.3     0.2       0.1     0        0              0.3     0.5      -0.2     0       -1         </span></span>
-<span><span class="co">## bw                  0.2     0.2      0.00     0        0              0.2     0.2      0.02     0        0         </span></span>
+<span><span class="co">## bw                  0.2     0.2      0.00     0       NA              0.2     0.2      0.02     0        0         </span></span>
 <span><span class="co">## cum.n               8       9        -0.5     0        0              8       9        -0.6     0        0         </span></span>
 <span><span class="co">## ---Overall Test---</span></span>
 <span><span class="co">##        chisquare df p.value</span></span>
-<span><span class="co">## ps.pm2         9  8     0.3</span></span>
+<span><span class="co">## ps.pm2         7  7     0.4</span></span>
 <span><span class="co">## --            11  8     0.2</span></span>
 <span><span class="co">## ---</span></span>
 <span><span class="co">## Signif. codes:  0 '***' 0.001 '** ' 0.01 '*  ' 0.05 '.  ' 0.1 '   ' 1</span></span></code></pre>
@@ -674,7 +674,7 @@ background, reporting the summary chi-square test results.</p>
 <span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Balance test overall result:</span></span>
 <span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   chisquare df p.value</span></span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="do">##        9.48  9   0.394</span></span></code></pre></div>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="do">##        7.31  8   0.503</span></span></code></pre></div>
 <p><strong>Exercise.</strong></p>
 <p>Try out {at least 3} different combinations of propensity score and
 Mahalanobis matching. Identify the matches that gives:</p>
