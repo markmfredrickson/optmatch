@@ -724,16 +724,16 @@ test_that("LEMON solvers", {
                   solver = LEMON("NetworkSimplex"))
 
   mytol <- .Machine$double.eps^(1/4)
-  match_equal(f1, f2, ignore.solver = FALSE, tolerance = mytol)
-  match_equal(f1, f3, ignore.solver = FALSE, tolerance= mytol)
-  match_equal(f1, f4, ignore.solver = FALSE, tolerance = mytol)
-  match_equal(f1, f5, ignore.solver = FALSE, tolerance = mytol)
-  match_equal(f1, f6, ignore.solver = FALSE, tolerance = mytol)
+  match_equivalent(f1, f2)
+  match_equivalent(f1, f3)
+  match_equivalent(f1, f4)
+  match_equivalent(f1, f5)
+  match_equivalent(f1, f6)
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
-    f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3, data = nuclearplants,
-                    solver = "RELAX-IV")
-    match_equal(f1, f7, ignore.solver = FALSE)
+    f7 <- fullmatch(pr ~ cost + t1, min.controls = 1, max.controls = 3,
+                    data = nuclearplants, solver = "RELAX-IV")
+    match_equivalent(f1, f7)
   }
 
 

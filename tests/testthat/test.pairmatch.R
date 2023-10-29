@@ -435,16 +435,16 @@ test_that("LEMON solvers", {
   p6 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
                   solver = LEMON("NetworkSimplex"))
   mytol <- .Machine$double.eps^(1/4)
-  match_equal(p1, p2, ignore.solver = FALSE, tol = mytol)
-  match_equal(p1, p3, ignore.solver = FALSE, tol = mytol)
-  match_equal(p1, p4, ignore.solver = FALSE, tol = mytol)
-  match_equal(p1, p5, ignore.solver = FALSE, tol = mytol)
-  match_equal(p1, p6, ignore.solver = FALSE, tol = mytol)
+  match_equivalent(p1, p2)
+  match_equivalent(p1, p3)
+  match_equivalent(p1, p4)
+  match_equivalent(p1, p5)
+  match_equivalent(p1, p6)
 
   if (requireNamespace("rrelaxiv", quietly = TRUE)) {
     p7 <- pairmatch(pr ~ cost + t1, data = nuclearplants,
                     solver = "RELAX-IV")
-    match_equal(p1, p7, ignore.solver = FALSE, tol = mytol)
+    match_equivalent(p1, p7)
   }
 
 
