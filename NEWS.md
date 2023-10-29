@@ -1,6 +1,10 @@
 ## Changes in **optmatch** Version 0.10.6.9001
 
 - Hardened tests further against package unavailability
+- Changed the name of default arguments for a version of `predict`. (#223)
+- Several small documentation tweaks to pass CRAN checks on R-devel.
+- Fix small bug that could cause errors when distance matrices contain extremely
+  large values. (#230)
 
 ## Changes in **optmatch** Version 0.10.6
 
