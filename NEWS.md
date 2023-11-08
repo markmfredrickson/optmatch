@@ -8,6 +8,10 @@
   very large values, although you may still have to pass tol=
   arguments to pairmatch() and fullmatch() that are smaller than the
   desired tolerance.(#230)
+- Disable passing of local variables from generic corresponding to change in
+  R_USEMETHOD_FORWARD_LOCALS coming in the next major release. No user-facing
+  change, except the `@call` slot of objects may look slighly different (but
+  should function identically). (#234)
 
 ## Changes in **optmatch** Version 0.10.6
 
