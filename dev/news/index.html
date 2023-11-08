@@ -58,7 +58,7 @@
 <ul><li>Hardened tests further against package unavailability</li>
 <li>Changed the name of default arguments for a version of <code>predict</code>. (<a href="https://github.com/markmfredrickson/optmatch/issues/223" class="external-link">#223</a>)</li>
 <li>Several small documentation tweaks to pass CRAN checks on R-devel.</li>
-<li>Fix small bug that could cause errors when distance matrices contain extremely large values. (<a href="https://github.com/markmfredrickson/optmatch/issues/230" class="external-link">#230</a>)</li>
+<li>Fix a bug introduced in version 0.10.6, involving discretization of distances. The fix avoids spurious errors for distance matrices with very large values, although you may still have to pass tol= arguments to pairmatch() and fullmatch() that are smaller than the desired tolerance.(<a href="https://github.com/markmfredrickson/optmatch/issues/230" class="external-link">#230</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.6" id="changes-in-optmatch-version-0106">Changes in <strong>optmatch</strong> Version 0.10.6<a class="anchor" aria-label="anchor" href="#changes-in-optmatch-version-0106"></a></h2><p class="text-muted">CRAN release: 2023-02-07</p>
