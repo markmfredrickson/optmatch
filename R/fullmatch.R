@@ -209,7 +209,6 @@ fullmatch <- function(x,
   tryCatch(x, error = function(e) {
     stop(missing_x_msg(x_str, data_str, ...))})
 
-  cl <- match.call()
   if (is.null(data)) {
     if (is(x, "InfinitySparseMatrix") |
         is(x, "matrix") |
@@ -260,8 +259,7 @@ fullmatch.default <- function(x,
                    data=mfd,
                    solver=solver,
                    ...)
-  if (!exists("cl")) cl <- match.call()
-  attr(out, "call") <- cl
+  attr(out, "call") <- match.call()
   out
 }
 
@@ -288,8 +286,7 @@ fullmatch.numeric <- function(x,
                    data=data,
                    solver=solver,
                    ...)
-  if (!exists("cl")) cl <- match.call()
-  attr(out, "call") <- cl
+  attr(out, "call") <- match.call()
   out
 }
 
@@ -652,8 +649,7 @@ fullmatch.matrix <- function(x,
   # save hash of distance
   attr(mout, "hashed.distance") <- disthash <- hash_dist(x)
 
-  if (!exists("cl")) cl <- match.call()
-  attr(mout, "call") <- cl
+  attr(mout, "call") <- match.call()
 
     ## assemble MCF material
     mcfsolutions  <- rep(list(NULL), np)
