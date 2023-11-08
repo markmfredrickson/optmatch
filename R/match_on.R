@@ -75,7 +75,6 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
   tryCatch(x, error = function(e) {
     stop(missing_x_msg(x_str, data_str, ...))})
 
-  cl <- match.call()
   UseMethod("match_on")
 }
 
@@ -132,14 +131,21 @@ match_on <- function(x, within = NULL, caliper = NULL, exclude = NULL, data=NULL
 #' @method match_on glm
 #' @rdname match_on-methods
 #' @export
-match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
+match_on.glm <- function(x,
+                         within = NULL,
+                         caliper = NULL,
+                         exclude = NULL,
+                         data = NULL,
+                         standardization.scale = NULL,
+                         ...) {
 
   stopifnot(all(c('y','data') %in% names(x)))
 
   # If the data is given, using x$data intead of model.frame avoids issue #39
   if (is.data.frame(x$data)) {
     themf <- model.frame(x$data, na.action=na.pass)
-    z <- themf[,all.vars(as.formula(x$formula))[[1]]] # the explicit cast is for characters
+    z <- themf[,all.vars(as.formula(x$formula))[[1]]]
+    # the explicit cast is for characters
   } else {
     themf <- model.frame(x$formula, na.action=na.pass)
     z <- model.response(themf)
@@ -167,7 +173,14 @@ match_on.glm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data 
   }
 
 
-  match_on(lp.adj, within = within, caliper = caliper, exclude = exclude, z = z, ...)
+  out <-match_on(lp.adj,
+                 within = within,
+                 caliper = caliper,
+                 exclude = exclude,
+                 z = z,
+                 ...)
+  out@call <- match.call()
+  return(out)
 }
 
 #' Pooled Dispersion for a Numeric Variable
@@ -197,13 +210,19 @@ match_on_szn_scale <- function(x, trtgrp, standardizer = mad) {
 
 #' @details \bold{First argument (\code{x}): \code{bigglm}.} This method works
 #'   analogously to the \code{glm} method, but with \code{bigglm} objects,
-#'   created by the \code{bigglm} function from package \sQuote{biglm}, which can
-#'   handle bigger data sets than the ordinary glm function can.
+#'   created by the \code{bigglm} function from package \sQuote{biglm}, which
+#'   can handle bigger data sets than the ordinary glm function can.
 #'
 #' @method match_on bigglm
 #' @rdname match_on-methods
 #' @export
-match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, standardization.scale = NULL, ...) {
+match_on.bigglm <- function(x,
+                            within = NULL,
+                            caliper = NULL,
+                            exclude = NULL,
+                            data = NULL,
+                            standardization.scale = NULL,
+                            ...) {
   if (is.null(data)) {
     stop("data argument is required for computing match_ons from bigglms")
   }
@@ -215,8 +234,7 @@ match_on.bigglm <- function(x, within = NULL, caliper = NULL, exclude = NULL, da
   theps <- scores(x, data, type = 'link', se.fit = FALSE)
 
   if (length(theps) != dim(data)[1]) {
-    stop("predict.bigglm() returns a vector of the wrong length;
-are there missing values in data?")
+    stop("predict.bigglm() returns a vector of the wrong length; are there missing values in data?")
   }
 
   # this makes heavy use of the bigglm terms object, the original formula
@@ -225,13 +243,21 @@ are there missing values in data?")
 
   Data <-  model.frame(x$terms, data = data)
   z <- Data[, 1]
-  pooled.sd <-
-    standardization_scale(theps, trtgrp=z, standardizer=standardization.scale)
+  pooled.sd <- standardization_scale(theps,
+                                     trtgrp = z,
+                                     standardizer = standardization.scale)
 
   theps <- as.vector(theps / pooled.sd)
   names(theps) <- rownames(data)
 
-  match_on(theps, within = within, caliper = caliper, exclude = exclude, z = z, ... )
+  out <- match_on(theps,
+                  within = within,
+                  caliper = caliper,
+                  exclude = exclude,
+                  z = z,
+                  ... )
+  out@call <- match.call()
+  return(out)
 }
 
 #' @details \bold{First argument (\code{x}): \code{formula}.} The formula must have
@@ -284,11 +310,17 @@ are there missing values in data?")
 #' @rdname match_on-methods
 #' @importFrom stats contrasts
 #' @export
-match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, subset = NULL, method = "mahalanobis", ...) {
+match_on.formula <- function(x,
+                             within = NULL,
+                             caliper = NULL,
+                             exclude = NULL,
+                             data = NULL,
+                             subset = NULL,
+                             method = "mahalanobis",
+                             ...) {
   if (length(x) != 3) {
     stop("Formula must have a left hand side.")
   }
-  if (!exists("cl")) cl <- match.call()
 
   if (grepl(".", as.character(x)[3], fixed = TRUE) &
       grepl("strata(", as.character(x)[3], fixed = TRUE)) {
@@ -399,6 +431,8 @@ match_on.formula <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
 
   }
 
+  cl <- match.call()
+
   if (is.null(caliper)) {
     tmp@call <- cl
     return(tmp)
@@ -496,7 +530,9 @@ compute_mahalanobis <- function(index, data, z) {
 
 compute_euclidean <- function(index, data, z) {
 
-  if (!all(is.finite(data))) stop("Infinite or NA values detected in data for distance computations.")
+  if (!all(is.finite(data))) {
+    stop("Infinite or NA values detected in data for distance computations.")
+  }
 
   return(mahalanobisHelper(data, index, diag(ncol(data))))
 }
@@ -549,12 +585,17 @@ compute_rank_mahalanobis <- function(index, data, z) {
 #' @method match_on function
 #' @rdname match_on-methods
 #' @export
-match_on.function <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, z = NULL, ...) {
+match_on.function <- function(x,
+                              within = NULL,
+                              caliper = NULL,
+                              exclude = NULL,
+                              data = NULL,
+                              z = NULL,
+                              ...) {
 
   if (is.null(data) | is.null(z)) {
     stop("Data and treatment indicator arguments are required.")
   }
-  if (!exists("cl")) cl <- match.call()
 
   theFun <- match.fun(x)
 
@@ -562,6 +603,7 @@ match_on.function <- function(x, within = NULL, caliper = NULL, exclude = NULL, 
   z <- z[!is.na(z)]
 
   tmp <- makedist(z, data, theFun, within)
+  cl <- match.call()
 
   if (is.null(caliper)) {
     tmp@call <- cl
@@ -601,7 +643,6 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
   if(length(z) != length(x)) {
     stop("The scores, 'x', and the treatment vector, 'z', must be the same length.")
   }
-  if (!exists("cl")) cl <- match.call()
 
   z <- toZ(z)
 
@@ -697,7 +738,7 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
     tmp@dimension <- c(length(tmp@rownames), length(tmp@colnames))
   }
 
-  tmp@call <- cl
+  tmp@call <- match.call()
   return(tmp)
 }
 
@@ -751,50 +792,82 @@ scoreCaliper <- function(x, z, caliper) {
 #' @rdname match_on-methods
 #' @method match_on InfinitySparseMatrix
 #' @export
-match_on.InfinitySparseMatrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...) {
+match_on.InfinitySparseMatrix <- function(x,
+                                          within = NULL,
+                                          caliper = NULL,
+                                          exclude = NULL,
+                                          data = NULL, ...) {
 
   if (!is.null(data)) {
-    x <- subset(x, subset = rownames(x) %in% rownames(data), select = colnames(x) %in% rownames(data))
+    x <- subset(x,
+                subset = rownames(x) %in% rownames(data),
+                select = colnames(x) %in% rownames(data))
   }
 
-    if (is.null(caliper) & is.null(within)) {
-        return(x) # just return the argument
-    }
+  cl <- match.call()
+
+  if (is.null(caliper) & is.null(within)) {
+    x@call <- cl
+    return(x) # just return the argument
+  }
 
   if (is.null(within)) { # If we're here, caliper arg is non-null
-        return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
+    out <- x + optmatch::caliper(x, width = caliper, exclude = exclude)
+    out@call <- cl
+    return(out)
   }
 
-    ## If we're here, within is non-null, but caliper may or may not be null
-    within  <-  within * 0
-    if (!is.null(caliper))
-        within  <- within +
-            optmatch::caliper(x, width = caliper, exclude = exclude)
-    return(x + within)
+  ## If we're here, within is non-null, but caliper may or may not be null
+  within  <-  within * 0
+  if (!is.null(caliper)) {
+    within  <- within +
+      optmatch::caliper(x, width = caliper, exclude = exclude)
+  }
+  out <- x + within
+  out@call <- cl
+  return(out)
 }
 
 #' @rdname match_on-methods
 #' @method match_on matrix
 #' @export
-match_on.matrix <- function(x, within = NULL, caliper = NULL, exclude = NULL, data = NULL, ...) {
+match_on.matrix <- function(x,
+                            within = NULL,
+                            caliper = NULL,
+                            exclude = NULL,
+                            data = NULL,
+                            ...) {
 
   if (!is.null(data)) {
-    x <- subset(x, subset = rownames(x) %in% rownames(data), select = intersect(colnames(x), rownames(data)))
+    x <- subset(x,
+                subset = rownames(x) %in% rownames(data),
+                select = intersect(colnames(x), rownames(data)))
   }
-    if (is.null(caliper) & is.null(within)) {
-        return(x) # just return the argument
+
+  cl <- match.call()
+
+  if (is.null(caliper) & is.null(within)) {
+    if (is(x, "DenseMatrix")) {
+      # If `x` is an actual matrix, don't store the call
+      x@call <- cl
     }
+    return(x) # just return the argument
+  }
 
   if (is.null(within)) { # If we're here, caliper arg is non-null
-        return(x + optmatch::caliper(x, width = caliper, exclude = exclude))
+    out <- x + optmatch::caliper(x, width = caliper, exclude = exclude)
+    out@call <- cl
+    return(out)
   }
 
-    ## If we're here, within is non-null, but caliper may or may not be null
-    within  <-  within * 0
-    if (!is.null(caliper))
-        within  <- within +
-            optmatch::caliper(x, width = caliper, exclude = exclude)
-    return(x + within)
+  ## If we're here, within is non-null, but caliper may or may not be null
+  within <- within * 0
+  if (!is.null(caliper)) {
+    within <- within + optmatch::caliper(x, width = caliper, exclude = exclude)
+  }
+  out <- x + within
+  out@call <- cl
+  return(out)
 }
 
 #' pooled dispersion for a numeric variable

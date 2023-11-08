@@ -191,8 +191,8 @@ Details for each particular first type of argument follow:
 
 \bold{First argument (\code{x}): \code{bigglm}.} This method works
   analogously to the \code{glm} method, but with \code{bigglm} objects,
-  created by the \code{bigglm} function from package \sQuote{biglm}, which can
-  handle bigger data sets than the ordinary glm function can.
+  created by the \code{bigglm} function from package \sQuote{biglm}, which
+  can handle bigger data sets than the ordinary glm function can.
 
 \bold{First argument (\code{x}): \code{formula}.} The formula must have
   \code{Z}, the treatment indicator (\code{Z=0} indicates control group,
