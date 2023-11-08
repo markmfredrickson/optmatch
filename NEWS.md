@@ -3,8 +3,11 @@
 - Hardened tests further against package unavailability
 - Changed the name of default arguments for a version of `predict`. (#223)
 - Several small documentation tweaks to pass CRAN checks on R-devel.
-- Fix small bug that could cause errors when distance matrices contain extremely
-  large values. (#230)
+- Fix a bug introduced in version 0.10.6, involving discretization of
+  distances. The fix avoids spurious errors for distance matrices with
+  very large values, although you may still have to pass tol=
+  arguments to pairmatch() and fullmatch() that are smaller than the
+  desired tolerance.(#230)
 
 ## Changes in **optmatch** Version 0.10.6
 
