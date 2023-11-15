@@ -1,5 +1,5 @@
 # Test environments
-* local OS X install, R 4.2.2
+* local OS X install, R 4.3.2 and 4.4.0
 * win-builder (old, devel and release)
 * mac-builer
 
@@ -19,3 +19,6 @@ Availability using Additional_repositories specification:
 * checking package dependencies ... NOTE
 Package suggested but not available for checking: 'rrelaxiv'
 ```
+
+The `rrelaxiv` package is available at the URL in DESCRIPTION, but is not on
+CRAN as it contains a restrictive license.
