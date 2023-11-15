@@ -16,7 +16,7 @@ BlockedInfinitySparseMatrix, block structure."><!-- mathjax --><script src="http
     
     <a class="navbar-brand me-2" href="../index.html">optmatch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,17 +125,23 @@ suppressing this.</p></dd>
 <p></p>
 <p><code>InfinitySparseMatrix</code> or <code>DenseMatrix</code> contains the
   following:</p>
-<p></p>
-<ul><li><p><code>total</code>: Contains the total number of treatment
-    and control members, as well as eligible and ineligible
-    matches.</p></li>
-<li><p><code>matchable</code>: The names of all treatment and
-    control members with at least one eligible match.</p></li>
-<li><p><code>unmatchable</code>: The names of all treatment and
-    control members with no eligible matches.</p></li>
-<li><p><code>distances</code>: The summary of minimum matchable
-    distances, if <code>distanceSummary</code> is <code>TRUE</code>.</p></li>
-</ul><p>For <code>BlockedInfinitySparseMatrix</code>, the named <code>list</code></p>
+<dl><dt><code>total</code>: </dt>
+<dd><p>Contains the total number of treatment and control members, as well as eligible and ineligible matches.</p></dd>
+
+
+  <dt><code>matchable</code>: </dt>
+<dd><p>The names of all treatment and control members with at least one eligible match.</p></dd>
+
+
+  <dt><code>unmatchable</code>: </dt>
+<dd><p>The names of all treatment and control members with no eligible matches.</p></dd>
+
+
+  <dt><code>distances</code>: </dt>
+<dd><p>The summary of minimum matchable distances, if <code>distanceSummary</code> is <code>TRUE</code>.</p></dd>
+
+
+</dl><p>For <code>BlockedInfinitySparseMatrix</code>, the named <code>list</code></p>
 
 
 <p>instead of contains one entry per block, named after each block
@@ -148,27 +154,23 @@ suppressing this.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The output consists of several pieces.</p>
 <ul><li><p>Membership: Indicates the dimension of the distance.</p></li>
-<li><p>Total (in)eligible potential matches: A measure of the
-  sparsity of the distance. Eligible matches have a finite
-  distance between treatment and control members; they could be
-  matched. Ineligible matches have <code>Inf</code> distance and can not
-  be matched. A higher number of ineligible matches can speed up
-  matching, but runs the risk of less optimal overall matching
-  results.</p></li>
-<li><p>Unmatchable treatment/control members: If any
-  observations have no eligible matches (e.g. their distance to
-  every potential match is <code>Inf</code>) they are listed here. See
-  Value below for details of how to access lists of matchable and
-  unmatchable treatment and control members.</p></li>
-<li><p>Summary of minimum matchable distance per treatment member:
-  To assist with choosing a caliper, this is a numeric summary
-  of the smallest distance per matchable treatment member. If you
-  provide a caliper that is less than the maximum value, at least
-  one treatment member will become unmatchable.</p></li>
-<li><p>Block structure: For <code>BlockedInfinitySparseMatrix</code>,
-  a quick summary of the structure of each individual block. (The
-  above will all be across all blocks.) This may indicate which
-  blocks, if any, are problematic.</p></li>
+<li><p>Total (in)eligible potential matches: A measure of the sparsity of
+ the distance. Eligible matches have a finite distance between treatment and
+ control members; they could be matched. Ineligible matches have <code>Inf</code>
+ distance and can not be matched. A higher number of ineligible matches can
+ speed up matching, but runs the risk of less optimal overall matching
+ results.</p></li>
+<li><p>Unmatchable treatment/control members: If any observations have no
+ eligible matches (e.g. their distance to every potential match is
+ <code>Inf</code>) they are listed here. See Value below for details of how to
+ access lists of matchable and unmatchable treatment and control members.</p></li>
+<li><p>Summary of minimum matchable distance per treatment member: To assist
+ with choosing a caliper, this is a numeric summary of the smallest distance
+ per matchable treatment member. If you provide a caliper that is less than
+ the maximum value, at least one treatment member will become unmatchable.</p></li>
+<li><p>Block structure: For <code>BlockedInfinitySparseMatrix</code>, a quick
+summary of the structure of each individual block. (The above will all be
+across all blocks.) This may indicate which blocks, if any, are problematic.</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
