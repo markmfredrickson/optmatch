@@ -1,4 +1,6 @@
-## Changes in **optmatch** Version 0.10.6.9001
+## Changes in **optmatch** Version 0.10.7.9001
+
+## Changes in **optmatch** Version 0.10.7
 
 - Hardened tests further against package unavailability
 - Changed the name of default arguments for a version of `predict`. (#223)
