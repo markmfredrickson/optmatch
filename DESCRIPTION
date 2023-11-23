@@ -94,4 +94,5 @@ Collate:
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
 Encoding: UTF-8
-Remotes: josherrickson/rrelaxiv
+Remotes:
+    josherrickson/rrelaxiv
