@@ -642,7 +642,14 @@ fullmatch.matrix <- function(x,
                                         flipped.r, epsilon.r) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
-    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
+    if (!flipped.r)
+    {
+      feasible.condition <- mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)
+    } else {
+      feasible.condition <- mxctl.r * dim(t(d.r))[1] >= prod(dim(t(d.r))[2], 1-omf.r, na.rm=TRUE)
+    }
+
+    if (feasible.condition) {
       tmp <- .fullmatch2(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
                          flipped.r, epsilon.r)
       if (!all(is.na(tmp[1]$cells))) {
