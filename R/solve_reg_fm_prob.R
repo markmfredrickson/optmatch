@@ -86,7 +86,7 @@ solve_reg_fm_prob <- function(node_info,
     }
     f.ctls <- 1-omit.fraction
   }
-
+###### end up updating omit.fraction?
     if (floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
         ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
         !rfeas |  !cfeas  # either no controls or no treatments
