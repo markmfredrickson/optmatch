@@ -382,7 +382,25 @@ fullmatch.matrix <- function(x,
   subproblemids  <- names(problems)
   if (is.null(subproblemids)) subproblemids  <- character(1L)
 
-  hints <- get_hints(hint, problems)
+  if (is.null(hint)) { hints  <- rep(list(NULL), np)
+  } else {
+    hints  <- split(hint, hint[['groups']],
+                    drop=TRUE # drops levels of hint$groups that aren't represented in hint
+    )
+    nohint  <- setdiff(subproblemids, names(hints))
+    hints  <- hints[match(subproblemids, names(hints), 0L)]
+    if (length(hints)>0) for (ii in 1L:length(hints)) hints[[ii]]  <- new("NodeInfo", hints[[ii]])
+    if (length(nohint))
+    {
+      nullhint  <- rep(list(NULL), length(nohint))
+      names(nullhint)  <- nohint
+      hints  <- c(hints, nullhint)
+      if (length(nohint)==np) warning("Hint lacks information about subproblems of this problem; ignoring.")
+    }
+    hints  <- hints[match(subproblemids, names(hints))]
+  }
+
+  #hints <- get_hints(hint, problems)
 
   if (length(min.controls) > 1 & np != length(min.controls)) {
       if (is.null(names(min.controls)))
@@ -694,7 +712,7 @@ fullmatch.matrix <- function(x,
   min.controls <- big.list[['min.controls']]
   max.controls <- big.list[['max.controls']]
   epsilons <- big.list[['epsilons']]
-
+  hints <- big.list[["hints"]]
 
   #browser()
   if (options()$fullmatch_try_recovery) {

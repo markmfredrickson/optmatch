@@ -126,8 +126,6 @@ get_epsilon <- function(subproblem, flipped,
                                tolerance,
                                max_dist)
 
-
-
   return(eps.val)
 }
 
@@ -136,6 +134,7 @@ calculate_epsilon <- function(rfeas,
                               tolerance,
                               maxdist)
 {
+
   old.o <- options(warn=-1)
   #epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
   epsilon_lower_lim <- maxdist / (.Machine$integer.max/64 -2)
@@ -178,9 +177,13 @@ parse_subproblems <- function(problems, min.controls,
   #                     hint = hints,
   #                     SIMPLIFY = FALSE)
   # what about tolerances and epsilons when the problem is integer? account for this...
+  hint.list <- mapply(prepare_subproblem_hint,
+                      d = problems,
+                      hint = hints,
+                      SIMPLIFY = FALSE)
 
   epsilons <- mapply(get_epsilon,
-                     hint = hints,
+                     hint = hint.list,
                      tolerance = tolerances,
                      subproblem = problems,
                      flipped = flippeds,
@@ -191,7 +194,8 @@ parse_subproblems <- function(problems, min.controls,
               flipped_status = flippeds,
               min.controls = mincs,
               max.controls = maxcs,
-              epsilons = epsilons)
+              epsilons = epsilons,
+              hints = hint.list)
   return(tmp)
 }
 
@@ -362,9 +366,17 @@ remove_inf_na_rows_cols <- function(mat) {
 
   # Identify columns that contain all Inf or NA
   cols_to_remove <- apply(mat, 2, function(col) all(is.infinite(col) | is.na(col)))
-
   # Remove identified rows and columns
   #cleaned_mat <- mat[!rows_to_remove, !cols_to_remove, drop = FALSE]
-  cleaned_mat <- mat[!rows_to_remove, !cols_to_remove]
+  if (sum(rows_to_remove) == 0 && sum(cols_to_remove) == 0)
+  {
+    cleaned_mat <- mat
+  } else {
+    cleaned_mat <- mat[!rows_to_remove, !cols_to_remove]
+  }
+
+  #cleaned_mat <- as.matrix(mat[!rows_to_remove, !cols_to_remove])
+  #rownames(cleaned_mat) <- rownames(mat)[!rows_to_remove]
+  #colnames(cleaned_mat) <- colnames(mat)[!cols_to_remove]
   return(cleaned_mat)
 }
