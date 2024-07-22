@@ -119,8 +119,9 @@ get_epsilon <- function(subproblem, flipped,
     cfeas <- nrow(sub.dmat)
   }
 
-
-  max_dist <- max(sub.dmat, na.rm = TRUE)
+  #dealing with infinite values?
+  max_dist <- max(sub.dmat[is.finite(sub.dmat)],
+                  na.rm = TRUE)
   eps.val <- calculate_epsilon(rfeas,
                                cfeas,
                                tolerance,
