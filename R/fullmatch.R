@@ -497,64 +497,7 @@ fullmatch.matrix <- function(x,
 
   # a helper to handle a single matching problem. all args required.
   # input error checking happens in the public fullmatch function.
-  .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL, solver) {
-
-    # if the subproblem is completely empty, short circuit
-    if (length(d) == 0 || all(is.infinite(d))) {
-      x <- dim(d)
-      cells.a <- rep(NA, x[1])
-      cells.b <- rep(NA, x[2])
-      names(cells.a) <- rownames(d)
-      names(cells.b) <- colnames(d)
-      tmp <- list(cells = c(cells.a, cells.b), err = -1)
-      return(tmp)
-    }
-
-    ncol <- dim(d)[2]
-    nrow <- dim(d)[1]
-
-    tol.frac <-
-       if (total.n > 2 * np) {
-           (nrow + ncol - 2)/(total.n - 2 * np)
-                      } else 1
-
-    # if omf is specified (i.e. not NA), see if is non-negative
-    # if omf is not specified, check to see if mxctl is > .5
-    if (switch(1 + is.na(omf), omf >= 0,  mxctl > .5)) {
-      maxc <- min(mxctl, ncol)
-      minc <- max(mnctl, 1/nrow)
-      omf.calc <- omf
-      flipped  <- FALSE
-    } else {
-      maxc <- min(1/mnctl, ncol)
-      minc <- max(1/mxctl, 1/nrow)
-      omf.calc <- -1 * omf
-      d <- t(d)
-      flipped  <- TRUE
-    }
-
-
-
-
-    ## (I'd like to do the following higher in the call stack, and also more
-    ##  informatively, obviating subsequent needs for max.cpt, min.cpt,
-    ##  omit.fraction etc. Keeping it here for fear of mischief with flipped subproblems.)
-    if (is.null(hint)) hint  <- nodes_shell_fmatch(rownames(d), colnames(d))
-
-    temp <- solve_reg_fm_prob(node_info = hint,
-                        distspec = d,
-                        max.cpt = maxc,
-                        min.cpt = minc,
-                        tolerance = TOL * tol.frac,
-                        solver = solver,
-                        omit.fraction = if(!is.na(omf)) { omf.calc }# passes NULL for NA
-                        )
-      if (!is.null(temp$MCFSolution))
-          temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
-
-    return(temp)
-  }
-  .fullmatch2 <- function(d, mnctl, mxctl, omf, hint = NULL, solver,
+  .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL, solver,
                           flipped, epsilon.in) {
 
     # if the subproblem is completely empty, short circuit
@@ -579,7 +522,7 @@ fullmatch.matrix <- function(x,
     }
 
 
-    temp <- solve_reg_fm_prob2(node_info = hint,
+    temp <- solve_reg_fm_prob(node_info = hint,
                               distspec = d,
                               max.cpt = mxctl,
                               min.cpt = mnctl,
@@ -594,51 +537,7 @@ fullmatch.matrix <- function(x,
 
   # a second helper function, that will attempt graceful recovery in situations where the match
   # is infeasible with the given max.controls
-  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL, solver) {
-
-    # if the subproblem isn't clearly infeasible, try to get a match
-    if (mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)) {
-      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
-      if (!all(is.na(tmp[1]$cells))) {
-        # subproblem is feasible with given constraints, no need to recover
-        new.omit.fraction <<- c(new.omit.fraction, omf.r)
-        return(tmp)
-      }
-    }
-    # if max.control is in [1, Inf), and we're infeasible
-    if(is.finite(mxctl.r) & mxctl.r >= 1) {
-      # Re-solve with no max.control
-      tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, hint.r, solver))
-      tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
-      trial.ss <- stratumStructure(tmp2.optmatch)
-      treats <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",1)))
-      ctrls <- as.numeric(unlist(lapply(strsplit(names(trial.ss), ":"),"[",2)))
-      num.controls <- sum((pmin(ctrls, mxctl.r)*trial.ss)[treats > 0])
-      if(num.controls == 0) {
-        # infeasible anyways
-        if (!exists("tmp")) {
-          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
-        }
-        new.omit.fraction <<- c(new.omit.fraction, omf.r)
-        return(tmp)
-      }
-      new.omf.r <- 1 - num.controls/dim(d.r)[2]
-
-      # feasible with the new omit fraction
-      new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r, solver))
-    } else {
-      # subproblem is infeasible, but we can't try to fix because no max.controls
-      if (!exists("tmp")) {
-        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
-      }
-
-      new.omit.fraction <<- c(new.omit.fraction, omf.r)
-      return(tmp)
-    }
-  }
-
-  .fullmatch.with.recovery2 <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL, solver,
+  .fullmatch.with.recovery <- function(d.r, mnctl.r, mxctl.r, omf.r, hint.r = NULL, solver,
                                         flipped.r, epsilon.r) {
 
     # if the subproblem isn't clearly infeasible, try to get a match
@@ -650,7 +549,7 @@ fullmatch.matrix <- function(x,
     }
 
     if (feasible.condition) {
-      tmp <- .fullmatch2(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
+      tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
                          flipped.r, epsilon.r)
       if (!all(is.na(tmp[1]$cells))) {
         # subproblem is feasible with given constraints, no need to recover
@@ -666,9 +565,8 @@ fullmatch.matrix <- function(x,
       } else {
         mxctl.r.new <- min(1/mnctl.r, ncol(d.r))
       }
-      # tmp2 <- list(.fullmatch2(d.r, mnctl.r, Inf, omf.r, hint.r, solver,
-      #                          flipped.r, epsilon.r))
-      tmp2 <- list(.fullmatch2(d.r, mnctl.r, mxctl.r.new, omf.r, hint.r, solver,
+
+      tmp2 <- list(.fullmatch(d.r, mnctl.r, mxctl.r.new, omf.r, hint.r, solver,
                                flipped.r, epsilon.r))
 
 
@@ -680,7 +578,7 @@ fullmatch.matrix <- function(x,
       if(num.controls == 0) {
         # infeasible anyways
         if (!exists("tmp")) {
-          tmp <- .fullmatch2(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
                              flipped.r, epsilon.r)
         }
         new.omit.fraction <<- c(new.omit.fraction, omf.r)
@@ -690,12 +588,12 @@ fullmatch.matrix <- function(x,
 
       # feasible with the new omit fraction
       new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
-      return(.fullmatch2(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r, solver,
+      return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r, solver,
                          flipped.r, epsilon.r))
     } else {
       # subproblem is infeasible, but we can't try to fix because no max.controls
       if (!exists("tmp")) {
-        tmp <- .fullmatch2(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
+        tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
                            flipped.r, epsilon.r)
       }
 
@@ -720,18 +618,8 @@ fullmatch.matrix <- function(x,
                                 total.n,
                                 TOL)
 
-  # problems <- precomputed_parameters[['subproblems']]
-  # is_flipped <- precomputed_parameters[['flipped_status']]
-  # min.controls <- precomputed_parameters[['min.controls']]
-  # max.controls <- precomputed_parameters[['max.controls']]
-  # epsilons <- precomputed_parameters[['epsilons']]
-  # hints <- precomputed_parameters[["hints"]]
-
-  #browser()
   if (options()$fullmatch_try_recovery) {
-    # solutions <- mapply(.fullmatch.with.recovery, problems, min.controls,
-    #                     max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
-    solutions <- mapply(.fullmatch.with.recovery2,
+    solutions <- mapply(.fullmatch.with.recovery,
                         precomputed_parameters[['subproblems']],
                         precomputed_parameters[['min.controls']],
                         precomputed_parameters[['max.controls']],
@@ -742,10 +630,7 @@ fullmatch.matrix <- function(x,
                         precomputed_parameters[['epsilons']],
                         SIMPLIFY = FALSE)
   } else {
-    # solutions <- mapply(.fullmatch, problems, min.controls,
-    #                     max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
-
-    solutions <- mapply(.fullmatch2,
+    solutions <- mapply(.fullmatch,
                         precomputed_parameters[['subproblems']],
                         precomputed_parameters[['min.controls']],
                         precomputed_parameters[['max.controls']],

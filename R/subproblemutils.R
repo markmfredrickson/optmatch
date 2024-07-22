@@ -101,14 +101,6 @@ get_epsilon <- function(subproblem, flipped,
   nrows  <- length(rownames)
   ncols  <- length(colnames)
 
-  # matchable_nodes_info  <-
-  #   filter(hint,
-  #          is.na(hint[['upstream_not_down']]) | #retail bookkeeping nodes
-  #            is_matchable(hint[['name']], dm, "either")
-  #   )
-  # rfeas  <- sum( matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
-  # cfeas  <- sum(!matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
-  #
   sub.dmat <- remove_inf_na_rows_cols(subproblem)
   if (!flipped)
   {
@@ -152,8 +144,6 @@ parse_subproblems <- function(problems, min.controls,
 {
   np <- length(problems)
 
-  #list of nodeInfo objects i think
-
   flipped_status <- mapply(get_flipped_status,
                            d = problems,
                            omf = omit.fraction,
@@ -172,12 +162,6 @@ parse_subproblems <- function(problems, min.controls,
                       np = rep(np, np))
   tolerances <- tol.fracs * TOL.in
 
-
-  # subproblem.edgelists <- mapply(get_dms,
-  #                     d = problems,
-  #                     hint = hints,
-  #                     SIMPLIFY = FALSE)
-  # what about tolerances and epsilons when the problem is integer? account for this...
   hint.list <- mapply(prepare_subproblem_hint,
                       d = problems,
                       hint = hints,
@@ -201,124 +185,7 @@ parse_subproblems <- function(problems, min.controls,
 }
 
 
-solve_reg_fm_prob2 <- function(node_info,
-                              distspec,
-                              min.cpt,
-                              max.cpt,
-                              omit.fraction=NULL,
-                              solver,
-                              epsilon) {
-
-  if (min.cpt <=0 | max.cpt<=0) {
-    stop("inputs min.cpt, max.cpt must be positive")
-  }
-  stopifnot(is(node_info, "NodeInfo"))
-  rownames   <- subset(node_info[["name"]], node_info[['upstream_not_down']])
-  colnames   <- subset(node_info[["name"]], !node_info[['upstream_not_down']])
-  nrows  <- length(rownames)
-  ncols  <- length(colnames)
-  if (!all(rownames %in% dimnames(distspec)[[1]])) {
-    stop("node_info rownames must be rownames for \'distspec\'")
-  }
-
-  if (!all(colnames %in% dimnames(distspec)[[2]])) {
-    stop("node_info colnames must be colnames for \'distspec\'")
-  }
-
-  # distance must have an edgelist method
-  if (!hasMethod("edgelist", class(distspec))) {
-    stop("Argument \'distspec\' must have a \'edgelist\' method")
-  }
-
-  dm <- edgelist(distspec, c(rownames, colnames))
-
-  matchable_nodes_info  <-
-    filter(node_info,
-           is.na(node_info[['upstream_not_down']]) | #retail bookkeeping nodes
-             is_matchable(node_info[['name']], dm, "either")
-    )
-  rfeas  <- sum( matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
-  cfeas  <- sum(!matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
-  ## Update `omit.fraction`:
-  if (cfeas < ncols & is.numeric(omit.fraction) && omit.fraction >0) {
-    original_number_to_omit <- omit.fraction*ncols
-    number_implicitly_omitted_already <- ncols - cfeas
-    omit.fraction <-
-      (original_number_to_omit - number_implicitly_omitted_already)/cfeas
-    ## If the number to be omitted is less than the number of unmatchable
-    ## columns, ncols - cfeas, then this omit.fraction can be negative.  Then
-    ## we just omit a few more than directed by the supplied omit.fraction:
-    if (omit.fraction <= 0) omit.fraction <- NULL
-  }
-
-  if (is.null(omit.fraction)) {
-    f.ctls <- 1
-  } else {
-    if (!is.numeric(omit.fraction) | omit.fraction <0 | omit.fraction > 1) {
-      stop("omit.fraction must be null or between 0 and 1")
-    }
-    f.ctls <- 1-omit.fraction
-  }
-  if (floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
-      ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
-      !rfeas |  !cfeas  # either no controls or no treatments
-  )
-  {
-    ans <- rep(NA_integer_, nrows + ncols)
-    names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, err=0, MCFSolution=NULL))
-  }
-
-
-  if (all(abs(dm$'dist'- 0) < sqrt(.Machine$double.eps))) {
-    dm$'dist'  <- rep(1L, length(dm$'dist')) # so we'll be routed to intSolve()
-  }
-  temp <-
-    if (is.integer(dm$'dist')) {
-      intSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info, solver)
-    } else {
-      doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info,
-                  rfeas, cfeas, epsilon, solver)
-    }
-
-  temp$treated <- factor(temp[['i']]) # levels of these factors now convey
-  temp$control <- factor(temp[['j']]) # treatment/control distinction
-  matches <- solution2factor(temp)
-
-  ans <- rep(NA_character_, nrows + ncols)
-  names(ans) <- c(rownames, colnames)
-  ans[names(matches)] <- matches
-
-  if (!is.null(temp[["MCFSolution"]]))
-  {
-    temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
-    temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solutions==1L)
-
-    ## Presently we can treat this subproblem as non-flipped even if it was,
-    ## since `dm` will have been transposed in the event of flipping.  Doing
-    ## so will prevent the evaluate_* routines below from getting confused.
-    ## Of course we have to remember to set it based on actual information as
-    ## the MCFsolutions object passes up through the point in the call stack
-    ## where that transposition was made.
-    temp[["MCFSolution"]]@subproblems[1L, "flipped"]  <- FALSE
-    ## ... and now we can proceed with:
-    evaluate_lagrangian(dm, temp[["MCFSolution"]]) ->
-      temp[["MCFSolution"]]@subproblems[1L, "lagrangian_value"]
-    evaluate_dual(dm, temp[["MCFSolution"]]) ->
-      temp[["MCFSolution"]]@subproblems[1L,   "dual_value"    ]
-    nodeinfo(temp[["MCFSolution"]])  <-
-      update(node_info, nodeinfo(temp[["MCFSolution"]]))
-  }
-
-  return(list(cells = ans, err = temp$maxerr,
-              MCFSolution=temp[["MCFSolution"]]
-  )
-  )
-}
-
-
-
-findSubproblemEpsilons <- function(tol = NULL,
+find_subproblem_epsilons <- function(tol = NULL,
                                    epsilon = NULL,
                                    subproblems,
                                    x,
@@ -354,30 +221,18 @@ findSubproblemEpsilons <- function(tol = NULL,
       }
     }
     return(tolerances)
-
-
-
   }
 
 }
 
 remove_inf_na_rows_cols <- function(mat) {
-  # Identify rows that contain all Inf or NA
   rows_to_remove <- apply(mat, 1, function(row) all(is.infinite(row) | is.na(row)))
-
-  # Identify columns that contain all Inf or NA
   cols_to_remove <- apply(mat, 2, function(col) all(is.infinite(col) | is.na(col)))
-  # Remove identified rows and columns
-  #cleaned_mat <- mat[!rows_to_remove, !cols_to_remove, drop = FALSE]
   if (sum(rows_to_remove) == 0 && sum(cols_to_remove) == 0)
   {
     cleaned_mat <- mat
   } else {
     cleaned_mat <- mat[!rows_to_remove, !cols_to_remove]
   }
-
-  #cleaned_mat <- as.matrix(mat[!rows_to_remove, !cols_to_remove])
-  #rownames(cleaned_mat) <- rownames(mat)[!rows_to_remove]
-  #colnames(cleaned_mat) <- colnames(mat)[!cols_to_remove]
   return(cleaned_mat)
 }
