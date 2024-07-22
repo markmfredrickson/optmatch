@@ -660,10 +660,15 @@ fullmatch.matrix <- function(x,
     }
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
-      # Re-solve with no max.control -- now possibly already happening?
+      # Re-solve with no max.control -- we most override the precomputed one now
+      if (!flipped.r) {
+        mxctl.r.new <- min(Inf, ncol(d.r))
+      } else {
+        mxctl.r.new <- min(1/mnctl.r, ncol(d.r))
+      }
       # tmp2 <- list(.fullmatch2(d.r, mnctl.r, Inf, omf.r, hint.r, solver,
       #                          flipped.r, epsilon.r))
-      tmp2 <- list(.fullmatch2(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver,
+      tmp2 <- list(.fullmatch2(d.r, mnctl.r, mxctl.r.new, omf.r, hint.r, solver,
                                flipped.r, epsilon.r))
 
 
@@ -707,34 +712,48 @@ fullmatch.matrix <- function(x,
     setTryRecovery()
   }
 
-  big.list <- parse_subproblems(problems,
+  precomputed_parameters <- parse_subproblems(problems,
                                 min.controls,
                                 max.controls,
                                 omit.fraction,
                                 hints,
                                 total.n,
                                 TOL)
-  problems <- big.list[['subproblems']]
-  is_flipped <- big.list[['flipped_status']]
-  min.controls <- big.list[['min.controls']]
-  max.controls <- big.list[['max.controls']]
-  epsilons <- big.list[['epsilons']]
-  hints <- big.list[["hints"]]
+
+  # problems <- precomputed_parameters[['subproblems']]
+  # is_flipped <- precomputed_parameters[['flipped_status']]
+  # min.controls <- precomputed_parameters[['min.controls']]
+  # max.controls <- precomputed_parameters[['max.controls']]
+  # epsilons <- precomputed_parameters[['epsilons']]
+  # hints <- precomputed_parameters[["hints"]]
 
   #browser()
   if (options()$fullmatch_try_recovery) {
     # solutions <- mapply(.fullmatch.with.recovery, problems, min.controls,
     #                     max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
-    solutions <- mapply(.fullmatch.with.recovery2, problems, min.controls,
-                        max.controls, omit.fraction, hints, solver,
-                        is_flipped, epsilons, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch.with.recovery2,
+                        precomputed_parameters[['subproblems']],
+                        precomputed_parameters[['min.controls']],
+                        precomputed_parameters[['max.controls']],
+                        omit.fraction,
+                        precomputed_parameters[["hints"]],
+                        solver,
+                        precomputed_parameters[['flipped_status']],
+                        precomputed_parameters[['epsilons']],
+                        SIMPLIFY = FALSE)
   } else {
     # solutions <- mapply(.fullmatch, problems, min.controls,
     #                     max.controls, omit.fraction, hints, solver, SIMPLIFY = FALSE)
 
-    solutions <- mapply(.fullmatch2, problems, min.controls,
-                        max.controls, omit.fraction, hints, solver,
-                        is_flipped, epsilons, SIMPLIFY = FALSE)
+    solutions <- mapply(.fullmatch2,
+                        precomputed_parameters[['subproblems']],
+                        precomputed_parameters[['min.controls']],
+                        precomputed_parameters[['max.controls']],
+                        omit.fraction,
+                        precomputed_parameters[["hints"]],
+                        solver,
+                        precomputed_parameters[['flipped_status']],
+                        precomputed_parameters[['epsilons']], SIMPLIFY = FALSE)
   }
 
   mout <- makeOptmatch(x, solutions, match.call(), data)
