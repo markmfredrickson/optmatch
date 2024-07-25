@@ -545,7 +545,7 @@ fullmatch.matrix <- function(x,
     {
       feasible.condition <- mxctl.r * dim(d.r)[1] >= prod(dim(d.r)[2], 1-omf.r, na.rm=TRUE)
     } else {
-      feasible.condition <- mxctl.r * dim(t(d.r))[1] >= prod(dim(t(d.r))[2], 1-omf.r, na.rm=TRUE)
+      feasible.condition <- mxctl.r * dim(d.r)[2] >= prod(dim(d.r)[1], 1-omf.r, na.rm=TRUE)
     }
 
     if (feasible.condition) {
@@ -561,7 +561,7 @@ fullmatch.matrix <- function(x,
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
       # Re-solve with no max.control -- we most override the precomputed one now
       if (!flipped.r) {
-        mxctl.r.new <- min(Inf, ncol(d.r))
+        mxctl.r.new <- ncol(d.r)
       } else {
         mxctl.r.new <- min(1/mnctl.r, ncol(d.r))
       }
