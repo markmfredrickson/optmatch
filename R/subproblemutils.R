@@ -101,19 +101,20 @@ get_epsilon <- function(subproblem, flipped,
   nrows  <- length(rownames)
   ncols  <- length(colnames)
 
-  sub.dmat <- remove_inf_na_rows_cols(subproblem)
+  sub.dmat <- as.InfinitySparseMatrix(subproblem)
+
   if (!flipped)
   {
-    rfeas <- nrow(sub.dmat)
-    cfeas <- ncol(sub.dmat)
+    rfeas <- length(unique(sub.dmat@rows))
+    cfeas <- length(unique(sub.dmat@cols))
   } else {
-    rfeas <- ncol(sub.dmat)
-    cfeas <- nrow(sub.dmat)
+    rfeas <- length(unique(sub.dmat@cols))
+    cfeas <- length(unique(sub.dmat@rows))
   }
 
   #dealing with infinite values?
-  max_dist <- max(sub.dmat[is.finite(sub.dmat)],
-                  na.rm = TRUE)
+  max_dist <- max(sub.dmat@.Data)
+
   eps.val <- calculate_epsilon(rfeas,
                                cfeas,
                                tolerance,
@@ -223,16 +224,4 @@ find_subproblem_epsilons <- function(tol = NULL,
     return(tolerances)
   }
 
-}
-
-remove_inf_na_rows_cols <- function(mat) {
-  rows_to_remove <- apply(mat, 1, function(row) all(is.infinite(row) | is.na(row)))
-  cols_to_remove <- apply(mat, 2, function(col) all(is.infinite(col) | is.na(col)))
-  if (sum(rows_to_remove) == 0 && sum(cols_to_remove) == 0)
-  {
-    cleaned_mat <- mat
-  } else {
-    cleaned_mat <- mat[!rows_to_remove, !cols_to_remove]
-  }
-  return(cleaned_mat)
 }
