@@ -14,6 +14,7 @@ fullmatch(
   tol = 0.001,
   data = NULL,
   solver = "",
+  resolution = NULL,
   ...
 )
 
@@ -26,6 +27,7 @@ full(
   tol = 0.001,
   data = NULL,
   solver = "",
+  resolution = NULL,
   ...
 )
 }

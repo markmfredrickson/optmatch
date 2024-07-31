@@ -5,9 +5,23 @@
 \alias{pair}
 \title{Optimal 1:1 and 1:k matching}
 \usage{
-pairmatch(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
+pairmatch(
+  x,
+  controls = 1,
+  data = NULL,
+  remove.unmatchables = FALSE,
+  resolution = NULL,
+  ...
+)
 
-pair(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
+pair(
+  x,
+  controls = 1,
+  data = NULL,
+  remove.unmatchables = FALSE,
+  resolution = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{Any valid input to \code{match_on}. If \code{x} is a numeric vector,

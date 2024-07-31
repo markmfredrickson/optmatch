@@ -200,6 +200,7 @@ fullmatch <- function(x,
                       tol = .001,
                       data = NULL,
                       solver = "",
+                      resolution = NULL,
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -232,6 +233,7 @@ fullmatch.default <- function(x,
                               data = NULL,
                               solver = "",
                               within = NULL,
+                              resolution = NULL,
                               ...) {
 
   if (!inherits(x, gsub("match_on.","",methods("match_on")))) {
@@ -258,6 +260,7 @@ fullmatch.default <- function(x,
                    tol=tol,
                    data=mfd,
                    solver=solver,
+                   resolution=resolution,
                    ...)
   attr(out, "call") <- match.call()
   out
@@ -274,6 +277,7 @@ fullmatch.numeric <- function(x,
                               solver = "",
                               z,
                               within = NULL,
+                              resolution = NULL,
                               ...) {
 
   m <- match_on(x, within=within, z=z, ...)
@@ -285,6 +289,7 @@ fullmatch.numeric <- function(x,
                    tol=tol,
                    data=data,
                    solver=solver,
+                   resolution=resolution,
                    ...)
   attr(out, "call") <- match.call()
   out
@@ -301,9 +306,18 @@ fullmatch.matrix <- function(x,
                              solver = "",
                              within = NULL,
                              hint,
+                             resolution = NULL,
                              ...) {
 
   hint  <- if (missing(hint)) NULL else nodeinfo(hint)
+
+  # if (missing(hint))
+  # {
+  #   hint <- NULL
+  # } else {
+  #   # extract the resolutions
+  #   hint <- nodeinfo(hint)
+  # }
 
   ### Checking Input ###
 
@@ -400,7 +414,6 @@ fullmatch.matrix <- function(x,
     hints  <- hints[match(subproblemids, names(hints))]
   }
 
-  #hints <- get_hints(hint, problems)
 
   if (length(min.controls) > 1 & np != length(min.controls)) {
       if (is.null(names(min.controls)))
@@ -610,13 +623,15 @@ fullmatch.matrix <- function(x,
     setTryRecovery()
   }
 
-  precomputed_parameters <- parse_subproblems(problems,
-                                min.controls,
-                                max.controls,
-                                omit.fraction,
-                                hints,
-                                total.n,
-                                TOL)
+  precomputed_parameters <- parse_subproblems(problems = problems,
+                                min.controls = min.controls,
+                                max.controls = max.controls,
+                                omit.fraction = omit.fraction,
+                                hints = hints,
+                                total.n = total.n,
+                                TOL.in = TOL,
+                                resolution = resolution)
+
 
   if (options()$fullmatch_try_recovery) {
     solutions <- mapply(.fullmatch.with.recovery,

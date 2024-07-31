@@ -69,6 +69,7 @@ pairmatch <- function(x,
                       controls = 1,
                       data = NULL,
                       remove.unmatchables = FALSE,
+                      resolution = NULL,
                       ...) {
 
   # if x does not exist then print helpful error msg
@@ -100,6 +101,7 @@ pairmatch.default <- function(x,
                       data = NULL,
                       remove.unmatchables = FALSE,
                       within = NULL,
+                      resolution = NULL,
                       ...) {
 
   if (!inherits(x, gsub("match_on.","",methods("match_on")))) {
@@ -122,6 +124,7 @@ pairmatch.default <- function(x,
                    controls=controls,
                    data=mfd,
                    remove.unmatchables=remove.unmatchables,
+                   resolution = resolution,
                    ...)
   attr(out, "call") <- match.call()
   out
@@ -134,6 +137,7 @@ pairmatch.numeric <- function(x,
                       remove.unmatchables = FALSE,
                       z,
                       within = NULL,
+                      resolution = NULL,
                       ...) {
 
   m <- match_on(x, within=within, z=z, ...)
@@ -141,6 +145,7 @@ pairmatch.numeric <- function(x,
                    controls=controls,
                    data=data,
                    remove.unmatchables=remove.unmatchables,
+                   resolution = resolution,
                    ...)
   attr(out, "call") <- match.call()
   out
@@ -152,6 +157,7 @@ pairmatch.matrix <- function(x,
                              data = NULL,
                              remove.unmatchables = FALSE,
                              within = NULL,
+                             resolution = NULL,
                              ...) {
 
   validDistanceSpecification(x) # will stop() on error
@@ -219,6 +225,7 @@ pairmatch.matrix <- function(x,
             max.controls = controls,
             omit.fraction = omf,
             data = data,
+            resolution = resolution,
             ...)
   if(!remove.unmatchables) {
     options("fullmatch_try_recovery" = saveopt)

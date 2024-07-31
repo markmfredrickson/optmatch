@@ -141,10 +141,11 @@ calculate_epsilon <- function(rfeas,
 
 parse_subproblems <- function(problems, min.controls,
                               max.controls, omit.fraction, hints,
-                              total.n, TOL.in)
+                              total.n, TOL.in, resolution = NULL)
 {
   np <- length(problems)
-
+  subproblemids <- names(problems)
+  if (is.null(subproblemids)) subproblemids  <- character(1L)
   flipped_status <- mapply(get_flipped_status,
                            d = problems,
                            omf = omit.fraction,
@@ -157,24 +158,70 @@ parse_subproblems <- function(problems, min.controls,
   mincs <- lapply(flipped_status, function(x) x[['minc']])
   maxcs <- lapply(flipped_status, function(x) x[['maxc']])
 
-  tol.fracs <- mapply(get_tol_frac,
-                      d = problems,
-                      total_n = rep(total.n, np),
-                      np = rep(np, np))
-  tolerances <- tol.fracs * TOL.in
+  #browser()
+  #when no hint is provided, hints is a list of length np where everything is null
+  #when hint is provided, hint is a list of NodeInfo elements
+  hint.provided <- all(sapply(hints, function(x) !is.null(x)))
 
   hint.list <- mapply(prepare_subproblem_hint,
                       d = problems,
                       hint = hints,
                       SIMPLIFY = FALSE)
 
-  epsilons <- mapply(get_epsilon,
-                     hint = hint.list,
-                     tolerance = tolerances,
-                     subproblem = problems,
-                     flipped = flippeds,
-                     SIMPLIFY = FALSE)
 
+  if (!is.null(resolution))
+  {
+    length.res <- length(resolution)
+    names.res <- names(resolution)
+
+    if (hint.provided)
+    {
+      if(any(!names.res %in% subproblemids))
+      {
+        stop("Group specified in resolution argument cannot be found.")
+      }
+      # if resolution is specified for a few subproblems, do the default behavior first:
+      tol.fracs <- mapply(get_tol_frac,
+                          d = problems,
+                          total_n = rep(total.n, np),
+                          np = rep(np, np))
+      tolerances <- tol.fracs * TOL.in
+
+      epsilons <- mapply(get_epsilon,
+                         hint = hint.list,
+                         tolerance = tolerances,
+                         subproblem = problems,
+                         flipped = flippeds,
+                         SIMPLIFY = FALSE)
+      #Then, update with the new specified values
+      epsilons[names.res] <- resolution
+
+    } else {
+      if(length.res != np ||
+         !identical(sort(names.res), sort(subproblemids)))
+      {
+        stop("Resolutions must provided for each subproblem as a named list. Please ensure all subproblemids are correct and specified.")
+      }
+
+      epsilons <- lapply(subproblemids, function(x) resolution[[x]])
+      names(epsilons) <- subproblemids
+    }
+
+
+  } else { #no epsilons provided, just use the default behavior and convert from tolerance
+    tol.fracs <- mapply(get_tol_frac,
+                        d = problems,
+                        total_n = rep(total.n, np),
+                        np = rep(np, np))
+    tolerances <- tol.fracs * TOL.in
+
+    epsilons <- mapply(get_epsilon,
+                       hint = hint.list,
+                       tolerance = tolerances,
+                       subproblem = problems,
+                       flipped = flippeds,
+                       SIMPLIFY = FALSE)
+  }
 
   tmp <- list(subproblems = problems,
               flipped_status = flippeds,
@@ -224,4 +271,29 @@ find_subproblem_epsilons <- function(tol = NULL,
     return(tolerances)
   }
 
+}
+
+
+#' Title
+#'
+#' @param object optmatch object
+#' @param type either "subproblem" or "resolution"
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_subproblem_info <- function(object, type)
+{
+
+  if (type == "subproblem")
+  {
+    return(attr(object, "subproblem"))
+  }
+  if (type == "resolution")
+  {
+    resolutions <- attr(object, "MCFSolutions")@subproblems$resolution
+    names(resolutions) <- attr(object, "MCFSolutions")@subproblems$groups
+    return(resolutions)
+  }
 }
