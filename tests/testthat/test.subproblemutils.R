@@ -156,3 +156,25 @@ test_that("pairmatch: subproblem specification", {
   expect_true(resos["1"] == 0.01)
   expect_true(all(resos.old != resos))
 })
+
+
+test_that("fullmatch: no subproblems", {
+  d <- data.frame(position = rep(1:4, each = 4),
+                  z = rep(0:1, 8),
+                  rownames=letters[1:16])
+  dist <- match_on(z ~ position, inv.scale.matrix = diag(1), data=d)
+  res.mat <- fullmatch(dist, data=d, resolution = list(.1))
+  resos <- get_subproblem_info(res.mat, "resolution")
+  expect_true(length(resos) == 1)
+  expect_true(all(resos == .1))
+})
+
+test_that("pairmatch: no subproblems", {
+  data(nuclearplants)
+
+  psm <- glm(pr~.-(pr+cost), family=binomial(), data=nuclearplants)
+  res.pm <- pairmatch(match_on(psm), data=nuclearplants, resolution = list(.1))
+  resos <- get_subproblem_info(res.pm, "resolution")
+  expect_true(length(resos) == 1)
+  expect_true(all(resos == .1))
+})

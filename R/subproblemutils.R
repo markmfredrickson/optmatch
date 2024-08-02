@@ -174,6 +174,23 @@ parse_subproblems <- function(problems, min.controls,
     length.res <- length(resolution)
     names.res <- names(resolution)
 
+    if (all(is.null(names.res)))
+    {
+      if (identical(np, 1L) &&
+          identical(length.res, 1L))
+      {
+        names.res <- character(1L)
+        names(resolution) <- names.res
+      } else {
+        stop("No subproblem ids are specified.")
+      }
+    }
+    # specified.names <- sum(names.res != "")
+    # if (specified.names < length.res)
+    # {
+    #   stop("Some subproblem ids are missing")
+    # } # this should be caught later on when checking that ids are present
+
     if (hint.provided)
     {
       if(any(!names.res %in% subproblemids))
@@ -203,8 +220,18 @@ parse_subproblems <- function(problems, min.controls,
         stop("Resolutions must provided for each subproblem as a named list. Please ensure all subproblemids are correct and specified.")
       }
 
-      epsilons <- lapply(subproblemids, function(x) resolution[[x]])
-      names(epsilons) <- subproblemids
+
+      if (length(resolution) == 1 &&
+          names(resolution) == "" &&
+          np == 1 && all(subproblemids == "")) # case of one subproblem
+      {
+        epsilons <- resolution
+        names(epsilons) <- character(1L)
+      } else {
+        epsilons <- lapply(subproblemids, function(x) resolution[[x]])
+        names(epsilons) <- subproblemids
+      }
+
     }
 
 
