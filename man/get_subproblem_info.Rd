@@ -9,7 +9,7 @@ get_subproblem_info(object, type)
 \arguments{
 \item{object}{optmatch object}
 
-\item{type}{either "subproblem" or "resolution"}
+\item{type}{either "subproblem" or any of the column names from the subproblems table associated with an MCFSolutions object (e.g. "resolution")}
 }
 \description{
 Title

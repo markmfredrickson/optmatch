@@ -19,6 +19,9 @@ test_that("get_subproblem_info basics", {
 
   expect_true(identical(length(unique(get_subproblem_info(f2, type = "subproblem"))), 2L))
   expect_true(identical(length(get_subproblem_info(f2, type = "resolution")), 2L))
+  dt <- get_subproblem_info(f2, type = c("resolution", "group"))
+  expect_true(all(dim(dt) == c(2,2)))
+
 })
 
 test_that("fullmatch: basic error checks", {
@@ -102,19 +105,19 @@ test_that("fullmatch: with hint", {
   f1c <- fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.0001, hint=f1b)
   res.custom <- list("b" = 0.0001666667)
   f1c <- fullmatch(mos, min.c=.5, max.c=2, data = data, hint=f1b, resolution = res.custom)
-  resos <- get_subproblem_info(f1c, "resolution")
-  expect_true(resos["b"] == 0.0001666667)
+  resos <- get_subproblem_info(f1c, c("resolution", "groups"))
+  expect_true(resos[resos[, "groups"] == "b", "resolution"] == 0.0001666667)
 
   res.custom <- list("b" = 0.01)
   f1c <- fullmatch(mos, min.c=.5, max.c=2, data = data, hint=f1b, resolution = res.custom)
-  resos <- get_subproblem_info(f1c, "resolution")
-  expect_true(resos["b"] == 0.01)
+  resos <- get_subproblem_info(f1c, c("resolution", "groups"))
+  expect_true(resos[resos[, "groups"] == "b", "resolution"] == .01)
 
   res.custom <- list("b" = 0.01, "a" = .001)
   f1c <- fullmatch(mos, min.c=.5, max.c=2, data = data, hint=f1b, resolution = res.custom)
-  resos <- get_subproblem_info(f1c, "resolution")
-  expect_true(resos["b"] == 0.01)
-  expect_true(resos["a"] == 0.001)
+  resos <- get_subproblem_info(f1c, c("resolution", "groups"))
+  expect_true(resos[resos[, "groups"] == "b", "resolution"] == .01)
+  expect_true(resos[resos[, "groups"] == "a", "resolution"] == .001)
 })
 
 test_that("fullmatch: subproblem specification", {
@@ -124,8 +127,9 @@ test_that("fullmatch: subproblem specification", {
   f2 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = res.custom)
   resos.old <- get_subproblem_info(f1, "resolution")
   resos <- get_subproblem_info(f2, "resolution")
-  expect_true(resos["0"] == 0.001)
-  expect_true(resos["1"] == 0.01)
+  # relying on ordering here, but testing to make sure dimensions are reduced correctly
+  expect_true(resos[1] == 0.001)
+  expect_true(resos[2] == 0.01)
   expect_true(all(resos.old != resos))
 })
 
@@ -154,14 +158,14 @@ test_that("pairmatch: with hint", {
 
   res.custom <- list("b" = 0.001, "a" = 0.01) #out of order should be ok
   pm1 <- pairmatch(mos, data = data, hint=p1b, resolution = res.custom)
-  resos <- get_subproblem_info(pm1, "resolution")
-  expect_true(resos["b"] == 0.001)
-  expect_true(resos["a"] == 0.01)
+  resos <- get_subproblem_info(pm1, c("resolution", "group"))
+  expect_true(resos[resos[, "groups"] == "b", "resolution"] == .001)
+  expect_true(resos[resos[, "groups"] == "a", "resolution"] == .01)
 
   res.custom <- list("b" = 0.001) #should be able to specify subset here
   pm1 <- pairmatch(mos, data = data, hint=p1b, resolution = res.custom)
-  resos <- get_subproblem_info(pm1, "resolution")
-  expect_true(resos["b"] == 0.001)
+  resos <- get_subproblem_info(pm1, c("resolution", "group"))
+  expect_true(resos[resos[, "groups"] == "b", "resolution"] == .001)
 
 })
 
@@ -175,8 +179,8 @@ test_that("pairmatch: subproblem specification", {
   pm1 <- pairmatch(match_on(psm) + em, data=nuclearplants, resolution = res.custom)
   resos.old <- get_subproblem_info(res.pm, "resolution")
   resos <- get_subproblem_info(pm1, "resolution")
-  expect_true(resos["0"] == 0.001)
-  expect_true(resos["1"] == 0.01)
+  expect_true(resos[1] == 0.001)
+  expect_true(resos[2] == 0.01)
   expect_true(all(resos.old != resos))
 })
 

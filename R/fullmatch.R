@@ -311,14 +311,6 @@ fullmatch.matrix <- function(x,
 
   hint  <- if (missing(hint)) NULL else nodeinfo(hint)
 
-  # if (missing(hint))
-  # {
-  #   hint <- NULL
-  # } else {
-  #   # extract the resolutions
-  #   hint <- nodeinfo(hint)
-  # }
-
   ### Checking Input ###
 
   # this will throw an error if not valid

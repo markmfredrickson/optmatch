@@ -158,7 +158,6 @@ parse_subproblems <- function(problems, min.controls,
   mincs <- lapply(flipped_status, function(x) x[['minc']])
   maxcs <- lapply(flipped_status, function(x) x[['maxc']])
 
-  #browser()
   #when no hint is provided, hints is a list of length np where everything is null
   #when hint is provided, hint is a list of NodeInfo elements
   hint.provided <- all(sapply(hints, function(x) !is.null(x)))
@@ -167,7 +166,6 @@ parse_subproblems <- function(problems, min.controls,
                       d = problems,
                       hint = hints,
                       SIMPLIFY = FALSE)
-
 
   if (!is.null(resolution))
   {
@@ -185,11 +183,6 @@ parse_subproblems <- function(problems, min.controls,
         stop("No subproblem ids are specified.")
       }
     }
-    # specified.names <- sum(names.res != "")
-    # if (specified.names < length.res)
-    # {
-    #   stop("Some subproblem ids are missing")
-    # } # this should be caught later on when checking that ids are present
 
     if (hint.provided)
     {
@@ -304,7 +297,7 @@ find_subproblem_epsilons <- function(tol = NULL,
 #' Title
 #'
 #' @param object optmatch object
-#' @param type either "subproblem" or "resolution"
+#' @param type either "subproblem" or any of the column names from the subproblems table associated with an MCFSolutions object (e.g. "resolution")
 #'
 #' @return
 #' @export
@@ -312,15 +305,20 @@ find_subproblem_epsilons <- function(tol = NULL,
 #' @examples
 get_subproblem_info <- function(object, type)
 {
-
-  if (type == "subproblem")
+  if (!inherits(object, "optmatch")){
+    stop("Please provide an optmatch object")
+  }
+  if (all(type == "subproblem"))
   {
     return(attr(object, "subproblem"))
-  }
-  if (type == "resolution")
-  {
-    resolutions <- attr(object, "MCFSolutions")@subproblems$resolution
-    names(resolutions) <- attr(object, "MCFSolutions")@subproblems$groups
-    return(resolutions)
+  } else {
+    subprob.attributes <- colnames(attr(object, "MCFSolutions")@subproblems)
+
+    idx <- pmatch(type, subprob.attributes, nomatch = NA)
+    idx <- idx[!is.na(idx)]
+
+    tb <- attr(object, "MCFSolutions")@subproblems
+    res <- tb[, idx]
+    return(res)
   }
 }
