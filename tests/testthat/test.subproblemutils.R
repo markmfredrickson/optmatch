@@ -31,6 +31,17 @@ test_that("fullmatch: basic error checks", {
   # no hint + subset of epsilons should fail
   bad.res <- list("1" = 0.001142857)
   expect_error(fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = bad.res))
+  #unnamed arguments should fail, length 1 list is a special case
+  bad.res <- list(0.001142857)
+  expect_error(fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = bad.res))
+  #unnamed arguments should fail
+  bad.res <- list(0.001142857, "1" =.35)
+  expect_error(fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = bad.res))
+
+  #unnamed arguments should fail
+  bad.res <- list(0.001142857, .35)
+  expect_error(fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = bad.res))
+
 })
 
 test_that("pairmatch: basic error checks", {
@@ -47,6 +58,18 @@ test_that("pairmatch: basic error checks", {
 
   bad.res <- list("1" = 0.001142857)
   expect_error(pairmatch(match_on(psm) + em, data=nuclearplants, resolution = bad.res))
+
+
+  bad.res <- list(0.001142857, 0.001142857)
+  expect_error(pairmatch(match_on(psm) + em, data=nuclearplants, resolution = bad.res))
+
+  bad.res <- list("1" = 0.001142857,
+                  0.001142857)
+  expect_error(pairmatch(match_on(psm) + em, data=nuclearplants, resolution = bad.res))
+
+  bad.res <- list(0.001142857)
+  expect_error(pairmatch(match_on(psm) + em, data=nuclearplants, resolution = bad.res))
+
 })
 
 test_that("fullmatch: error checking with hints", {
