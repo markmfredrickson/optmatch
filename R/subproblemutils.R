@@ -294,15 +294,19 @@ find_subproblem_epsilons <- function(tol = NULL,
 }
 
 
-#' Title
+#' Get information about subproblems
 #'
 #' @param object optmatch object
 #' @param type either "subproblem" or any of the column names from the subproblems table associated with an MCFSolutions object (e.g. "resolution")
 #'
-#' @return
+#' @return if \code{type = "subproblem"}, a named vector mapping units to subproblems is returned. If one or more columns from the subproblems table is specified, that column subset is returned. This might result in either a vector or data frame being returned.
 #' @export
 #'
 #' @examples
+#' data(nuclearplants)
+#' f1 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants)
+#' get_subproblem_info(object = f1, type = c("resolution", "groups"))
+#' get_subproblem_info(object = f1, type = "subproblem")
 get_subproblem_info <- function(object, type)
 {
   if (!inherits(object, "optmatch")){

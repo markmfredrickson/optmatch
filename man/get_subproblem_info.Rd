@@ -2,7 +2,7 @@
 % Please edit documentation in R/subproblemutils.R
 \name{get_subproblem_info}
 \alias{get_subproblem_info}
-\title{Title}
+\title{Get information about subproblems}
 \usage{
 get_subproblem_info(object, type)
 }
@@ -11,6 +11,15 @@ get_subproblem_info(object, type)
 
 \item{type}{either "subproblem" or any of the column names from the subproblems table associated with an MCFSolutions object (e.g. "resolution")}
 }
+\value{
+if \code{type = "subproblem"}, a named vector mapping units to subproblems is returned. If one or more columns from the subproblems table is specified, that column subset is returned. This might result in either a vector or data frame being returned.
+}
 \description{
-Title
+Get information about subproblems
+}
+\examples{
+data(nuclearplants)
+f1 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants)
+get_subproblem_info(object = f1, type = c("resolution", "groups"))
+get_subproblem_info(object = f1, type = "subproblem")
 }
