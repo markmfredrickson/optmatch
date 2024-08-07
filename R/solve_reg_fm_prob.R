@@ -127,7 +127,7 @@ solve_reg_fm_prob <- function(node_info,
     if (!is.null(temp[["MCFSolution"]]))
         {
             temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
-            temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solutions==1L)
+            temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solution==1L)
 
             ## Presently we can treat this subproblem as non-flipped even if it was,
             ## since `dm` will have been transposed in the event of flipping.  Doing
