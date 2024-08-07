@@ -3,7 +3,7 @@ context("MCFSolutions & co: S4 classes to encode min-cost-flow solutions")
 test_that("Instantiation & validity", {
     expect_true(validObject(new("SubProbInfo"))) # test the prototype
     expect_silent(spi1  <- new("SubProbInfo", data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                                           resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                                           resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
                                            feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                                )
                   )
@@ -13,7 +13,7 @@ test_that("Instantiation & validity", {
     colnames(spi2)[1]  <- "Subprob"
     expect_error(validObject(spi2), "Cols 1-8 should be")
 
-    expect_true(validObject(new("NodeInfo"))) # test the prototype    
+    expect_true(validObject(new("NodeInfo"))) # test the prototype
     expect_silent(ni1  <- new("NodeInfo",
                              data.frame(name='a', price=0.5, upstream_not_down=TRUE,
                                         supply=1L, groups = as.factor('b'),
@@ -48,7 +48,7 @@ test_that("Instantiation & validity", {
                                  supply=1L, groups = as.factor('b'),
                                  stringsAsFactors=F)
                      ),
-                 "unique" 
+                 "unique"
                   )
     expect_true(validObject(new("ArcInfo"))) # test the prototype
     expect_silent(ai  <- new("ArcInfo",
@@ -72,7 +72,7 @@ test_that("Instantiation & validity", {
                      bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
                                             end = as.factor('(_Sink_)'), flow=1.5,
                                             capacity=1L, stringsAsFactors=F)
-                     ), "should have type integer" # Not sure it's necessary, but insisting 
+                     ), "should have type integer" # Not sure it's necessary, but insisting
                   )                                # that 'flow' be integer not double
     expect_error(new("ArcInfo",
                      matches=data.frame(groups = as.factor('a'), upstream = as.factor('b'),
@@ -80,8 +80,8 @@ test_that("Instantiation & validity", {
                      bookkeeping=data.frame(groups = as.factor('a'), start = as.factor(c('c','d')),
                                             end = as.factor('(_Sink_)'), flow=-1L,
                                             capacity=1L, stringsAsFactors=F)
-                     ), "should be nonnegative" 
-                  )                                
+                     ), "should be nonnegative"
+                  )
     expect_error(new("ArcInfo",
                      matches=data.frame(groups = as.factor('a'),
                                         upstream = as.factor('b'),
@@ -91,9 +91,9 @@ test_that("Instantiation & validity", {
                                             start=as.factor(c('c','d')),
                                             end=as.factor('(_Sink_)'), flow=2L,
                                             capacity=1L, stringsAsFactors=F)
-                     ), "flow can be no greater than capacity" 
-                  )                                
-    
+                     ), "flow can be no greater than capacity"
+                  )
+
     expect_silent(mcf1f  <- new("MCFSolutions", subproblems=spi1,nodes=ni1f,arcs=ai))
     expect_silent(as(mcf1f, "FullmatchMCFSolutions"))
     expect_equal(node.labels(mcf1f), node.labels(ni1f))
@@ -109,24 +109,24 @@ expect_setequal(names(getSlots("MCFSolutions")),
 test_that("c() methods", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                            resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
                             feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                  )
     spi2  <- new("SubProbInfo",
                  data.frame(groups=c('c'), flipped=logical(1), hashed_dist=c('a'),
-                            resolution=c(1), lagrangian_value=c(.5), dual_value=c(0),
+                            resolution=c(1), primal_value=c(.5), dual_value=c(0),
                             feasible=c(TRUE), exceedance=1, stringsAsFactors=F)
                  )
     spi3  <- new("SubProbInfo",
                  data.frame(groups=c('d'), flipped=logical(1), hashed_dist=c('a'),
-                            resolution=c(1), lagrangian_value=c(.5), dual_value=c(0),
+                            resolution=c(1), primal_value=c(.5), dual_value=c(0),
                             feasible=c(TRUE), exceedance=1, stringsAsFactors=F)
                  )
-    
+
     expect_true(validObject(c(spi1, spi2)))
     expect_true(validObject(c(spi1, spi2, spi3)))
     expect_true(validObject(c(a=spi1, b=spi2))) # no confusion just b/c no `x=` arg!
-    
+
     ni1f  <- new("NodeInfo",
                  data.frame(name=c('b', 'c', 'd',
                                    '(_Sink_)', '(_End_)'),
@@ -141,7 +141,7 @@ test_that("c() methods", {
     node.labels(ni1f) <- ni1f[['name']]
     ni1f.a  <- ni1f.b <- ni1f.c  <- ni1f
     ni1f.a[,'groups']  <- factor(rep('a', nrow(ni1f)))
-    ni1f.c[,'groups']  <- factor(rep('c', nrow(ni1f)))    
+    ni1f.c[,'groups']  <- factor(rep('c', nrow(ni1f)))
     expect_true(validObject(c(ni1f.a, ni1f.b)))
     expect_true(validObject(c(ni1f.a, ni1f.b, ni1f.c)))
     ni2  <- new("NodeInfo",
@@ -172,7 +172,7 @@ test_that("c() methods", {
     expect_true(validObject(ai1))
     expect_true(validObject(c(ai1, ai1)))
     expect_true(validObject(c(x=ai1, y=ai1, z=ai1)))
-    some_levs  <- c(letters[2:5], '(_Sink_)', '(_End_)')    
+    some_levs  <- c(letters[2:5], '(_Sink_)', '(_End_)')
     ai2  <- new("ArcInfo",
                 matches=data.frame(groups = factor('c'),
                                    upstream = factor('b', levels=some_levs),
@@ -199,7 +199,7 @@ test_that("c() methods", {
     mcf2 <- new("MCFSolutions", subproblems=spi2,nodes=ni2,arcs=ai2)
     expect_true(validObject(mcf1))
     expect_true(validObject(mcf2))
-    
+
     expect_error(c(mcf1, mcf1), "uplicates")
     expect_true(validObject(c(mcf1, mcf2)))
     expect_true(validObject(c(y=mcf1, z=mcf2)))
@@ -241,10 +241,10 @@ test_that("NodeInfo to tibble converter", {
     node.labels(ni1f) <- ni1f[['name']]
     expect_silent(ni_tbl  <- as(ni1f, "tbl_df"))
     expect_is(ni_tbl$nodelabels, "factor")
-    expect_equivalent(as.character(ni_tbl$nodelabels), 
+    expect_equivalent(as.character(ni_tbl$nodelabels),
                       c('b', 'c', 'd', '(_Sink_)', '(_End_)')
                       )
-    expect_equivalent(levels(ni_tbl$nodelabels), 
+    expect_equivalent(levels(ni_tbl$nodelabels),
                       c('b', 'c', 'd', '(_Sink_)', '(_End_)')
                       ) # default encoding would start w/ "(_End_)", "(_Sink_)"
 })
@@ -262,9 +262,9 @@ test_that("Preserve levels when filtering a node info tibble",{
     ni_tbl  <- as(ni1f, "tbl_df")
     expect_silent(ni_tbl_s  <- dplyr::filter(ni_tbl, name %in% letters))
     expect_is(ni_tbl_s$nodelabels, "factor")
-    expect_equivalent(levels(ni_tbl_s$nodelabels), 
+    expect_equivalent(levels(ni_tbl_s$nodelabels),
                       c('b', 'c', 'd', '(_Sink_)', '(_End_)')
-                      ) 
+                      )
 })
 test_that("Node labels getter",{
     expect_silent(mcf  <-  new("MCFSolutions")) #prelim-
@@ -287,7 +287,7 @@ test_that("filtering on groups/subproblem field", {
 
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), lagrangian_value=c(.5, 2), dual_value=c(0,1),
+                            resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
                             feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                  )
     expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
@@ -364,7 +364,7 @@ test_that("NodeInfo subsetting", {
     expect_equal(nrow(ni0_o), 6)
     expect_silent(ni0_n  <- filter(ni0_o, name!=2 & name!=4))
     expect_is(ni0_n, "NodeInfo")
-    expect_equal(nrow(ni0_n), 4)    
+    expect_equal(nrow(ni0_n), 4)
 })
 test_that("Pull updated prices & supplies into a NodeInfo",{
     expect_silent(ni0_o  <- nodes_shell_fmatch(c(1,2), c(3,4)))
