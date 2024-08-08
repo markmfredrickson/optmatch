@@ -3,7 +3,7 @@ context("MCFSolutions & co: S4 classes to encode min-cost-flow solutions")
 test_that("Instantiation & validity", {
     expect_true(validObject(new("SubProbInfo"))) # test the prototype
     expect_silent(spi1  <- new("SubProbInfo", data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                                           resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
+                                           resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
                                            feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                                )
                   )
@@ -109,7 +109,7 @@ expect_setequal(names(getSlots("MCFSolutions")),
 test_that("c() methods", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
+                            resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
                             feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                  )
     spi2  <- new("SubProbInfo",
@@ -287,7 +287,7 @@ test_that("filtering on groups/subproblem field", {
 
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
-                            resolution=c(1,10), primal_value=c(.5, 2), dual_value=c(0,1),
+                            resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
                             feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
                  )
     expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
