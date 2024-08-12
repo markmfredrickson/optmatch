@@ -1,234 +1,80 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/MCFSolutions.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/fullmatch-vignette.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/matching-from-foreign-software.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/articles/matching-within-subgroups.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/index.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/BlockedInfinitySparseMatrix-class.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/InfinitySparseMatrix-class.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/LEMON.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/antiExactMatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/as.InfinitySparseMatrix.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/as.list.BlockedInfinitySparseMatrix.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/c.optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliper-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliperSize.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliperUpperBound.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/cbindrbind.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/compare_optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/dbind.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/dimnames-InfinitySparseMatrix.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/distUnion.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/edgelist.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/effectiveSampleSize.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/evaluate_primal.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/exactMatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/fill.NAs.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/findSubproblems.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/fmla2treatedblocking.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/fullmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/getMaxProblemSize.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/hash_dist.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/ism.subset.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/ismBinaryOps.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/makeOptmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/match_on-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/match_on_szn_scale.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/matched.distances.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/matched.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/maxCaliper.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/mcf_c_fns.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/mdist.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/minExactMatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/minmaxctlcap.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/missing_x_msg.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/model.frame.svyglm.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/nuclearplants.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/num_eligible_matches-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch-defunct.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch_restrictions.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch_same_distance.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/pairmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/plantdist.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/predict.CBPS.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/print.optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/revise_ArcInfo_nodelabels.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/scoreCaliper.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/scores.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/setFeasibilityConstants.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/setMaxProblemSize.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/setTryRecovery.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/show-BlockedInfinitySparseMatrix-method.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/show-InfinitySparseMatrix-method.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/sort.ism.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/standardization_scale.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/strata.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/stratumStructure.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/subdim-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/subproblemSuccess.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/summary.ism.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/update.optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://markmfredrickson.github.io/optmatch/dev/reference/validDistanceSpecification.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/LICENSE-text.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/LICENSE.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/articles/MCFSolutions.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/articles/fullmatch-vignette.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/articles/index.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/articles/matching-from-foreign-software.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/articles/matching-within-subgroups.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/authors.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/index.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/news/index.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/BlockedInfinitySparseMatrix-class.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/InfinitySparseMatrix-class.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/LEMON.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/antiExactMatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/as.InfinitySparseMatrix.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/as.list.BlockedInfinitySparseMatrix.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/c.optmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliper-methods.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliperSize.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/caliperUpperBound.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/cbindrbind.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/compare_optmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/dbind.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/dimnames-InfinitySparseMatrix.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/distUnion.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/edgelist.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/effectiveSampleSize.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/evaluate_primal.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/exactMatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/fill.NAs.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/findSubproblems.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/fmla2treatedblocking.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/fullmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/getMaxProblemSize.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/hash_dist.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/index.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/ism.subset.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/ismBinaryOps.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/makeOptmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/match_on-methods.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/match_on_szn_scale.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/matched.distances.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/matched.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/maxCaliper.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/mcf_c_fns.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/mdist.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/minExactMatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/minmaxctlcap.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/missing_x_msg.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/model.frame.svyglm.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/nuclearplants.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/num_eligible_matches-methods.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch-defunct.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch_restrictions.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/optmatch_same_distance.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/pairmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/plantdist.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/predict.CBPS.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/print.optmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/revise_ArcInfo_nodelabels.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/scoreCaliper.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/scores.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/setFeasibilityConstants.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/setMaxProblemSize.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/setTryRecovery.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/show-BlockedInfinitySparseMatrix-method.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/show-InfinitySparseMatrix-method.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/sort.ism.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/standardization_scale.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/strata.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/stratumStructure.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/subdim-methods.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/subproblemSuccess.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/summary.ism.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/update.optmatch.html</loc></url>
+<url><loc>https://markmfredrickson.github.io/optmatch/dev/reference/validDistanceSpecification.html</loc></url>
 </urlset>
+
