@@ -444,6 +444,7 @@ setMethod("node.labels<-", "ANY", function(x, value) NULL)
 ## info about a subset of the first table's nodes. The two
 ## tables will be aligned using their "name" columns,
 ## not their node.labels (rownames).
+#' @keywords internal
 update.NodeInfo  <- function(object, new, ...)
 {
     stopifnot(is(object, "NodeInfo"), is(new, "NodeInfo"),
@@ -462,6 +463,7 @@ update.NodeInfo  <- function(object, new, ...)
     object
 }
 ##* `dplyr::filter()` method for NodeInfo's.
+#' @keywords internal
 filter.NodeInfo  <- function(.data, ...) {
     x  <- as(.data, "tbl_df")
     ans  <- filter(x, ...)
