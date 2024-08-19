@@ -7,16 +7,16 @@ setOldClass("data.frame")
 setClass("SubProbInfo", contains="data.frame",
          prototype=
              prototype(data.frame(groups=character(1), flipped=NA, hashed_dist=NA_character_,
-                              resolution=1, lagrangian_value=NA_real_,
+                              resolution=1, primal_value=NA_real_,
                               dual_value=NA_real_, feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
                   )
          )
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
     if (!all(colnames(object)[1:8]==
-             c("groups","flipped", "hashed_dist","resolution","lagrangian_value","dual_value", "feasible", "exceedance")))
+             c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance")))
         errors  <- c(errors,
-                     'Cols 1-8 should be:\n\t c("groups","flipped", "hashed_dist","resolution","lagrangian_value","dual_value", "feasible", "exceedance")')
+                     'Cols 1-8 should be:\n\t c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance")')
     if (!all(vapply(object[c(1,3)], is.character, logical(1))))
         errors  <- c(errors,
                      'Cols 1,3 should have type character.')
