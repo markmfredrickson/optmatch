@@ -48,7 +48,6 @@ fmatch <- function(distance,
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))
-  feas.status <- TRUE
   if (mnc > 1) {
     mxr <- 1L
   }
@@ -143,7 +142,6 @@ fmatch <- function(distance,
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
-    feas.status <- FALSE #integrate this into the MCFSolution object if possible
     mcfs.none <- new("MCFSolutions")
     return(c(
       out,
