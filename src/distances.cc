@@ -29,8 +29,8 @@ SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   int
     j, k,
     va, vb,
-    nv = Rf_nrows(index),
-    n = Rf_ncols(data), nr = Rf_nrows(data);
+    nv = nrows(index),
+    n = ncols(data), nr = nrows(data);
   double
     sum, innerSum;
 
@@ -40,12 +40,12 @@ SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
   // which are not used
   SEXP row_names, cl;
   const char * rn, * cn;
-  Rf_GetMatrixDimnames(data, &row_names, &cl, &rn, &cn);
+  GetMatrixDimnames(data, &row_names, &cl, &rn, &cn);
   MAP * strpos = create_map(row_names);
 
   // alloc space for the result
   SEXP result;
-  PROTECT(result = Rf_allocVector(REALSXP, nv));
+  PROTECT(result = allocVector(REALSXP, nv));
 
   // get pointers to C types; makes the loop easier to read
   double
