@@ -48,7 +48,7 @@ fmatch <- function(distance,
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))
-
+  feas.status <- TRUE
   if (mnc > 1) {
     mxr <- 1L
   }
@@ -143,11 +143,14 @@ fmatch <- function(distance,
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
+    feas.status <- FALSE #integrate this into the MCFSolution object if possible
+    mcfs.none <- new("MCFSolutions")
     return(c(
       out,
       list(maxerr = 0),
-      list(MCFSolution = NULL)
+      list(MCFSolution = mcfs.none)
     ))
+
   }
 
   ##  Min-Cost-Flow representation of problem  ####
@@ -232,7 +235,6 @@ fmatch <- function(distance,
                                 algorithm = algorithm)
     x <- as.numeric(lout[[1]])
     nodes[, "price"] <- lout[[2]]
-
     nodes[, "price"] <- (nodes[, "price"] - nodes[, "price"][endID]) * -1
 
     if (lout[[4]] != "OPTIMAL" || all(x == -1)) {
@@ -254,9 +256,7 @@ fmatch <- function(distance,
 
 
     ## Material used to create s3 optmatch object:
-    feas <- fop$feasible1
-    x <- feas * fop$x1
-
+    x <- fop$feasible1 * fop$x1
     #### Recover node prices, store in nodes table ##
     ## In full matching, each upstream (row) or downstream (column) node starts
     ## an arc ending at End, and these are also the only arcs ending there. End
@@ -317,7 +317,7 @@ fmatch <- function(distance,
   arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
 
   sp  <- new("SubProbInfo")
-  sp[1L, "feasible"]  <- TRUE
+  sp[1L, "feasible"]  <- any(x == 1L)
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs)
   return(c(obj,

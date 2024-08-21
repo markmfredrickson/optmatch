@@ -93,7 +93,8 @@ solve_reg_fm_prob <- function(node_info,
   {
     ans <- rep(NA_integer_, nrows + ncols)
     names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, err=0, MCFSolution=NULL))
+    return(list(cells=ans, err=0, MCFSolution=new("MCFSolutions")))
+    #return(list(cells=ans, err=0, MCFSolution=NULL))
   }
 
 
@@ -124,10 +125,12 @@ solve_reg_fm_prob <- function(node_info,
   names(ans) <- c(rownames, colnames)
   ans[names(matches)] <- matches
 
-  if (!is.null(temp[["MCFSolution"]]))
-        {
+  #if (!is.null(temp[["MCFSolution"]]))
+  if (!identical(temp[["MCFSolution"]],
+                 new("MCFSolutions")))
+  {
             temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
-            temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solution==1L)
+            #temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solution==1L)
 
             ## Presently we can treat this subproblem as non-flipped even if it was,
             ## since `dm` will have been transposed in the event of flipping.  Doing
@@ -143,7 +146,7 @@ solve_reg_fm_prob <- function(node_info,
                 temp[["MCFSolution"]]@subproblems[1L,   "dual_value"    ]
             nodeinfo(temp[["MCFSolution"]])  <-
                 update(node_info, nodeinfo(temp[["MCFSolution"]]))
-            }
+    }
 
   return(list(cells = ans, err = temp$maxerr,
               MCFSolution=temp[["MCFSolution"]]
@@ -168,7 +171,9 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
                        node_info = node_info, solver = solver)
 
-    if (!is.null(intsol$MCFSolution))
+    # if (!is.null(intsol$MCFSolution))
+    if (!identical(intsol[["MCFSolution"]],
+                   new("MCFSolutions")))
     {
         intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
 

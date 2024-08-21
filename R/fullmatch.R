@@ -308,7 +308,12 @@ fullmatch.matrix <- function(x,
                              hint,
                              resolution = NULL,
                              ...) {
-
+  # if (!missing(hint))
+  # {
+  #   hint_metadata <- parse_hint_metadata(hint)
+  # } else {
+  #   hint_metadata <- NULL
+  # }
   hint  <- if (missing(hint)) NULL else nodeinfo(hint)
 
   ### Checking Input ###
@@ -512,7 +517,8 @@ fullmatch.matrix <- function(x,
       cells.b <- rep(NA, x[2])
       names(cells.a) <- rownames(d)
       names(cells.b) <- colnames(d)
-      tmp <- list(cells = c(cells.a, cells.b), err = -1)
+      tmp <- list(cells = c(cells.a, cells.b), err = -1,
+                  MCFSolution = new("MCFSolutions"))
       return(tmp)
     }
 
@@ -534,8 +540,10 @@ fullmatch.matrix <- function(x,
                               solver = solver,
                               omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
                               epsilon = epsilon.in)
-    if (!is.null(temp$MCFSolution))
+    if (!identical(temp[["MCFSolution"]],
+                   new("MCFSolutions"))) {
       temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
+    }
 
     return(temp)
   }
@@ -614,7 +622,6 @@ fullmatch.matrix <- function(x,
     warning("The flag fullmatch_try_recovery is unset, setting to TRUE")
     setTryRecovery()
   }
-
   precomputed_parameters <- parse_subproblems(problems = problems,
                                 min.controls = min.controls,
                                 max.controls = max.controls,
@@ -693,7 +700,8 @@ fullmatch.matrix <- function(x,
     mcfsolutions  <- rep(list(NULL), np)
     names(mcfsolutions)  <- subproblemids
     for (ii in 1L:np) {
-      if (!is.null(solutions[[ii]]$MCFSolution))
+      if (!identical(solutions[[ii]][["MCFSolution"]],
+                       new("MCFSolutions")))
       {
         mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
         mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
@@ -714,7 +722,7 @@ fullmatch.matrix <- function(x,
     }
   mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
 
-  attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) {
+  attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { #flagging this as a line may change if we always want to return an MCFSolutions object in the future
     NULL
   } else {
     names(mcfsolutions)[1]  <- "x"

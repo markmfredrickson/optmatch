@@ -112,8 +112,7 @@ get_epsilon <- function(subproblem, flipped,
     cfeas <- length(unique(sub.dmat@rows))
   }
 
-  #dealing with infinite values?
-  max_dist <- max(sub.dmat@.Data)
+  max_dist <- suppressWarnings(max(sub.dmat@.Data))
 
   eps.val <- calculate_epsilon(rfeas,
                                cfeas,
@@ -130,7 +129,6 @@ calculate_epsilon <- function(rfeas,
 {
 
   old.o <- options(warn=-1)
-  #epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
   epsilon_lower_lim <- maxdist / (.Machine$integer.max/64 -2)
   epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
     max(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
@@ -325,4 +323,31 @@ get_subproblem_info <- function(object, type)
     res <- tb[, idx]
     return(res)
   }
+}
+
+#' Parse hints for metadata
+#'
+#' @param full.hint
+#'
+#' @return
+#' @export
+#'
+#' @examples
+parse_hint_metadata <- function(full.hint)
+{
+  # assuming that the hint is not null
+  # also assuming existence of MCFSolutions object
+
+  groupids <- get_subproblem_info(full.hint, type = "groups")
+  feasibility <- get_subproblem_info(full.hint, type = "feasible")
+  names(feasibility) <- groupids
+  resolutions <- get_subproblem_info(full.hint, type = "resolution")
+  names(resolutions) <- groupids
+  regret_gap <- get_subproblem_info(full.hint, type = "primal_value") - get_subproblem_info(full.hint, type = "dual_value")
+  names(regret_gap) <- groupids
+
+  rl <- list(feasible = feasibility,
+       resolution = resolutions,
+       regret = regret_gap)
+  return(rl)
 }
