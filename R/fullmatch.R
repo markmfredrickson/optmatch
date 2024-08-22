@@ -517,8 +517,22 @@ fullmatch.matrix <- function(x,
       cells.b <- rep(NA, x[2])
       names(cells.a) <- rownames(d)
       names(cells.b) <- colnames(d)
+
+      if (!flipped) {
+        omf.calc <- omf
+      } else {
+        omf.calc <- -1 * omf
+      }
+
+      stemp <- solve_reg_fm_prob(node_info = hint,
+                                distspec = d,
+                                max.cpt = mxctl,
+                                min.cpt = mnctl,
+                                solver = solver,
+                                omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
+                                epsilon = epsilon.in)
       tmp <- list(cells = c(cells.a, cells.b), err = -1,
-                  MCFSolution = new("MCFSolutions"))
+                  MCFSolution = stemp[["MCFSolution"]])
       return(tmp)
     }
 
@@ -540,10 +554,12 @@ fullmatch.matrix <- function(x,
                               solver = solver,
                               omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
                               epsilon = epsilon.in)
-    if (!identical(temp[["MCFSolution"]],
-                   new("MCFSolutions"))) {
+    # if (!identical(temp[["MCFSolution"]],
+    #                new("MCFSolutions")))
+    #if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"])
+    #{
       temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
-    }
+    #}
 
     return(temp)
   }
@@ -699,15 +715,20 @@ fullmatch.matrix <- function(x,
     ## assemble MCF material
     mcfsolutions  <- rep(list(NULL), np)
     names(mcfsolutions)  <- subproblemids
-    for (ii in 1L:np) {
-      if (!identical(solutions[[ii]][["MCFSolution"]],
-                       new("MCFSolutions")))
-      {
+    for (ii in 1L:np)
+    {
+      #if (!solutions[[ii]][["MCFSolution"]]@subproblems[1L, "feasible"])
+      # if (!identical(solutions[[ii]][["MCFSolution"]],
+      #                  new("MCFSolutions")))
+      #{
         mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
         mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
         thesubprob  <- subproblemids[ii]
         mcfsolutions[[ii]]@subproblems[1L,"groups"]  <- thesubprob
-        mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
+        if (nrow(mcfsolutions[[ii]]@nodes ) > 0)
+        {
+          mcfsolutions[[ii]]@nodes[,"groups"]  <- factor(thesubprob)
+        }
         if (nrow(mcfsolutions[[ii]]@arcs@matches) > 0) {
           mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
         }
@@ -719,16 +740,20 @@ fullmatch.matrix <- function(x,
           node.labels(mcfsolutions[[ii]])  <-  nlabs
         }
       }
-    }
-  mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
 
+  mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
+  #browser()
   attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { #flagging this as a line may change if we always want to return an MCFSolutions object in the future
+    print("Runs!")
     NULL
   } else {
     names(mcfsolutions)[1]  <- "x"
     ##b/c in next line `c()` needs to dispatch on an `x` argument
     do.call("c", mcfsolutions)
   }
+
+  # names(mcfsolutions[1]) <- "x"
+  # attr(mout, "MCFSolutions") <- do.call("c", mcfsolutions)
 
   # save solver information
   attr(mout, "solver") <- solver

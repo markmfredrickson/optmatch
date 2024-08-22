@@ -33,7 +33,7 @@ fmatch <- function(distance,
                    min.col.units = 1,
                    f = 1,
                    node_info,
-                   solver) {
+                   solver, try_solver = TRUE) {
   # checks solver and evaluates LEMON() if neccessary
   solver <- handleSolver(solver)
 
@@ -52,12 +52,13 @@ fmatch <- function(distance,
     mxr <- 1L
   }
 
+
   # Check that matching problem is well-specified
-  if (mxc < mnc) {
+  if (  (mxc < mnc) && try_solver ){
     stop("min.col.units may not exceed max.col.units")
   }
 
-  if (any(c(mxc, mnc, mxr) < 1)) {
+  if ((any(c(mxc, mnc, mxr) < 1)) && try_solver) {
     stop("max and min constraints must be 1 or greater")
   }
 
@@ -88,13 +89,13 @@ fmatch <- function(distance,
       distance[['dist']][nadists]  <- replacement
   }
 
-  if (mxr > 1) # i.e. many-one matches permissible
+  if (mxr > 1 && try_solver) # i.e. many-one matches permissible
   {
       if (any(distance[['dist']] <= 0))
           stop("Nonpositive discrepancies not compatible with full matching\n (see Hansen & Klopfer, 2006 JCGS, sec.4.1).")
       } else if (any(distance[['dist']] < 0)) stop("distance should be nonnegative")
 
-  if (!is.numeric(f) | f > 1 | f < 0) {
+  if ((!is.numeric(f) | f > 1 | f < 0) && try_solver)  {
     stop("f must be a number in [0,1]")
   }
 
@@ -136,17 +137,131 @@ fmatch <- function(distance,
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
-  if ( (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
+  if ( !try_solver |
+       (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
        (mxr==1L & nt * mnc > n.mc) | #min.col.units too high
        (nt * mxc < n.mc)) { #max.col.units too low
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
-    mcfs.none <- new("MCFSolutions")
+
+    ####
+    nodes  <- new("NodeInfo",
+                  data.frame(name=c(row.units, col.units,
+                                    "(_End_)", "(_Sink_)"),# note that `factor()` would put these at start not end of levels
+                             price=0L,
+                             upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA),
+                             supply=c(rep(mxc, nt), rep(0L, nc),
+                                      -(mxc * nt - n.mc), -n.mc),
+                             groups=factor(rep(NA_character_, nt+nc+2L)),
+                             stringsAsFactors=FALSE
+                  )
+    )
+
+    endID <- nt + nc + 1L
+    sinkID <- endID + 1L
+    node.labels(nodes)  <- nodes[['name']] # new convention per i166
+
+    if ( !all(node_info[['price']]==0) )
+    {
+      nodes[,'price']  <- node_info[match(c(row.units, col.units,
+                                            "(_End_)", "(_Sink_)"),
+                                          node_info$name),
+                                    'price']
+      ## if a col unit doesn't have a match w/in node_info$name, then
+      ## its nodes row now has a 0 for its price. Replace that w/ min of
+      ## bookkeeping node prices may preserve CS in some cases.
+      if (length(col.noprice  <- setdiff(col.units, node_info[['name']])))
+        nodes[nodes[['name']] %in% col.noprice, 'price']  <-
+          min(node_info[match(c("(_End_)", "(_Sink_)"), node_info$name),
+                        'price', drop=TRUE]
+          )
+    }
+    # ID numbers implicitly point to corresp. row of nodes
+    ####    Arcs involving End or Sink nodes   ####
+
+    if (nt == 0 && nc == 0)
+    {
+      bookkeeping  <-
+        data.frame(groups=factor(rep(NA_character_, 2L)),
+                   start=c(1,2), # ~ col.units
+                   end=c(1, 2),
+                   flow=0L,
+                   capacity=0L
+                   #capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
+        )
+
+      x <- rep(0L, problem.size)
+      matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
+      matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
+                             upstream=factor(matches[['i']],
+                                             levels=node.labels(nodes)
+                             ),
+                             downstream=factor(matches[['j']],
+                                               levels=node.labels(nodes)
+                             )
+      )
+      bookkeeping[['start']]  <- factor(bookkeeping[['start']],
+                                        levels=c(1L, 2L),
+                                        labels=node.labels(nodes)
+      )
+      bookkeeping[['end']]  <- factor(bookkeeping[['end']],
+                                      levels=c(1L, 2L),
+                                      labels=node.labels(nodes)
+      )
+
+
+    } else {
+      bookkeeping  <-
+        data.frame(groups=factor(rep(NA_character_, nt +2L*nc)),
+                   start=c(1L:(nt + nc), # ~ c(row.units, col.units)
+                           nt + 1L:nc), # ~ col.units
+                   end=c(rep(endID, nc + nt),
+                         rep(sinkID, nc) ),
+                   flow=0L,
+                   capacity=0L
+                   #capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
+        )
+
+      startn<- c(as.integer(distance[['i']]), bookkeeping$start )
+      endn <-  c(as.integer(distance[['j']]), bookkeeping$end )
+      x <- rep(0L, problem.size)
+      matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
+      bookkeeping[1L:(problem.size-narcs), "flow"]  <- as.integer(x)[(narcs+1L):problem.size]
+      matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
+                             upstream=factor(matches[['i']],
+                                             levels=node.labels(nodes)
+                             ),
+                             downstream=factor(matches[['j']],
+                                               levels=node.labels(nodes)
+                             )
+      )
+      bookkeeping[['start']]  <- factor(bookkeeping[['start']],
+                                        levels=1L:(nt + nc + 2),
+                                        labels=node.labels(nodes)
+      )
+      bookkeeping[['end']]  <- factor(bookkeeping[['end']],
+                                      levels=1L:(nt + nc + 2),
+                                      labels=node.labels(nodes)
+      )
+
+
+    }
+
+
+
+    arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
+
+    sp  <- new("SubProbInfo")
+    sp[1L, "feasible"]  <- FALSE
+    fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
+                  nodes=nodes, arcs=arcs)
+    ####
+
     return(c(
       out,
       list(maxerr = 0),
-      list(MCFSolution = mcfs.none)
+      list(MCFSolution = fmcfs) #so if statements will work temporarily
     ))
 
   }
@@ -288,8 +403,6 @@ fmatch <- function(distance,
 
   obj <- as.data.frame(distance, row.names = NULL)
   obj$solution <-  x[seq.int(from=min(1L, narcs), to=narcs)]
-
-
 
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:

@@ -34,7 +34,8 @@ solve_reg_fm_prob <- function(node_info,
                                omit.fraction=NULL,
                                solver,
                                epsilon = NULL,
-                               tolerance = NULL) {
+                               tolerance = NULL,
+                               try_solver = TRUE) {
 
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
@@ -86,14 +87,19 @@ solve_reg_fm_prob <- function(node_info,
     }
     f.ctls <- 1-omit.fraction
   }
-  if (floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
+  if (!try_solver |
+      floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
       ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
       !rfeas |  !cfeas  # either no controls or no treatments
   )
   {
     ans <- rep(NA_integer_, nrows + ncols)
     names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, err=0, MCFSolution=new("MCFSolutions")))
+    #engaging in some questionable practices here, but short circuiting doubleSolve to generate a placeholder MCFSolutions object to return. Everything except the subproblems table is suspect.
+    stmp <- doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info,
+                rfeas, cfeas, epsilon, solver, try_solver = FALSE)
+    return(list(cells = ans, err=0, MCFSolution=stmp[["MCFSolution"]]))
+    #return(list(cells=ans, err=0, MCFSolution=new("MCFSolutions")))
     #return(list(cells=ans, err=0, MCFSolution=NULL))
   }
 
@@ -126,11 +132,11 @@ solve_reg_fm_prob <- function(node_info,
   ans[names(matches)] <- matches
 
   #if (!is.null(temp[["MCFSolution"]]))
-  if (!identical(temp[["MCFSolution"]],
-                 new("MCFSolutions")))
+  # if (!identical(temp[["MCFSolution"]],
+  #                new("MCFSolutions")))
+  if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"])
   {
             temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
-            #temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solution==1L)
 
             ## Presently we can treat this subproblem as non-flipped even if it was,
             ## since `dm` will have been transposed in the event of flipping.  Doing
@@ -156,7 +162,7 @@ solve_reg_fm_prob <- function(node_info,
 
 
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
-                        rfeas, cfeas, epsilon, solver)
+                        rfeas, cfeas, epsilon, solver, try_solver = TRUE)
 {
     dm_distance  <- dm$'dist' #Used below in roundoff error crude estimate
     dm$'dist'  <- as.integer(ceiling(.5 + dm$'dist' / epsilon))
@@ -169,17 +175,16 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                        )
 
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                       node_info = node_info, solver = solver)
+                       node_info = node_info, solver = solver, try_solver = try_solver)
 
-    # if (!is.null(intsol$MCFSolution))
-    if (!identical(intsol[["MCFSolution"]],
-                   new("MCFSolutions")))
-    {
+    #if (!identical(intsol[["MCFSolution"]],
+    #               new("MCFSolutions")))
+    #{
         intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
 
         intsol$MCFSolution@nodes[,'price']  <-
             intsol$MCFSolution@nodes[['price']] * epsilon
-    }
+    #}
 
     intsol$maxerr  <-
         if (any(is.na(intsol$solution) |
@@ -197,7 +202,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver) {
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver, try_solver = TRUE) {
   stopifnot(is(dm, "EdgeList"), is(node_info, "NodeInfo"))
   if (!is.integer(node_info[['price']])) {
     price_col_position  <- which(node_info@names=="price")
@@ -211,7 +216,8 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver) {
          min.col.units = max(1, floor(min.cpt)),
          f = f.ctls,
          node_info = node_info,
-         solver = solver)
+         solver = solver,
+         try_solver = try_solver)
 }
 
 ##* Small helper function to turn a solution data.frame into a factor of matches
