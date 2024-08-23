@@ -24,6 +24,7 @@
 ##* @param solver
 ##* @param epsilon double, grid width
 ##* @param omit.fraction
+##* @param try_solver Logical. This is a temporary parameter allowing us to work around some of the error checking happening at different points in order to recognize infeasible subproblems but still return an MCFSolutions object with an explicit indication of feasibility.
 ##* @return
 ##* @keywords internal
 
@@ -99,8 +100,6 @@ solve_reg_fm_prob <- function(node_info,
     stmp <- doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info,
                 rfeas, cfeas, epsilon, solver, try_solver = FALSE)
     return(list(cells = ans, err=0, MCFSolution=stmp[["MCFSolution"]]))
-    #return(list(cells=ans, err=0, MCFSolution=new("MCFSolutions")))
-    #return(list(cells=ans, err=0, MCFSolution=NULL))
   }
 
 
@@ -131,10 +130,8 @@ solve_reg_fm_prob <- function(node_info,
   names(ans) <- c(rownames, colnames)
   ans[names(matches)] <- matches
 
-  #if (!is.null(temp[["MCFSolution"]]))
-  # if (!identical(temp[["MCFSolution"]],
-  #                new("MCFSolutions")))
-  if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"])
+
+  if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"]) #this logic takes the place of something that would check to see if the MCFSolution was NULL. I'm not 100% sure these things are interchangeable but it does pass tests for the time being
   {
             temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
 
@@ -160,7 +157,7 @@ solve_reg_fm_prob <- function(node_info,
   )
 }
 
-
+# see try_solver documentation in solve_reg_fm_prob function for description of that.
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                         rfeas, cfeas, epsilon, solver, try_solver = TRUE)
 {
@@ -177,14 +174,11 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
                        node_info = node_info, solver = solver, try_solver = try_solver)
 
-    #if (!identical(intsol[["MCFSolution"]],
-    #               new("MCFSolutions")))
-    #{
-        intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
 
-        intsol$MCFSolution@nodes[,'price']  <-
-            intsol$MCFSolution@nodes[['price']] * epsilon
-    #}
+    intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
+
+    intsol$MCFSolution@nodes[,'price']  <- intsol$MCFSolution@nodes[['price']] * epsilon
+
 
     intsol$maxerr  <-
         if (any(is.na(intsol$solution) |

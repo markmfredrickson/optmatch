@@ -137,7 +137,7 @@ fmatch <- function(distance,
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
-  if ( !try_solver |
+  if ( !try_solver | # this is admittedly a nasty workaround. There are various error checks that occur at different levels of the call stack and this allows us to bypass some of those more easily so that we can return an MCFSolutions object. In practice, we are using this option to ignore infeasibility checks so that we can proceed to create an MCFSolutions
        (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
        (mxr==1L & nt * mnc > n.mc) | #min.col.units too high
        (nt * mxc < n.mc)) { #max.col.units too low
@@ -179,16 +179,18 @@ fmatch <- function(distance,
     }
     # ID numbers implicitly point to corresp. row of nodes
     ####    Arcs involving End or Sink nodes   ####
+    # There are multiple cases where the solver is NOT called because the problem is clearly infeasible. This makes it difficult to always return an MCFSolutions object. When the solver is called, we can create all of the various constituent parts of the MCFSolutions object without much trouble, although we must paper over certain things, like setting flow = capacity = 0. However, when the solver is not called, we have to make up an arbitrary MCFSolutions object to return. Because of the restrictions on the classes, this is currently being done in a very hacky way. Long term, we would want to consider the expectations for those classes, perhaps change the defaults or class structure somehow. For instance, what should we return when the subproblem is entirely empty?
 
-    if (nt == 0 && nc == 0)
+    # At the moment there are really no guarantees about what can be found in these tables, aside from the subproblems table which should contain a correct specification of feasibility.
+
+    if (nt == 0 && nc == 0) # edge case where subproblem is completely empty. In order to return an MCFSolutions object, I am violating some rules. Specifically, flow and capacity are all set to zero. Matches now includes sink and end nodes because the current classes prohibit empty data frames being returned/appended at the end.
     {
       bookkeeping  <-
         data.frame(groups=factor(rep(NA_character_, 2L)),
-                   start=c(1,2), # ~ col.units
+                   start=c(1,2),
                    end=c(1, 2),
                    flow=0L,
                    capacity=0L
-                   #capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
         )
 
       x <- rep(0L, problem.size)
@@ -211,7 +213,7 @@ fmatch <- function(distance,
       )
 
 
-    } else {
+    } else { #This is another edge case where the solver is never called. However, in this case, the subproblem is not empty, so we can use most of the existing logic fairly easily.
       bookkeeping  <-
         data.frame(groups=factor(rep(NA_character_, nt +2L*nc)),
                    start=c(1L:(nt + nc), # ~ c(row.units, col.units)
@@ -220,7 +222,6 @@ fmatch <- function(distance,
                          rep(sinkID, nc) ),
                    flow=0L,
                    capacity=0L
-                   #capacity=c(rep(mxc - mnc, nt), rep(mxr - 1L, nc), rep(1L, nc))
         )
 
       startn<- c(as.integer(distance[['i']]), bookkeeping$start )
@@ -256,16 +257,16 @@ fmatch <- function(distance,
     sp[1L, "feasible"]  <- FALSE
     fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                   nodes=nodes, arcs=arcs)
-    ####
-
     return(c(
       out,
       list(maxerr = 0),
-      list(MCFSolution = fmcfs) #so if statements will work temporarily
+      list(MCFSolution = fmcfs)
     ))
 
   }
-
+  ## after this point, one of the solvers will be called.
+  ## That is, the problem is not recognizably infeasible prior to calling the solver.
+  ## The logic for constructing MCFSolutions is much more straightforward from this point forward
   ##  Min-Cost-Flow representation of problem  ####
   ## Each node has a integer ID number, implicitly pointing
   ## to corresponding row of this data frame.
@@ -428,6 +429,7 @@ fmatch <- function(distance,
   arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
 
   sp  <- new("SubProbInfo")
+  # If any solver is called, feasibility is now determined only in this location. We know that the solver was called, but we must check to see if the problem was feasible.
   sp[1L, "feasible"]  <- any(x == 1L)
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs)

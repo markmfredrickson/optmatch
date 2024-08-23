@@ -308,12 +308,7 @@ fullmatch.matrix <- function(x,
                              hint,
                              resolution = NULL,
                              ...) {
-  # if (!missing(hint))
-  # {
-  #   hint_metadata <- parse_hint_metadata(hint)
-  # } else {
-  #   hint_metadata <- NULL
-  # }
+
   hint  <- if (missing(hint)) NULL else nodeinfo(hint)
 
   ### Checking Input ###
@@ -554,12 +549,9 @@ fullmatch.matrix <- function(x,
                               solver = solver,
                               omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
                               epsilon = epsilon.in)
-    # if (!identical(temp[["MCFSolution"]],
-    #                new("MCFSolutions")))
-    #if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"])
-    #{
-      temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
-    #}
+
+    temp$MCFSolution@subproblems[1L,"flipped"]  <- flipped
+
 
     return(temp)
   }
@@ -717,10 +709,6 @@ fullmatch.matrix <- function(x,
     names(mcfsolutions)  <- subproblemids
     for (ii in 1L:np)
     {
-      #if (!solutions[[ii]][["MCFSolution"]]@subproblems[1L, "feasible"])
-      # if (!identical(solutions[[ii]][["MCFSolution"]],
-      #                  new("MCFSolutions")))
-      #{
         mcfsolutions[[ii]]  <- solutions[[ii]]$MCFSolution
         mcfsolutions[[ii]]@subproblems[1L,"hashed_dist"]  <- disthash
         thesubprob  <- subproblemids[ii]
@@ -742,18 +730,9 @@ fullmatch.matrix <- function(x,
       }
 
   mcfsolutions  <- mcfsolutions[!vapply(mcfsolutions, is.null, logical(1))]
-  #browser()
-  attr(mout, "MCFSolutions")  <- if (length(mcfsolutions)==0) { #flagging this as a line may change if we always want to return an MCFSolutions object in the future
-    print("Runs!")
-    NULL
-  } else {
-    names(mcfsolutions)[1]  <- "x"
-    ##b/c in next line `c()` needs to dispatch on an `x` argument
-    do.call("c", mcfsolutions)
-  }
 
-  # names(mcfsolutions[1]) <- "x"
-  # attr(mout, "MCFSolutions") <- do.call("c", mcfsolutions)
+  names(mcfsolutions)[1]  <- "x"
+  attr(mout, "MCFSolutions") <- do.call("c", mcfsolutions)
 
   # save solver information
   attr(mout, "solver") <- solver
