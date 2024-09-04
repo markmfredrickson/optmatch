@@ -25,11 +25,11 @@ using namespace Rcpp;
        to row indexes.
  */
 // [[Rcpp::export]]
-NumericVector mahalanobisHelper(NumericMatrix data, StringVector index,
+NumericVector mahalanobisHelper(NumericMatrix data, StringMatrix index,
 				NumericMatrix invScaleMat) {
   int
     va, vb,
-    nv = index.size() / 2;
+    nv = index.nrow();
 
   StringVector row_names = rownames(data);
   std::unordered_map<std::string, int> strpos;
@@ -42,16 +42,22 @@ NumericVector mahalanobisHelper(NumericMatrix data, StringVector index,
   NumericVector result(nv);
 
   // sqrt((va - vb) * invScaleMat * (va - vb))
-  for(int i = 0; i < nv; i++) {
-    std::string row_name_a = as< std::string >(index(i));
+  for (int i = 0; i < nv; i++) {
+    std::string row_name_a = as< std::string >(index(i, 0));
     va = strpos[row_name_a];
 
-    std::string row_name_b = as< std::string >(index(i + nv));
+    std::string row_name_b = as< std::string >(index(i, 1));
     vb = strpos[row_name_b];
 
-    NumericVector diff = data(va, _) - data(vb, _);
-    NumericVector sum_i = diff * invScaleMat * diff;
-    result(i) = sqrt(sum_i(0));
+    double sum_i = 0.0;
+    for (int j = 0; j < data.ncol(); j++) {
+      double innerSum = 0.0;
+      for (int k = 0; k < data.ncol(); k++) {
+	innerSum += (data(va, k) - data(vb, k)) * invScaleMat(j, k);
+      }
+      sum_i += innerSum * (data(va, j) - data(vb, j));
+    }
+    result(i) = sqrt(sum_i);
   }
   return result;
 }
