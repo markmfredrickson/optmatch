@@ -11,14 +11,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // mahalanobisHelper
-SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat);
+NumericVector mahalanobisHelper(NumericMatrix data, StringVector index, NumericMatrix invScaleMat);
 RcppExport SEXP _optmatch_mahalanobisHelper(SEXP dataSEXP, SEXP indexSEXP, SEXP invScaleMatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type index(indexSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type invScaleMat(invScaleMatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type index(indexSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type invScaleMat(invScaleMatSEXP);
     rcpp_result_gen = Rcpp::wrap(mahalanobisHelper(data, index, invScaleMat));
     return rcpp_result_gen;
 END_RCPP

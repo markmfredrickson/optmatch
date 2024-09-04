@@ -1,7 +1,7 @@
-#include <limits.h> // for INT_MIN
+#include <Rcpp.h>
+#include <unordered_map>
 
-#include "map.h" // hash map functions for rowname to index
-#include "distances.h" // to register the mahalanobisHelper with R
+using namespace Rcpp;
 
 /* function: mahalanobisHelper
      consumes: SEXP data, index, invScaleMat
@@ -25,58 +25,33 @@
        to row indexes.
  */
 // [[Rcpp::export]]
-SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat) {
+NumericVector mahalanobisHelper(NumericMatrix data, StringVector index,
+				NumericMatrix invScaleMat) {
   int
-    j, k,
     va, vb,
-    nv = nrows(index),
-    n = ncols(data), nr = nrows(data);
-  double
-    sum, innerSum;
+    nv = index.size() / 2;
 
-  // get the rownames, access through dimnames only worked for me
-  // tried RownamesSymbol and GetRownames, neither worked
-  // we also get colnames and headers for the two dimensions
-  // which are not used
-  SEXP row_names, cl;
-  const char * rn, * cn;
-  GetMatrixDimnames(data, &row_names, &cl, &rn, &cn);
-  MAP * strpos = create_map(row_names);
+  StringVector row_names = rownames(data);
+  std::unordered_map<std::string, int> strpos;
+  for (int i = 0; i < row_names.size(); i++) {
+    std::string row_name_i = as< std::string >(row_names(i));
+    strpos[row_name_i] = i;
+  }
 
   // alloc space for the result
-  SEXP result;
-  PROTECT(result = allocVector(REALSXP, nv));
-
-  // get pointers to C types; makes the loop easier to read
-  double
-    * real_data = REAL(data),
-    * mj, * real_m = REAL(invScaleMat),
-    * real_result = REAL(result);
+  NumericVector result(nv);
 
   // sqrt((va - vb) * invScaleMat * (va - vb))
   for(int i = 0; i < nv; i++) {
-    sum = 0.0;
-    // hash col_a rowname and col_b rowname into row indexes
-    va = get_pos(CHAR(STRING_ELT(index, i)), strpos);
-    vb = get_pos(CHAR(STRING_ELT(index, i + nv)), strpos);
+    std::string row_name_a = as< std::string >(index(i));
+    va = strpos[row_name_a];
 
-    for(j = 0; j < n; j++) {
-      innerSum = 0.0;
-      mj = real_m + j * n;
-      for(k = 0; k < n; k++) {
-	innerSum += (real_data[va + k * nr]
-		     - real_data[vb + k * nr])
-	            * mj[k];
-      }
-      sum += innerSum * (real_data[va + j * nr] - real_data[vb + j * nr]);
-    }
-    real_result[i] = sqrt(sum);
+    std::string row_name_b = as< std::string >(index(i + nv));
+    vb = strpos[row_name_b];
+
+    NumericVector diff = data(va, _) - data(vb, _);
+    NumericVector sum_i = diff * invScaleMat * diff;
+    result(i) = sqrt(sum_i(0));
   }
-
-  // free the storage for the rowname hash
-  delete_map(strpos);
-
-  // return R object
-  UNPROTECT(1);
   return result;
 }

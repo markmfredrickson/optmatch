@@ -21,7 +21,7 @@ SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
         * iWhichRows = INTEGER(whichRows),
         * iWhichCols = INTEGER(whichCols);
 
-    int * newRowNumbers = Calloc(nRows, int);
+    int * newRowNumbers = R_Calloc(nRows, int);
     for(int i = 0; i < nRows; i++) {
         if(iWhichRows[i] == 1) {
             nNewRows++;
@@ -29,7 +29,7 @@ SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
         }
     }
 
-    int * newColNumbers = Calloc(nCols, int);
+    int * newColNumbers = R_Calloc(nCols, int);
     for(int i = 0; i < nCols; i++) {
         if(iWhichCols[i] == 1) {
             nNewCols++;
@@ -58,8 +58,8 @@ SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
         }
     }
 
-    Free(newRowNumbers);
-    Free(newColNumbers);
+    R_Free(newRowNumbers);
+    R_Free(newColNumbers);
 
     UNPROTECT(1);
     return(ans);
