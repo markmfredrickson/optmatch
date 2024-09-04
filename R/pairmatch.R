@@ -228,6 +228,16 @@ pairmatch.matrix <- function(x,
 }
 
 #' @export
+pairmatch.DBIConnection <- function(x,
+                             controls = 1,
+                             data = NULL,
+                             remove.unmatchables = FALSE,
+                             within = NULL,
+                             ...) {
+        print('*** DEBUG: entering pairmatch.DBIConnection')
+}
+
+#' @export
 pairmatch.optmatch.dlist <- pairmatch.matrix
 #' @export
 pairmatch.InfinitySparseMatrix <- pairmatch.matrix
