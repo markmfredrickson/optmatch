@@ -4,24 +4,18 @@
 using namespace Rcpp;
 
 /* function: mahalanobisHelper
-     consumes: SEXP data, index, invScaleMat
-       SEXP data: an matrix with rownames
-       SEXP index: a 2 col array of rownames from data;
+     consumes: data, index, invScaleMat
+       data: an matrix with rownames
+       index: a 2 col matrix of rownames from data;
          each row represents a pair of rownames used to access a pair of
          rows from data. The mahal distance between the two rows will be
          calculated
-       SEXP invScaleMat: matrix inverse of the covariates of the data;
+       invScaleMat: matrix inverse of the covariates of the data;
          used to calc the mahal distance
-     returns: SEXP results, a real vector (double precision) of distances
+     returns: results, a real vector (double precision) of distances
        between particular pairs of rows from data as indicated by index
 
-       used .Call with SEXP arguments to reduce the memory overhead
-       caused by, for example as.double, creating new objects to pass to
-       .C
-
-       The difficulty with this approach is that rows of data must be
-       accessed using index in C instead of in R (where it's easy). A
-       hash map (GNU libc extension) is used to hash the rownames of data
+     notes: A hash map (C++ STL unordered_map) is used to hash the rownames of data
        to row indexes.
  */
 // [[Rcpp::export]]
