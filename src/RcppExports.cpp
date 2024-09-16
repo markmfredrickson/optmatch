@@ -50,15 +50,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // subsetInfSparseMatrix
-SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x);
-RcppExport SEXP _optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP xSEXP) {
+NumericMatrix subsetInfSparseMatrix(LogicalVector whichRows, LogicalVector whichCols, S4 ismX);
+RcppExport SEXP _optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP ismXSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type whichRows(whichRowsSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type whichCols(whichColsSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(subsetInfSparseMatrix(whichRows, whichCols, x));
+    Rcpp::traits::input_parameter< LogicalVector >::type whichRows(whichRowsSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type whichCols(whichColsSEXP);
+    Rcpp::traits::input_parameter< S4 >::type ismX(ismXSEXP);
+    rcpp_result_gen = Rcpp::wrap(subsetInfSparseMatrix(whichRows, whichCols, ismX));
     return rcpp_result_gen;
 END_RCPP
 }
