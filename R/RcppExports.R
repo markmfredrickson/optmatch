@@ -13,7 +13,7 @@ r_smahal <- function(index, data, z) {
     .Call(`_optmatch_r_smahal`, index, data, z)
 }
 
-subsetInfSparseMatrix <- function(whichRows, whichCols, x) {
-    .Call(`_optmatch_subsetInfSparseMatrix`, whichRows, whichCols, x)
+subsetInfSparseMatrix <- function(whichRows, whichCols, ismX) {
+    .Call(`_optmatch_subsetInfSparseMatrix`, whichRows, whichCols, ismX)
 }
 

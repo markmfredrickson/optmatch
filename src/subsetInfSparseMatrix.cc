@@ -1,66 +1,56 @@
-#include "subsetInfSparseMatrix.h"
-
 #include <Rcpp.h>
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x) {
-  Rcpp::S4 ismX(x);
-  Rcpp::IntegerVector
+NumericMatrix subsetInfSparseMatrix(LogicalVector whichRows,
+				    LogicalVector whichCols, S4 ismX) {
+  int
+    nRows = whichRows.size(),
+    nNewRows = 0;
+
+  std::vector<int> newRowNumbers(nRows, 0);
+  for (int i = 0; i < nRows; i++) {
+    if (whichRows[i]) {
+      nNewRows++;
+      newRowNumbers[i] = nNewRows;
+    }
+  }
+
+  int
+    nCols = whichCols.size(),
+    nNewCols = 0;
+
+  std::vector<int> newColNumbers(nCols, 0);
+  for (int i = 0; i < nCols; i++) {
+    if (whichCols[i]) {
+      nNewCols++;
+      newColNumbers[i] = nNewCols;
+    }
+  }
+
+  NumericVector x( ismX );
+
+  int
+    nData = x.size(),
+    nPoints = 0;
+
+  IntegerVector
     rows( ismX.slot("rows") ),
     cols( ismX.slot("cols") );
 
-    int
-        nRows = Rf_length(whichRows),
-        nCols = Rf_length(whichCols),
-        nData = Rf_length(x),
-        nNewRows = 0,
-        nNewCols = 0;
+  for (int i = 0; i < nData; i++) {
+    if (whichRows[rows[i] - 1] && whichCols[cols[i] - 1])
+      nPoints++;
+  }
 
-    int
-        * iWhichRows = INTEGER(whichRows),
-        * iWhichCols = INTEGER(whichCols);
-
-    int * newRowNumbers = Calloc(nRows, int);
-    for(int i = 0; i < nRows; i++) {
-        if(iWhichRows[i] == 1) {
-            nNewRows++;
-            newRowNumbers[i] = nNewRows;
-        }
+  NumericMatrix ans(nPoints, 3);
+  for (int i = 0, j = 0; i < nData; i++) {
+    if (whichRows[rows[i] - 1] && whichCols[cols[i] - 1]) {
+      ans(j, 0) = newRowNumbers[rows[i] - 1];
+      ans(j, 1) = newColNumbers[cols[i] - 1];
+      ans(j, 2) = x[i];
+      j++;
     }
-
-    int * newColNumbers = Calloc(nCols, int);
-    for(int i = 0; i < nCols; i++) {
-        if(iWhichCols[i] == 1) {
-            nNewCols++;
-            newColNumbers[i] = nNewCols;
-        }
-    }
-
-    int nPoints = 0;
-    for(int i = 0; i < nData; i++) {
-        if(iWhichRows[rows[i] - 1] && iWhichCols[cols[i] - 1])
-            nPoints++;
-    }
-
-    SEXP ans;
-    PROTECT(ans = Rf_allocMatrix(REALSXP, nPoints, 3));
-    double
-        * dData = REAL(x),
-        * rans = REAL(ans);
-
-    for(int i = 0, j = 0; i < nData; i++) {
-        if(iWhichRows[rows[i] - 1] && iWhichCols[cols[i] - 1]) {
-            rans[j] = newRowNumbers[rows[i] - 1];
-            rans[j + nPoints] = newColNumbers[cols[i] - 1];
-            rans[j + 2 * nPoints] = dData[i];
-            j++;
-        }
-    }
-
-    Free(newRowNumbers);
-    Free(newColNumbers);
-
-    UNPROTECT(1);
-    return(ans);
+  }
+  return(ans);
 }
