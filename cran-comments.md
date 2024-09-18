@@ -1,5 +1,5 @@
 # Test environments
-* local OS X install, R 4.3.2 and 4.4.0
+* local OS X install, R 4.4.1
 * win-builder (old, devel and release)
 * mac-builer
 
