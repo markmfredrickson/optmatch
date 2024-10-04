@@ -48,7 +48,7 @@ An `SubProbInfo` is an S4-typed data frame bearing information about (sub)proble
 - `flipped`, logical (do upstream nodes of MCF representation correspond to _columns_ of match distance matrix, as opposed to rows, the default?);
 - `hashed_dist`, character (hashed ID for a double precision distance);
 - `resolution`, double  (grid-width for discretization of distances & node prices before rounding and handing off to solver);
--  `lagrangian_value`, numeric (as determined by back-transformed node prices, arc costs and arc flows);
+-  `primal_value`, numeric (as determined by arc flows and back-transformed arc costs);
 -  `dual_value`, numeric (as determined by back-transformed node prices and arc costs);
 - `feasible`, logical;
 - `solver`, character;
