@@ -116,7 +116,7 @@ Rules/conventions:
 - The factors `upstream`, `downstream`, `start` and `end` all have the same `levels()`.
 - Arcs involving bookkeeping nodes have lower capacity 0, upper capacity `capacity`. Their `flow` values must fall in this range (inclusive of endpoints).
 - This type's validity checker should be fast, eschewing expensive operations.
-- The `@bookkeeping` d.f. must have a row for each of the bookkeeping arcs of the problem.
+- The `@bookkeeping` d.f. must have a row for each bookkeeping arc of each subproblem that was attempted by a solver. (If a subproblem was found to be infeasible before being passed to the solver, it will have no bookkeeping arcs.)
 - Each (`groups`, `upstream`) pair must appear as a (`groups`, `name`) pair in the NodeInfo table, with `upstream_not_down==TRUE`; each (`groups`, `downstream`) pair must appear as a (`groups`, `name`) NodeInfo  pair, with `upstream_not_down==FALSE`.
 - Similarly a (`groups`, `start`) or (`groups`, `end`) pair carried in this table must have in the NodeInfo table a corresponding (`groups`, `name`) entry.
 
