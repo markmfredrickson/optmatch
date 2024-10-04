@@ -51,6 +51,7 @@ An `SubProbInfo` is an S4-typed data frame bearing information about (sub)proble
 -  `lagrangian_value`, numeric (as determined by back-transformed node prices, arc costs and arc flows);
 -  `dual_value`, numeric (as determined by back-transformed node prices and arc costs);
 - `feasible`, logical;
+- `solver`, character;
 - `exceedance`, double (the legacy criterion regret calculation).
 
 Rules/conventions:
@@ -58,6 +59,7 @@ Rules/conventions:
 - this is just a selective record of subproblem specs.
 - This type's validity checker should be fast, eschewing expensive operations.
 - `feasible` encodes whether the flow-price pair was found to be in a complementary slackness relationship, prior to backtransformation of distances & prices (if applicable).  In other words, `feasible==FALSE` indicates that the subproblem imposed infeasible matching constraints.
+- `solver` records which solver was applied to the subproblem.  If a sequence of solvers was applied, this is the last one.<!--ie the one relevant for decoding solutions to the dual problem stored lower down.--> If the subproblem was determined to be infeasible in advance of applying any solver, this is a `""`.  
 - "Upstream" nodes are those to the left in the below diagram (Fig. 2 of Hansen & Klopfer, 2006).  Ordinarily they'll correspond to "the treatment group", i.e. the group indexed by rows of the distance matrix helping to determine the matching problem, but in some situations rows and columns are flipped before being passed to the solver, so that upstream nodes would correspond to columns and downstream nodes to rows.
 
 ![Fig. 2 of Hansen & Klopfer, 2006, JCGS](hansenKlopfer2006JCGSfig2.png)
