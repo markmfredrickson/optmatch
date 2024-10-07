@@ -10,7 +10,7 @@
 
 \S4method{dimnames}{InfinitySparseMatrix,list}(x) <- value
 
-\S4method{dimnames}{InfinitySparseMatrix,`NULL`}(x) <- value
+\S4method{dimnames}{InfinitySparseMatrix,NULL}(x) <- value
 }
 \arguments{
 \item{x}{An InfinitySparseMatrix object.}

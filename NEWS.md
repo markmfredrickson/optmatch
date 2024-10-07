@@ -1,4 +1,33 @@
-## Changes in **optmatch** Version 0.10.3.9001
+## Changes in **optmatch** Version 0.10.8
+
+- Updates to internal C++ code.
+
+## Changes in **optmatch** Version 0.10.7
+
+- Hardened tests further against package unavailability
+- Changed the name of default arguments for a version of `predict`. (#223)
+- Several small documentation tweaks to pass CRAN checks on R-devel.
+- Fix a bug introduced in version 0.10.6, involving discretization of
+  distances. The fix avoids spurious errors for distance matrices with
+  very large values, although you may still have to pass tol=
+  arguments to pairmatch() and fullmatch() that are smaller than the
+  desired tolerance.(#230)
+- Disable passing of local variables from generic corresponding to change in
+  R_USEMETHOD_FORWARD_LOCALS coming in the next major release. No user-facing
+  change, except the `@call` slot of objects may look slighly different (but
+  should function identically). (#234)
+
+## Changes in **optmatch** Version 0.10.6
+
+- Adjusted a check to avoid ambiguous failures when using LEMON vs RELAX-IV.
+- Updated CITATION to use `bibentry()`.
+- Minor tweaks to address failing tests.
+
+## Changes in **optmatch** Version 0.10.5
+
+Minor revision to address a failing test.
+
+## Changes in **optmatch** Version 0.10.4
 
 - When including factor variables on the right hand side of the formula passed
   into `match_on()`, now more simply calculates the contrast to enable more
@@ -6,6 +35,8 @@
 - `dbind()` will now properly support binding more than 26 unique matrices when
   renaming is necessary; in fact it supports up to 18,278 uniquely renamed
   matrices.
+- A few tweaks in documentation, testing and vignettes to satisfy CRAN
+  requirements and harden against loss of dependencies.
 
 ## Changes in **optmatch** Version 0.10.3
 

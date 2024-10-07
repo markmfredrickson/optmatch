@@ -237,49 +237,69 @@ test_that("Verifying solvers get correct node prices", {
   mmm <- as.matrix(mm)
   min_dist <- sum(mmm[1:2, 1]) + mm[3, 2]
 
-  match_relax <- fullmatch(mm, data = df, solver = "RELAX-IV")
   match_lemon <- fullmatch(mm, data = df, solver = "LEMON")
-  mcfs_relax <- attr(match_relax, "MCFSolutions")
   mcfs_lemon <- attr(match_lemon, "MCFSolutions")
 
-  expect_equal(evaluate_primal(mm, mcfs_relax), min_dist)
   expect_equal(evaluate_primal(mm, mcfs_lemon), min_dist)
 
-  expect_equal(evaluate_dual(mm, mcfs_relax), min_dist, tolerance = mytol)
   expect_equal(evaluate_dual(mm, mcfs_lemon), min_dist)
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    match_relax <- fullmatch(mm, data = df, solver = "RELAX-IV", tol=mytol/10)
+    mcfs_relax <- attr(match_relax, "MCFSolutions")
+    expect_equal(evaluate_primal(mm, mcfs_relax), min_dist)
+    expect_equal(evaluate_dual(mm, mcfs_relax), min_dist, tolerance = mytol)
+  }
+
 
   ## some examples from the nuclearplants data set
 
   data(nuclearplants)
   npm <- match_on(pt ~ . - pt, data = nuclearplants)
-  np_relax <- fullmatch(npm, data = nuclearplants, solver = "RELAX-IV")
-  np_lemon <- fullmatch(npm, data = nuclearplants, solver = "LEMON")
-  primal_relax <- evaluate_primal(npm, attr(np_relax, "MCFSolutions"))
+  np_lemon <- fullmatch(npm, data = nuclearplants, solver = "LEMON",
+                        tol = mytol/10)
   primal_lemon <- evaluate_primal(npm, attr(np_lemon, "MCFSolutions"))
-  dual_relax <- evaluate_dual(npm, attr(np_relax, "MCFSolutions"))
   dual_lemon <- evaluate_dual(npm, attr(np_lemon, "MCFSolutions"))
 
-  expect_equal(primal_relax, primal_lemon, tol = mytol)
-  expect_equal(primal_relax, dual_relax, tol = mytol)
   expect_equal(primal_lemon, dual_lemon, tol = mytol)
 
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    np_relax <- fullmatch(npm, data = nuclearplants, solver = "RELAX-IV",
+                        tol = mytol/10)
+    primal_relax <- evaluate_primal(npm, attr(np_relax, "MCFSolutions"))
+    dual_relax <- evaluate_dual(npm, attr(np_relax, "MCFSolutions"))
+
+    expect_equal(primal_relax, primal_lemon, tol = mytol)
+    expect_equal(primal_relax, dual_relax, tol = mytol)
+  }
+
   npm2 <- match_on(pr ~ cost + t1, data = nuclearplants)
-  np2_relax <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = "RELAX-IV")
-  np2_lemon <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = "LEMON")
-  primal2_relax <- evaluate_primal(npm2, attr(np2_relax, "MCFSolutions"))
+  np2_lemon <- fullmatch(npm2, min.controls = 1, max.controls = 3,
+                         data = nuclearplants, solver = "LEMON",
+                        tol = mytol/10)
   primal2_lemon <- evaluate_primal(npm2, attr(np2_lemon, "MCFSolutions"))
-  dual2_relax <- evaluate_dual(npm2, attr(np2_relax, "MCFSolutions"))
   dual2_lemon <- evaluate_dual(npm2, attr(np2_lemon, "MCFSolutions"))
 
-  expect_equal(primal2_relax, primal2_lemon, tol = mytol)
-  expect_equal(primal2_relax, dual2_relax, tol = mytol)
   expect_equal(primal2_lemon, dual2_lemon, tol = mytol)
+
+
+  if (requireNamespace("rrelaxiv", quietly = TRUE)) {
+    np2_relax <- fullmatch(npm2, min.controls = 1, max.controls = 3,
+                           data = nuclearplants, solver = "RELAX-IV",
+                        tol = mytol/10)
+    primal2_relax <- evaluate_primal(npm2, attr(np2_relax, "MCFSolutions"))
+    dual2_relax <- evaluate_dual(npm2, attr(np2_relax, "MCFSolutions"))
+
+    expect_equal(primal2_relax, primal2_lemon, tol = mytol)
+    expect_equal(primal2_relax, dual2_relax, tol = mytol)
+  }
 
   lemons <-  c("CycleCancelling", "CapacityScaling",
                                "CostScaling", "NetworkSimplex")
 
   for (solver in lemons) {
-    np2_solver <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = LEMON(solver))
+    np2_solver <- fullmatch(npm2, min.controls = 1, max.controls = 3, data = nuclearplants, solver = LEMON(solver),
+                        tol = mytol/10)
     mcf2_solver <- attr(np2_solver, "MCFSolutions")
     expect_equal(evaluate_dual(npm2, mcf2_solver), dual2_lemon, label = solver, tol = mytol)
   }
@@ -296,15 +316,16 @@ test_that("Verifying solvers get correct node prices", {
   colnames(m) <- c("A", "B", "C")
   rownames(m) <- c("D", "E", "F")
   mm <- as.InfinitySparseMatrix(m)
-  mm_lemon <- fullmatch(mm, data = d)
+  mm_lemon <- fullmatch(mm, data = d,
+                        tol = mytol/10)
   mm_mcfs  <- attr(mm_lemon, "MCFSolutions")
   mm_dual <- evaluate_dual(mm, mm_mcfs)
 
   for (solver in lemons) {
-    np2_solver <- fullmatch(mm, solver = LEMON(solver), data = d)
+    np2_solver <- fullmatch(mm, solver = LEMON(solver), data = d,
+                        tol = mytol/10)
     mcf2_solver <- attr(np2_solver, "MCFSolutions")
     expect_equal(evaluate_dual(mm, mcf2_solver), mm_dual, label = solver, tol = mytol)
   }
 
 })
-

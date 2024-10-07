@@ -1,14 +1,19 @@
 # Test environments
-* local OS X install, R 4.2.0
+* local OS X install, R 4.4.1
 * win-builder (old, devel and release)
 * mac-builer
+
+# Comments
+
+This is a quick resubmission after addressing an issue with the server hosting
+the non-CRAN package.
 
 # R CMD check results
 
 There were 2 note:
 
 ```
-* checking CRAN incoming feasibility ... NOTE
+* checking CRAN incoming feasibility ... [16s] NOTE
 Maintainer: 'Josh Errickson <jerrick@umich.edu>'
 
 Suggests or Enhances not in mainstream repositories:
@@ -20,12 +25,5 @@ Availability using Additional_repositories specification:
 Package suggested but not available for checking: 'rrelaxiv'
 ```
 
-## Comments about NOTEs
-
-Optional suggested dependency **rrelaxiv** has a very restrictive license and is
-not being submitted to CRAN. It is listed under `Additional_repositories`.
-
-## Submission comments
-
-Resubmitting per Uwe Ligges' request to trigger correction of `License_is_FOSS`
-and `License_restricts_use` flags.
+The `rrelaxiv` package is available at the URL in DESCRIPTION, but is not on
+CRAN as it contains a restrictive license.

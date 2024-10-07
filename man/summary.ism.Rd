@@ -45,22 +45,13 @@ A named \code{list}. The summary for an
   \code{InfinitySparseMatrix} or \code{DenseMatrix} contains the
   following:
 
-  \itemize{
+  \item{\code{total}: }{Contains the total number of treatment and control members, as well as eligible and ineligible matches.}
 
-   \item{\code{total}: }{Contains the total number of treatment
-    and control members, as well as eligible and ineligible
-    matches.}
+  \item{\code{matchable}: }{The names of all treatment and control members with at least one eligible match.}
 
-   \item{\code{matchable}: }{The names of all treatment and
-    control members with at least one eligible match.}
+  \item{\code{unmatchable}: }{The names of all treatment and control members with no eligible matches.}
 
-   \item{\code{unmatchable}: }{The names of all treatment and
-    control members with no eligible matches.}
-
-   \item{\code{distances}: }{The summary of minimum matchable
-    distances, if \code{distanceSummary} is \code{TRUE}.}
-
-  }
+  \item{\code{distances}: }{The summary of minimum matchable distances, if \code{distanceSummary} is \code{TRUE}.}
 
   For \code{BlockedInfinitySparseMatrix}, the named \code{list}
   instead of contains one entry per block, named after each block
@@ -79,31 +70,27 @@ finite distances, and, in the case of
 The output consists of several pieces.
 
 \itemize{
- \item{Membership: }{Indicates the dimension of the distance.}
+ \item Membership: Indicates the dimension of the distance.
 
- \item{Total (in)eligible potential matches: }{A measure of the
-  sparsity of the distance. Eligible matches have a finite
-  distance between treatment and control members; they could be
-  matched. Ineligible matches have \code{Inf} distance and can not
-  be matched. A higher number of ineligible matches can speed up
-  matching, but runs the risk of less optimal overall matching
-  results.}
+ \item Total (in)eligible potential matches: A measure of the sparsity of
+ the distance. Eligible matches have a finite distance between treatment and
+ control members; they could be matched. Ineligible matches have \code{Inf}
+ distance and can not be matched. A higher number of ineligible matches can
+ speed up matching, but runs the risk of less optimal overall matching
+ results.
 
- \item{Unmatchable treatment/control members: }{If any
-  observations have no eligible matches (e.g. their distance to
-  every potential match is \code{Inf}) they are listed here. See
-  Value below for details of how to access lists of matchable and
-  unmatchable treatment and control members.}
+ \item Unmatchable treatment/control members: If any observations have no
+ eligible matches (e.g. their distance to every potential match is
+ \code{Inf}) they are listed here. See Value below for details of how to
+ access lists of matchable and unmatchable treatment and control members.
 
- \item{Summary of minimum matchable distance per treatment member:
-  }{To assist with choosing a caliper, this is a numeric summary
-  of the smallest distance per matchable treatment member. If you
-  provide a caliper that is less than the maximum value, at least
-  one treatment member will become unmatchable.}
+ \item Summary of minimum matchable distance per treatment member: To assist
+ with choosing a caliper, this is a numeric summary of the smallest distance
+ per matchable treatment member. If you provide a caliper that is less than
+ the maximum value, at least one treatment member will become unmatchable.
 
- \item{Block structure: }{For \code{BlockedInfinitySparseMatrix},
-  a quick summary of the structure of each individual block. (The
-  above will all be across all blocks.) This may indicate which
-  blocks, if any, are problematic.}
+ \item Block structure: For \code{BlockedInfinitySparseMatrix}, a quick
+summary of the structure of each individual block. (The above will all be
+across all blocks.) This may indicate which blocks, if any, are problematic.
 }
 }

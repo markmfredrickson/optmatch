@@ -1,5 +1,5 @@
 ---
-title: "Matching in R using the optmatch and RItools packages"
+title: "Matching in R using the optmatch package"
 author: "Ben B. Hansen, Mark Fredrickson, Josh Errickson, and Josh Buckner"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_document
@@ -52,16 +52,14 @@ my.variable * 3
 
 ```{r,eval=FALSE}
 install.packages("optmatch")
-install.packages("RItools")
 ```
 
-These commands will ask you to select a CRAN server. Any server will do. You may
+Thi command will ask you to select a CRAN server. Any server will do. You may
 also be asked whether you'd like to set up a "personal library to install
 packages into"; if so, answer yes. (The default personal library location that
 *R* will suggest should be OK.) You'll only need to run these commands the first
-time you want to use **optmatch** or
-**[RItools](https://cran.r-project.org/package=RItools)** on a particular
-computer, or when you install a new version of *R*.
+time you want to use **optmatch** on a particular computer, or when you install
+a new version of *R*.
 
 ## Setting up the *R* environment for matching
 
@@ -70,12 +68,10 @@ associated diagnostics:
 
 ```{r,echo=FALSE,message=FALSE}
 library(optmatch)
-library(RItools)
 ```
 
 ```{r,eval=FALSE}
 library(optmatch)
-library(RItools)
 ```
 
 You'll do this each time you start a new *R* session and want to run
@@ -167,7 +163,6 @@ try connecting up below the units that `pairmatch()` has placed in the
 same matched sets.
 
 ```{r, results="asis", echo=FALSE, warning=FALSE}
-library(pander)
 a <- with(nuke.nopt, data.frame(
                          Plant=row.names(nuke.nopt),
                          Date=round(date-65, 1),
@@ -182,8 +177,12 @@ rownames(a) <- NULL
 rownames(b) <- NULL
 
 c <- cbind(data.frame(rbind(as.matrix(a), matrix(nrow=nrow(b)-nrow(a), ncol=3))), b)
-pandoc.table(c, style="multiline", missing="",
-             caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
+if (requireNamespace("pander", quietly = TRUE)) {
+  pander::pandoc.table(c, style="multiline", missing="",
+                       caption='New-site (left columns) versus existing-site (right columns) plants. "date" is `date-65`; "capacity" is `cap-400`.')
+} else {
+  show(c)
+}
 ```
 
 For basic summary information about this match, try
@@ -288,17 +287,41 @@ summary(lm(cap ~ pr + pm, data = nuke.nopt))$coeff["pr",]
 ```
 
 The **[RItools](https://cran.r-project.org/package=RItools)** package's
-`xBalance` function zeroes in on balance, and facilitates checking balance on
-multiple variables at the same time. Here are some examples:
+`RItools::balanceTest()` function zeroes in on balance, and facilitates checking
+balance on multiple variables at the same time. Here are some examples:
 
-```{r}
 
-xBalance(pr ~ cap + t2, report="all", data=nuke.nopt)
-xBalance(pr ~ cap + t2,
-         strata= pm,
-         data=nuke.nopt,
-         report=c("adj.mean.diffs", "std", "z"))
+```{r, eval = FALSE}
+install.packages("RItools")
+library(RItools)
+balanceTest(pr ~ cap + t2, data = nuke.nopt)
 ```
+
+```{r, echo = FALSE, message = FALSE}
+if (requireNamespace("RItools", quietly = TRUE)) {
+  library(RItools)
+} else {
+  cat("RItools package not installed properly")
+}
+```
+
+```{r, echo = FALSE}
+if (requireNamespace("RItools", quietly = TRUE)) {
+  RItools::balanceTest(pr ~ cap + t2, data = nuke.nopt)
+}
+```
+
+```{r, eval = FALSE}
+balanceTest(pr ~ cap + t2 + strata(pm) - 1, data = nuke.nopt)
+# The `- 1` suppresses the unmatched output to make the output cleaner
+```
+
+```{r, echo = FALSE}
+if (requireNamespace("RItools", quietly = TRUE)) {
+  RItools::balanceTest(pr ~ cap + t2 + strata(pm) - 1, data = nuke.nopt)
+}
+```
+
 
 __Exercises.__
 
@@ -336,7 +359,7 @@ probabilities) or `scores(psm)` (estimated logits of probabilities).
 It's often a good idea to compare the groups' distributions on the
 propensity score.
 
-```{r,fig.width=5, fig.height=5}
+```{r,fig.width=5, fig.height=5, fig.alt="Box plot showing distribution of propensity scores"}
 boxplot(psm)
 ```
 
@@ -413,30 +436,46 @@ convenient function for checking balance on many variables simultaneously. To
 get a sense of what it does, try this:
 
 ```{r, eval=FALSE}
-library(RItools)
-xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n, data = nuclearplants)
-xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt +
-             strata(ps.pm2) -1, # the `-1` just focuses the output a little
-         data = nuclearplants)
+balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n,
+            data = nuclearplants)
+balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n + pt +
+              strata(ps.pm2) - 1,
+            data = nuclearplants)
 ```
 
 It can in the same display compare matching to no matching, on any of
 a number of axes.  Here is a demonstration:
 
-```{r, fig.width=5, fig.height=5}
-myb <- xBalance(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
-                strata(ps.pm2),
-                data = nuclearplants,
-                report = c("adj.means", "std.diffs",
-                           "z.scores", "chisquare.test"))
+```{r, eval = FALSE}
+myb <- balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
+                     strata(ps.pm2),
+                   data = nuclearplants)
 plot(myb)
 print(myb, digits=1)
+```
+
+```{r, fig.width=5, fig.height=5, echo = FALSE, fig.alt="Love plot showing the change in balance with and without matching"}
+if (requireNamespace("RItools", quietly = TRUE)) {
+  tryCatch({
+    myb <- RItools::balanceTest(pr ~ date + t1 + t2 + cap + ne + ct + bw + cum.n +
+                                  strata(ps.pm2), data = nuclearplants)
+    print(myb, digits=1)
+    p <- plot(myb)
+    print(p)
+  }, error = function(e) {
+    cat(paste("RItools is producing an unexpected error. Please report",
+              "this to https://github.com/markmfredrickson/optmatch/issues"))
+  })
+
+} else {
+  cat("RItools package not installed properly")
+}
 ```
 
 For a very compact representation of the assessment, call `summary()` on the
 match, passing along the fitted propensity model as a second argument. If you've
 got **[RItools](https://cran.r-project.org/package=RItools)** loaded, then this
-will call `xBalance` in the background, reporting the summary chi-square test
+will call `balanceTest()` in the background, reporting the summary chi-square test
 results.
 
 ```{r}

@@ -1,3 +1,4 @@
+#' @keywords internal
 print.optmatch.dlist <- function(x, ...)
 {
   if (is(x, "optmatch.dlist")) {

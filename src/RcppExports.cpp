@@ -11,14 +11,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // mahalanobisHelper
-SEXP mahalanobisHelper(SEXP data, SEXP index, SEXP invScaleMat);
+NumericVector mahalanobisHelper(NumericMatrix data, StringMatrix index, NumericMatrix invScaleMat);
 RcppExport SEXP _optmatch_mahalanobisHelper(SEXP dataSEXP, SEXP indexSEXP, SEXP invScaleMatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type index(indexSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type invScaleMat(invScaleMatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< StringMatrix >::type index(indexSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type invScaleMat(invScaleMatSEXP);
     rcpp_result_gen = Rcpp::wrap(mahalanobisHelper(data, index, invScaleMat));
     return rcpp_result_gen;
 END_RCPP
@@ -50,15 +50,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // subsetInfSparseMatrix
-SEXP subsetInfSparseMatrix(SEXP whichRows, SEXP whichCols, SEXP x);
-RcppExport SEXP _optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP xSEXP) {
+NumericMatrix subsetInfSparseMatrix(LogicalVector whichRows, LogicalVector whichCols, S4 ismX);
+RcppExport SEXP _optmatch_subsetInfSparseMatrix(SEXP whichRowsSEXP, SEXP whichColsSEXP, SEXP ismXSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type whichRows(whichRowsSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type whichCols(whichColsSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(subsetInfSparseMatrix(whichRows, whichCols, x));
+    Rcpp::traits::input_parameter< LogicalVector >::type whichRows(whichRowsSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type whichCols(whichColsSEXP);
+    Rcpp::traits::input_parameter< S4 >::type ismX(ismXSEXP);
+    rcpp_result_gen = Rcpp::wrap(subsetInfSparseMatrix(whichRows, whichCols, ismX));
     return rcpp_result_gen;
 END_RCPP
 }

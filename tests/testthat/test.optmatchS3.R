@@ -785,7 +785,23 @@ test_that("combining already blocked matches", {
   full <- fullmatch(pr ~ t1, data = nuclearplants,
                     within = exactMatch(pr ~ z, data = nuclearplants))
 
-  expect_true(compare_optmatch(fc, full))
+  # There are a few matches with equivalent mincost solutions, so just ensure
+  # total matched distance is equivalent.
+  expect_true(all.equal(
+    sum(Reduce(c, matched.distances(fc,
+                                match_on(pr ~ t1,
+                                         data = nuclearplants,
+                                         within =
+                                           exactMatch(pr ~ z,
+                                                      data = nuclearplants))))),
+    sum(Reduce(c, matched.distances(full,
+                                match_on(pr ~ t1,
+                                         data = nuclearplants,
+                                         within =
+                                           exactMatch(pr ~ z,
+                                                      data = nuclearplants)))))
+  ))
+
   expect_identical(matched(fc), matched(full))
 
 

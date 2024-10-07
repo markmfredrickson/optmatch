@@ -249,10 +249,12 @@ fill.NAs <- function(x, data = NULL, all.covs = FALSE, contrasts.arg=NULL) {
 ### NB: the only that will probably ever be called in numeric now
 ### that model.matrix gets called ahead of column filling
 
+#' @keywords internal
 fill.column <- function(column) {
   UseMethod("fill.column", column)
 }
 
+#' @keywords internal
 fill.column.numeric <- function(column) {
   nas <- is.na(column)
   cm <- mean(column[!nas])
@@ -260,6 +262,7 @@ fill.column.numeric <- function(column) {
   return(column)
 }
 
+#' @keywords internal
 fill.column.logical <- function(column) {
   nas <- is.na(column)
   cm <- mean(column[!nas]) > .5
@@ -268,6 +271,7 @@ fill.column.logical <- function(column) {
 
 }
 
+#' @keywords internal
 fill.column.factor <- function(column) {
   # following RITools' imputation function, this adds a level
   # another option would be imputing based on the modal factor
@@ -276,6 +280,7 @@ fill.column.factor <- function(column) {
   return(column)
 }
 
+#' @keywords internal
 fill.column.ordered <- function(column) {
 
 # uses a median imputation scheme -- finds the middle most

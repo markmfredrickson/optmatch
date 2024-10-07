@@ -7,7 +7,7 @@
 #'
 #' Like \code{predict}, its default predictions from a \code{glm} are on
 #' the scale of the linear predictor, not the scale of the response; see
-#' Rosenbaum \& Rubin (1985).  (This default can
+#' Rosenbaum \ Rubin (1985).  (This default can
 #' be overridden by specifying \code{type="response"}.)
 #' In contrast to \code{predict}, if \code{scores} isn't given an explicit
 #' \code{newdata} argument then it attempts to reconstruct one from the context
@@ -134,21 +134,21 @@ scores <- function(object, newdata=NULL, ...) {
 ##' The CBPS package fits \sQuote{covariate balancing propensity score} for use in propensity score
 ##' weighting.  In the binary treatment case they can also be used for matching.  This method helps to 
 ##' implement that process in a manner consistent with use of propensity scores elsewhere in optmatch; see
-##' \code{\link{scores}} documentation. 
-##' 
-##' @param x A CBPS object
+##' \code{\link{scores}} documentation.
+##'
+##' @param object A CBPS object
 ##' @param newdata Unused.
 ##' @param type Return inverse logits of fitted values (the default) or fitted values themselves 
 ##' @param ... Unused.
 ##'
 ##' @return Inverse logit of the fitted values.
 ##' @importFrom stats plogis
-predict.CBPS <- function(x, newdata=NULL, type=c("link", "response"), ...) {
+predict.CBPS <- function(object, newdata=NULL, type=c("link", "response"), ...) {
     type <- match.arg(type)
     stopifnot(type %in% c("link", "response") )
-    if (length(unique(x$y))>2) stop("Only binary treatments are supported")
-    
-    out <- if (type=="link") stats::plogis(x$fitted.values) else x$fitted.values
-  names(out) <- rownames(x$x)
+    if (length(unique(object$y))>2) stop("Only binary treatments are supported")
+
+    out <- if (type=="link") stats::plogis(object$fitted.values) else object$fitted.values
+  names(out) <- rownames(object$x)
   return(out)
 }

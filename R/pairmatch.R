@@ -50,8 +50,8 @@
 #' @param data Optional data set.
 #' @param remove.unmatchables Should treatment group members for which there are
 #' no eligible controls be removed prior to matching?
-#' @param ... Additional arguments to pass to \code{\link{match_on}} 
-#' (e.g. \code{within})) or to \code{\link{fullmatch}} (e.g. \code{tol}).  
+#' @param ... Additional arguments to pass to \code{\link{match_on}}
+#' (e.g. \code{within})) or to \code{\link{fullmatch}} (e.g. \code{tol}).
 #' It is an error to pass \code{min.controls},
 #' \code{max.controls}, \code{mean.controls} or \code{omit.fraction} as
 #' \code{pairmatch} must set these values.
@@ -91,7 +91,6 @@ pairmatch <- function(x,
     warning("The use of 'optmatch.dlist' objects created by 'mdist()' is deprecated.\nPlease use 'match_on()' instead.")
   }
 
-  cl <- match.call()
   UseMethod("pairmatch")
 }
 
@@ -124,8 +123,7 @@ pairmatch.default <- function(x,
                    data=mfd,
                    remove.unmatchables=remove.unmatchables,
                    ...)
-  if (!exists("cl")) cl <- match.call()
-  attr(out, "call") <- cl
+  attr(out, "call") <- match.call()
   out
 }
 
@@ -144,8 +142,7 @@ pairmatch.numeric <- function(x,
                    data=data,
                    remove.unmatchables=remove.unmatchables,
                    ...)
-  if (!exists("cl")) cl <- match.call()
-  attr(out, "call") <- cl
+  attr(out, "call") <- match.call()
   out
 }
 
@@ -226,8 +223,7 @@ pairmatch.matrix <- function(x,
   if(!remove.unmatchables) {
     options("fullmatch_try_recovery" = saveopt)
   }
-  if (!exists("cl")) cl <- match.call()
-  attr(out, "call") <- cl
+  attr(out, "call") <- match.call()
   return(out)
 }
 

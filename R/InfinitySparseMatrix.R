@@ -372,9 +372,7 @@ subset.InfinitySparseMatrix <- function(x, subset, select, ...) {
     stop("Subset and select must be same length as rows and columns, respectively.")
   }
 
-  subset.data <- subsetInfSparseMatrix( as.integer(subset),
-                                       select,
-                                       x)
+  subset.data <- subsetInfSparseMatrix(subset, select, x)
   return(makeInfinitySparseMatrix(subset.data[, 3],
                                   subset.data[, 2],
                                   subset.data[, 1],

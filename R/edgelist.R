@@ -139,6 +139,7 @@ setMethod("is_matchable", c(distspec="EdgeList"),
               ans
           })
 
+#' @keywords internal
 filter.EdgeList <- function(.data, ...) {
     .data  <- asS3(.data)
     filter(.data, ...)

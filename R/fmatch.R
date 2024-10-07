@@ -38,8 +38,13 @@ fmatch <- function(distance,
   solver <- handleSolver(solver)
 
   stopifnot(is(distance, "EdgeList"), is(node_info, "NodeInfo"),
-            is.integer(node_info[['price']]),
             is.numeric(f))
+  if (solver == "RELAX-IV") {
+    stopifnot(is.integer(node_info[['price']]))
+  } else {
+    # some variation of LEMON, see #229
+    stopifnot(is.numeric(node_info[['price']]))
+  }
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))

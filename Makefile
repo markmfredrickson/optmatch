@@ -41,6 +41,11 @@ test: FUNC=test
 check: FUNC=check
 check: DEVTOOLSARG=incoming=TRUE
 
+# Complete check - no suggests included
+.PHONY:check_no_suggests
+check_no_suggests: FUNC=check
+check_no_suggests: DEVTOOLSARG=incoming=TRUE,env_vars=c('_R_CHECK_DEPENDS_ONLY_'='true')
+
 # Update documentation
 .PHONY:document
 document: FUNC=document
@@ -63,7 +68,7 @@ build: DEVTOOLSARG=args=c('--compact-vignettes=gs+qpdf')
 build_site: FUNC=build_site
 build_site: DEVTOOLSARG=quiet=FALSE
 
-dependencies test check document: .devtools
+dependencies test check check_no_suggests document: .devtools
 vignette clean-vignette build build_site: .devtools
 
 

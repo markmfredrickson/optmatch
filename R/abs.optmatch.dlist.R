@@ -1,6 +1,7 @@
-abs.optmatch.dlist <- function (x) 
+#' @keywords internal
+abs.optmatch.dlist <- function (x)
 {
-    
+
      rn1 <- attr(x, "row.names")
      x <- x[unlist(as.logical(lapply(x, length)))]
 
