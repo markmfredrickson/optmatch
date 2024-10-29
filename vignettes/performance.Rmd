@@ -3,7 +3,7 @@ title: "Performance Testing"
 output: bookdown::html_document2
 vignette: >
   %\VignetteIndexEntry{performance}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::bookdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r echo=FALSE}
 library(optmatch)
 ```
 The goal of this document is provide some basic performance testing of the
@@ -50,7 +50,7 @@ with simulated data described in its own section.
 
 # Simulated Data
 
-```{r setup, echo=FALSE}
+```{r echo=FALSE}
 load("setup.rda")
 ```
 
@@ -190,39 +190,20 @@ matrix. Figure \@ref{fig:match-sparse-strat} shows the profiling data for the
 stratified, sparse problem (which can be split up into separate calls to the
 solver)
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r match-dense, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix based matching for `N =` `r N` units."}
 par(cex = perfcex)
 plot(benchmark.matching.dense, minlabel = minlabel)
-@
-\caption{Profiling diagram for dense matrix based matching for $N =
-\Sexpr{N}$ units.}
-\label{fig:match-dense}
-\end{figure}
+```
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r match-sparse, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for sparse matrix based matching for `N =` `r N` units."}
 par(cex = perfcex)
 plot(benchmark.matching.sparse, minlabel = minlabel)
-@
-\caption{Profiling diagram for sparse matrix based matching for $N =
-\Sexpr{N}$ units.}
-\label{fig:match-sparse}
-\end{figure}
+```
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r match-sparse-strat, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for stratified sparse matrix based matching for `N =` `r N` units."}
 par(cex = perfcex)
 plot(benchmark.matching.sparse.strat, minlabel = minlabel)
-@
-\caption{Profiling diagram for stratified sparse matrix based matching for $N =
-\Sexpr{N}$ units.}
-\label{fig:match-sparse-strat}
-\end{figure}
-
+```
 
 The previous tests used **fullmatch** with the default arguments. To test
 out the use of the various constraint arguments, we call **pairmatch**
@@ -232,43 +213,34 @@ distance object to set appropriate values for **omit.fraction**, the
 argument that allows a portion of the control group to be discarded.
 Figure \@ref{fig:match-pairmatch} shows these profiling data.
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r match-pairmatch, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix pairmatching for `N =` `r N` units."}
 par(cex = perfcex)
 plot(benchmark.matching.pairmatch, minlabel = minlabel)
-@
-\caption{Profiling diagram for dense matrix pairmatching for $N =
-\Sexpr{N}$ units.}
-\label{fig:match-pairmatch}
-\end{figure}
+```
 
-\section{**mdist** and **match_on**}
+# **mdist** and **match_on**
 
 In version 0.7 of **optmatch** and earlier, the primary method of
 creating distances was to use the **mdist** function. In version 0.8,
 **match_on** was added as a more comprehensive tool, specifically one
 that allowed for arbitrary sparseness of distances matrices.
 
-<<>>=
+```{r echo=FALSE}
 load("mdist.rda")
-@
+```
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r echo=FALSE, fig.align="center", fig.cap="{Profiling results for a stratified mdist distance problem."}
 par(cex = perfcex)
 plot(benchmark.mdist, minlabel = minlabel)
-@
-\caption{Profiling results for a stratified mdist distance problem.}
-\end{figure}
-\appendix
+```
 
-\subsection{Scaling}
+# Appendix {-}
 
-<<>>=
+## Scaling
+
+```{r echo=FALSE}
 load("scaling.rda")
-@
+```
 
 This section considers how the two functions scale up as the problem size gets
 bigger. We create problems sets of size `N = 2K` with `K` treatment and `K`
@@ -278,18 +250,10 @@ quadratically, as we would expect from the nature of the algorithms. Of
 course, the absolute run time of **match_on** is orders of magnitude
 worse.
 
-\begin{figure}
-\centering
-<<fig = T>>=
+```{r scaling, echo=FALSE, fig.align="center", fig.cap="Run times for increasingly large problems for the **match_on** (red) and **mdist** (blue) functions."}
 plot(match_on ~ k, data = times, type = 'l', col = "red", log = "y")
 lines(mdist ~ k, data = times, col = "blue", log = "y")
-@
-\caption{Run times for increasingly large problems for the **match_on**
-(red) and **mdist** (blue) functions.}
-\label{fig:scaling}
-\end{figure}
-
-
+```
 
 # Environment
 
