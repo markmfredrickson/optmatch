@@ -36,9 +36,10 @@ call stack to a file. This information can be used to attribute the portion of
 run time attributable different functions.
 
 ```{r echo=FALSE}
-library(profr)
-perfcex <- 0.5 # makes text more readable in plots
-minlabel <- 0.05 # add labels for smaller segments of time
+# library(profr)
+library(profvis)
+# perfcex <- 0.5 # makes text more readable in plots
+# minlabel <- 0.05 # add labels for smaller segments of time
 ```
 
 For interpretation of this data, we rely on the **profr** package, which
@@ -51,7 +52,19 @@ with simulated data described in its own section.
 # Simulated Data
 
 ```{r echo=FALSE}
-load("setup.rda")
+set.seed(20130125) # so that the random values we generate will be consistent
+# N <- 1000
+N <- 1000
+X <- data.frame(X1 = rnorm(N), 
+                X2 = rnorm(N, mean = runif(N, -5, 5)), 
+                X3 = as.factor(sample(letters[1:5], N, replace = T)))
+
+mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+coefs <- runif(dim(mm)[2], -2, 2)
+logits <- as.vector(coefs %*% t(mm)) 
+DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
+model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
+predicted <- predict(model)
 ```
 
 Before proceeding to the actual profiling, we begin by creating some simulated
@@ -82,9 +95,15 @@ pre-processing to the input. Figure \@ref(fig:distance-dense) shows the profile 
 using **match_on.numeric** with the propensity score.
 
 ```{r distance-dense, echo=FALSE, fig.align="center", fig.width=7, fig.height=4, fig.cap="Profiling diagram for dense distance creation for `N =` `r N` units."}
-load("distance.rda")
-par(cex = perfcex) # this makes the text in the plots a more maneagable size.
-plot(benchmark.dense, minlabel = minlabel)
+# benchmark.dense <- profr(result.dense <- match_on(x=predicted, z=DATA$Z))
+
+# par(cex=perfcex) # this makes the text in the plots a more maneagable size.
+# plot(benchmark.dense, minlabel=minlabel)
+library(profvis)
+result.sparse.caliper <- match_on(x=predicted, z=DATA$Z, caliper=1)
+result.sparse.within <- match_on(x=predicted, z=DATA$Z,
+    within=exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA))
+profvis(result.dense <- match_on(x=predicted, z=DATA$Z))
 ```
 
 There are two ways to create sparse problems. In the first, we use the
@@ -109,13 +128,24 @@ entries. Figure \@ref{fig:sparse-within} shows the profiling results when using
 the **within** argument.
 
 ```{r sparse-caliper, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for caliper based sparse distance creation for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.sparse.caliper, minlabel = minlabel)
+profvis(result.sparse.caliper <- match_on(x=predicted, z=DATA$Z, caliper=1))
+
+# benchmark.sparse.caliper <- profr(result.sparse.caliper <- match_on(x =
+# predicted, z = DATA$Z, caliper = 1))
+
+# par(cex = perfcex)
+# plot(benchmark.sparse.caliper, minlabel = minlabel)
 ```
 
 ```{r sparse-within, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for within based sparse distance creation for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.sparse.within, minlabel = minlabel)
+profvis(result.sparse.within <- match_on(x=predicted, z=DATA$Z,
+    within=exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA)))
+
+# benchmark.sparse.within <- profr(result.sparse.within <- match_on(x =
+# predicted, z = DATA$Z, within = exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA)))
+
+# par(cex = perfcex)
+# plot(benchmark.sparse.within, minlabel = minlabel)
 ```
 
 # **match_on** Methods
@@ -130,8 +160,13 @@ Figure \@ref{fig:distance-dense}, the dense matrix problem from the previous
 section.
 
 ```{r distance-glm, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for **glm** distance creation for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.glm, minlabel = minlabel)
+profvis(result.glm <- match_on(x = glm(Z ~ X1 + X2 + X3, data=DATA)))
+
+# benchmark.glm <- profr(result.glm <- match_on(x =
+#   glm(Z ~ X1 + X2 + X3, data = DATA)))
+
+# par(cex = perfcex)
+# plot(benchmark.glm, minlabel = minlabel)
 ```
 
 Figure \@ref{fig:distance-formula} shows the
@@ -149,14 +184,15 @@ same way, with one dominating for small problems and the other for large. This
 plot does not provide any information the scaling nature of the function.
 
 ```{r distance-formula, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for formula (Mahalanobis) distance creation for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.formula, minlabel = minlabel)
+profvis(result.formula <- match_on(x = Z ~ X1 + X2 + X3, data=DATA))
+
+# benchmark.formula <- profr(result.formula <- match_on(x =
+#  Z ~ X1 + X2 + X3, data = DATA))
+
+# par(cex = perfcex)
+# plot(benchmark.formula, minlabel = minlabel)
 ```
 # Matching
-
-```{r echo=FALSE}
-load("matching.rda")
-```
 
 Now that distance creation code has been benchmarked, we now consider the
 matching process itself. We reuse the earlier distance objects. To keep things
@@ -182,6 +218,22 @@ default settings. The process of matching, as currently implemented in
   components, it is combined here.)
 \end{enumerate}
 
+```{r echo=FALSE}
+set.seed(20130125) # so that the random values we generate will be consistent
+# N <- 1000
+N <- 3000
+X <- data.frame(X1 = rnorm(N), 
+                X2 = rnorm(N, mean = runif(N, -5, 5)), 
+                X3 = as.factor(sample(letters[1:5], N, replace = T)))
+
+mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+coefs <- runif(dim(mm)[2], -2, 2)
+logits <- as.vector(coefs %*% t(mm)) 
+DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
+model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
+predicted <- predict(model)
+```
+
 We should expect to see these phases in each of the next figures.
 Figure \@ref{fig:match-dense} shows the matching process applied to the dense
 distance matrix from the previous section. Figure \@ref{fig:match-sparse} shows
@@ -191,18 +243,28 @@ stratified, sparse problem (which can be split up into separate calls to the
 solver)
 
 ```{r match-dense, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix based matching for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.matching.dense, minlabel = minlabel)
+result.dense <- match_on(x = predicted, z = DATA$Z)
+profvis(result.matching.dense <- fullmatch(result.dense))
+
+# benchmark.matching.dense <- profr(result.matching.dense <- fullmatch(result.dense))
+# par(cex = perfcex)
+# plot(benchmark.matching.dense, minlabel = minlabel)
 ```
 
 ```{r match-sparse, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for sparse matrix based matching for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.matching.sparse, minlabel = minlabel)
+profvis(result.matching.sparse <- fullmatch(result.sparse.caliper))
+
+# benchmark.matching.sparse <- profr(result.matching.sparse <- fullmatch(result.sparse.caliper))
+# par(cex = perfcex)
+# plot(benchmark.matching.sparse, minlabel = minlabel)
 ```
 
 ```{r match-sparse-strat, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for stratified sparse matrix based matching for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.matching.sparse.strat, minlabel = minlabel)
+profvis(result.matching.sparse.strat <- fullmatch(result.sparse.within))
+
+# benchmark.matching.sparse.strat <- profr(result.matching.sparse.strat <- fullmatch(result.sparse.within))
+# par(cex = perfcex)
+# plot(benchmark.matching.sparse.strat, minlabel = minlabel)
 ```
 
 The previous tests used **fullmatch** with the default arguments. To test
@@ -214,8 +276,11 @@ argument that allows a portion of the control group to be discarded.
 Figure \@ref{fig:match-pairmatch} shows these profiling data.
 
 ```{r match-pairmatch, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix pairmatching for `N =` `r N` units."}
-par(cex = perfcex)
-plot(benchmark.matching.pairmatch, minlabel = minlabel)
+profvis(result.matching.pairmatch <- pairmatch(result.dense))
+
+# benchmark.matching.pairmatch <- profr(result.matching.pairmatch <- pairmatch(result.dense))
+# par(cex = perfcex)
+# plot(benchmark.matching.pairmatch, minlabel = minlabel)
 ```
 
 # **mdist** and **match_on**
@@ -225,13 +290,12 @@ creating distances was to use the **mdist** function. In version 0.8,
 **match_on** was added as a more comprehensive tool, specifically one
 that allowed for arbitrary sparseness of distances matrices.
 
-```{r echo=FALSE}
-load("mdist.rda")
-```
-
 ```{r echo=FALSE, fig.align="center", fig.cap="{Profiling results for a stratified mdist distance problem."}
-par(cex = perfcex)
-plot(benchmark.mdist, minlabel = minlabel)
+profvis(result.mdist <- mdist(model, structure.fmla = ~ X3), interval = 0.001)
+
+# benchmark.mdist <- profr(result.mdist <- mdist(model, structure.fmla = ~ X3), interval = 0.001)
+# par(cex = perfcex)
+# plot(benchmark.mdist, minlabel = minlabel)
 ```
 
 # Appendix {-}
@@ -239,7 +303,23 @@ plot(benchmark.mdist, minlabel = minlabel)
 ## Scaling
 
 ```{r echo=FALSE}
-load("scaling.rda")
+Ks <- c(10, 20, 50, 100, 200, 300, 350, 400, 425, 450, 475, 500)
+propensity <- rnorm(2 * max(Ks))
+names(propensity) <- 1:(2 * max(Ks))
+
+times <- lapply(Ks, function(k) {
+  data <- propensity[1:(2 * k)]
+  z <- rep(c(0,1), k)
+  mdt <- system.time(mdist(z ~ data), gcFirst = TRUE) 
+  mot <- system.time(match_on(x = data, z = z), gcFirst = TRUE)
+
+  # for both runs, return the sum of the user and system time
+  return(c(mdt[1] + mdt[2], mot[1] + mot[2]))
+})
+
+times <- do.call(rbind, times)
+colnames(times) <- c("mdist", "match_on")
+times <- data.frame(k = Ks, times)
 ```
 
 This section considers how the two functions scale up as the problem size gets
