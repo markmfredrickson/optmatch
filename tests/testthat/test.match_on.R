@@ -594,6 +594,21 @@ test_that("standardization_scale with svyglm",{
   expect_true(TRUE) # avoiding empty test warning
 })
 
+test_that("model.frame.svyglm() & model.response (cf # 194)",{
+  if (requireNamespace("survey", quietly = TRUE)) {
+    data(api, package = "survey")
+    dstrat<-survey::svydesign(id=~1, strata=~stype, weights=~pw,
+                      data=apistrat, fpc=~fpc)
+    sglm <- survey::svyglm(sch.wide~ell+meals+mobility, design=dstrat,
+                   family=quasibinomial())
+    mf <- optmatch:::model.frame.svyglm(sglm)
+    expect_identical(model.response(mf),
+                     setNames(sglm$model$'sch.wide',
+                              rownames(sglm$model)
+                              )
+                     )
+    }
+})
 test_that("Building exactMatch from formula with strata", {
 
   d <- data.frame(x = rnorm(8),
