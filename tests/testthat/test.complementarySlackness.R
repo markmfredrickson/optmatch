@@ -36,7 +36,7 @@ make_known_optimal <- function(flipped=FALSE) {
     subprob  <- new("SubProbInfo",
                     data.frame(groups="a", flipped=flipped, hashed_dist=character(1),
                                resolution=NA_real_, primal_value=NA_real_, dual_value=NA_real_,
-                               feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
+                               feasible=NA, exceedance=NA_real_, solver = NA, stringsAsFactors=FALSE)
                     )
     mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs)
     list(x = x, m = m, mcf = mcf_solution)
@@ -96,7 +96,7 @@ make_known_optimal_fullm <- function(flipped=FALSE)
 subprob  <- new("SubProbInfo",
                     data.frame(groups='b', flipped=flipped, hashed_dist=character(1),
                                resolution=NA_real_, primal_value=NA_real_, dual_value=NA_real_,
-                               feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
+                               feasible=NA, exceedance=NA_real_, solver = NA, stringsAsFactors=FALSE)
                     )
     mcf_solution  <- new("MCFSolutions", subproblems=subprob, nodes=nodes, arcs=arcs)
     node.labels(mcf_solution)  <- names(node.labels(mcf_solution)) # for alignment w/ m

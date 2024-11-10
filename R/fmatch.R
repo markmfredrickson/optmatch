@@ -144,7 +144,7 @@ fmatch <- function(distance,
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
-
+    #browser()
     ####
     nodes  <- new("NodeInfo",
                   data.frame(name=c(row.units, col.units,
@@ -185,76 +185,43 @@ fmatch <- function(distance,
 
     if (nt == 0 && nc == 0) # edge case where subproblem is completely empty. In order to return an MCFSolutions object, I am violating some rules. Specifically, flow and capacity are all set to zero. Matches now includes sink and end nodes because the current classes prohibit empty data frames being returned/appended at the end.
     {
-      bookkeeping  <-
-        data.frame(groups=factor(rep(NA_character_, 2L)),
-                   start=c(1,2),
-                   end=c(1, 2),
-                   flow=0L,
-                   capacity=0L
-        )
 
-      x <- rep(0L, problem.size)
-      matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
-      matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
-                             upstream=factor(matches[['i']],
-                                             levels=node.labels(nodes)
-                             ),
-                             downstream=factor(matches[['j']],
-                                               levels=node.labels(nodes)
-                             )
-      )
-      bookkeeping[['start']]  <- factor(bookkeeping[['start']],
-                                        levels=c(1L, 2L),
-                                        labels=node.labels(nodes)
-      )
-      bookkeeping[['end']]  <- factor(bookkeeping[['end']],
-                                      levels=c(1L, 2L),
-                                      labels=node.labels(nodes)
-      )
+      bookkeeping <- data.frame(groups = factor(),
+                                start = factor(levels = 1L:2L,
+                                               labels = node.labels(nodes)),
+                                end = factor(levels = 1L:2L,
+                                             labels = node.labels(nodes)),
+                                flow = integer(),
+                                capacity = integer())
+
+      matches  <- data.frame(groups=factor(),
+                             upstream=factor(levels=node.labels(nodes)),
+                             downstream=factor(levels=node.labels(nodes)))
 
 
     } else { #This is another edge case where the solver is never called. However, in this case, the subproblem is not empty, so we can use most of the existing logic fairly easily.
-      bookkeeping  <-
-        data.frame(groups=factor(rep(NA_character_, nt +2L*nc)),
-                   start=c(1L:(nt + nc), # ~ c(row.units, col.units)
-                           nt + 1L:nc), # ~ col.units
-                   end=c(rep(endID, nc + nt),
-                         rep(sinkID, nc) ),
-                   flow=0L,
-                   capacity=0L
-        )
 
-      startn<- c(as.integer(distance[['i']]), bookkeeping$start )
-      endn <-  c(as.integer(distance[['j']]), bookkeeping$end )
-      x <- rep(0L, problem.size)
-      matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
-      bookkeeping[1L:(problem.size-narcs), "flow"]  <- as.integer(x)[(narcs+1L):problem.size]
-      matches  <- data.frame(groups=factor(rep(NA_integer_, nrow(matches))),
-                             upstream=factor(matches[['i']],
-                                             levels=node.labels(nodes)
-                             ),
-                             downstream=factor(matches[['j']],
-                                               levels=node.labels(nodes)
-                             )
-      )
-      bookkeeping[['start']]  <- factor(bookkeeping[['start']],
-                                        levels=1L:(nt + nc + 2),
-                                        labels=node.labels(nodes)
-      )
-      bookkeeping[['end']]  <- factor(bookkeeping[['end']],
-                                      levels=1L:(nt + nc + 2),
-                                      labels=node.labels(nodes)
-      )
+      bookkeeping <- data.frame(groups = factor(),
+                                start = factor(levels = 1L:(nt + nc + 2),
+                                               labels = node.labels(nodes)),
+                                end = factor(levels = 1L:(nt + nc + 2),
+                                            labels = node.labels(nodes)),
+                                flow = integer(),
+                                capacity = integer())
 
-
+      matches  <- data.frame(groups=factor(),
+                             upstream=factor(levels=node.labels(nodes)),
+                             downstream=factor(levels=node.labels(nodes))
+      )
     }
 
 
 
     arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
-
+    #arcs  <- new("ArcInfo")
     sp  <- new("SubProbInfo")
     sp[1L, "feasible"]  <- FALSE
+    sp[1L, "solver"]  <- ""
     fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                   nodes=nodes, arcs=arcs)
     return(c(
@@ -431,6 +398,7 @@ fmatch <- function(distance,
   sp  <- new("SubProbInfo")
   # If any solver is called, feasibility is now determined only in this location. We know that the solver was called, but we must check to see if the problem was feasible.
   sp[1L, "feasible"]  <- any(x == 1L)
+  sp[1L, "solver"]  <- solver
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs)
   return(c(obj,

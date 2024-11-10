@@ -719,8 +719,9 @@ fullmatch.matrix <- function(x,
         }
         if (nrow(mcfsolutions[[ii]]@arcs@matches) > 0) {
           mcfsolutions[[ii]]@arcs@matches[,"groups"]  <- factor(thesubprob)
+          mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
         }
-        mcfsolutions[[ii]]@arcs@bookkeeping[,"groups"]  <- factor(thesubprob)
+
         bookkeeping_nodes  <- c('(_Sink_)', '(_End_)')
         for (bn in bookkeeping_nodes) {
           nlabs <- node.labels(mcfsolutions[[ii]])

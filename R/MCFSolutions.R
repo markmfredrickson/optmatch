@@ -8,15 +8,15 @@ setClass("SubProbInfo", contains="data.frame",
          prototype=
              prototype(data.frame(groups=character(1), flipped=NA, hashed_dist=NA_character_,
                               resolution=1, primal_value=NA_real_,
-                              dual_value=NA_real_, feasible=NA, exceedance=NA_real_, stringsAsFactors=FALSE)
+                              dual_value=NA_real_, feasible=NA, exceedance=NA_real_, solver = NA_character_, stringsAsFactors=FALSE)
                   )
          )
 setValidity("SubProbInfo", function(object){
     errors <- character(0)
-    if (!all(colnames(object)[1:8]==
-             c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance")))
+    if (!all(colnames(object)[1:9]==
+             c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance", "solver")))
         errors  <- c(errors,
-                     'Cols 1-8 should be:\n\t c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance")')
+                     'Cols 1-9 should be:\n\t c("groups","flipped", "hashed_dist","resolution","primal_value","dual_value", "feasible", "exceedance", "solver")')
     if (!all(vapply(object[c(1,3)], is.character, logical(1))))
         errors  <- c(errors,
                      'Cols 1,3 should have type character.')
@@ -136,32 +136,38 @@ setValidity("MCFSolutions", function(object){
     ## levels set, namely node.labels(object) (i.e. row.names(object@nodes) ).  Former
     ## requirement is enforced within the ArcInfo validity checker; here we confirm
     ## that this level set matches what's in the nodes table.
+
+
+
+
+
     if (!identical(row.names(nodeinfo(object)),
                    levels(object@arcs@matches[['upstream']])
-                   )
+    )
+    )
+    {
+        if (length(xtralevs  <- setdiff(node.labels(object),
+                                        levels(object@arcs@matches[['upstream']])
         )
-        {
-            if (length(xtralevs  <- setdiff(node.labels(object),
-                                            levels(object@arcs@matches[['upstream']])
-                                            )
-                       )
-                )
-                errors  <- c(errors,
-                             paste("@nodes lists nodes not in the levels of @arcs's nodes columns, e.g.",
-                                   paste(head(xtralevs,2), collapse=", "), "."
-                                   )
-                             )
-            if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['upstream']]),
-                                            node.labels(object)
-                                            )
-                       )
-                )
-                errors  <- c(errors,
-                             paste("@arcs's nodes columns have levels not appearing in @nodes",
-                                   paste(head(xtralevs,2), collapse=", "), "."
-                                   )
-                             )
-        }
+        )
+        )
+            errors  <- c(errors,
+                         paste("@nodes lists nodes not in the levels of @arcs's nodes columns, e.g.",
+                               paste(head(xtralevs,2), collapse=", "), "."
+                         )
+            )
+        if (length(xtralevs  <- setdiff(levels(object@arcs@matches[['upstream']]),
+                                        node.labels(object)
+        )
+        )
+        )
+            errors  <- c(errors,
+                         paste("@arcs's nodes columns have levels not appearing in @nodes",
+                               paste(head(xtralevs,2), collapse=", "), "."
+                         )
+            )
+    }
+
     ## Nodes table must have groups column
     if (!any(colnames(object@nodes)=="groups"))
         errors  <- c(errors,

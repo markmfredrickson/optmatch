@@ -4,14 +4,14 @@ test_that("Instantiation & validity", {
     expect_true(validObject(new("SubProbInfo"))) # test the prototype
     expect_silent(spi1  <- new("SubProbInfo", data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
                                            resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
-                                           feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
+                                           feasible=c(TRUE, FALSE), exceedance=1, solver = NA, stringsAsFactors=F)
                                )
                   )
     expect_true(validObject(spi1))
 
     spi2  <- spi1
     colnames(spi2)[1]  <- "Subprob"
-    expect_error(validObject(spi2), "Cols 1-8 should be")
+    expect_error(validObject(spi2), "Cols 1-9 should be")
 
     expect_true(validObject(new("NodeInfo"))) # test the prototype
     expect_silent(ni1  <- new("NodeInfo",
@@ -110,17 +110,17 @@ test_that("c() methods", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
                             resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
-                            feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
+                            feasible=c(TRUE, FALSE), exceedance=1, solver = NA, stringsAsFactors=F)
                  )
     spi2  <- new("SubProbInfo",
                  data.frame(groups=c('c'), flipped=logical(1), hashed_dist=c('a'),
                             resolution=c(1), primal_value=c(.5), dual_value=c(0),
-                            feasible=c(TRUE), exceedance=1, stringsAsFactors=F)
+                            feasible=c(TRUE), exceedance=1, solver = NA, stringsAsFactors=F)
                  )
     spi3  <- new("SubProbInfo",
                  data.frame(groups=c('d'), flipped=logical(1), hashed_dist=c('a'),
                             resolution=c(1), primal_value=c(.5), dual_value=c(0),
-                            feasible=c(TRUE), exceedance=1, stringsAsFactors=F)
+                            feasible=c(TRUE), exceedance=1, solver = NA, stringsAsFactors=F)
                  )
 
     expect_true(validObject(c(spi1, spi2)))
@@ -288,7 +288,7 @@ test_that("filtering on groups/subproblem field", {
     spi1  <- new("SubProbInfo",
                  data.frame(groups=c('a','b'), flipped=logical(2), hashed_dist=c('a','b'),
                             resolution=c(1,10), primal_value=c(2,0), dual_value=c(1,1),
-                            feasible=c(TRUE, FALSE), exceedance=1, stringsAsFactors=F)
+                            feasible=c(TRUE, FALSE), exceedance=1, solver = NA, stringsAsFactors=F)
                  )
     expect_error(filter_by_subproblem(spi1, groups="a"), "implemented")
 
