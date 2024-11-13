@@ -217,8 +217,7 @@ default settings. The process of matching, as currently implemented in
 \end{enumerate}
 
 ```{r echo=FALSE}
-set.seed(20130125) # so that the random values we generate will be consistent
-# N <- 1000
+# increase N so that routines take enought time to profile properly
 N <- 3000
 X <- data.frame(X1 = rnorm(N), 
                 X2 = rnorm(N, mean = runif(N, -5, 5)), 
@@ -288,12 +287,22 @@ creating distances was to use the **mdist** function. In version 0.8,
 **match_on** was added as a more comprehensive tool, specifically one
 that allowed for arbitrary sparseness of distances matrices.
 
+```{r echo=FALSE}
+# increase N so that routines take enought time to profile properly
+N <- 10000
+X <- data.frame(X1 = rnorm(N),
+                X2 = rnorm(N, mean = runif(N, -5, 5)),
+                X3 = as.factor(sample(letters[1:5], N, replace = T)))
+
+mm <- model.matrix(I(rep(1, N)) ~  X1 + X2 + X1:X3, data = X)
+coefs <- runif(dim(mm)[2], -2, 2)
+logits <- as.vector(coefs %*% t(mm))
+DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
+model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
+```
+
 ```{r echo=FALSE, fig.align="center", fig.cap="{Profiling results for a stratified mdist distance problem."}
 profvis(result.mdist <- mdist(model, structure.fmla = ~ X3), interval = 0.001)
-
-# benchmark.mdist <- profr(result.mdist <- mdist(model, structure.fmla = ~ X3), interval = 0.001)
-# par(cex = perfcex)
-# plot(benchmark.mdist, minlabel = minlabel)
 ```
 
 # Appendix {-}
