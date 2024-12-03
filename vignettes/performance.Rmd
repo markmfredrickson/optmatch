@@ -1,6 +1,6 @@
 ---
 title: "Performance Testing"
-output: bookdown::html_document2
+output: rmarkdown::html_document
 vignette: >
   %\VignetteIndexEntry{performance}
   %\VignetteEngine{knitr::rmarkdown}
@@ -77,11 +77,11 @@ variable with 5 levels).
 
 For most of the problems, we create a model of treatment assignment and then
 pull out the linear predictors from that model.
-Figure \@ref(fig:logits-density))
+Figure 1
 shows the distributions of the predicted probabilities for the treated and
 control groups (henceforth the *propensity score*).
 
-```{r logits-density, echo=FALSE, fig.align="center", fig.width=5, fig.height=5, fig.cap="Relative distribution of predicted probabilities for simulated treated and control units."}
+```{r logits-density, echo=FALSE, fig.align="center", fig.width=5, fig.height=5, fig.cap="Figure 1. Relative distribution of predicted probabilities for simulated treated and control units."}
 library(lattice)
 densityplot(~ predicted, groups = DATA$Z, xlab = "Linear predictors")
 ```
@@ -91,7 +91,7 @@ densityplot(~ predicted, groups = DATA$Z, xlab = "Linear predictors")
 We begin by benchmarking dense distance creation.^[See the file
 **distance.R** for implementation details.] The **match_on.numeric**
 method has the least complicated interface and applies the least
-pre-processing to the input. Figure \@ref(fig:distance-dense) shows the profile data for
+pre-processing to the input. Figure 2 shows the profile data for
 using **match_on.numeric** with the propensity score.
 
 ```{r echo=FALSE}
@@ -100,7 +100,7 @@ result.sparse.within <- match_on(x=predicted, z=DATA$Z,
     within=exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA))
 ```
 
-```{r distance-dense, echo=FALSE, fig.align="center", fig.width=7, fig.height=4, fig.cap="Profiling diagram for dense distance creation for `N =` `r N` units."}
+```{r distance-dense, echo=FALSE, fig.align="center", fig.width=7, fig.height=4, fig.cap="Figure 2. Profiling diagram for dense distance creation for `N =` `r N` units."}
 profvis(result.dense <- match_on(x=predicted, z=DATA$Z))
 ```
 
@@ -111,7 +111,7 @@ values and computes which treated and control units should be compared, and
 then computes the exact distances between them. Applying a caliper width of 1
 to the simulated data, leads to a sparse matrix with
 `r round(100 * length(result.sparse.caliper) / (N*N), 1)`% finite
-entries. Figure \@ref(fig:sparse-caliper) shows the profiling data for this
+entries. Figure 3 shows the profiling data for this
 process.
 
 The alternative to the **caliper** argument is the **within**
@@ -122,10 +122,10 @@ require generating a dense matrix first (though not always --- the
 **within** argument, we use **exactMatch** create two subproblems
 based on the categorical covariate.
 `r round(100 * length(result.sparse.within) / (N*N), 1)`% finite
-entries. Figure \@ref(fig:sparse-within) shows the profiling results when using
+entries. Figure 4 shows the profiling results when using
 the **within** argument.
 
-```{r sparse-caliper, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for caliper based sparse distance creation for `N =` `r N` units."}
+```{r sparse-caliper, echo=FALSE, fig.align="center", fig.cap="Figure 3. Profiling diagram for caliper based sparse distance creation for `N =` `r N` units."}
 profvis(result.sparse.caliper <- match_on(x=predicted, z=DATA$Z, caliper=1))
 
 # benchmark.sparse.caliper <- profr(result.sparse.caliper <- match_on(x =
@@ -135,7 +135,7 @@ profvis(result.sparse.caliper <- match_on(x=predicted, z=DATA$Z, caliper=1))
 # plot(benchmark.sparse.caliper, minlabel = minlabel)
 ```
 
-```{r sparse-within, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for within based sparse distance creation for `N =` `r N` units."}
+```{r sparse-within, echo=FALSE, fig.align="center", fig.cap="Figure 4. Profiling diagram for within based sparse distance creation for `N =` `r N` units."}
 profvis(result.sparse.within <- match_on(x=predicted, z=DATA$Z,
     within=exactMatch(Z ~ I(X3 == "a" | X3 == "b"), data = DATA)))
 
@@ -152,12 +152,12 @@ These additional methods add some pre-processing to the distance creation.
 These methods can work on sparse problems, but to keep things simple, these examples
 just create dense matrices. The **glm** method is a relatively small
 wrapper around the **numeric** method used in the previous examples.
-Figure \@ref(fig:distance-glm) shows the profiling data for **glm**
+Figure 5 shows the profiling data for **glm**
 method, which we would expect to look very similar to
-Figure \@ref(fig:distance-dense), the dense matrix problem from the previous
+Figure 2, the dense matrix problem from the previous
 section.
 
-```{r distance-glm, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for **glm** distance creation for `N =` `r N` units."}
+```{r distance-glm, echo=FALSE, fig.align="center", fig.cap="Figure 5. Profiling diagram for **glm** distance creation for `N =` `r N` units."}
 profvis(result.glm <- match_on(x = glm(Z ~ X1 + X2 + X3, data=DATA)))
 
 # benchmark.glm <- profr(result.glm <- match_on(x =
@@ -167,11 +167,11 @@ profvis(result.glm <- match_on(x = glm(Z ~ X1 + X2 + X3, data=DATA)))
 # plot(benchmark.glm, minlabel = minlabel)
 ```
 
-Figure \@ref(fig:distance-formula) shows the
+Figure 6 shows the
 profiling data for using the **formula** method. This method, by default,
 creates a squared Mahalanobis distance between treated and control pairs (Euclidean
 distances scaled by the variance-covariance matrix).
-Figure \@ref(fig:distance-formula) shows the profiling data for using the
+Figure 6 shows the profiling data for using the
 **formula** method. This plot is expected to be very different than
 the previous as all the previous examples were based a simple absolute
 difference of a 1-D vector. In this task, however, we have to compute a
@@ -181,7 +181,7 @@ components of the distance creation. Additionally, they may not scale in the
 same way, with one dominating for small problems and the other for large. This
 plot does not provide any information the scaling nature of the function.
 
-```{r distance-formula, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for formula (Mahalanobis) distance creation for `N =` `r N` units."}
+```{r distance-formula, echo=FALSE, fig.align="center", fig.cap="Figure 6. Profiling diagram for formula (Mahalanobis) distance creation for `N =` `r N` units."}
 profvis(result.formula <- match_on(x = Z ~ X1 + X2 + X3, data=DATA))
 
 # benchmark.formula <- profr(result.formula <- match_on(x =
@@ -232,14 +232,14 @@ predicted <- predict(model)
 ```
 
 We should expect to see these phases in each of the next figures.
-Figure \@ref(fig:match-dense) shows the matching process applied to the dense
-distance matrix from the previous section. Figure \@ref(fig:match-sparse) shows
+Figure 7 shows the matching process applied to the dense
+distance matrix from the previous section. Figure 8 shows
 a profiling information for the **caliper** argument based sparse distance
-matrix. Figure \@ref(fig:match-sparse-strat) shows the profiling data for the
+matrix. Figure 9 shows the profiling data for the
 stratified, sparse problem (which can be split up into separate calls to the
 solver)
 
-```{r match-dense, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix based matching for `N =` `r N` units."}
+```{r match-dense, echo=FALSE, fig.align="center", fig.cap="Figure 7. Profiling diagram for dense matrix based matching for `N =` `r N` units."}
 result.dense <- match_on(x = predicted, z = DATA$Z)
 profvis(result.matching.dense <- fullmatch(result.dense))
 
@@ -248,7 +248,7 @@ profvis(result.matching.dense <- fullmatch(result.dense))
 # plot(benchmark.matching.dense, minlabel = minlabel)
 ```
 
-```{r match-sparse, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for sparse matrix based matching for `N =` `r N` units."}
+```{r match-sparse, echo=FALSE, fig.align="center", fig.cap="Figure 8. Profiling diagram for sparse matrix based matching for `N =` `r N` units."}
 profvis(result.matching.sparse <- fullmatch(result.sparse.caliper))
 
 # benchmark.matching.sparse <- profr(result.matching.sparse <- fullmatch(result.sparse.caliper))
@@ -256,7 +256,7 @@ profvis(result.matching.sparse <- fullmatch(result.sparse.caliper))
 # plot(benchmark.matching.sparse, minlabel = minlabel)
 ```
 
-```{r match-sparse-strat, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for stratified sparse matrix based matching for `N =` `r N` units."}
+```{r match-sparse-strat, echo=FALSE, fig.align="center", fig.cap="Figure 9. Profiling diagram for stratified sparse matrix based matching for `N =` `r N` units."}
 profvis(result.matching.sparse.strat <- fullmatch(result.sparse.within))
 
 # benchmark.matching.sparse.strat <- profr(result.matching.sparse.strat <- fullmatch(result.sparse.within))
@@ -270,9 +270,9 @@ on the dense distance problem. In addition to fixing the minimum and maximum
 number of controls per matched set to 1, the **pairmatch** function inspects the
 distance object to set appropriate values for **omit.fraction**, the
 argument that allows a portion of the control group to be discarded.
-Figure \@ref(fig:match-pairmatch) shows these profiling data.
+Figure 10 shows these profiling data.
 
-```{r match-pairmatch, echo=FALSE, fig.align="center", fig.cap="Profiling diagram for dense matrix pairmatching for `N =` `r N` units."}
+```{r match-pairmatch, echo=FALSE, fig.align="center", fig.cap="Figure 10. Profiling diagram for dense matrix pairmatching for `N =` `r N` units."}
 profvis(result.matching.pairmatch <- pairmatch(result.dense))
 
 # benchmark.matching.pairmatch <- profr(result.matching.pairmatch <- pairmatch(result.dense))
@@ -301,7 +301,7 @@ DATA <- data.frame(Z = rbinom(N, size = 1, prob = plogis(logits)), X)
 model <- glm(Z ~ X1 + X2 + X1:X3, data = DATA)
 ```
 
-```{r echo=FALSE, fig.align="center", fig.cap="{Profiling results for a stratified mdist distance problem."}
+```{r echo=FALSE, fig.align="center", fig.cap="Figure 11. Profiling results for a stratified mdist distance problem."}
 profvis(result.mdist <- mdist(model, structure.fmla = ~ X3), interval = 0.001)
 ```
 
@@ -331,13 +331,13 @@ times <- data.frame(k = Ks, times)
 
 This section considers how the two functions scale up as the problem size gets
 bigger. We create problems sets of size `N = 2K` with `K` treatment and `K`
-control units. Figure \@ref(fig:scaling) shows the run time of the two functions as `K` is
+control units. Figure 12 shows the run time of the two functions as `K` is
 increased. The `y` axis is logged showing that both methods grow roughly
 quadratically, as we would expect from the nature of the algorithms. Of
 course, the absolute run time of **match_on** is orders of magnitude
 worse.
 
-```{r scaling, echo=FALSE, fig.align="center", fig.cap="Run times for increasingly large problems for the **match_on** (red) and **mdist** (blue) functions."}
+```{r scaling, echo=FALSE, fig.align="center", fig.cap="Figure 12. Run times for increasingly large problems for the **match_on** (red) and **mdist** (blue) functions."}
 # plot(match_on ~ k, data = times, type = 'l', col = "red", log = "y")
 # lines(mdist ~ k, data = times, col = "blue", log = "y")
 plot(match_on ~ k, data = times, type = 'l', col = "red", log = "y")
