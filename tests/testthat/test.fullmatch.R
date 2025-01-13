@@ -688,6 +688,21 @@ test_that('Hints accepted',{
   expect_silent(f1d  <- fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1))
   expect_is(attr(f1d, "MCFSolutions"), "FullmatchMCFSolutions")
   expect_silent(fullmatch(t(mosc), min.c=.5, max.c=2, data = data, tol=0.1, hint=f1d))
+
+  # hint has different subgroups, is ignored.
+  set.seed(201905)
+  data <- data.frame(z = rep(0:1, each = 5),
+                     x = rnorm(10),
+                     fac=rep(c(rep("a",2), rep("b",3)),2),
+                     fac1=rep(c(rep("c",2), rep("d",3)),2))
+  mo  <- match_on(z ~ x + strata(fac1), data=data)
+  f1a <- fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.1)
+  mos <- match_on(z ~ x + strata(fac), data=data)
+
+  expect_warning(fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=f1a), "ignoring")
+
+
+
 })
 
 test_that("If matching fails, we should give a warning", {
