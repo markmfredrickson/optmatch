@@ -37,11 +37,22 @@ Alternatively, a precomputed distance may be entered.}
 \item{remove.unmatchables}{Should treatment group members for which there are
 no eligible controls be removed prior to matching?}
 
+\item{resolution}{Optional argument specifying subproblem-level
+resolution(s) to be passed to the solver.
+If there is only one subproblem, resolution must be specified
+as an unnamed list of length 1. If there are multiple subproblems, one
+must specify a named list, where the names correspond to a
+subproblem/group ID and the values are resolution values. Default is NULL}
+
 \item{...}{Additional arguments to pass to \code{\link{match_on}}
 (e.g. \code{within})) or to \code{\link{fullmatch}} (e.g. \code{tol}).
 It is an error to pass \code{min.controls},
 \code{max.controls}, \code{mean.controls} or \code{omit.fraction} as
 \code{pairmatch} must set these values.}
+
+\item{hint}{Optional argument specifying a hint to be passed to the solver.
+These should be provided as \code{optmatch} objects.
+Hints should have the same subproblem structure as the currently-specified problem.}
 }
 \value{
 A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.

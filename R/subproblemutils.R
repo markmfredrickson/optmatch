@@ -324,30 +324,3 @@ get_subproblem_info <- function(object, type)
     return(res)
   }
 }
-
-#' Parse hints for metadata
-#'
-#' @param full.hint
-#'
-#' @return
-#' @export
-#'
-#' @examples
-parse_hint_metadata <- function(full.hint)
-{
-  # assuming that the hint is not null
-  # also assuming existence of MCFSolutions object
-
-  groupids <- get_subproblem_info(full.hint, type = "groups")
-  feasibility <- get_subproblem_info(full.hint, type = "feasible")
-  names(feasibility) <- groupids
-  resolutions <- get_subproblem_info(full.hint, type = "resolution")
-  names(resolutions) <- groupids
-  regret_gap <- get_subproblem_info(full.hint, type = "primal_value") - get_subproblem_info(full.hint, type = "dual_value")
-  names(regret_gap) <- groupids
-
-  rl <- list(feasible = feasibility,
-       resolution = resolutions,
-       regret = regret_gap)
-  return(rl)
-}

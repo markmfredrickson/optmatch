@@ -143,8 +143,19 @@ an infeasible matching problem. When using a LEMON algorithm other than
 CycleCancelling, we recommend setting the \code{fullmatch_try_recovery}
 option to \code{FALSE}.}
 
+\item{resolution}{Optional argument specifying subproblem-level
+resolution(s) to be passed to the solver.
+If there is only one subproblem, resolution must be specified
+as an unnamed list of length 1. If there are multiple subproblems, one
+must specify a named list, where the names correspond to a
+subproblem/group ID and the values are resolution values. Default is NULL}
+
 \item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within})
 or to specific methods.}
+
+\item{hint}{Optional argument specifying a hint to be passed to the solver.
+These should be provided as \code{optmatch} objects.
+Hints should have the same subproblem structure as the currently-specified problem.}
 }
 \value{
 A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
