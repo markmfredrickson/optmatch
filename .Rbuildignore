@@ -8,6 +8,7 @@ check.R
 .pkgexclude
 vignettes/Sweave.sty
 vignettes/MCFSolutions.Rmd
+vignettes/performance.Rmd
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
