@@ -1,4 +1,6 @@
-## Changes in **optmatch** Version 0.10.7.9001
+## Changes in **optmatch** Version 0.10.8
+
+- Updates to internal C++ code.
 
 ## Changes in **optmatch** Version 0.10.7
 

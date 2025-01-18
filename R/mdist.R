@@ -88,6 +88,7 @@ mdist <- function(x, structure.fmla = NULL, ...) {
   .Deprecated("match_on")
   UseMethod("mdist", x)
 }
+#' @keywords internal
 getCall.optmatch.dlist <- function(x, ...) attr(x, "call")
 
 

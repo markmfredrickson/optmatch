@@ -2,9 +2,9 @@
 
 void rank(int n, const double * data, double * ranks) {
   double
-    * sorted = Calloc(n, double);
+    * sorted = R_Calloc(n, double);
   int
-    * order = Calloc(n, int);
+    * order = R_Calloc(n, int);
 
   memcpy(sorted, data, n * sizeof(double));
   for(int i = 0; i < n; i++)
@@ -15,15 +15,15 @@ void rank(int n, const double * data, double * ranks) {
   for(int i = 0; i < n; i++)
     ranks[order[i]] = i + 1.0;
 
-  Free(order);
-  Free(sorted);
+  R_Free(order);
+  R_Free(sorted);
 }
 
 bool rerank_dups(int n, const double * data, double * ranks) {
     int
       j, ndups,
-      * dup_idx = Calloc(n, int),
-      * visited = Calloc(n, int);
+      * dup_idx = R_Calloc(n, int),
+      * visited = R_Calloc(n, int);
     double mean_rank;
     bool any_ties = false;
 
@@ -46,8 +46,8 @@ bool rerank_dups(int n, const double * data, double * ranks) {
         for(j = 0; j < ndups; j++)
             ranks[dup_idx[j]] = mean_rank;
     }
-    Free(dup_idx);
-    Free(visited);
+    R_Free(dup_idx);
+    R_Free(visited);
     return any_ties;
 }
 
@@ -70,7 +70,7 @@ double cov(int n, const double * x, const double * y) {
 }
 
 double var(int n, const double * x) {
-  return cov(n, x, x);    
+  return cov(n, x, x);
 }
 
 /*  implements the following R code in C
@@ -79,14 +79,14 @@ double var(int n, const double * x) {
     cv <- diag(rat) %*% cv %*% diag(rat)
 */
 void adjust_ties(int nr, int nc, double * covs) {
-  double * seq = Calloc(nr, double);
+  double * seq = R_Calloc(nr, double);
   for(int i = 0; i < nr; i++)
     seq[i] = i + 1.0;
 
   double vuntied = var(nr, seq);
-  Free(seq);
+  R_Free(seq);
 
-  double * rat = Calloc(nc, double);
+  double * rat = R_Calloc(nc, double);
   for(int i = 0; i < nc; i++)
     rat[i] = sqrt(vuntied / covs[i * nc + i]);
 
@@ -96,7 +96,7 @@ void adjust_ties(int nr, int nc, double * covs) {
       covs[i * nc + j] = covs[j * nc + i] = elt;
     }
   }
-  Free(rat);
+  R_Free(rat);
 }
 
 void transpose_sq(int n, double * mat) {
@@ -132,28 +132,28 @@ void ginv_square(double * square_mat, int n) {
     int
       info,
       work_size = 4 * n * n + 7 * n,
-      * iwork = Calloc(8 * n, int);
+      * iwork = R_Calloc(8 * n, int);
     double
-      * s = Calloc(n, double),
-      * u = Calloc(n * n, double),
-      * vt = Calloc(n * n, double),
-      * work = Calloc(work_size, double);
+      * s = R_Calloc(n, double),
+      * u = R_Calloc(n * n, double),
+      * vt = R_Calloc(n * n, double),
+      * work = R_Calloc(work_size, double);
 
     F77_CALL(dgesdd)(&jobz, &n, &n, square_mat, &n, s, u, &n, vt, &n,
 		     work, &work_size, iwork, &info FCONE);
-    Free(work);
-    Free(iwork);
+    R_Free(work);
+    R_Free(iwork);
 
     if(info != 0) {
-      Free(u);
-      Free(vt);
-      Free(s);
+      R_Free(u);
+      R_Free(vt);
+      R_Free(s);
     }
 
     if(info < 0)
-      error("dgesdd: problem with one of the arguments");
+      Rf_error("dgesdd: problem with one of the arguments");
     else if(info > 0)
-      error("dgesdd: dbdsdc did not converge, updating process failed");
+      Rf_error("dgesdd: dbdsdc did not converge, updating process failed");
 
     double
       smax = dmax(n, s),
@@ -177,15 +177,15 @@ void ginv_square(double * square_mat, int n) {
     F77_CALL(dgemm)(&transa, &transb, &n, &n, &n,
 		    &alpha, vt, &n, u, &n,
 		    &beta, square_mat, &n FCONE FCONE);
-    Free(u);
-    Free(vt);
-    Free(s);
+    R_Free(u);
+    R_Free(vt);
+    R_Free(s);
 }
 
 void mahalanobis(int nr, int nc, const double * x, const double * center,
 		 const double * icov, double * distances)
 {
-  double * recentered = Calloc(nr * nc, double);
+  double * recentered = R_Calloc(nr * nc, double);
   for(int i = 0; i < nr; i++) {
     for(int j = 0; j < nc; j++)
       recentered[j * nr + i] = x[j * nr + i] - center[j];
@@ -195,7 +195,7 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
     transa = 'N', transb = 'N';
   double
     alpha = 1.0, beta = 0.0,
-    * mat_mult = Calloc(nr * nc, double);
+    * mat_mult = R_Calloc(nr * nc, double);
 
   F77_CALL(dgemm)(&transa, &transb, &nr, &nc, &nc,
 		  &alpha, recentered, &nr, icov, &nc,
@@ -204,7 +204,7 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
   for(int i = 0; i < nr * nc; i++)
     mat_mult[i] *= recentered[i];
 
-  Free(recentered);
+  R_Free(recentered);
 
   // compute row sums of mat_mult for answer
   for(int i = 0; i < nr; i++) {
@@ -214,14 +214,14 @@ void mahalanobis(int nr, int nc, const double * x, const double * center,
     }
     distances[i] = sum;
   }
-  Free(mat_mult);
+  R_Free(mat_mult);
 }
 
 DMAT * smahal(int nr, int nc, double * data, int * z) {
     double
       * col_i,
-      * ranks = Calloc(nr * nc, double),
-      * ranks_i = Calloc(nr, double);
+      * ranks = R_Calloc(nr * nc, double),
+      * ranks_i = R_Calloc(nr, double);
 
     bool
       tie,
@@ -235,16 +235,16 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
       any_ties = tie || any_ties;
       memcpy(col_i, ranks_i, nr * sizeof(double));
     }
-    Free(ranks_i);
+    R_Free(ranks_i);
 
-    double * covs_inv = Calloc(nc * nc, double);
+    double * covs_inv = R_Calloc(nc * nc, double);
     for(int i = 0; i < nc; i++) {
       for(int j = i; j < nc; j++) {
 	  covs_inv[i * nc + j] = covs_inv[j * nc + i] =
 	    cov(nr, ranks + i * nr, ranks + j * nr);
       }
     }
-    if(any_ties == true) adjust_ties(nr, nc, covs_inv);    
+    if(any_ties == true) adjust_ties(nr, nc, covs_inv);
     ginv_square(covs_inv, nc);
 
     int ncontrol, ntreat = 0;
@@ -255,8 +255,8 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
     ncontrol = nr - ntreat;
 
     double
-      * ranks_control = Calloc(ncontrol * nc, double),
-      * ranks_treat = Calloc(ntreat * nc, double);
+      * ranks_control = R_Calloc(ncontrol * nc, double),
+      * ranks_treat = R_Calloc(ntreat * nc, double);
 
     int
       c_treat_row = 0, c_control_row = 0;
@@ -272,16 +272,16 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
       }
     }
 
-    DMAT * out_distances = Calloc(1, DMAT);
+    DMAT * out_distances = R_Calloc(1, DMAT);
     if(out_distances == NULL)
-      error("smahal:out_distances:NULL Calloc\n");
+      Rf_error("smahal:out_distances:NULL R_Calloc\n");
 
-    out_distances->data = Calloc(ntreat * ncontrol, double);
+    out_distances->data = R_Calloc(ntreat * ncontrol, double);
     out_distances->nr = ntreat;
     out_distances->nc = ncontrol;
 
-    double * out_row_i = Calloc(ncontrol, double);
-    double * treat_row_i = Calloc(nc, double);
+    double * out_row_i = R_Calloc(ncontrol, double);
+    double * treat_row_i = R_Calloc(nc, double);
 
     for(int i = 0; i < ntreat; i++) {
       for(int j = 0; j < nc; j++)
@@ -293,12 +293,12 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
 	out_distances->data[i + j * ntreat] = out_row_i[j];
     }
 
-    Free(treat_row_i);
-    Free(ranks_control);
-    Free(ranks_treat);
-    Free(out_row_i);
-    Free(covs_inv);
-    Free(ranks);
+    R_Free(treat_row_i);
+    R_Free(ranks_control);
+    R_Free(ranks_treat);
+    R_Free(out_row_i);
+    R_Free(covs_inv);
+    R_Free(ranks);
 
     return out_distances;
 }
