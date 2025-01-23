@@ -144,7 +144,6 @@ fmatch <- function(distance,
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
-    #browser()
     ####
     nodes  <- new("NodeInfo",
                   data.frame(name=c(row.units, col.units,

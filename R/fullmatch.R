@@ -515,7 +515,6 @@ fullmatch.matrix <- function(x,
   # input error checking happens in the public fullmatch function.
   .fullmatch <- function(d, mnctl, mxctl, omf, hint = NULL, solver,
                           flipped, epsilon.in) {
-
     # if the subproblem is completely empty, short circuit
     if (length(d) == 0 || all(is.infinite(d))) {
       x <- dim(d)
@@ -536,7 +535,8 @@ fullmatch.matrix <- function(x,
                                 min.cpt = mnctl,
                                 solver = solver,
                                 omit.fraction = if(!is.na(omf)) { omf.calc }, # passes NULL for NA
-                                epsilon = epsilon.in)
+                                epsilon = epsilon.in,
+                                try_solver = FALSE)
       tmp <- list(cells = c(cells.a, cells.b), err = -1,
                   MCFSolution = stemp[["MCFSolution"]])
       return(tmp)
