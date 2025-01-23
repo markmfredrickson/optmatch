@@ -209,7 +209,8 @@ test_that("Indicating failing subproblems", {
   spS <- subproblemSuccess(f1)
   mf <- matchfailed(f1)
   expect_true(all(spS == FALSE))
-  expect_equal(names(spS), "1")
+  # changing this from "1" to "" in the "nodeprices" branch. Making (temporary?) decision that when there are no subproblems, the group name is blank, rather than "1".
+  expect_equal(names(spS), "")
   expect_is(mf, "logical")
   expect_length(mf, nrow(nuclearplants))
   expect_true(all(mf == TRUE))
