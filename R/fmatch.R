@@ -33,7 +33,7 @@ fmatch <- function(distance,
                    min.col.units = 1,
                    f = 1,
                    node_info,
-                   solver) {
+                   solver, try_solver = TRUE) {
   # checks solver and evaluates LEMON() if neccessary
   solver <- handleSolver(solver)
 
@@ -48,17 +48,17 @@ fmatch <- function(distance,
   mxc <- as.integer(round(max.col.units))
   mnc <- as.integer(round(min.col.units))
   mxr <- as.integer(round(max.row.units))
-
   if (mnc > 1) {
     mxr <- 1L
   }
 
+
   # Check that matching problem is well-specified
-  if (mxc < mnc) {
+  if (  (mxc < mnc) && try_solver ){
     stop("min.col.units may not exceed max.col.units")
   }
 
-  if (any(c(mxc, mnc, mxr) < 1)) {
+  if ((any(c(mxc, mnc, mxr) < 1)) && try_solver) {
     stop("max and min constraints must be 1 or greater")
   }
 
@@ -89,13 +89,13 @@ fmatch <- function(distance,
       distance[['dist']][nadists]  <- replacement
   }
 
-  if (mxr > 1) # i.e. many-one matches permissible
+  if (mxr > 1 && try_solver) # i.e. many-one matches permissible
   {
       if (any(distance[['dist']] <= 0))
           stop("Nonpositive discrepancies not compatible with full matching\n (see Hansen & Klopfer, 2006 JCGS, sec.4.1).")
       } else if (any(distance[['dist']] < 0)) stop("distance should be nonnegative")
 
-  if (!is.numeric(f) | f > 1 | f < 0) {
+  if ((!is.numeric(f) | f > 1 | f < 0) && try_solver)  {
     stop("f must be a number in [0,1]")
   }
 
@@ -137,19 +137,102 @@ fmatch <- function(distance,
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
-  if ( (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
+  if ( !try_solver | # this is admittedly a nasty workaround. There are various error checks that occur at different levels of the call stack and this allows us to bypass some of those more easily so that we can return an MCFSolutions object. In practice, we are using this option to ignore infeasibility checks so that we can proceed to create an MCFSolutions
+       (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
        (mxr==1L & nt * mnc > n.mc) | #min.col.units too high
        (nt * mxc < n.mc)) { #max.col.units too low
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
+    ####
+    nodes  <- new("NodeInfo",
+                  data.frame(name=c(row.units, col.units,
+                                    "(_End_)", "(_Sink_)"),# note that `factor()` would put these at start not end of levels
+                             price=0L,
+                             upstream_not_down=c(rep(TRUE, nt), rep(FALSE, nc), NA, NA),
+                             supply=c(rep(mxc, nt), rep(0L, nc),
+                                      -(mxc * nt - n.mc), -n.mc),
+                             groups=factor(rep(NA_character_, nt+nc+2L)),
+                             stringsAsFactors=FALSE
+                  )
+    )
+
+    endID <- nt + nc + 1L
+    sinkID <- endID + 1L
+    node.labels(nodes)  <- nodes[['name']] # new convention per i166
+
+    if ( !all(node_info[['price']]==0) )
+    {
+      nodes[,'price']  <- node_info[match(c(row.units, col.units,
+                                            "(_End_)", "(_Sink_)"),
+                                          node_info$name),
+                                    'price']
+      ## if a col unit doesn't have a match w/in node_info$name, then
+      ## its nodes row now has a 0 for its price. Replace that w/ min of
+      ## bookkeeping node prices may preserve CS in some cases.
+      if (length(col.noprice  <- setdiff(col.units, node_info[['name']])))
+        nodes[nodes[['name']] %in% col.noprice, 'price']  <-
+          min(node_info[match(c("(_End_)", "(_Sink_)"), node_info$name),
+                        'price', drop=TRUE]
+          )
+    }
+    # ID numbers implicitly point to corresp. row of nodes
+    ####    Arcs involving End or Sink nodes   ####
+    # There are multiple cases where the solver is NOT called because the problem is clearly infeasible. This makes it difficult to always return an MCFSolutions object. When the solver is called, we can create all of the various constituent parts of the MCFSolutions object without much trouble, although we must paper over certain things, like setting flow = capacity = 0. However, when the solver is not called, we have to make up an arbitrary MCFSolutions object to return. Because of the restrictions on the classes, this is currently being done in a very hacky way. Long term, we would want to consider the expectations for those classes, perhaps change the defaults or class structure somehow. For instance, what should we return when the subproblem is entirely empty?
+
+    # At the moment there are really no guarantees about what can be found in these tables, aside from the subproblems table which should contain a correct specification of feasibility.
+
+    if (nt == 0 && nc == 0) # edge case where subproblem is completely empty. In order to return an MCFSolutions object, I am violating some rules. Specifically, flow and capacity are all set to zero. Matches now includes sink and end nodes because the current classes prohibit empty data frames being returned/appended at the end.
+    {
+
+      bookkeeping <- data.frame(groups = factor(),
+                                start = factor(levels = 1L:2L,
+                                               labels = node.labels(nodes)),
+                                end = factor(levels = 1L:2L,
+                                             labels = node.labels(nodes)),
+                                flow = integer(),
+                                capacity = integer())
+
+      matches  <- data.frame(groups=factor(),
+                             upstream=factor(levels=node.labels(nodes)),
+                             downstream=factor(levels=node.labels(nodes)))
+
+
+    } else { #This is another edge case where the solver is never called. However, in this case, the subproblem is not empty, so we can use most of the existing logic fairly easily.
+
+      bookkeeping <- data.frame(groups = factor(),
+                                start = factor(levels = 1L:(nt + nc + 2),
+                                               labels = node.labels(nodes)),
+                                end = factor(levels = 1L:(nt + nc + 2),
+                                            labels = node.labels(nodes)),
+                                flow = integer(),
+                                capacity = integer())
+
+      matches  <- data.frame(groups=factor(),
+                             upstream=factor(levels=node.labels(nodes)),
+                             downstream=factor(levels=node.labels(nodes))
+      )
+    }
+
+
+
+    arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
+    #arcs  <- new("ArcInfo")
+    sp  <- new("SubProbInfo")
+    sp[1L, "feasible"]  <- FALSE
+    sp[1L, "solver"]  <- ""
+    fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
+                  nodes=nodes, arcs=arcs)
     return(c(
       out,
       list(maxerr = 0),
-      list(MCFSolution = NULL)
+      list(MCFSolution = fmcfs)
     ))
-  }
 
+  }
+  ## after this point, one of the solvers will be called.
+  ## That is, the problem is not recognizably infeasible prior to calling the solver.
+  ## The logic for constructing MCFSolutions is much more straightforward from this point forward
   ##  Min-Cost-Flow representation of problem  ####
   ## Each node has a integer ID number, implicitly pointing
   ## to corresponding row of this data frame.
@@ -232,7 +315,6 @@ fmatch <- function(distance,
                                 algorithm = algorithm)
     x <- as.numeric(lout[[1]])
     nodes[, "price"] <- lout[[2]]
-
     nodes[, "price"] <- (nodes[, "price"] - nodes[, "price"][endID]) * -1
 
     if (lout[[4]] != "OPTIMAL" || all(x == -1)) {
@@ -254,9 +336,7 @@ fmatch <- function(distance,
 
 
     ## Material used to create s3 optmatch object:
-    feas <- fop$feasible1
-    x <- feas * fop$x1
-
+    x <- fop$feasible1 * fop$x1
     #### Recover node prices, store in nodes table ##
     ## In full matching, each upstream (row) or downstream (column) node starts
     ## an arc ending at End, and these are also the only arcs ending there. End
@@ -291,8 +371,6 @@ fmatch <- function(distance,
   obj <- as.data.frame(distance, row.names = NULL)
   obj$solution <-  x[seq.int(from=min(1L, narcs), to=narcs)]
 
-
-
   ### Recover arc flow info, store in `arcs` ###
   ## info extracted from problem solution:
   matches  <- distance[as.logical(x[1L:narcs]), c("i", "j")]
@@ -317,7 +395,9 @@ fmatch <- function(distance,
   arcs  <- new("ArcInfo", matches=matches, bookkeeping=bookkeeping)
 
   sp  <- new("SubProbInfo")
-  sp[1L, "feasible"]  <- TRUE
+  # If any solver is called, feasibility is now determined only in this location. We know that the solver was called, but we must check to see if the problem was feasible.
+  sp[1L, "feasible"]  <- any(x == 1L)
+  sp[1L, "solver"]  <- solver
   fmcfs  <- new("FullmatchMCFSolutions", subproblems=sp,
                 nodes=nodes, arcs=arcs)
   return(c(obj,

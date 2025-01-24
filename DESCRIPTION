@@ -86,6 +86,7 @@ Collate:
     'solver.R'
     'strata.R'
     'stratumStructure.R'
+    'subproblemutils.R'
     'summary.ism.R'
     'summary.optmatch.R'
     'utilities.R'

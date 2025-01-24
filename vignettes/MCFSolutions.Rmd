@@ -12,6 +12,7 @@ vignette: >
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, prompt=TRUE)
 library(magrittr)
+library(optmatch)
 ```
 
 # Overview
@@ -217,3 +218,71 @@ Return object of a new S4 class, `Optmatch`, inheriting from factor as well as f
 - `c()` for `MCFSolutions`: `rbind()`s the various constituent data frames, enforcing req's that subproblems have distinct names, de-duping bookkeeping nodes and enforcing requirement that non-bookkeeping nodes' names be distinct.
 - `addArcs()` for `MCFSolutions` objects
 - `addNodes()` for `MCFSolutions` objects
+
+# Expectations for MCFSolutions objects
+
+As of 1/13/2025 in the `nodeprices` branch, MCFSolutions are now always returned from a `fullmatch()` or `pairmatch()` call, regardless of feasibility. Users can rely on subproblem and node price information being returned via the "subproblems" and "nodes" slots, respectively. This information is always present, regardless of feasibility. Information in the "nodes" slot is returned to the best of the program's ability. If a subproblem is feasible, then the results of that computation are returned. If the subproblem is infeasible, then there are two possibilities for what gets returned. If the subproblem was determined to be infeasible before being passed to the solver, then the results from `node_shell_fmatch()` are returned. If the subproblem is passed to the solver, then the results from the solver are returned. 
+
+The helper function `get_subproblem_info()` has been added to facilitate the extraction of subproblem level data. This is intended to help make warm start and hinting functionality more accessible to users. Users can extract a mapping of units and their corresponding subproblem ID with the following:
+
+```{r}
+data(nuclearplants)
+f1 <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants)
+get_subproblem_info(object = f1, type = "subproblem")
+```
+Users can also extract information from the subproblems table by specifying one or more of the column names from the "subproblems" table associated with an MCFSolutions object (e.g. "resolution").
+
+```{r}
+get_subproblem_info(object = f1, type = c("resolution", "groups"))
+```
+
+
+# Hinting 
+
+As of 1/13/2025 in the `nodeprices` branch, a number of hinting and warm-starting features are available to users. Users can provide a result from `fullmatch()` or `pairmatch()` to a new, similar specification in order to provide a "warm start" to the solver. These hints are provided via an optional argument to `pairmatch()` and `fullmatch()` called `hint`. These previous solutions must have the same units and an identical subgroup/subproblem structure to the current specification, but other parameters are allowed to be different. For instance, tolerance values may differ. 
+
+In the following example, we provide a hint that differs from a given specification by the `tol` value. So, the hint is valid:
+```{r}
+set.seed(201905)
+data <- data.frame(z = rep(0:1, each = 5),
+                   x = rnorm(10), fac=rep(c(rep("a",2), rep("b",3)),2) )
+mo  <- match_on(z ~ x, data=data)
+fm <- fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.1)
+fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.0001, hint=fm)
+```
+
+However, in the following example, the hint and new specification have different subproblem structures. The hint is then ignored and a warning is thrown. In general, if subproblem information does not match across hints and specifications, the hint is ignored. 
+
+```{r}
+set.seed(201905)
+data <- data.frame(z = rep(0:1, each = 5),
+                   x = rnorm(10),
+                   fac=rep(c(rep("a",2), rep("b",3)),2),
+                   fac1=rep(c(rep("c",2), rep("d",3)),2))
+mo  <- match_on(z ~ x + strata(fac1), data=data)
+fm <- fullmatch(mo, min.c=.5, max.c=2, data = data, tol=0.1)
+mos <- match_on(z ~ x + strata(fac), data=data)
+
+fullmatch(mos, min.c=.5, max.c=2, data = data, tol=0.1, hint=fm)
+```
+
+## Subproblem Level Resolution Specification
+
+Users can also provide subproblem level resolution values, which are then passed down to the solver. These are provided via an argument to `fullmatch()` and/or `pairmatch()` called `resolution`. This argument must take the form of a list. If there is only one subproblem in the current specification and users wish to specify a resolution value, then users must provide an unnamed list with the resolution value: 
+
+```{r}
+d <- data.frame(position = rep(1:4, each = 4),
+                z = rep(0:1, 8),
+                rownames=letters[1:16])
+dist <- match_on(z ~ position, inv.scale.matrix = diag(1), data=d)
+res.mat <- fullmatch(dist, data=d, resolution = list(.1))
+```
+
+If the specification has more than one subproblem and users wish to provide resolution values(s), users must provide a named list to the `resolution` argument. The names of elements must correspond to a valid subproblem/group ID, and the elements are numeric values indicating the desired resolution value to be passed to the solver. 
+
+```{r}
+data(nuclearplants)
+res.custom <- list("0" = 0.001142857, "1" = 0.001)
+fullmatch(pr ~ cost + strata(pt), data=nuclearplants, resolution = res.custom)
+```
+

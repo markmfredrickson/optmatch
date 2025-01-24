@@ -68,10 +68,13 @@ maxControlsCap <- function(distance, min.controls = NULL, solver = "")
     nodes  <- nodes_shell_fmatch(rownames = trnl, colnames = tcnl)
     t_nodes  <- nodes_shell_fmatch(rownames = tcnl, colnames = trnl)
     # FEASIBILITY CHECK -- temp depends on whether problem requires flipping
-    temp <- solve_reg_fm_prob(node_info=nodes, distspec = tdm,
-      max.cpt = min(tlmxc, ncol),
-      min.cpt = max(tgmnc, 1/nrow), tolerance=.5,
-      omit.fraction = NULL, solver = solver)
+    temp <- solve_reg_fm_prob(node_info=nodes,
+                              distspec = tdm,
+                              max.cpt = min(tlmxc, ncol),
+                              min.cpt = max(tgmnc, 1/nrow),
+                              tolerance=.5,
+                              omit.fraction = NULL,
+                              solver = solver)
 
     # IF THE PROBLEM IS FEASIBLE, SET TLMXC TO GREATEST OBTAINED
     # RATIO OF CONTROLS TO TREATED UNITS.  THIS MAY BE MUCH LESS THAN

@@ -5,9 +5,23 @@
 \alias{pair}
 \title{Optimal 1:1 and 1:k matching}
 \usage{
-pairmatch(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
+pairmatch(
+  x,
+  controls = 1,
+  data = NULL,
+  remove.unmatchables = FALSE,
+  resolution = NULL,
+  ...
+)
 
-pair(x, controls = 1, data = NULL, remove.unmatchables = FALSE, ...)
+pair(
+  x,
+  controls = 1,
+  data = NULL,
+  remove.unmatchables = FALSE,
+  resolution = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{Any valid input to \code{match_on}. If \code{x} is a numeric vector,
@@ -23,11 +37,22 @@ Alternatively, a precomputed distance may be entered.}
 \item{remove.unmatchables}{Should treatment group members for which there are
 no eligible controls be removed prior to matching?}
 
+\item{resolution}{Optional argument specifying subproblem-level
+resolution(s) to be passed to the solver.
+If there is only one subproblem, resolution must be specified
+as an unnamed list of length 1. If there are multiple subproblems, one
+must specify a named list, where the names correspond to a
+subproblem/group ID and the values are resolution values. Default is NULL}
+
 \item{...}{Additional arguments to pass to \code{\link{match_on}}
 (e.g. \code{within})) or to \code{\link{fullmatch}} (e.g. \code{tol}).
 It is an error to pass \code{min.controls},
 \code{max.controls}, \code{mean.controls} or \code{omit.fraction} as
 \code{pairmatch} must set these values.}
+
+\item{hint}{Optional argument specifying a hint to be passed to the solver.
+These should be provided as \code{optmatch} objects.
+Hints should have the same subproblem structure as the currently-specified problem.}
 }
 \value{
 A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
@@ -126,6 +151,19 @@ m5 <- pairmatch(glm(pr ~ t1 + t2 + strata(pt), data=nuclearplants,
 # Including `strata(foo)` inside a glm uses `foo` in the model as
 # well, so here m4 and m5 are equivalent. m3 differs in that it does
 # not include `pt` in the glm.
+
+# Pair matching, then using the results as a hint for a
+# similar problem that differs by tolerance
+p_init <- pairmatch(pr ~ cost + t1, tol = .01,
+                data = nuclearplants)
+
+p_hint <- pairmatch(pr ~ cost + t1, tol = .001,
+                data = nuclearplants, hint = p1)
+
+# Specifying subproblem level resolution values
+res.custom <- list("0" = 0.001142857, "1" = 0.001)
+p_reso <- pairmatch(pr ~ cost + strata(pt), data=nuclearplants,
+          resolution = res.custom)
 }
 \references{
 Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{Optimal full matching

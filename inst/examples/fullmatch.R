@@ -51,3 +51,16 @@ m5 <- fullmatch(glm(pr ~ t1 + t2 + strata(pt), data=nuclearplants,
 # Including `strata(foo)` inside a glm uses `foo` in the model as
 # well, so here m4 and m5 are equivalent. m3 differs in that it does
 # not include `pt` in the glm.
+
+# Full matching, then using the results as a hint for a
+# similar problem that differs by tolerance
+fm_init <- fullmatch(pr ~ t1 + t2, tol = .01,
+                 data = nuclearplants)
+
+fm_hint <- fullmatch(pr ~ t1 + t2, tol = .001,
+                 data = nuclearplants, hint = fm1)
+
+# Specifying subproblem level resolution values
+res.custom <- list("0" = 0.001142857, "1" = 0.001)
+fm_reso <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants,
+          resolution = res.custom)

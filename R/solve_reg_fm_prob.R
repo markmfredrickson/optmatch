@@ -21,27 +21,31 @@
 ##* @param distspec InfinitySparseMatrix, matrix, etc (must have a `prepareMatching()` method)
 ##* @param min.cpt double, minimum permissible ratio of controls per treatment
 ##* @param max.cpt double, maximum permissible ratio of controls per treatment
-##* @param tolerance
+##* @param solver
+##* @param epsilon double, grid width
 ##* @param omit.fraction
+##* @param try_solver Logical. This is a temporary parameter allowing us to work around some of the error checking happening at different points in order to recognize infeasible subproblems but still return an MCFSolutions object with an explicit indication of feasibility.
 ##* @return
 ##* @keywords internal
 
 solve_reg_fm_prob <- function(node_info,
-                              distspec,
-                              min.cpt,
-                              max.cpt,
-                              tolerance,
-                              omit.fraction=NULL,
-                              solver) {
+                               distspec,
+                               min.cpt,
+                               max.cpt,
+                               omit.fraction=NULL,
+                               solver,
+                               epsilon = NULL,
+                               tolerance = NULL,
+                               try_solver = TRUE) {
 
   if (min.cpt <=0 | max.cpt<=0) {
     stop("inputs min.cpt, max.cpt must be positive")
   }
-    stopifnot(is(node_info, "NodeInfo"))
-    rownames   <- subset(node_info[["name"]], node_info[['upstream_not_down']])
-    colnames   <- subset(node_info[["name"]], !node_info[['upstream_not_down']])
-    nrows  <- length(rownames)
-    ncols  <- length(colnames)
+  stopifnot(is(node_info, "NodeInfo"))
+  rownames   <- subset(node_info[["name"]], node_info[['upstream_not_down']])
+  colnames   <- subset(node_info[["name"]], !node_info[['upstream_not_down']])
+  nrows  <- length(rownames)
+  ncols  <- length(colnames)
   if (!all(rownames %in% dimnames(distspec)[[1]])) {
     stop("node_info rownames must be rownames for \'distspec\'")
   }
@@ -55,27 +59,25 @@ solve_reg_fm_prob <- function(node_info,
     stop("Argument \'distspec\' must have a \'edgelist\' method")
   }
 
-  # convert the distspec to cannonical EdgeList
   dm <- edgelist(distspec, c(rownames, colnames))
 
-
   matchable_nodes_info  <-
-      filter(node_info,
-             is.na(node_info[['upstream_not_down']]) | #retail bookkeeping nodes
+    filter(node_info,
+           is.na(node_info[['upstream_not_down']]) | #retail bookkeeping nodes
              is_matchable(node_info[['name']], dm, "either")
-             )
+    )
   rfeas  <- sum( matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
   cfeas  <- sum(!matchable_nodes_info[['upstream_not_down']], na.rm=TRUE)
   ## Update `omit.fraction`:
   if (cfeas < ncols & is.numeric(omit.fraction) && omit.fraction >0) {
-      original_number_to_omit <- omit.fraction*ncols
-      number_implicitly_omitted_already <- ncols - cfeas
-      omit.fraction <-
-          (original_number_to_omit - number_implicitly_omitted_already)/cfeas
-      ## If the number to be omitted is less than the number of unmatchable
-      ## columns, ncols - cfeas, then this omit.fraction can be negative.  Then
-      ## we just omit a few more than directed by the supplied omit.fraction:
-      if (omit.fraction <= 0) omit.fraction <- NULL
+    original_number_to_omit <- omit.fraction*ncols
+    number_implicitly_omitted_already <- ncols - cfeas
+    omit.fraction <-
+      (original_number_to_omit - number_implicitly_omitted_already)/cfeas
+    ## If the number to be omitted is less than the number of unmatchable
+    ## columns, ncols - cfeas, then this omit.fraction can be negative.  Then
+    ## we just omit a few more than directed by the supplied omit.fraction:
+    if (omit.fraction <= 0) omit.fraction <- NULL
   }
 
   if (is.null(omit.fraction)) {
@@ -86,28 +88,32 @@ solve_reg_fm_prob <- function(node_info,
     }
     f.ctls <- 1-omit.fraction
   }
-
-    if (floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
-        ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
-        !rfeas |  !cfeas  # either no controls or no treatments
-        )
+  if (!try_solver |
+      floor(min.cpt) > ceiling(max.cpt) |     #inconsistent max/min
+      ceiling(1/min.cpt) < floor(1/max.cpt) | #controls per treatment
+      !rfeas |  !cfeas  # either no controls or no treatments
+  )
   {
     ans <- rep(NA_integer_, nrows + ncols)
     names(ans) <- c(rownames, colnames)
-    return(list(cells=ans, err=0, MCFSolution=NULL))
+    #engaging in some questionable practices here, but short circuiting doubleSolve to generate a placeholder MCFSolutions object to return. Everything except the subproblems table is suspect.
+    stmp <- doubleSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info,
+                rfeas, cfeas, epsilon, solver, try_solver = FALSE)
+    return(list(cells = ans, err=0, MCFSolution=stmp[["MCFSolution"]]))
   }
 
-
-    old.o <- options(warn=-1)
-    epsilon_lower_lim  <- max(dm$'dist')/(.Machine$integer.max/64 -2)
-    epsilon <- if (tolerance>0 & rfeas>1 & cfeas>1) {
-                max(epsilon_lower_lim, tolerance/(rfeas + cfeas - 2))
-            } else epsilon_lower_lim
-    options(old.o)
 
   if (all(abs(dm$'dist'- 0) < sqrt(.Machine$double.eps))) {
     dm$'dist'  <- rep(1L, length(dm$'dist')) # so we'll be routed to intSolve()
   }
+
+  if (!is.null(tolerance) && is.null(epsilon)) { #if tolerance is provided rather than epsilon, calculate epsilon
+    epsilon <- calculate_epsilon(rfeas = rfeas,
+                      cfeas = cfeas,
+                      tolerance = tolerance,
+                      maxdist = max(dm$'dist'))
+  }
+
   temp <-
     if (is.integer(dm$'dist')) {
       intSolve(dm, min.cpt, max.cpt, f.ctls, matchable_nodes_info, solver)
@@ -124,10 +130,10 @@ solve_reg_fm_prob <- function(node_info,
   names(ans) <- c(rownames, colnames)
   ans[names(matches)] <- matches
 
-    if (!is.null(temp[["MCFSolution"]]))
-        {
+
+  if (!temp[["MCFSolution"]]@subproblems[1L, "feasible"]) #this logic takes the place of something that would check to see if the MCFSolution was NULL. I'm not 100% sure these things are interchangeable but it does pass tests for the time being
+  {
             temp[["MCFSolution"]]@subproblems[1L, "exceedance"]  <- temp$maxerr
-            temp[["MCFSolution"]]@subproblems[1L, "feasible"]  <- any(temp$solutions==1L)
 
             ## Presently we can treat this subproblem as non-flipped even if it was,
             ## since `dm` will have been transposed in the event of flipping.  Doing
@@ -137,23 +143,23 @@ solve_reg_fm_prob <- function(node_info,
             ## where that transposition was made.
             temp[["MCFSolution"]]@subproblems[1L, "flipped"]  <- FALSE
             ## ... and now we can proceed with:
-            evaluate_lagrangian(dm, temp[["MCFSolution"]]) ->
-                temp[["MCFSolution"]]@subproblems[1L, "lagrangian_value"]
+            evaluate_primal(dm, temp[["MCFSolution"]]) ->
+                temp[["MCFSolution"]]@subproblems[1L, "primal_value"]
             evaluate_dual(dm, temp[["MCFSolution"]]) ->
                 temp[["MCFSolution"]]@subproblems[1L,   "dual_value"    ]
             nodeinfo(temp[["MCFSolution"]])  <-
                 update(node_info, nodeinfo(temp[["MCFSolution"]]))
-            }
+    }
 
-    return(list(cells = ans, err = temp$maxerr,
-                MCFSolution=temp[["MCFSolution"]]
-                )
-           )
+  return(list(cells = ans, err = temp$maxerr,
+              MCFSolution=temp[["MCFSolution"]]
+  )
+  )
 }
 
-
+# see try_solver documentation in solve_reg_fm_prob function for description of that.
 doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
-                        rfeas, cfeas, epsilon, solver)
+                        rfeas, cfeas, epsilon, solver, try_solver = TRUE)
 {
     dm_distance  <- dm$'dist' #Used below in roundoff error crude estimate
     dm$'dist'  <- as.integer(ceiling(.5 + dm$'dist' / epsilon))
@@ -166,15 +172,13 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
                        )
 
     intsol <- intSolve(dm=dm, min.cpt=min.cpt, max.cpt=max.cpt, f.ctls=f.ctls,
-                       node_info = node_info, solver = solver)
+                       node_info = node_info, solver = solver, try_solver = try_solver)
 
-    if (!is.null(intsol$MCFSolution))
-    {
-        intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
 
-        intsol$MCFSolution@nodes[,'price']  <-
-            intsol$MCFSolution@nodes[['price']] * epsilon
-    }
+    intsol$MCFSolution@subproblems[1L,"resolution"]  <- epsilon
+
+    intsol$MCFSolution@nodes[,'price']  <- intsol$MCFSolution@nodes[['price']] * epsilon
+
 
     intsol$maxerr  <-
         if (any(is.na(intsol$solution) |
@@ -192,7 +196,7 @@ doubleSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info,
 }
 
 
-intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver) {
+intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver, try_solver = TRUE) {
   stopifnot(is(dm, "EdgeList"), is(node_info, "NodeInfo"))
   if (!is.integer(node_info[['price']])) {
     price_col_position  <- which(node_info@names=="price")
@@ -206,7 +210,8 @@ intSolve <- function(dm, min.cpt, max.cpt, f.ctls, node_info, solver) {
          min.col.units = max(1, floor(min.cpt)),
          f = f.ctls,
          node_info = node_info,
-         solver = solver)
+         solver = solver,
+         try_solver = try_solver)
 }
 
 ##* Small helper function to turn a solution data.frame into a factor of matches

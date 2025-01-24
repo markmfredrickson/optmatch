@@ -14,6 +14,7 @@ fullmatch(
   tol = 0.001,
   data = NULL,
   solver = "",
+  resolution = NULL,
   ...
 )
 
@@ -26,6 +27,7 @@ full(
   tol = 0.001,
   data = NULL,
   solver = "",
+  resolution = NULL,
   ...
 )
 }
@@ -141,8 +143,19 @@ an infeasible matching problem. When using a LEMON algorithm other than
 CycleCancelling, we recommend setting the \code{fullmatch_try_recovery}
 option to \code{FALSE}.}
 
+\item{resolution}{Optional argument specifying subproblem-level
+resolution(s) to be passed to the solver.
+If there is only one subproblem, resolution must be specified
+as an unnamed list of length 1. If there are multiple subproblems, one
+must specify a named list, where the names correspond to a
+subproblem/group ID and the values are resolution values. Default is NULL}
+
 \item{...}{Additional arguments, passed to \code{match_on} (e.g. \code{within})
 or to specific methods.}
+
+\item{hint}{Optional argument specifying a hint to be passed to the solver.
+These should be provided as \code{optmatch} objects.
+Hints should have the same subproblem structure as the currently-specified problem.}
 }
 \value{
 A \code{\link{optmatch}} object (\code{factor}) indicating matched groups.
@@ -255,6 +268,19 @@ m5 <- fullmatch(glm(pr ~ t1 + t2 + strata(pt), data=nuclearplants,
 # Including `strata(foo)` inside a glm uses `foo` in the model as
 # well, so here m4 and m5 are equivalent. m3 differs in that it does
 # not include `pt` in the glm.
+
+# Full matching, then using the results as a hint for a
+# similar problem that differs by tolerance
+fm_init <- fullmatch(pr ~ t1 + t2, tol = .01,
+                 data = nuclearplants)
+
+fm_hint <- fullmatch(pr ~ t1 + t2, tol = .001,
+                 data = nuclearplants, hint = fm1)
+
+# Specifying subproblem level resolution values
+res.custom <- list("0" = 0.001142857, "1" = 0.001)
+fm_reso <- fullmatch(pr ~ cost + strata(pt), data=nuclearplants,
+          resolution = res.custom)
 }
 \references{
 Hansen, B.B. and Klopfer, S.O. (2006), \sQuote{ Optimal full matching and related designs via network flows},

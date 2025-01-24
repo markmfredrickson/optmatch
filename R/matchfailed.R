@@ -19,9 +19,7 @@ matchfailed <- function(x) {
 #' @return A named logical vector indicating either success or failure for each subproblem.
 #' @keywords internal
 subproblemSuccess <- function(x) {
-  grps <- attr(x, "subproblem")
-  failed <- vapply(split(x, grps), function(x) {
-    all(is.na(x) | grepl("\\.NA$", x))
-  }, logical(1))
-  return(!failed)
+  is.feas <- attr(x, "MCFSolutions")@subproblems[, "feasible"]
+  names(is.feas) <- attr(x, "MCFSolutions")@subproblems[, "groups"]
+  return(is.feas)
 }
