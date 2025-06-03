@@ -716,7 +716,7 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
             colnames = c(allowed@colnames, n0_names))
 
     } else {
-        allowed <- scoreCaliper(x, z, caliper)
+        allowed <- scoreCaliper(x, z, caliper, within)
     }
 
     if (!is.null(within)) {
@@ -750,9 +750,54 @@ match_on.numeric <- function(x, within = NULL, caliper = NULL, exclude = NULL, d
 #' @param z The treatment assignment vector (same length as \code{x})
 #' @param caliper The width of the caliper with respect to the scores
 #'   \code{x}.
+#' @param within A valid distance specification, such as the result of
+#'   \code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
+#'   which distances to create. Including this argument can significantly speed
+#'   up computation for sparse matching problems. Specify this filter either via
+#'   \code{within} or via \code{strata} elements of a formula; mixing these
+#'   methods will fail.
 #' @return An \code{InfinitySparseMatrix} object, suitable to be
 #'   passed to \code{\link{match_on}} as an \code{within} argument.
-scoreCaliper <- function(x, z, caliper) {
+scoreCaliper <- function(x, z, caliper, within=NULL) {
+  if (!is.null(within)) {
+    allowed_list <- list()
+    for (blk in levels(within@groups)) {
+      ix <- within@groups == blk
+        if (sum(ix & z) > 0 & sum(ix & !z) > 0) {
+          allowed_list[[blk]] <- scoreCaliperBlock(x[ix], z[ix], caliper)
+        }
+    }
+    allowed <- dbind(allowed_list)
+    allowed <- addRows(allowed, within@rownames[!within@rownames %in% allowed@rownames], Inf)
+    allowed <- t(addRows(t(allowed), within@colnames[!within@colnames %in% allowed@colnames], Inf))
+  } else {
+    allowed <- scoreCaliperBlock(x, z, caliper)
+  }
+  return(allowed)
+}
+
+##' Helper function to add rows to an existing ISM
+##'
+##' Adds rows of value \code{val} for each entry in \code{names}.
+##' @param ism An ISM.
+##' @param names A vector of names to be added to the rows.
+##' @param val The value to be added.
+##' @return The ISM with any padded rows.
+addRows <- function(ism, names, val=0) {
+  numnames <- length(names)
+  if (numnames == 0) return(ism) # Short circuit
+  ismdim <- ism@dimension
+  ism@.Data <- c(ism@.Data, rep(val, numnames*ismdim[2]))
+  ism@rows <- c(ism@rows,
+                rep(seq(ismdim[1] + 1, ismdim[1] + numnames),
+                    each=ismdim[2]))
+  ism@cols <- c(ism@cols, rep(1:ismdim[2], times=numnames))
+  ism@dimension <- ismdim + as.integer(c(numnames, 0))
+  ism@rownames <- c(ism@rownames, names)
+  ism
+}
+
+scoreCaliperBlock <- function(x, z, caliper) {
   z <- toZ(z)
 
   treated <- x[z]
@@ -773,7 +818,7 @@ scoreCaliper <- function(x, z, caliper) {
 
   stops <- findInterval(treated + caliper + .Machine$double.eps, control)
   starts <- length(control) - findInterval(-(treated - caliper -
-                                             .Machine$double.eps), rev(-control))
+                                               .Machine$double.eps), rev(-control))
 
   for (i in 1:k) {
     if (starts[i] < length(control) && stops[i] > 0 && starts[i] < stops[i]) {
