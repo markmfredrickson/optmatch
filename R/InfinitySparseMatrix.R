@@ -1103,3 +1103,50 @@ as.list.DenseMatrix <- function(x, ...) {
            })
   return(x)
 }
+
+##' This matches the syntax and semantics of
+##' subset for matrices.
+##'
+##' @title Subsetting for BlockedInfinitySparseMatrices
+##' @param x BlockedInfinitySparseMatrix to be subset or bound.
+##' @param subset Logical expression indicating rows to keep.
+##' @param select Logical expression indicating columns to keep.
+##' @param ... Other arguments are ignored.
+##' @return An BlockedInfinitySparseMatrix with only the selected elements.
+##' @author Mark Fredrickson
+##' @rdname bism.subset
+##' @export
+subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
+
+  xdim <- dim(x)
+
+  if (missing(subset)) {
+    subset <- rep(TRUE, xdim[1])
+  }
+
+  if (missing(select)) {
+    select <- rep(TRUE, xdim[2])
+  }
+
+  if (!is.logical(subset) | !is.logical(select)) {
+    stop("Subset and select arguments must be logical")
+  }
+
+  if (length(subset) != xdim[1] | length(select) != xdim[2]) {
+    stop("Subset and select must be same length as rows and columns, respectively.")
+  }
+
+  subset.data <- subsetInfSparseMatrix(subset, select, x)
+  new_bism <- new(
+    "BlockedInfinitySparseMatrix",
+    makeInfinitySparseMatrix(
+      subset.data[, 3],
+      subset.data[, 2],
+      subset.data[, 1],
+      colnames = x@colnames[select],
+      rownames = x@rownames[subset],
+      dimension = c(sum(subset), sum(select))
+    ),
+    groups = x@groups
+  )
+}
