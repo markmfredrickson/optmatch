@@ -1117,14 +1117,15 @@ as.list.DenseMatrix <- function(x, ...) {
 ##' @rdname bism.subset
 ##' @export
 subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
-    newBism <- callNextMethod(x, subet, select)
+    newBism <- callNextMethod(x, subset, select)
     subGroups <- NULL
-    if (!is.null(x@groups)) {
+    if (!is.null(names(x@groups))) {
         subNames <- names(x@groups)
         subNames <- subNames[which(subNames %in% newBism@rownames ||
                                    subNames %in% newBism@colnames)]
         subGroups <- x@groups[subNames]
     }
-    newBism@groups <- subGroups
-    return(newBism)
+  new("BlockedInfinitySparseMatrix",
+      newBism,
+      groups = subGroups)
 }
