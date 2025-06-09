@@ -693,33 +693,41 @@ sort.InfinitySparseMatrix <- function(x,
 #' @seealso \code{\link{match_on}}, \code{\link{exactMatch}}, \code{\link{fullmatch}},  \code{\link{InfinitySparseMatrix-class}}
 #' @author Mark M. Fredrickson
 setClass("BlockedInfinitySparseMatrix",
-  slots = c(groups = "factor"),
+  slots = c(rowGroups = "factor", colGroups = "factor"),
   contains = "InfinitySparseMatrix")
+
+bismOpsHandleGroups <- function(groups1, groups2) {
+  if (is.null(groups1) || is.null(groups2)) {
+    newGroups <- NULL
+  } else if (length(groups1) > length(groups2)) {
+    newGroups <- groups1
+  } else {
+    newGroups <- groups2
+  }
+  return(newGroups)
+}
 
 # in both of the next two methods I use callGeneric(as(...), ...)
 # I would have prefered callNextMethod, but I kept getting errors,
 # so I manually made the call to the parent class.
 setMethod("Ops", signature(e1 = "BlockedInfinitySparseMatrix",
-                             e2 = "BlockedInfinitySparseMatrix"),
+                           e2 = "BlockedInfinitySparseMatrix"),
 function(e1, e2) {
   tmp <- callGeneric(as(e1, "InfinitySparseMatrix"), as(e2, "InfinitySparseMatrix"))
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
-  if (length(e1@groups) > length(e2@groups)) {
-    tmp@groups <- e1@groups
-  } else {
-    tmp@groups <- e2@groups
-  }
-
+  tmp@rowGroups <- bismOpsHandleGroups(e1@rowGroups, e2@rowGroups)
+  tmp@colGroups <- bismOpsHandleGroups(e1@colGroups, e2@colGroups)
   return(tmp)
 })
 
 # the case where BISM is first is covered above
 setMethod("Ops", signature(e1 = "InfinitySparseMatrix",
-                             e2 = "BlockedInfinitySparseMatrix"),
+                           e2 = "BlockedInfinitySparseMatrix"),
 function(e1, e2) {
   tmp <- callGeneric(e1, as(e2, "InfinitySparseMatrix"))
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
-  tmp@groups <- e2@groups
+  tmp@rowGroups <- e2@rowGroups
+  tmp@colGroups <- e2@colGroups
   return(tmp)
 })
 
@@ -728,7 +736,8 @@ function(e1, e2) {
 t.BlockedInfinitySparseMatrix <- function(x) {
   tmp <- t.InfinitySparseMatrix(x)
   tmp <- as(tmp, "BlockedInfinitySparseMatrix")
-  tmp@groups <- x@groups
+  tmp@rowGroups <- x@colGroups
+  tmp@colGroups <- x@rowGroups
   return(tmp)
 }
 
@@ -805,7 +814,8 @@ sort.BlockedInfinitySparseMatrix <- function(x,
                                              ...,
                                              byCol=FALSE) {
   y <- sort.InfinitySparseMatrix(x, decreasing=decreasing, byCol=byCol)
-  attr(y, "groups") <- attr(x, "groups")
+  attr(y, "rowGroups") <- attr(x, "rowGroups")
+  attr(y, "colGroups") <- attr(x, "colGroups")
   class(y) <- class(x)
   y
 }
@@ -1104,6 +1114,14 @@ as.list.DenseMatrix <- function(x, ...) {
   return(x)
 }
 
+bismSubsetGroups <- function(groups, whichVec) {
+  newGroups <- NULL
+  if (!is.null(groups)) {
+    newGroups <- groups[whichVec]
+  }
+  return(newGroups)
+}
+
 ##' This matches the syntax and semantics of
 ##' subset for matrices.
 ##'
@@ -1113,40 +1131,17 @@ as.list.DenseMatrix <- function(x, ...) {
 ##' @param select Logical expression indicating columns to keep.
 ##' @param ... Other arguments are ignored.
 ##' @return An BlockedInfinitySparseMatrix with only the selected elements.
-##' @author Mark Fredrickson
 ##' @rdname bism.subset
 ##' @export
 subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
-
-  xdim <- dim(x)
-
-  if (missing(subset)) {
-    subset <- rep(TRUE, xdim[1])
-  }
-
-  if (missing(select)) {
-    select <- rep(TRUE, xdim[2])
-  }
-
-  if (!is.logical(subset) | !is.logical(select)) {
-    stop("Subset and select arguments must be logical")
-  }
-
-  if (length(subset) != xdim[1] | length(select) != xdim[2]) {
-    stop("Subset and select must be same length as rows and columns, respectively.")
-  }
-
-  subset.data <- subsetInfSparseMatrix(subset, select, x)
-  new_bism <- new(
+  # TODO
+  # remove duplication in favor of callNextMethod
+  # https://www.rdocumentation.org/packages/methods/versions/3.6.2/topics/callNextMethod
+  # subset groups also...
+  return(new(
     "BlockedInfinitySparseMatrix",
-    makeInfinitySparseMatrix(
-      subset.data[, 3],
-      subset.data[, 2],
-      subset.data[, 1],
-      colnames = x@colnames[select],
-      rownames = x@rownames[subset],
-      dimension = c(sum(subset), sum(select))
-    ),
-    groups = x@groups
-  )
+    callNextMethod(x, subet, select),
+    rowGroups = bismSubsetGroups(x@rowGroups, subset),
+    colGroups = bismSubsetGroups(x@colGroups, select)
+  ))
 }
