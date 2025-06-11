@@ -1112,19 +1112,25 @@ as.list.DenseMatrix <- function(x, ...) {
 ##' @param subset Logical expression indicating rows to keep.
 ##' @param select Logical expression indicating columns to keep.
 ##' @param ... Other arguments are ignored.
-##' @return An BlockedInfinitySparseMatrix with only the selected elements.
-##' @author Mark Fredrickson
+##' @return If groups has names, a BlockedInfinitySparseMatrix with only
+##'         the selected elements, otherwise an InfinitySparsematrix with
+##'         only the selected elements
 ##' @rdname bism.subset
 ##' @export
 subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
-    newBism <- callNextMethod(x, subet, select)
-    subGroups <- NULL
-    if (!is.null(x@groups)) {
-        subNames <- names(x@groups)
-        subNames <- subNames[which(subNames %in% newBism@rownames ||
-                                   subNames %in% newBism@colnames)]
+    subIsm <- callGeneric(as(x, "InfinitySparseMatrix"), subset, select)
+    oldNames <- names(x@groups)
+    if (!is.null(oldNames)) {   # we can use the groups names to subset groups
+        subNames <- oldNames[which((oldNames %in% subIsm@rownames) |
+                                   (oldNames %in% subIsm@colnames))]
         subGroups <- x@groups[subNames]
+        subObj <- new("BlockedInfinitySparseMatrix",
+                      subIsm, groups = subGroups)
+    } else {
+        # since groups doesn't have names, we can't meaningfully subset it
+        # groups is meaningless for the subsetted matrix
+        # demote object to ISM
+        subObj <- subIsm
     }
-    newBism@groups <- subGroups
-    return(newBism)
+    return(subObj)
 }
