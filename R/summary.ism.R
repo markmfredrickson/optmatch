@@ -102,7 +102,7 @@ summary.BlockedInfinitySparseMatrix <- function(object, ...,
   out <- lapply(levels(object@groups),
                 function(x) {
                   thisgroup <- names(object@groups[object@groups == x])
-                  ism <- subset(object,
+                  ism <- subset.InfinitySparseMatrix(object,
                                 subset=object@rownames %in% thisgroup,
                                 select=object@colnames %in% thisgroup)
                   s <- summary(ism, ..., distanceSummary=distanceSummary)
