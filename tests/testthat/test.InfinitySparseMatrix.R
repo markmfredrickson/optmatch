@@ -264,7 +264,7 @@ test_that("#190: agreement in dimension names", {
 
 })
 
-test_that("Subsetting", {
+test_that("ISM Subsetting", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   rownames(m) <- c("A", "B")
   colnames(m) <- c("C", "D")
@@ -398,6 +398,23 @@ test_that("BlockedISM addition", {
     "BlockedInfinitySparseMatrix")
   expect_is(matrix(1, nrow = 8, ncol = 8) + res.b2,
     "BlockedInfinitySparseMatrix")
+})
+
+test_that("BlockedISM Subsetting", {
+  Z <- rep(c(0,1), 8)
+  B <- rep(1:4, each = 4)
+
+  res.b <- exactMatch(Z ~ B)
+  sub.b <- subset(res.b,
+                   c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
+                   c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE))
+
+  expect_is(sub.b, "BlockedInfinitySparseMatrix")
+  expect_false(is.null(sub.b@groups))
+  expect_equal(names(sub.b@groups),
+               c("1", "2", "5", "6", "9", "10", "13", "14"))
+  expect_equal(rownames(sub.b), c("2", "6", "10", "14"))
+  expect_equal(colnames(sub.b), c("1", "5", "9", "13"))
 })
 
 test_that("Get subproblem size of each block", {
