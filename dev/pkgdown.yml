@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   fullmatch-vignette: fullmatch-vignette.html
@@ -7,7 +7,7 @@ articles:
   matching-within-subgroups: matching-within-subgroups.html
   MCFSolutions: MCFSolutions.html
   performance: performance.html
-last_built: 2024-12-04T20:04Z
+last_built: 2025-06-13T22:42Z
 urls:
   reference: https://markmfredrickson.github.io/optmatch/reference
   article: https://markmfredrickson.github.io/optmatch/articles
