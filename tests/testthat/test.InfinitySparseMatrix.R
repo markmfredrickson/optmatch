@@ -44,7 +44,7 @@ test_that("ISM Basics", {
 
 test_that("ISM Handles Names", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
-              dimnames = list(treated = c("A", "B"),
+              dimnames = list(treatment = c("A", "B"),
                               control = c("C", "D")))
 
   expect_equal(as.matrix(as(m, "InfinitySparseMatrix")), m)
@@ -52,7 +52,7 @@ test_that("ISM Handles Names", {
   A <- makeInfinitySparseMatrix(c(1,2,3), rows = c(1,1,2), cols = c(1,2,2))
   expect_true(is.null(dimnames(A)))
 
-  dms <- list(treated = c("A", "B"), control = c("x", "y"))
+  dms <- list(treatment = c("A", "B"), control = c("x", "y"))
   dimnames(A) <- dms
   expect_equal(dimnames(A), dms)
 
@@ -362,7 +362,7 @@ test_that("t(ransform) function", {
   # we call t(m), everything is labeled properly
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
               dimnames = list(control = c("A", "B"),
-                              treated = c("C", "D")))
+                              treatment = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
   expect_equal(as.matrix(t(A)), t(m))
@@ -416,7 +416,7 @@ test_that("Get subproblem size of each block", {
 
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
               dimnames = list(control = c("A", "B"),
-                  treated = c("C", "D")))
+                  treatment = c("C", "D")))
   a <- as.InfinitySparseMatrix(m)
 
   # subdim on a matrix or non-blocked ISM is equivalent to calling dim

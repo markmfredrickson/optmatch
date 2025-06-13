@@ -218,7 +218,7 @@ test_that("antiExactMatch", {
 
   ex <- matrix(c(Inf, 0, 0, 0, Inf, 0, 0, 0, Inf), nrow = 3, ncol = 3,
                dimnames =list(
-                   treated = c("X2", "X4", "X6"),
+                   treatment = c("X2", "X4", "X6"),
                    control = c("X1", "X3", "X5")))
 
   res <- antiExactMatch(x, z)
