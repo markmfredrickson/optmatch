@@ -1103,3 +1103,34 @@ as.list.DenseMatrix <- function(x, ...) {
            })
   return(x)
 }
+
+##' This matches the syntax and semantics of
+##' subset for matrices.
+##'
+##' @title Subsetting for BlockedInfinitySparseMatrices
+##' @param x BlockedInfinitySparseMatrix to be subset or bound.
+##' @param subset Logical expression indicating rows to keep.
+##' @param select Logical expression indicating columns to keep.
+##' @param ... Other arguments are ignored.
+##' @return If groups has names, a BlockedInfinitySparseMatrix with only
+##'         the selected elements, otherwise an InfinitySparsematrix with
+##'         only the selected elements
+##' @rdname bism.subset
+##' @export
+subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
+    subIsm <- callGeneric(as(x, "InfinitySparseMatrix"), subset, select)
+    oldNames <- names(x@groups)
+    if (!is.null(oldNames)) {   # we can use the groups names to subset groups
+        subNames <- oldNames[which((oldNames %in% subIsm@rownames) |
+                                   (oldNames %in% subIsm@colnames))]
+        subGroups <- x@groups[subNames]
+        subObj <- new("BlockedInfinitySparseMatrix",
+                      subIsm, groups = subGroups)
+    } else {
+        # since groups doesn't have names, we can't meaningfully subset it
+        # groups is meaningless for the subsetted matrix
+        # demote object to ISM
+        subObj <- subIsm
+    }
+    return(subObj)
+}
