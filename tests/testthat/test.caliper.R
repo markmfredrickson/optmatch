@@ -6,7 +6,7 @@ context("Caliper")
 
 test_that("Caliper return values", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
-              dimnames = list(treated = c("A", "B"),
+              dimnames = list(treatment = c("A", "B"),
                               control = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
@@ -25,7 +25,7 @@ test_that("Caliper return values", {
 
 test_that("Caliper exclusion", {
   m <- matrix(c(3,Inf, 1, 3), nrow = 2, ncol = 2,
-              dimnames = list(treated = c("A", "B"),
+              dimnames = list(treatment = c("A", "B"),
                               control = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
@@ -34,7 +34,7 @@ test_that("Caliper exclusion", {
 
 
   m2 <- matrix(c(Inf,Inf, 0, 0), nrow = 2, ncol = 2,
-              dimnames = list(treated = c("A", "B"),
+              dimnames = list(treatment = c("A", "B"),
                               control = c("C", "D")))
 
   expect_equal(as.matrix(result), m2)
