@@ -89,6 +89,7 @@ Collate:
     'summary.ism.R'
     'summary.optmatch.R'
     'utilities.R'
+    'visualization.R'
     'zzz.R'
     'zzzDistanceSpecification.R'
 VignetteBuilder: knitr
