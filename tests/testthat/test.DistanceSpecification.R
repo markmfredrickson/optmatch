@@ -18,7 +18,7 @@ test_that("Matrix => nodes and arcs", {
 
   m.result <- prepareMatching(m)
   expect_equal(dim(m.result), c(4, 3))
-  expect_equal(unique(m.result$treated), as.factor(c("D", "E")))
+  expect_equal(unique(m.result$treatment), as.factor(c("D", "E")))
   expect_equal(unique(m.result$control), as.factor(c("A", "B", "C")))
 
   # NA's and NaN's the same as Inf's
@@ -40,7 +40,7 @@ test_that("ISM => nodes and arcs", {
   res.ISM <- prepareMatching(A)
 
   expect_equal(dim(res.ISM), c(4, 3))
-  expect_equal(unique(res.ISM$treated), as.factor(c("D", "E")))
+  expect_equal(unique(res.ISM$treatment), as.factor(c("D", "E")))
   expect_equal(unique(res.ISM$control), as.factor(c("A", "B", "C")))
 
   # NA's and NaN's the same as Inf's
@@ -66,10 +66,10 @@ test_that("Subproblems", {
                          logical(1))))
 
   m1 <- matrix(0, nrow = 2, ncol = 3,
-    dimnames = list(treated = c("b", "d"), control = c("a", "c", "e")))
+    dimnames = list(treatment = c("b", "d"), control = c("a", "c", "e")))
 
   m2 <- matrix(0, nrow = 3, ncol = 2,
-    dimnames = list(treated = c("f", "h", "j"), control = c("g", "i")))
+    dimnames = list(treatment = c("f", "h", "j"), control = c("g", "i")))
 
   expect_equal(as.matrix(res.em[[1]]), m1)
   expect_equal(as.matrix(res.em[[2]]), m2)
