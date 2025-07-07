@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Ben B. Hansen,
 Mark Fredrickson, Josh Errickson, and Josh Buckner</h4>
             
-            <h4 data-toc-skip class="date">2025-06-13</h4>
+            <h4 data-toc-skip class="date">2025-07-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/markmfredrickson/optmatch/blob/master/vignettes/fullmatch-vignette.Rmd" class="external-link"><code>vignettes/fullmatch-vignette.Rmd</code></a></small>
       <div class="d-none name"><code>fullmatch-vignette.Rmd</code></div>
@@ -544,30 +544,30 @@ distances.</p>
 distance between each potential pair of treatment and control units. We
 can caliper directly on this distance matrix,</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">caliper</span>(psm.dist, <span class="dv">2</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="do">##        control</span></span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="do">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T U   V   W   X   Y</span></span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="do">##       A Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a><span class="do">##       B Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a><span class="do">##       C Inf   0   0 Inf Inf   0   0   0 Inf   0   0   0   0 0 Inf   0   0 Inf</span></span>
-<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="do">##       D Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf   0 Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="do">##       E Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0   0 Inf</span></span>
-<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="do">##       F Inf   0 Inf Inf Inf   0 Inf   0 Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
-<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="do">##       G Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="do">##       a Inf   0 Inf Inf Inf Inf Inf Inf Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
-<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a><span class="do">##       b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="do">##       c Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
-<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="do">##        control</span></span>
-<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="do">## treated   Z d   e   f</span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="do">##       A Inf 0 Inf Inf</span></span>
-<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a><span class="do">##       B   0 0 Inf   0</span></span>
-<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="do">##       C   0 0 Inf   0</span></span>
-<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a><span class="do">##       D Inf 0 Inf Inf</span></span>
-<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a><span class="do">##       E   0 0 Inf   0</span></span>
-<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a><span class="do">##       F   0 0 Inf   0</span></span>
-<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a><span class="do">##       G   0 0 Inf   0</span></span>
-<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a><span class="do">##       a   0 0 Inf   0</span></span>
-<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a><span class="do">##       b Inf 0 Inf Inf</span></span>
-<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a><span class="do">##       c   0 0 Inf   0</span></span></code></pre></div>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="do">##          control</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="do">## treatment   H   I   J   K   L   M   N   O   P   Q   R   S   T U   V   W   X   Y</span></span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="do">##         A Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a><span class="do">##         B Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a><span class="do">##         C Inf   0   0 Inf Inf   0   0   0 Inf   0   0   0   0 0 Inf   0   0 Inf</span></span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="do">##         D Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf   0 Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="do">##         E Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0   0 Inf</span></span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="do">##         F Inf   0 Inf Inf Inf   0 Inf   0 Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="do">##         G Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="do">##         a Inf   0 Inf Inf Inf Inf Inf Inf Inf Inf   0   0   0 0   0 Inf Inf Inf</span></span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a><span class="do">##         b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 0   0 Inf Inf Inf</span></span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="do">##         c Inf   0 Inf Inf Inf   0   0   0 Inf   0   0   0   0 0   0   0 Inf Inf</span></span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="do">##          control</span></span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="do">## treatment   Z d   e   f</span></span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="do">##         A Inf 0 Inf Inf</span></span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a><span class="do">##         B   0 0 Inf   0</span></span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="do">##         C   0 0 Inf   0</span></span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a><span class="do">##         D Inf 0 Inf Inf</span></span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a><span class="do">##         E   0 0 Inf   0</span></span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a><span class="do">##         F   0 0 Inf   0</span></span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a><span class="do">##         G   0 0 Inf   0</span></span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a><span class="do">##         a   0 0 Inf   0</span></span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a><span class="do">##         b Inf 0 Inf Inf</span></span>
+<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a><span class="do">##         c   0 0 Inf   0</span></span></code></pre></div>
 <p>Entries which are <code>Inf</code> will never be matched. Adding the
 caliper to <code>psm.dist</code> will disallow matching between units
 which differ by more than 2 standard deviations.</p>
@@ -748,24 +748,24 @@ this isn’t working on a distance that you’ve produced, try
 <p>Matching with a caliper of 2 pooled standard deviations on the
 <code>cap</code> variable:</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">round</span>(cap.dist <span class="sc">+</span> <span class="fu">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="dv">1</span>)</span>
-<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="do">##        control</span></span>
-<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a><span class="do">## treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y</span></span>
-<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="do">##       A 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
-<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="do">##       B 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3 Inf</span></span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="do">##       C 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.2 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.4</span></span>
-<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a><span class="do">##       D 0.7 Inf Inf 0.1 1.4 0.3 1.2 0.1 1.2 0.0 Inf 1.5 1.2 1.5 Inf 1.8 1.2 0.0</span></span>
-<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a><span class="do">##       E 1.7 0.1 0.1 Inf 1.1 Inf 1.2 Inf 1.2 Inf 0.0 1.0 1.3 1.0 0.2 0.7 1.3 Inf</span></span>
-<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a><span class="do">##       F 0.7 1.1 1.1 1.5 0.0 1.8 0.2 1.3 0.2 1.4 1.1 0.1 0.2 0.1 1.2 0.4 0.2 1.4</span></span>
-<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a><span class="do">##       G 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.1 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2 1.3</span></span>
-<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a><span class="do">##        control</span></span>
-<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a><span class="do">## treated   Z</span></span>
-<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a><span class="do">##       A 0.3</span></span>
-<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a><span class="do">##       B 0.3</span></span>
-<span id="cb42-15"><a href="#cb42-15" tabindex="-1"></a><span class="do">##       C 1.5</span></span>
-<span id="cb42-16"><a href="#cb42-16" tabindex="-1"></a><span class="do">##       D Inf</span></span>
-<span id="cb42-17"><a href="#cb42-17" tabindex="-1"></a><span class="do">##       E 0.4</span></span>
-<span id="cb42-18"><a href="#cb42-18" tabindex="-1"></a><span class="do">##       F 1.4</span></span>
-<span id="cb42-19"><a href="#cb42-19" tabindex="-1"></a><span class="do">##       G 1.5</span></span></code></pre></div>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="do">##          control</span></span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a><span class="do">## treatment   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X</span></span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="do">##         A 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3</span></span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="do">##         B 1.8 0.0 0.0 Inf 1.2 Inf 1.3 Inf 1.3 Inf 0.1 1.0 1.4 1.0 0.1 0.7 1.3</span></span>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="do">##         C 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.2 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2</span></span>
+<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a><span class="do">##         D 0.7 Inf Inf 0.1 1.4 0.3 1.2 0.1 1.2 0.0 Inf 1.5 1.2 1.5 Inf 1.8 1.2</span></span>
+<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a><span class="do">##         E 1.7 0.1 0.1 Inf 1.1 Inf 1.2 Inf 1.2 Inf 0.0 1.0 1.3 1.0 0.2 0.7 1.3</span></span>
+<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a><span class="do">##         F 0.7 1.1 1.1 1.5 0.0 1.8 0.2 1.3 0.2 1.4 1.1 0.1 0.2 0.1 1.2 0.4 0.2</span></span>
+<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a><span class="do">##         G 0.6 1.2 1.2 1.5 0.0 1.7 0.1 1.2 0.1 1.4 1.1 0.1 0.2 0.1 1.3 0.4 0.2</span></span>
+<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a><span class="do">##          control</span></span>
+<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a><span class="do">## treatment   Y   Z</span></span>
+<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a><span class="do">##         A Inf 0.3</span></span>
+<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a><span class="do">##         B Inf 0.3</span></span>
+<span id="cb42-15"><a href="#cb42-15" tabindex="-1"></a><span class="do">##         C 1.4 1.5</span></span>
+<span id="cb42-16"><a href="#cb42-16" tabindex="-1"></a><span class="do">##         D 0.0 Inf</span></span>
+<span id="cb42-17"><a href="#cb42-17" tabindex="-1"></a><span class="do">##         E Inf 0.4</span></span>
+<span id="cb42-18"><a href="#cb42-18" tabindex="-1"></a><span class="do">##         F 1.4 1.4</span></span>
+<span id="cb42-19"><a href="#cb42-19" tabindex="-1"></a><span class="do">##         G 1.3 1.5</span></span></code></pre></div>
 <p>Entries of <code>Inf</code> or <code>NaN</code> in a distance matrix
 are interpreted as forbidden matches. Thus</p>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">pairmatch</span>(cap.dist <span class="sc">+</span> <span class="fu">caliper</span>(cap.dist, <span class="dv">2</span>), <span class="at">data =</span> nuke.nopt)</span></code></pre></div>

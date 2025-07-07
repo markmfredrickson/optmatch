@@ -149,30 +149,30 @@ and <code>na.action</code>, mimics the behavior of <code><a href="https://rdrr.i
 <span class="r-in"><span><span class="co">### Only allow matches within the partial turn key plants</span></span></span>
 <span class="r-in"><span><span class="va">pt.em</span> <span class="op">&lt;-</span> <span class="fu">exactMatch</span><span class="op">(</span><span class="va">pr</span> <span class="op">~</span> <span class="va">pt</span>, data <span class="op">=</span> <span class="va">nuclearplants</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">pt.em</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        control</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treated   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       A   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       B   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       C   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       D   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       E   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       F   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       G   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       a Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       c Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        control</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treated   Z   d   e   f</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       A   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       B   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       C   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       D   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       E   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       F   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       G   0 Inf Inf Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       a Inf   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       b Inf   0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       c Inf   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          control</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treatment   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         A   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         B   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         C   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         D   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         E   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         F   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         G   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         a Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         b Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         c Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          control</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treatment   Y   Z   d   e   f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         A   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         B   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         C   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         D   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         E   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         F   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         G   0   0 Inf Inf Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         a Inf Inf   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         b Inf Inf   0   0   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         c Inf Inf   0   0   0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### Blunt matches:</span></span></span>
 <span class="r-in"><span><span class="va">match.pt.em</span> <span class="op">&lt;-</span> <span class="fu"><a href="fullmatch.html">fullmatch</a></span><span class="op">(</span><span class="va">pt.em</span><span class="op">)</span></span></span>
