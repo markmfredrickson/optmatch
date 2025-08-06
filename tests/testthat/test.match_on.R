@@ -359,6 +359,47 @@ test_that("Numeric: simple differences of scores", {
   expect_error(match_on(scores2, z = z2, caliper = c(1,2)), "scalar")
 })
 
+test_that("Score caliper edge cases", {
+  set.seed(203003)
+  n1 <- 500
+  n0 <- 300
+  n <- n1 + n0
+  x <- runif(n)
+  z <- c(rep(1, n1), rep(0, n0))
+
+  cal <- 0.2
+
+  sc <- scoreCaliper(x, z, cal)
+
+  # this should limit the number of edges
+  expect_true(length(sc) < 500 * 300)
+
+  # but it should look like a 500 by 300 matrix
+  expect_equal(dim(sc), c(n1, n0))
+
+  scm <- as.matrix(sc) # make it dense for testing
+
+  ## everyone should get matched
+  scmr <- rowSums(is.finite(scm))
+  scmc <- colSums(is.finite(scm))
+
+  expect_true(all(scmr > 0))
+  expect_true(all(scmc > 0))
+
+  # now introduce some extreme treated and control units
+  x2 <- x
+  x2[1] <- min(x) - 2 * cal
+  x2[n] <- max(x) + 2 * cal
+
+  sc2 <- scoreCaliper(x2, z, cal)
+  expect_true(length(sc2) < length(sc))
+  expect_equal(dim(sc2), c(n1, n0))
+
+  scm2 <- as.matrix(sc2) # make it dense for testing
+  expect_equivalent(rowSums(is.finite(scm2))[1], 0)
+  expect_equivalent(colSums(is.finite(scm2))[n0], 0)
+})
+
 test_that("Numeric, issues with vector names", {
   # #189
 

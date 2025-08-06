@@ -763,9 +763,6 @@ scoreCaliper <- function(x, z, caliper) {
   # there may be a speed increase in pulling out the guts of that function and calling them directly
   control <- sort(control)
 
-  treatedids <- c()
-  controlids <- c()
-
   # NB: for reasons unknown, you must add the double.eps in the function
   # call, saving it in a variable (e.g. width.eps <- width +
   # .Machine$double.eps) will not work.
@@ -775,15 +772,39 @@ scoreCaliper <- function(x, z, caliper) {
   starts <- length(control) - findInterval(-(treated - caliper -
                                              .Machine$double.eps), rev(-control))
 
+  edges <- pmax(0, (stops - starts))
+  n <- sum(edges)
+
+  treatedids <- rep.int(1:k, times = edges)
+  controlids <- integer(n)
+
+  idx <- 1
   for (i in 1:k) {
-    if (starts[i] < length(control) && stops[i] > 0 && starts[i] < stops[i]) {
-      tmp <- seq(starts[i] + 1, stops[i])
-      controlids <- c(controlids, tmp)
-      treatedids <- c(treatedids, rep(i, length(tmp)))
+    if (starts[i] < length(control) && stops[i] > 0 && edges[i] > 0) {
+      tmp <- seq.int(starts[i] + 1, stops[i])
+      j <- length(tmp)
+      controlids[idx:(idx + j - 1)] <- tmp
+      idx <- idx + j
     }
   }
 
-  makeInfinitySparseMatrix(rep(0, length(treatedids)), controlids, treatedids, names(control), names(treated))
+  v <- integer(n)
+
+  # I noticed that if a control was not reachable by any treated unit it would
+  # not appear in the resulting matrix, so we set names explicitly if they don't exist.
+  if (is.null(names(control))) {
+    nmsc <- as.character(1:length(control))
+  } else {
+    nmsc <- names(control)
+  }
+
+  if (is.null(names(treated))) {
+    nmst <- as.character(1:k)
+  } else {
+    nmst <- names(treated)
+  }
+
+  makeInfinitySparseMatrix(v, controlids, treatedids, nmsc, nmst)
 }
 
 #' @details \bold{First argument (\code{x}): \code{matrix} or \code{InfinitySparseMatrix}.} These just return their
