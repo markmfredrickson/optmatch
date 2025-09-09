@@ -768,8 +768,11 @@ scoreCaliper <- function(x, z, caliper, within=NULL) {
         }
     }
     allowed <- dbind(allowed_list)
-    allowed <- addRows(allowed, within@rownames[!within@rownames %in% allowed@rownames], Inf)
-    allowed <- t(addRows(t(allowed), within@colnames[!within@colnames %in% allowed@colnames], Inf))
+    allowed <- addEligibleTreatments(allowed,
+                  within@rownames[!within@rownames %in% allowed@rownames], Inf)
+    allowed <- t(addEligibleTreatments(t(allowed),
+                    within@colnames[!within@colnames %in% allowed@colnames],
+                    Inf))
   } else {
     allowed <- scoreCaliperBlock(x, z, caliper)
   }
@@ -783,7 +786,7 @@ scoreCaliper <- function(x, z, caliper, within=NULL) {
 ##' @param names A vector of names to be added to the rows.
 ##' @param val The value to be added.
 ##' @return The ISM with any padded rows.
-addRows <- function(ism, names, val=0) {
+addEligibleTreatments <- function(ism, names, val=0) {
   numnames <- length(names)
   if (numnames == 0) return(ism) # Short circuit
   ismdim <- ism@dimension
@@ -794,6 +797,27 @@ addRows <- function(ism, names, val=0) {
   ism@cols <- c(ism@cols, rep(1:ismdim[2], times=numnames))
   ism@dimension <- ismdim + as.integer(c(numnames, 0))
   ism@rownames <- c(ism@rownames, names)
+  ism
+}
+
+##' Helper function to add cols to an existing ISM
+##'
+##' Adds cols of value \code{val} for each entry in \code{names}.
+##' @param ism An ISM.
+##' @param names A vector of names to be added to the cols 
+##' @param val The value to be added.
+##' @return The ISM with any padded cols. 
+addIneligibleControls <- function(ism, names, val=Inf) {
+  numnames <- length(names)
+  if (numnames == 0) return(ism) # Short circuit
+  ismdim <- ism@dimension
+  ism@.Data <- c(ism@.Data, rep(val, numnames*ismdim[2]))
+  ism@cols <- c(ism@cols,
+                rep(seq(ismdim[1] + 1, ismdim[1] + numnames),
+                    each=ismdim[2]))
+  ism@rows <- c(ism@rows, rep(1:ismdim[2], times=numnames))
+  ism@dimension <- ismdim + as.integer(c(numnames, 0))
+  ism@colnames <- c(ism@colnames, names)
   ism
 }
 
