@@ -795,7 +795,7 @@ addEligibleTreatments <- function(ism, names, val=0) {
                 rep(seq(ismdim[1] + 1, ismdim[1] + numnames),
                     each=ismdim[2]))
   ism@cols <- c(ism@cols, rep(1:ismdim[2], times=numnames))
-  ism@dimension <- ismdim + as.integer(c(numnames, 0))
+  ism@dimension <- c(ismdim[1] + as.integer(numnames), ismdim[2])
   ism@rownames <- c(ism@rownames, names)
   ism
 }
@@ -804,19 +804,19 @@ addEligibleTreatments <- function(ism, names, val=0) {
 ##'
 ##' Adds cols of value \code{val} for each entry in \code{names}.
 ##' @param ism An ISM.
-##' @param names A vector of names to be added to the cols 
+##' @param names A vector of names to be added to the cols
 ##' @param val The value to be added.
-##' @return The ISM with any padded cols. 
+##' @return The ISM with any padded cols.
 addIneligibleControls <- function(ism, names, val=Inf) {
   numnames <- length(names)
   if (numnames == 0) return(ism) # Short circuit
   ismdim <- ism@dimension
-  ism@.Data <- c(ism@.Data, rep(val, numnames*ismdim[2]))
+  ism@.Data <- c(ism@.Data, rep(val, numnames*ismdim[1]))
   ism@cols <- c(ism@cols,
-                rep(seq(ismdim[1] + 1, ismdim[1] + numnames),
-                    each=ismdim[2]))
-  ism@rows <- c(ism@rows, rep(1:ismdim[2], times=numnames))
-  ism@dimension <- ismdim + as.integer(c(numnames, 0))
+                rep(seq(ismdim[2] + 1, ismdim[2] + numnames),
+                    each=ismdim[1]))
+  ism@rows <- c(ism@rows, rep(1:ismdim[1], times=numnames))
+  ism@dimension <- c(ismdim[1], ismdim[2] + as.integer(numnames))
   ism@colnames <- c(ism@colnames, names)
   ism
 }

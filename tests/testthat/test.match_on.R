@@ -1026,8 +1026,23 @@ test_that("Exclude argument for match_on with caliper arg", {
     expect_equivalent(mm[, 'z'], 7:9)
 })
 
-
 test_that("No longer support user-defined distances in match_on.formula", {
   data(nuclearplants)
   expect_warning(match_on(pr ~ cost, data = nuclearplants, method = optmatch:::compute_euclidean), "not supported")
+})
+
+test_that("add rows to an ISM", {
+  w <- matrix(c(1, Inf, 2, 3, Inf, 4), nrow = 3)
+  rownames(w) <- c("a", "b", "c")
+  B <- as.InfinitySparseMatrix(w[1:2,1:2])
+  BPlus <- addEligibleTreatments(B, c("c"), c(2, 4))
+  expect_equivalent(as.matrix(BPlus), w)
+})
+
+test_that("add cols to an ISM", {
+  w <- matrix(c(1, Inf, 2, 3, Inf, 4, 5, 6, 7), nrow = 3)
+  colnames(w) <- c("a", "b", "c")
+  B <- as.InfinitySparseMatrix(w[,1:2])
+  BPlus <- addIneligibleControls(B, c("c"), c(5, 6, 7))
+  expect_equivalent(as.matrix(BPlus), w)
 })
