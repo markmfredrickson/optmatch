@@ -786,6 +786,7 @@ scoreCaliper <- function(x, z, caliper, within=NULL) {
 ##' @param names A vector of names to be added to the rows.
 ##' @param val The value to be added.
 ##' @return The ISM with any padded rows.
+##' @keywords internal
 addEligibleTreatments <- function(ism, names, val=0) {
   numnames <- length(names)
   if (numnames == 0) return(ism) # Short circuit
@@ -807,6 +808,7 @@ addEligibleTreatments <- function(ism, names, val=0) {
 ##' @param names A vector of names to be added to the cols
 ##' @param val The value to be added.
 ##' @return The ISM with any padded cols.
+##' @keywords internal
 addIneligibleControls <- function(ism, names, val=Inf) {
   numnames <- length(names)
   if (numnames == 0) return(ism) # Short circuit
