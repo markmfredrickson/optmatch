@@ -5,7 +5,7 @@
 \title{(Internal) Helper function to create an InfinitySparseMatrix from a set of
 scores, a treatment indicator, and a caliper width.}
 \usage{
-scoreCaliper(x, z, caliper)
+scoreCaliper(x, z, caliper, within = NULL)
 }
 \arguments{
 \item{x}{The scores, a vector indicating the 1-D location of each
@@ -15,6 +15,13 @@ unit.}
 
 \item{caliper}{The width of the caliper with respect to the scores
 \code{x}.}
+
+\item{within}{A valid distance specification, such as the result of
+\code{\link{exactMatch}} or \code{\link{caliper}}. Finite entries indicate
+which distances to create. Including this argument can significantly speed
+up computation for sparse matching problems. Specify this filter either via
+\code{within} or via \code{strata} elements of a formula; mixing these
+methods will fail.}
 }
 \value{
 An \code{InfinitySparseMatrix} object, suitable to be

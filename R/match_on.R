@@ -770,9 +770,8 @@ scoreCaliper <- function(x, z, caliper, within=NULL) {
     allowed <- dbind(allowed_list)
     allowed <- addEligibleTreatments(allowed,
                   within@rownames[!within@rownames %in% allowed@rownames], Inf)
-    allowed <- t(addEligibleTreatments(t(allowed),
-                    within@colnames[!within@colnames %in% allowed@colnames],
-                    Inf))
+    allowed <- addIneligibleControls(allowed,
+                  within@colnames[!within@colnames %in% allowed@colnames], Inf)
   } else {
     allowed <- scoreCaliperBlock(x, z, caliper)
   }
