@@ -1046,3 +1046,14 @@ test_that("add cols to an ISM", {
   BPlus <- addIneligibleControls(B, c("c"), c(5, 6, 7))
   expect_equivalent(as.matrix(BPlus), w)
 })
+
+test_that("scoreCaliper returns BISM when given a BISM within arg", {
+  scores <- rep(1:3, each = 4)
+  z <- rep(c(0,1), 6)
+  names(z) <- names(scores) <- letters[1:12]
+  b <- rep(1:3, 4)
+
+  ez <- exactMatch(z ~ b)
+  a <- scoreCaliper(scores, z, caliper=1, within=ez)
+  expect_true(is(a, "BlockedInfinitySparseMatrix"))
+})
