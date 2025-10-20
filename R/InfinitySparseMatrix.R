@@ -1053,7 +1053,7 @@ dbind <- function(..., force_unique_names = FALSE) {
                          sum(vapply(lapply(mats, methods::slot, "dimension"), "[", 1, 2))))
 
   # This needs to be much smarter, especially if any element is already a BISM
-  groups <- as.factor(rep(0:(length(mats)-1), times =
+  groups <- as.factor(rep(seq_along(mats), times =
                                       vapply(lapply(mats, slot, "colnames"), length, 1) +
                                         vapply(lapply(mats, slot, "rownames"), length, 1)))
   names(groups) <- do.call(c, Map(c, cnameslist, rnameslist))

@@ -1056,7 +1056,8 @@ test_that("scoreCaliper returns BISM when given a BISM within arg", {
   ez <- exactMatch(z ~ b)
   a <- scoreCaliper(scores, z, caliper=1, within=ez)
   expect_true(is(a, "BlockedInfinitySparseMatrix"))
-  expect_equal(ez@groups, a@groups) # fails
+  expect_equal(ez@groups[sort(names(ez@groups))],
+               a@groups[sort(names(a@groups))])
   ## currently getting:
   ## > ez@groups
   ## a b c d e f g h i j k l
