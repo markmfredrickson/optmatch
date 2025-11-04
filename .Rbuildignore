@@ -25,4 +25,5 @@ cran-comments.md
 ^docs$
 ^pkgdown$
 ^\.github$
+^developer_docs$
 ^CRAN-SUBMISSION$
