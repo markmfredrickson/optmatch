@@ -1,6 +1,8 @@
 ## Changes in **optmatch** Version 0.10.8
 
-- Updates to internal C++ code.
+- `optmatch:::scoreCaliper()` gains an optional
+  `within=` argument (#245)
+- Updates to internal C++ code
 
 ## Changes in **optmatch** Version 0.10.7
 
