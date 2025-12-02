@@ -1,0 +1,254 @@
+# Using Optmatch on data in SAS, Stata, etc
+
+## General comments
+
+If a users preferred data analysis software is other than R,
+**optmatch** can still easily be used to perform the matching while all
+other data analysis can be performed in the preferred software.
+
+In general, the procedure will be
+
+1.  In your preferred software, export a data set containing a treatment
+    indicator and all variables to match, exactMatch or caliper on.
+    - (Optionally, if you wish to match using a propensity score, fit
+      such a model and include the predicted propensity scores in the
+      data set.)
+2.  Import the data into R.
+3.  Perform the matching in R using **optmatch**.
+4.  Export the data from R, including information on the matched sets.
+5.  Import the data back into your preferred software.
+
+The most general way to import the data back-and-forth are using comma
+separated value files (.csv files), which any statistical software
+should be able to read & write.
+
+For .csv files, sample R code may be
+
+``` r
+> externaldata <- read.csv("externaldata.csv", header = TRUE)
+> externaldata$match <- fullmatch(..., data = externaldata)
+> write.csv(externaldata, file = "externaldata.matched.csv")
+```
+
+An example of doing this sort of operation with SAS is below. Following
+that, we demonstrate a similar procedure in Stata using the R package
+**haven** which reads and writes Stata’s .dta files directly.
+
+## Using Optmatch with SAS
+
+For this example, lets say we have some simple demographics. We will
+treat gender as the treatment indicator, and wish to match on a
+combination of a propensity score for gender (using both age and height)
+and age.
+
+``` sas
+data people;
+  infile datalines dsd dlm=' ' missover;
+  input gender age height;
+
+datalines;
+0 25 62
+0 41 68
+0 38 63
+0 22 62
+1 33 70
+1 35 71
+1 47 68
+1 23 64
+;
+run;
+```
+
+Now we can fit a logistic model to predict gender using age and height.
+
+``` sas
+proc logistic data = people;
+  model gender (event='1') = age height;
+  output out = preddata p=ppty;
+run;
+```
+
+Finally, since we want to match only on the new `ppty` propensity score
+and age, we can drop height.
+
+``` sas
+data newpeople;
+  set preddata;
+  keep gender age ppty;
+run;
+```
+
+Export the file from SAS into a .csv file.
+
+``` sas
+proc export data=newpeople;
+  outfile="/path/to/save/sasout.csv";
+run;
+```
+
+Inside R, we can load this data.
+
+``` r
+> sasdata <- read.csv("/path/to/save/sasout.csv", header = TRUE)
+```
+
+If you have string variables (e.g. race as “White”, “Hispanic”, etc),
+you may need to include the argument `stringsAsFactors = FALSE`. (This
+is the default in current R, but older versions of R had `TRUE` as the
+default.)
+
+Now, perform matching as desired, saving the final match to `sasdata`.
+For example,
+
+``` r
+> library(optmatch)
+> f <- fullmatch(gender ~ age + ppty, data = sasdata)
+> sasdata$match <- f
+```
+
+Save this data back to .csv as follows.
+
+``` r
+> write.csv(sasdata, "/path/to/saverout.sas.csv", row.names = FALSE)
+```
+
+The use of `row.names = FALSE` stops R from including the row names
+(likely 1, 2, 3, etc) as the first column in the data. If you
+re-arranged the data at any point, you may need to set that to `TRUE`,
+but keep in mind to handle it properly in SAS, as the default will be to
+treat it as a variable.
+
+Now, returning to SAS, we can read the new rout.sas.csv file in. The
+only catch is that we want to ensure that the match is read as a string
+by using `$`, since it may have values like `1.1` and `1.10`,
+representing two different matches, but which are identical if treated
+as numeric.
+
+``` sas
+data matchedpeople;
+  infile "/path/to/save/rout.sas.csv" dsd firstobs=2;
+  input gender age ppty match $;
+run;
+```
+
+The argument `firstobs=2` skips the variable names; alternatively you
+could pass `col.names=FALSE` to R’s `write.csv`, but then the
+rout.sas.csv file lacks any variable information, which may be useful to
+have.
+
+### A Note about Ordering
+
+If you carry out any additional operations in between steps above which
+re-order the original data, or the data exported over to R, the two data
+sets could have mis-matched rows by the end. If this is a concern,
+please retain or create a unique identifier per row. For example,
+something like
+
+``` sas
+data people_with_id
+    set people;
+    rownum = _N_;
+run;
+```
+
+When subsetting the data to drop variables irrelevant to the matching,
+be sure to keep `rownum`.
+
+After you’ve brought the data with the match information back into SAS,
+you can sort both data sets and merge with something like
+
+``` sas
+proc sort data=people_with_id out=people_with_id2;
+  by rownum;
+run;
+
+proc sort data=matchedpeople out=matchedpeople2;
+  by rownum;
+run;
+
+data matchedmerged ;
+  merge people_with_id2 matchedpeople2;
+  by rownum;
+run;
+```
+
+## Using Optmatch with Stata
+
+We’ll use the same example, with some simple demographics. We will treat
+gender as the treatment indicator, and wish to match on a combination of
+a propensity score for gender (using both age and height) and age.
+
+``` stata
+input gender age height
+0 25 62
+0 41 68
+0 38 63
+0 22 62
+1 33 70
+1 35 71
+1 47 68
+1 23 64
+end
+```
+
+First, lets fit the logistic regression model.
+
+``` stata
+logit gender age height
+predict ppty, xb
+```
+
+At the end we’ll be merging two files together to avoid any ordering
+issues, and as noted [above](#a-note-about-ordering), to do so we’ll
+create a unique identifier.
+
+``` stata
+gen rownum = _n
+```
+
+We’ll save only the relevant variables (treatment indicator, anything to
+be matched on, and the ID variable to merge on) to avoid saving and
+loading a very large file.
+
+``` stata
+preserve
+keep gender age ppty rownum
+save "/path/to/save/toR.dta"
+restore
+```
+
+Turning to R, this can be read in using the **haven** package
+
+``` r
+> library(haven)
+> statadata <- read_dta("/path/to/save/toR.dta")
+```
+
+Now, perform matching as desired, saving the final match to `statadata`.
+For example,
+
+``` r
+> library(optmatch)
+> f <- fullmatch(gender ~ age + ppty, data = sttadata)
+> statadata$match <- f
+```
+
+We’ll use **haven** again to write the data back to Stata. We do not
+recommend using .csv files to transfer the data back to Stata, though
+the `write.csv` file would be similar to that for SAS.
+
+``` r
+> write_dta(statadata, "/path/to/save/rout.stata.dta")
+```
+
+Back in Stata, you can merge this into the existing data set by the
+following commands:
+
+``` stata
+sort rownum
+merge 1:1 rownum using "/path/to/save/rout.stata.dta"
+```
+
+The `force` option may be necessary to overcome type differences.
+Additional tweaks may be necessary here if you have special variable
+types.
