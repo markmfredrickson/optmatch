@@ -11,7 +11,7 @@ test_that("distUnion Basics", {
   mbc <- matrix(7:8, nrow = 2, ncol = 1, dimnames = list(c("B", "C"), c("W")))
   expected <- matrix(c(Inf, 7, 8, 5, Inf, 6, 1, 2, Inf, 3, 4, Inf),
                      nrow = 3, ncol = 4,
-                     dimnames = list(treated = c("A", "B", "C"), control = c("W", "X", "Y", "Z")))
+                     dimnames = list(treatment = c("A", "B", "C"), control = c("W", "X", "Y", "Z")))
 
   iab <- optmatch:::as.InfinitySparseMatrix(mab)
   iac <- optmatch:::as.InfinitySparseMatrix(mac)

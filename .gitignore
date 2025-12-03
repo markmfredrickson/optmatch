@@ -25,6 +25,9 @@ vignettes/*.R
 vignettes/*.pdf
 .Rproj.user
 .DS_Store
+.gitignore~
+.Rbuildignore~
 /doc/
 /Meta/
 docs
+developer_docs/

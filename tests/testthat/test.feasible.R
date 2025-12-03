@@ -47,6 +47,8 @@ test_that("minExactMatch creates minimal exact match", {
   # checking that exactMatch can consume the results
   em <- exactMatch(df$Z ~ res)
   expect_equal(dim(em), c(16, 16))
+  blks <- table(res, df$Z) |> as.matrix() |> apply(1, prod)
+  expect_true(all(blks < maxarcs))
 
   # the formula must have both a  left and right side
   expect_error(minExactMatch(~ E1 + E2), "Formula")

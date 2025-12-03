@@ -44,7 +44,7 @@ test_that("ISM Basics", {
 
 test_that("ISM Handles Names", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
-              dimnames = list(treated = c("A", "B"),
+              dimnames = list(treatment = c("A", "B"),
                               control = c("C", "D")))
 
   expect_equal(as.matrix(as(m, "InfinitySparseMatrix")), m)
@@ -52,7 +52,7 @@ test_that("ISM Handles Names", {
   A <- makeInfinitySparseMatrix(c(1,2,3), rows = c(1,1,2), cols = c(1,2,2))
   expect_true(is.null(dimnames(A)))
 
-  dms <- list(treated = c("A", "B"), control = c("x", "y"))
+  dms <- list(treatment = c("A", "B"), control = c("x", "y"))
   dimnames(A) <- dms
   expect_equal(dimnames(A), dms)
 
@@ -264,7 +264,7 @@ test_that("#190: agreement in dimension names", {
 
 })
 
-test_that("Subsetting", {
+test_that("ISM Subsetting", {
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2)
   rownames(m) <- c("A", "B")
   colnames(m) <- c("C", "D")
@@ -362,7 +362,7 @@ test_that("t(ransform) function", {
   # we call t(m), everything is labeled properly
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
               dimnames = list(control = c("A", "B"),
-                              treated = c("C", "D")))
+                              treatment = c("C", "D")))
   A <- as.InfinitySparseMatrix(m)
 
   expect_equal(as.matrix(t(A)), t(m))
@@ -400,6 +400,23 @@ test_that("BlockedISM addition", {
     "BlockedInfinitySparseMatrix")
 })
 
+test_that("BlockedISM Subsetting", {
+  Z <- rep(c(0,1), 8)
+  B <- rep(1:4, each = 4)
+
+  res.b <- exactMatch(Z ~ B)
+  sub.b <- subset(res.b,
+                   c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
+                   c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE))
+
+  expect_is(sub.b, "BlockedInfinitySparseMatrix")
+  expect_false(is.null(sub.b@groups))
+  expect_equal(names(sub.b@groups),
+               c("1", "2", "5", "6", "9", "10", "13", "14"))
+  expect_equal(rownames(sub.b), c("2", "6", "10", "14"))
+  expect_equal(colnames(sub.b), c("1", "5", "9", "13"))
+})
+
 test_that("Get subproblem size of each block", {
   Z <- rep(c(0,1), 8)
   B1 <- c(rep('a',3),rep('b', 3), rep('c', 6), rep('d', 4))
@@ -416,7 +433,7 @@ test_that("Get subproblem size of each block", {
 
   m <- matrix(c(1,Inf, 2, 3), nrow = 2, ncol = 2,
               dimnames = list(control = c("A", "B"),
-                  treated = c("C", "D")))
+                  treatment = c("C", "D")))
   a <- as.InfinitySparseMatrix(m)
 
   # subdim on a matrix or non-blocked ISM is equivalent to calling dim

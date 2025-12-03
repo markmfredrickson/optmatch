@@ -32,7 +32,7 @@ function(distances) {
 
   # call factor() in order to drop unused levels
   tmp <- data.frame(control = factor(controls[idx]),
-                    treated = factor(treatments[idx]),
+                    treatment = factor(treatments[idx]),
                     distance = raw.distances[idx])
 
   return(tmp)
@@ -44,7 +44,7 @@ setMethod("prepareMatching", "InfinitySparseMatrix", function(distances) {
   }
 
   tmp <- data.frame(control = as.factor(distances@colnames[distances@cols]),
-                    treated = as.factor(distances@rownames[distances@rows]),
+                    treatment = as.factor(distances@rownames[distances@rows]),
                     distance = distances@.Data)
 
   return(tmp)
@@ -162,7 +162,7 @@ validDistanceSpecification <- function(distance, stopOnProblem = TRUE) {
 
   if (is.null(dimnames(distance))) {
     if (stopOnProblem) {
-      stop("Invalid distance: object must have dimnames. Rows are treated, columns are control.")
+      stop("Invalid distance: object must have dimnames. Rows are treatment, columns are control.")
     }
     return(FALSE)
   }

@@ -79,7 +79,7 @@ dim.InfinitySparseMatrix <- function(x) {
 #' @export
 as.matrix.InfinitySparseMatrix <- function(x, ...) {
   dims <- dim(x) ; nrow <- dims[1] ; ncol <- dims[2]
-  v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(treated = x@rownames, control = x@colnames))
+  v <- matrix(Inf, nrow = nrow, ncol = ncol, dimnames = list(treatment = x@rownames, control = x@colnames))
 
   # There might be a better, vectorized way to do this, but this is correct, if slow
   n <- length(x)
@@ -137,7 +137,7 @@ setMethod("dimnames", "InfinitySparseMatrix", function(x) {
   if (is.null(x@rownames) & is.null(x@colnames)) {
     return(NULL)
   }
-  list(treated = x@rownames, control = x@colnames)
+  list(treatment = x@rownames, control = x@colnames)
 })
 
 #' @rdname dimnames-InfinitySparseMatrix
@@ -178,8 +178,8 @@ ismOpHandler <- function(binOp, e1, e2) {
     warning("One matrix has dimnames and the other does not. Proper ordering is not guaranteed.")
   }
   else if (!is.null(dimnames(e1)) | !is.null(dimnames(e2))) {
-    t1 <- dimnames(e1)$treated
-    t2 <- dimnames(e2)$treated
+    t1 <- dimnames(e1)$treatment
+    t2 <- dimnames(e2)$treatment
     c1 <- dimnames(e1)$control
     c2 <- dimnames(e2)$control
     t1extra <- setdiff(t1, t2)
@@ -1102,4 +1102,35 @@ as.list.DenseMatrix <- function(x, ...) {
              stop("Cannot convert object to InfinitySparseMatrices")
            })
   return(x)
+}
+
+##' This matches the syntax and semantics of
+##' subset for matrices.
+##'
+##' @title Subsetting for BlockedInfinitySparseMatrices
+##' @param x BlockedInfinitySparseMatrix to be subset or bound.
+##' @param subset Logical expression indicating rows to keep.
+##' @param select Logical expression indicating columns to keep.
+##' @param ... Other arguments are ignored.
+##' @return If groups has names, a BlockedInfinitySparseMatrix with only
+##'         the selected elements, otherwise an InfinitySparsematrix with
+##'         only the selected elements
+##' @rdname bism.subset
+##' @export
+subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
+    subIsm <- callGeneric(as(x, "InfinitySparseMatrix"), subset, select)
+    oldNames <- names(x@groups)
+    if (!is.null(oldNames)) {   # we can use the groups names to subset groups
+        subNames <- oldNames[which((oldNames %in% subIsm@rownames) |
+                                   (oldNames %in% subIsm@colnames))]
+        subGroups <- x@groups[subNames]
+        subObj <- new("BlockedInfinitySparseMatrix",
+                      subIsm, groups = subGroups)
+    } else {
+        # since groups doesn't have names, we can't meaningfully subset it
+        # groups is meaningless for the subsetted matrix
+        # demote object to ISM
+        subObj <- subIsm
+    }
+    return(subObj)
 }
