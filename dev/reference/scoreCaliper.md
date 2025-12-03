@@ -6,7 +6,7 @@ of scores, a treatment indicator, and a caliper width.
 ## Usage
 
 ``` r
-scoreCaliper(x, z, caliper)
+scoreCaliper(x, z, caliper, within = NULL)
 ```
 
 ## Arguments
@@ -22,6 +22,17 @@ scoreCaliper(x, z, caliper)
 - caliper:
 
   The width of the caliper with respect to the scores `x`.
+
+- within:
+
+  A valid distance specification, such as the result of
+  [`exactMatch`](https://markmfredrickson.github.io/optmatch/dev/reference/exactMatch.md)
+  or
+  [`caliper`](https://markmfredrickson.github.io/optmatch/dev/reference/caliper-methods.md).
+  Finite entries indicate which distances to create. Including this
+  argument can significantly speed up computation for sparse matching
+  problems. Specify this filter either via `within` or via `strata`
+  elements of a formula; mixing these methods will fail.
 
 ## Value
 

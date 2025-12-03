@@ -4,7 +4,9 @@
 
 CRAN release: 2024-09-19
 
-- Updates to internal C++ code.
+- `optmatch:::scoreCaliper()` gains an optional `within=` argument
+  ([\#245](https://github.com/markmfredrickson/optmatch/issues/245))
+- Updates to internal C++ code
 
 ## Changes in **optmatch** Version 0.10.7
 
