@@ -404,15 +404,19 @@ match_on.formula <- function(x,
     methodname <- as.character(class(method))
   }
 
-  which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 4)
+  which.method <- pmatch(methodname,
+                         c("mahalanobis", "euclidean",
+                           "rank_mahalanobis", "pooled_rank_mahalanobis",
+                           "function"), 5)
   tmp <- switch(which.method,
 		makedist(z, data, compute_mahalanobis, within),
 		makedist(z, data, compute_euclidean, within),
-    makedist(z, data, compute_rank_mahalanobis, within),
-    {
-      warning("Passing a user-defined `method` to `match_on.formula` is not supported and results are not guaranteed. User-defined distances should use `match_on.function` instead.")
-      makedist(z, data, match.fun(method), within)
-    }
+                makedist(z, data, compute_rank_mahalanobis, within),
+                makedist(z, data, compute_rank_mahalanobis_pooled, within),
+                {
+                    warning("Passing a user-defined `method` to `match_on.formula` is not supported and results are not guaranteed. User-defined distances should use `match_on.function` instead.")
+                    makedist(z, data, match.fun(method), within)
+                }
 		)
   rm(mf)
 
@@ -561,6 +565,19 @@ compute_rank_mahalanobis <- function(index, data, z) {
     rankdists <- sqrt(r_smahal(NULL, data, z))
     rankdists <- rankdists[indices]
     return(rankdists)
+}
+
+compute_rank_mahalanobis_pooled <- function(index, data, z) {
+    if (!all(is.finite(data))) {
+        stop("Infinite or NA values detected in data for Mahalanobis computations.")
+    }
+
+    if (is.null(index)) return(sqrt(r_smahal(NULL, data, z)))
+
+    if (is.null(rownames(data)) | !all(index %in% rownames(data)))
+        stop("data must have row names matching index")
+
+    return(compute_mahalanobis(index, apply(data, 2, rank), z))
 }
 
 #' @details \bold{First argument (\code{x}): \code{function}.} The passed function

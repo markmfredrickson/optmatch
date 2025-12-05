@@ -125,3 +125,16 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
 
 
 })
+
+test_that(
+    "compute_rank_mahalanobis_pooled results match ordinary Mahalanobis's",
+    {
+    nr <- 10L
+    z <- integer(nr)
+    z[sample(1:nr, nr / 2L)] <- 1L
+
+    X <- as.matrix(1L:nr)
+    df <- data.frame(z = z, X)
+    expect_equivalent(match_on(z~., data=df, method="pooled_rank"),
+                      match_on(z~., data=df, method="mahalanobis"))
+    })
