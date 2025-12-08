@@ -406,13 +406,13 @@ match_on.formula <- function(x,
 
   which.method <- pmatch(methodname,
                          c("mahalanobis", "euclidean",
-                           "rank_mahalanobis", "pooled_rank_mahalanobis",
+                           "rank_mahalanobis", "pooled_cov_rank_mahalanobis",
                            "function"), 5)
   tmp <- switch(which.method,
-		makedist(z, data, compute_mahalanobis, within),
-		makedist(z, data, compute_euclidean, within),
+                makedist(z, data, compute_mahalanobis, within),
+                makedist(z, data, compute_euclidean, within),
                 makedist(z, data, compute_rank_mahalanobis, within),
-                makedist(z, data, compute_rank_mahalanobis_pooled, within),
+                makedist(z, data, compute_pooled_cov_rank_mahalanobis, within),
                 {
                     warning("Passing a user-defined `method` to `match_on.formula` is not supported and results are not guaranteed. User-defined distances should use `match_on.function` instead.")
                     makedist(z, data, match.fun(method), within)
@@ -567,12 +567,9 @@ compute_rank_mahalanobis <- function(index, data, z) {
     return(rankdists)
 }
 
-compute_rank_mahalanobis_pooled <- function(index, data, z) {
-    if (!all(is.finite(data))) {
+compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
+    if (!all(is.finite(data)))
         stop("Infinite or NA values detected in data for Mahalanobis computations.")
-    }
-
-    if (is.null(index)) return(sqrt(r_smahal(NULL, data, z)))
 
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
