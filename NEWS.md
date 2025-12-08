@@ -2,6 +2,11 @@
 
 - `optmatch:::scoreCaliper()` gains an optional
   `within=` argument (#245)
+- `match_on(z~x, method="rank_mahalanobis", within=foo)` makes
+  better use of restrictions in foo to contain time/memory costs.
+- For rank Mahalanobis with underlying covariances pooled across
+  treatment and control groups, you can now use
+  `match_on(z~x, method="pooled_cov_rank_mahalanobis")`.
 - Updates to internal C++ code
 
 ## Changes in **optmatch** Version 0.10.7

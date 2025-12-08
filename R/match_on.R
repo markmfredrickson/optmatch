@@ -274,8 +274,14 @@ match_on.bigglm <- function(x,
 #'   redundancies among the variables by scaling down variables contributions in
 #'   proportion to their correlations with other included variables.)
 #'
-#'   Euclidean distance is also available, via \code{method="euclidean"}, and
-#'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
+#'   Euclidean distance is also available, via \code{method="euclidean"}, as
+#'   are two flavors of ranked-based Mahalanobis distance, via
+#'   \code{method="rank_mahalanobis"} or \code{method="pooled_cov_rank_mahalanobis"}.
+#'   Either rank-transforms the covariates first; they differ in whether
+#'   subsequent covariance of thus-transformed covariates is calculated
+#'   on all subjects or by pooling of with-group covariances across
+#'   treatment and control. The \code{method=} argument can be abbreviated
+#'   in the usual way (via [base::pmatch()]).
 #'
 #'   The treatment indicator \code{Z} as noted above must either be numeric
 #'   (1 representing treated units and 0 control units) or logical
