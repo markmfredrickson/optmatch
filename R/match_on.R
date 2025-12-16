@@ -580,7 +580,33 @@ compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
 
-    return(compute_mahalanobis(index, apply(data, 2, rank), z))
+    data <- apply(data, 2, rank)
+
+    if (sum(z) == 1) {
+      mt <- 0  # Addressing #168
+    } else {
+      treated <- data[z, ,drop = FALSE]
+      nt <- nrow(treated)
+      mt <- cov(treated) * (sum(z) - 1) / (length(z) - 2)
+      mt <- scale_addressing_ties(nt, mt)
+    }
+
+    if (sum(!z) == 1) {
+      mc <- 0  # Addressing #168
+    } else {
+      control <- data[!z, ,drop = FALSE]
+      nc <- nrow(control)
+      mc <- cov(control) * (sum(!z) - 1) / (length(!z) - 2)
+      mc <- scale_addressing_ties(nc, mc)
+    }
+
+    cv <- mt + mc
+    rm(mt, mc)
+
+    inv.scale.matrix <- safe_invert(cv)
+    rm(cv)
+
+    return(compute_mahalanobis(index, data, z))
 }
 
 #' @details \bold{First argument (\code{x}): \code{function}.} The passed function
