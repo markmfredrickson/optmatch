@@ -519,19 +519,7 @@ compute_mahalanobis <- function(index, data, z) {
     cv <- mt + mc
     rm(mt, mc)
 
-    inv.scale.matrix <- try(solve(cv), silent = TRUE)
-
-    if (inherits(inv.scale.matrix,"try-error")) {
-      dnx <- dimnames(cv)
-      s <- svd(cv)
-      nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-      if (!any(nz)) stop("covariance has rank zero")
-
-      inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-      dimnames(inv.scale.matrix) <- dnx[2:1]
-      rm(dnx, s, nz)
-    }
-
+    inv.scale.matrix <- safe_invert(cv)
     rm(cv)
 
     return(mahalanobisHelper(data, index, inv.scale.matrix))
@@ -558,19 +546,14 @@ compute_rank_mahalanobis <- function(index, data, z) {
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
 
-    # begin workaround solution to #128
-    all_treated <- rownames(data)[as.logical(z)]
-    all_control <- rownames(data)[!z]
-    all_indices <- expand.grid(all_treated, all_control,
-                               KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
-    all_indices <- paste(all_indices[[1]], all_indices[[2]], sep="%@%")
-    short_indices <- paste(index[,1], index[,2], sep="%@%")
-    indices <- match(short_indices, all_indices)
-    if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
-    # Now, since `r_smahal` is ignoring its `index` argument anyway:
-    rankdists <- sqrt(r_smahal(NULL, data, z))
-    rankdists <- rankdists[indices]
-    return(rankdists)
+    data <- apply(data, 2, rank)
+    n <- nrow(data)
+    m <- cov(data)
+    cv <- scale_addressing_ties(nrow(data), cov(data))
+    inv.scale.matrix <- safe_invert(cv)
+    rm(cv)
+
+    return(mahalanobisHelper(data, index, inv.scale.matrix))
 }
 
 compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
@@ -606,7 +589,7 @@ compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
     inv.scale.matrix <- safe_invert(cv)
     rm(cv)
 
-    return(compute_mahalanobis(index, data, z))
+    return(mahalanobisHelper(data, index, inv.scale.matrix))
 }
 
 #' @details \bold{First argument (\code{x}): \code{function}.} The passed function
