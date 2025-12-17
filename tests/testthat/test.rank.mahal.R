@@ -111,7 +111,7 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
 
     reference_rankmahal <- compute_smahal(z, X)
 
-        indices <- expand.grid(rownames(reference_rankmahal), colnames(reference_rankmahal))
+    indices <- expand.grid(rownames(reference_rankmahal), colnames(reference_rankmahal))
     indices <- as.matrix(indices)
     expect_equivalent(optmatch:::compute_rank_mahalanobis(indices, X, as.logical(z)),
                 reference_rankmahal[1L:numdists])

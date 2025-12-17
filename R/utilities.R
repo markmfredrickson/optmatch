@@ -140,10 +140,14 @@ missing_x_msg <- function(x_str, data_str, ...) {
 }
 
 scale_addressing_ties <- function(n, cv) {
-  vuntied <- var(1:n)
-  rat <- as.matrix(sqrt(vuntied/diag(cv)))
-  cv <- diag(rat) %*% cv %*% diag(rat)
-  return(cv)
+    vuntied <- var(1:n)
+    rat <- sqrt(vuntied/diag(cv))
+    if (length(rat) > 1) {
+        diag_rat <- diag(rat)
+    } else {
+        diag_rat <- as.matrix(rat)
+    }
+    return(diag_rat %*% cv %*% diag_rat)
 }
 
 safe_invert <- function(x) {

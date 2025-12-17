@@ -60,3 +60,13 @@ test_that("#159 - toZ for labelled", {
     expect_true(TRUE) # avoiding empty test warning
   }
 })
+
+test_that("scale_addressing_ties", {
+    ## given a pair of columns of integer ranks of some data including a few ties,  scale_addressing_ties() indeed returns a matrix with diagonal entries all equal to var(1:n)
+
+    x <- cbind(sample(1:5, 10, replace=TRUE),
+               sample(1:5, 10, replace=TRUE))
+    y <- scale_addressing_ties(nrow(x), cov(x))
+    dy <- diag(y)
+    expect_equal(dy, rep(var(1:nrow(x)), length(dy)))
+})
