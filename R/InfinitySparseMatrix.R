@@ -1120,8 +1120,10 @@ as.list.DenseMatrix <- function(x, ...) {
 subset.BlockedInfinitySparseMatrix <- function(x, subset, select, ...) {
     subIsm <- callGeneric(as(x, "InfinitySparseMatrix"), subset, select)
     oldNames <- names(x@groups)
-    if (!setequal(union(x@rownames, x@colnames), oldNames)) {
-        warning("Subsetting BlockedInfinitySparseMatrix with rownames union colnames not set equal to group names results in an InfinitySparseMatrix.")
+    if (!all(union(x@rownames, x@colnames) %in% oldNames)) {
+        warning(paste("Subsetting BlockedInfinitySparseMatrix with",
+                      "rownames union colnames not set equal to",
+                      "group names results in an InfinitySparseMatrix."))
         return(subIsm)
     }
     if (!is.null(oldNames)) {   # we can use the groups names to subset groups
