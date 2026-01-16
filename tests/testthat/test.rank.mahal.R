@@ -127,12 +127,17 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
 })
 
 test_that("compute_pooled_cov_rank_mahalanobis results match ordinary Mahalanobis's", {
+    ## nr number of samples
     nr <- 10L
     z <- integer(nr)
+    ## two outcomes: 0 (from initialization), and 1 (assigned below randomly)
     z[sample(1:nr, nr / 2L)] <- 1L
 
-    X <- as.matrix(1L:nr)
-    df <- data.frame(z = z, X)
+    ## Goal: two groups with the same within-group variance and no rank ties
+    df <- data.frame(z = z, X = integer(nr))
+    df[df$z == 0, 'X'] <- seq(1, by=2, len = nr / 2)  # odds
+    df[df$z == 1, 'X'] <- seq(2, by=2, len = nr / 2)  # evens
+
     expect_equivalent(match_on(z~., data=df, method="pooled_cov"),
                       match_on(z~., data=df, method="mahalanobis"))
 
