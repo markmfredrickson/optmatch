@@ -570,8 +570,8 @@ compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
     } else {
       treated <- data[z, ,drop = FALSE]
       nt <- nrow(treated)
-      mt <- cov(treated) * (sum(z) - 1) / (length(z) - 2)
-      mt <- scale_addressing_ties(nt, mt)
+      mt <- scale_addressing_ties(nt, cov(treated))
+      mt <- mt * (sum(z) - 1) / (length(z) - 2)
     }
 
     if (sum(!z) == 1) {
@@ -579,8 +579,8 @@ compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
     } else {
       control <- data[!z, ,drop = FALSE]
       nc <- nrow(control)
-      mc <- cov(control) * (sum(!z) - 1) / (length(!z) - 2)
-      mc <- scale_addressing_ties(nc, mc)
+      mc <- scale_addressing_ties(nc, cov(control))
+      mc <- mc * (sum(!z) - 1) / (length(!z) - 2)
     }
 
     cv <- mt + mc
