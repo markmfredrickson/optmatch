@@ -138,3 +138,30 @@ missing_x_msg <- function(x_str, data_str, ...) {
         paste(data_str, "$", x_str, sep=""),
         msg_tail)
 }
+
+#' @importFrom stats var
+scale_addressing_ties <- function(n, cv) {
+    vuntied <- var(1:n)
+    rat <- sqrt(vuntied/diag(cv))
+    if (length(rat) > 1) {
+        diag_rat <- diag(rat)
+    } else {
+        diag_rat <- as.matrix(rat)
+    }
+    return(diag_rat %*% cv %*% diag_rat)
+}
+
+safe_invert <- function(x) {
+  inv.scale.matrix <- try(solve(x), silent = TRUE)
+
+  if (inherits(inv.scale.matrix,"try-error")) {
+    dnx <- dimnames(x)
+    s <- svd(x)
+    nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
+    if (!any(nz)) stop("covariance has rank zero")
+
+    inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
+    dimnames(inv.scale.matrix) <- dnx[2:1]
+  }
+  return(inv.scale.matrix)
+}

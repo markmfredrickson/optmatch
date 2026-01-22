@@ -111,7 +111,7 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
 
     reference_rankmahal <- compute_smahal(z, X)
 
-        indices <- expand.grid(rownames(reference_rankmahal), colnames(reference_rankmahal))
+    indices <- expand.grid(rownames(reference_rankmahal), colnames(reference_rankmahal))
     indices <- as.matrix(indices)
     expect_equivalent(optmatch:::compute_rank_mahalanobis(indices, X, as.logical(z)),
                 reference_rankmahal[1L:numdists])
@@ -124,4 +124,43 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
                       reference_rankmahal[-omitdists])
 
 
+})
+
+is_scalar_multiple <- function(A, B) {
+  # Ensure dimensions match
+  if (!all(dim(A) == dim(B))) {
+    return(FALSE)
+  }
+
+  # Find positions where B is non-zero to avoid division by zero
+  non_zero_positions <- B != 0
+
+  # Compute element-wise ratio where B != 0
+  ratios <- A[non_zero_positions] / B[non_zero_positions]
+
+  # Check if all ratios are (approximately) equal
+  return(all(abs(ratios - ratios[1]) < 1e-8))
+}
+
+test_that("compute_pooled_cov_rank_mahalanobis results match ordinary Mahalanobis's", {
+    ## nr number of samples
+    nr <- 10L
+    z <- integer(nr)
+    ## two outcomes: 0 (from initialization), and 1 (assigned below randomly)
+    z[sample(1:nr, nr / 2L)] <- 1L
+
+    ## Goal: two groups with the same within-group variance and no rank ties
+    df <- data.frame(z = z, X = integer(nr))
+    df[df$z == 0, 'X'] <- seq(1, by=2, len = nr / 2)  # odds
+    df[df$z == 1, 'X'] <- seq(2, by=2, len = nr / 2)  # evens
+
+    A <- match_on(z~., data=df, method="pooled_cov")
+    B <- match_on(z~., data=df, method="mahalanobis")
+    # Check if all ratios are (approximately) equal
+    expect_true(is_scalar_multiple(A, B))
+
+    ez <- exactMatch(z~., data=df)
+    A <- match_on(z~., data=df, method="pooled_cov", within=ez)
+    B <- match_on(z~., data=df, method="mahalanobis", within=ez)
+    expect_true(is_scalar_multiple(A, B))
 })

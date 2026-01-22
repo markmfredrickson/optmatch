@@ -2,6 +2,8 @@
 # Tests for utility functions
 ################################################################################
 
+library(MASS)
+
 context("Utility Functions")
 
 test_that("toZ", {
@@ -59,4 +61,26 @@ test_that("#159 - toZ for labelled", {
   } else {
     expect_true(TRUE) # avoiding empty test warning
   }
+})
+
+test_that("scale_addressing_ties", {
+    x <- cbind(sample(1:5, 10, replace=TRUE),
+               sample(1:5, 10, replace=TRUE))
+    y <- scale_addressing_ties(nrow(x), cov(x))
+    dy <- diag(y)
+    expect_equal(dy, rep(var(1:nrow(x)), length(dy)))
+})
+
+test_that("safe_invert", {
+    ## full rank symmetric square matrix
+    A <- matrix(runif(25), 5, 5)
+    symmetric_matrix <- A %*% t(A)
+    inv_A <- safe_invert(A)
+    expect_equal(inv_A, solve(A))
+
+    ## rank deficient symmetric square matrix
+    B <- matrix(runif(15), 5, 3)
+    symmetric_matrix <- B %*% t(B)
+    inv_B <- safe_invert(B)
+    expect_equal(inv_B, ginv(B))
 })

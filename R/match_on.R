@@ -274,8 +274,14 @@ match_on.bigglm <- function(x,
 #'   redundancies among the variables by scaling down variables contributions in
 #'   proportion to their correlations with other included variables.)
 #'
-#'   Euclidean distance is also available, via \code{method="euclidean"}, and
-#'   ranked, Mahalanobis distance, via \code{method="rank_mahalanobis"}.
+#'   Euclidean distance is also available, via \code{method="euclidean"}, as
+#'   are two flavors of ranked-based Mahalanobis distance, via
+#'   \code{method="rank_mahalanobis"} or \code{method="pooled_cov_rank_mahalanobis"}.
+#'   Either rank-transforms the covariates first; they differ in whether
+#'   subsequent covariance of thus-transformed covariates is calculated
+#'   on all subjects or by pooling of with-group covariances across
+#'   treatment and control. The \code{method=} argument can be abbreviated
+#'   in the usual way (via [base::pmatch()]).
 #'
 #'   The treatment indicator \code{Z} as noted above must either be numeric
 #'   (1 representing treated units and 0 control units) or logical
@@ -404,15 +410,19 @@ match_on.formula <- function(x,
     methodname <- as.character(class(method))
   }
 
-  which.method <- pmatch(methodname, c("mahalanobis", "euclidean", "rank_mahalanobis", "function"), 4)
+  which.method <- pmatch(methodname,
+                         c("mahalanobis", "euclidean",
+                           "rank_mahalanobis", "pooled_cov_rank_mahalanobis",
+                           "function"), 5)
   tmp <- switch(which.method,
-		makedist(z, data, compute_mahalanobis, within),
-		makedist(z, data, compute_euclidean, within),
-    makedist(z, data, compute_rank_mahalanobis, within),
-    {
-      warning("Passing a user-defined `method` to `match_on.formula` is not supported and results are not guaranteed. User-defined distances should use `match_on.function` instead.")
-      makedist(z, data, match.fun(method), within)
-    }
+                makedist(z, data, compute_mahalanobis, within),
+                makedist(z, data, compute_euclidean, within),
+                makedist(z, data, compute_rank_mahalanobis, within),
+                makedist(z, data, compute_pooled_cov_rank_mahalanobis, within),
+                {
+                    warning("Passing a user-defined `method` to `match_on.formula` is not supported and results are not guaranteed. User-defined distances should use `match_on.function` instead.")
+                    makedist(z, data, match.fun(method), within)
+                }
 		)
   rm(mf)
 
@@ -509,19 +519,7 @@ compute_mahalanobis <- function(index, data, z) {
     cv <- mt + mc
     rm(mt, mc)
 
-    inv.scale.matrix <- try(solve(cv), silent = TRUE)
-
-    if (inherits(inv.scale.matrix,"try-error")) {
-      dnx <- dimnames(cv)
-      s <- svd(cv)
-      nz <- (s$d > sqrt(.Machine$double.eps) * s$d[1])
-      if (!any(nz)) stop("covariance has rank zero")
-
-      inv.scale.matrix <- s$v[, nz] %*% (t(s$u[, nz])/s$d[nz])
-      dimnames(inv.scale.matrix) <- dnx[2:1]
-      rm(dnx, s, nz)
-    }
-
+    inv.scale.matrix <- safe_invert(cv)
     rm(cv)
 
     return(mahalanobisHelper(data, index, inv.scale.matrix))
@@ -548,19 +546,50 @@ compute_rank_mahalanobis <- function(index, data, z) {
     if (is.null(rownames(data)) | !all(index %in% rownames(data)))
         stop("data must have row names matching index")
 
-    # begin workaround solution to #128
-    all_treated <- rownames(data)[as.logical(z)]
-    all_control <- rownames(data)[!z]
-    all_indices <- expand.grid(all_treated, all_control,
-                               KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
-    all_indices <- paste(all_indices[[1]], all_indices[[2]], sep="%@%")
-    short_indices <- paste(index[,1], index[,2], sep="%@%")
-    indices <- match(short_indices, all_indices)
-    if (any(is.na(indices))) stop("Unanticipated problem. (Make sure row names of data don't use the string '%@%'.)")
-    # Now, since `r_smahal` is ignoring its `index` argument anyway:
-    rankdists <- sqrt(r_smahal(NULL, data, z))
-    rankdists <- rankdists[indices]
-    return(rankdists)
+    data <- apply(data, 2, rank)
+    n <- nrow(data)
+    m <- cov(data)
+    cv <- scale_addressing_ties(nrow(data), cov(data))
+    inv.scale.matrix <- safe_invert(cv)
+    rm(cv)
+
+    return(mahalanobisHelper(data, index, inv.scale.matrix))
+}
+
+compute_pooled_cov_rank_mahalanobis <- function(index, data, z) {
+    if (!all(is.finite(data)))
+        stop("Infinite or NA values detected in data for Mahalanobis computations.")
+
+    if (is.null(rownames(data)) | !all(index %in% rownames(data)))
+        stop("data must have row names matching index")
+
+    data <- apply(data, 2, rank)
+
+    if (sum(z) == 1) {
+      mt <- 0  # Addressing #168
+    } else {
+      treated <- data[z, ,drop = FALSE]
+      nt <- nrow(treated)
+      mt <- scale_addressing_ties(nt, cov(treated))
+      mt <- mt * (sum(z) - 1) / (length(z) - 2)
+    }
+
+    if (sum(!z) == 1) {
+      mc <- 0  # Addressing #168
+    } else {
+      control <- data[!z, ,drop = FALSE]
+      nc <- nrow(control)
+      mc <- scale_addressing_ties(nc, cov(control))
+      mc <- mc * (sum(!z) - 1) / (length(!z) - 2)
+    }
+
+    cv <- mt + mc
+    rm(mt, mc)
+
+    inv.scale.matrix <- safe_invert(cv)
+    rm(cv)
+
+    return(mahalanobisHelper(data, index, inv.scale.matrix))
 }
 
 #' @details \bold{First argument (\code{x}): \code{function}.} The passed function
