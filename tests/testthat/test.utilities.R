@@ -2,6 +2,8 @@
 # Tests for utility functions
 ################################################################################
 
+library(MASS)
+
 context("Utility Functions")
 
 test_that("toZ", {
@@ -80,5 +82,5 @@ test_that("safe_invert", {
     B <- matrix(runif(15), 5, 3)
     symmetric_matrix <- B %*% t(B)
     inv_B <- safe_invert(B)
-    expect_equal(inv_B, MASS::ginv(B))
+    expect_equal(inv_B, ginv(B))
 })

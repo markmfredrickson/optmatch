@@ -139,6 +139,7 @@ missing_x_msg <- function(x_str, data_str, ...) {
         msg_tail)
 }
 
+#' @importFrom stats var
 scale_addressing_ties <- function(n, cv) {
     vuntied <- var(1:n)
     rat <- sqrt(vuntied/diag(cv))

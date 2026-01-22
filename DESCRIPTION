@@ -39,7 +39,8 @@ Suggests:
     pander,
     xtable,
     rrelaxiv,
-    magrittr
+    magrittr,
+    MASS
 Enhances:
     CBPS,
     haven
