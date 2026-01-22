@@ -282,8 +282,14 @@ needed to compute sparse distance matrices.</p>
   the reexpressed variables all have pooled SDs of 1; except that it addresses
   redundancies among the variables by scaling down variables contributions in
   proportion to their correlations with other included variables.)</p>
-<p>Euclidean distance is also available, via <code>method="euclidean"</code>, and
-  ranked, Mahalanobis distance, via <code>method="rank_mahalanobis"</code>.</p>
+<p>Euclidean distance is also available, via <code>method="euclidean"</code>, as
+  are two flavors of ranked-based Mahalanobis distance, via
+  <code>method="rank_mahalanobis"</code> or <code>method="pooled_cov_rank_mahalanobis"</code>.
+  Either rank-transforms the covariates first; they differ in whether
+  subsequent covariance of thus-transformed covariates is calculated
+  on all subjects or by pooling of with-group covariances across
+  treatment and control. The <code>method=</code> argument can be abbreviated
+  in the usual way (via [base::pmatch()]).</p>
 <p>The treatment indicator <code>Z</code> as noted above must either be numeric
   (1 representing treated units and 0 control units) or logical
   (<code>TRUE</code> for treated, <code>FALSE</code> for controls). (Earlier versions of

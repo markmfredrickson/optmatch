@@ -241,8 +241,14 @@ reexpressed variables all have pooled SDs of 1; except that it addresses
 redundancies among the variables by scaling down variables contributions
 in proportion to their correlations with other included variables.)
 
-Euclidean distance is also available, via `method="euclidean"`, and
-ranked, Mahalanobis distance, via `method="rank_mahalanobis"`.
+Euclidean distance is also available, via `method="euclidean"`, as are
+two flavors of ranked-based Mahalanobis distance, via
+`method="rank_mahalanobis"` or `method="pooled_cov_rank_mahalanobis"`.
+Either rank-transforms the covariates first; they differ in whether
+subsequent covariance of thus-transformed covariates is calculated on
+all subjects or by pooling of with-group covariances across treatment
+and control. The `method=` argument can be abbreviated in the usual way
+(via \[base::pmatch()\]).
 
 The treatment indicator `Z` as noted above must either be numeric (1
 representing treated units and 0 control units) or logical (`TRUE` for
