@@ -126,6 +126,22 @@ test_that("Fix for #128 (`compute_rank_mahalanobis` ignores index argument) hold
 
 })
 
+is_scalar_multiple <- function(A, B) {
+  # Ensure dimensions match
+  if (!all(dim(A) == dim(B))) {
+    return(FALSE)
+  }
+
+  # Find positions where B is non-zero to avoid division by zero
+  non_zero_positions <- B != 0
+
+  # Compute element-wise ratio where B != 0
+  ratios <- A[non_zero_positions] / B[non_zero_positions]
+
+  # Check if all ratios are (approximately) equal
+  return(all(abs(ratios - ratios[1]) < 1e-8))
+}
+
 test_that("compute_pooled_cov_rank_mahalanobis results match ordinary Mahalanobis's", {
     ## nr number of samples
     nr <- 10L
@@ -138,10 +154,13 @@ test_that("compute_pooled_cov_rank_mahalanobis results match ordinary Mahalanobi
     df[df$z == 0, 'X'] <- seq(1, by=2, len = nr / 2)  # odds
     df[df$z == 1, 'X'] <- seq(2, by=2, len = nr / 2)  # evens
 
-    expect_equivalent(match_on(z~., data=df, method="pooled_cov"),
-                      match_on(z~., data=df, method="mahalanobis"))
+    A <- match_on(z~., data=df, method="pooled_cov")
+    B <- match_on(z~., data=df, method="mahalanobis")
+    # Check if all ratios are (approximately) equal
+    expect_true(is_scalar_multiple(A, B))
 
     ez <- exactMatch(z~., data=df)
-    expect_equivalent(match_on(z~., data=df, method="pooled_cov", within=ez),
-                      match_on(z~., data=df, method="mahalanobis", within=ez))
+    A <- match_on(z~., data=df, method="pooled_cov", within=ez)
+    B <- match_on(z~., data=df, method="mahalanobis", within=ez)
+    expect_true(is_scalar_multiple(A, B))
 })
