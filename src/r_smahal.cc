@@ -9,7 +9,7 @@ SEXP r_smahal(SEXP index, SEXP data, SEXP z) {
   Rcpp::NumericMatrix dataMat(data);
   DMAT * ans = smahal(dataMat.nrow(), dataMat.ncol(), REAL(data), LOGICAL(z));
   if(ans == NULL || ans->nr < 1 || ans->nc <1)
-    Rf_error("smahal_nosexp returned an invalid answer");
+    Rcpp::stop("smahal_nosexp returned an invalid answer");
 
   SEXP out;
   Rf_protect(out = Rf_allocMatrix(REALSXP, ans->nr, ans->nc));

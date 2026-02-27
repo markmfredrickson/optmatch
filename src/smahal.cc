@@ -1,4 +1,5 @@
 #include "smahal.h"
+#include <Rcpp.h>
 
 void rank(int n, const double * data, double * ranks) {
   double
@@ -36,7 +37,7 @@ bool rerank_dups(int n, const double * data, double * ranks) {
             if(data[j] == data[i]) {
                 dup_idx[ndups] = j;
                 ndups++;
-		any_ties = true;
+                any_ties = true;
                 mean_rank += ranks[j];
                 visited[j] = 1;
             }
@@ -151,9 +152,9 @@ void ginv_square(double * square_mat, int n) {
     }
 
     if(info < 0)
-      Rf_error("dgesdd: problem with one of the arguments");
+      Rcpp::stop("dgesdd: problem with one of the arguments");
     else if(info > 0)
-      Rf_error("dgesdd: dbdsdc did not converge, updating process failed");
+      Rcpp::stop("dgesdd: dbdsdc did not converge, updating process failed");
 
     double
       smax = dmax(n, s),
@@ -161,9 +162,9 @@ void ginv_square(double * square_mat, int n) {
 
     for(int i = 0; i < n; i++) {
       if(s[i] > cutoff)
-	s[i] = 1.0 / s[i];
+        s[i] = 1.0 / s[i];
       else
-	s[i] = 0.0;
+        s[i] = 0.0;
     }
 
     transpose_sq(n, vt);
@@ -274,7 +275,7 @@ DMAT * smahal(int nr, int nc, double * data, int * z) {
 
     DMAT * out_distances = R_Calloc(1, DMAT);
     if(out_distances == NULL)
-      Rf_error("smahal:out_distances:NULL R_Calloc\n");
+      Rcpp::stop("smahal:out_distances:NULL R_Calloc\n");
 
     out_distances->data = R_Calloc(ntreat * ncontrol, double);
     out_distances->nr = ntreat;
