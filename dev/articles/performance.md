@@ -220,7 +220,7 @@ methods grow roughly quadratically, as we would expect from the nature
 of the algorithms. Of course, the absolute run time of **match_on** is
 orders of magnitude worse.
 
-    #> Warning in xy.coords(x, y, xlabel, ylabel, log): 2 y values <= 0 omitted from
+    #> Warning in xy.coords(x, y, xlabel, ylabel, log): 1 y value <= 0 omitted from
     #> logarithmic plot
 
 ![Figure 12. Run times for increasingly large problems for the
