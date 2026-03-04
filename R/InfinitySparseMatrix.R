@@ -973,34 +973,61 @@ dbind <- function(..., force_unique_names = FALSE) {
 
 
   # Convert all matrices to ISMs if they aren't already.
-  mats <- lapply(mats, function(x) {
+  # Also build a parallel vector of group labels for each entry.
+  input_names <- names(mats)
+  converted <- lapply(seq_along(mats), function(i) {
+    x <- mats[[i]]
+    nm <- if (!is.null(input_names) && nzchar(input_names[i])) input_names[i] else NA_character_
+
     if (is(x, "BlockedInfinitySparseMatrix")) {
-      # Replace BISM with list of ISMs
-      findSubproblems(x)
+      # Replace BISM with list of ISMs; use its existing group level names
+      sp <- findSubproblems(x)
+      list(mats = sp, labels = names(sp))
     } else if (inherits(x, "list")) {
       # If any entry in ... is a list,
+      inner_names <- names(x)
       # 1) Convert all entries in that list to ISM while keeping BISM as BISM
       x <- lapply(x, .as.ism_or_bism)
-      # 2) If we have any BISMs, split into list of ISMS
-      x <- lapply(x, function(y) {
+      # 2) If we have any BISMs, split into list of ISMs, preserving labels
+      inner_converted <- lapply(seq_along(x), function(j) {
+        y <- x[[j]]
+        inner_nm <- if (!is.null(inner_names) && nzchar(inner_names[j])) inner_names[j] else NA_character_
         if (is(y, "BlockedInfinitySparseMatrix")) {
-          findSubproblems(y)
+          sp <- findSubproblems(y)
+          list(mats = sp, labels = names(sp))
         } else {
-          y
+          list(mats = y, labels = inner_nm)
         }
       })
       # 3) pull list of lists into list
-      flatten_list(x)
+      list(mats = flatten_list(lapply(inner_converted, `[[`, "mats")),
+           labels = unlist(lapply(inner_converted, `[[`, "labels")))
     } else {
       # This will error appropriately if some element in `mats` cannot be
       # converted to an ISM.
-      .as.ism_or_bism(x)
+      list(mats = .as.ism_or_bism(x), labels = nm)
     }
   })
 
   # If we were passed any BISMs, we have a list of lists of ISM, so flatten to a
   # single list.
-  mats <- flatten_list(mats)
+  mats <- flatten_list(lapply(converted, `[[`, "mats"))
+  group_labels <- unlist(lapply(converted, `[[`, "labels"))
+
+  # Replace NA labels (from unnamed entries) with numeric indices based on
+  # their position, incrementing to avoid collisions with existing labels.
+  na_idx <- which(is.na(group_labels))
+  if (length(na_idx) > 0) {
+    existing <- group_labels[!is.na(group_labels)]
+    for (i in na_idx) {
+      candidate <- i
+      while (as.character(candidate) %in% existing) {
+        candidate <- candidate + 1L
+      }
+      group_labels[i] <- as.character(candidate)
+      existing <- c(existing, as.character(candidate))
+    }
+  }
 
   # new row and column positions are based on current, incrementing by number of
   # rows/columns in all previous matrices.
@@ -1052,10 +1079,10 @@ dbind <- function(..., force_unique_names = FALSE) {
   newdim <- as.integer(c(sum(vapply(lapply(mats, methods::slot, "dimension"), "[", 1, 1)),
                          sum(vapply(lapply(mats, methods::slot, "dimension"), "[", 1, 2))))
 
-  # This needs to be much smarter, especially if any element is already a BISM
-  groups <- as.factor(rep(seq_along(mats), times =
+  groups <- factor(rep(group_labels, times =
                                       vapply(lapply(mats, slot, "colnames"), length, 1) +
-                                        vapply(lapply(mats, slot, "rownames"), length, 1)))
+                                        vapply(lapply(mats, slot, "rownames"), length, 1)),
+                   levels = unique(group_labels))
   names(groups) <- do.call(c, Map(c, cnameslist, rnameslist))
 
   newdata <- do.call(c, mats)

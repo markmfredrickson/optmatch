@@ -955,6 +955,46 @@ test_that("dbind", {
   expect_identical(bmix1, bmix3)
 })
 
+test_that("dbind uses meaningful group names", {
+  data(nuclearplants)
+  np <- nuclearplants
+  np$group <- as.numeric(cut(np$cap, breaks = c(0, 600, 825, 1000, 2000)))
+
+  m1 <- match_on(pr ~ cost, data = np[np$group == 1,])
+  m2 <- match_on(pr ~ cost, data = np[np$group == 2,])
+  m3 <- match_on(pr ~ cost, data = np[np$group == 3,])
+  m4 <- match_on(pr ~ cost, data = np[np$group == 4,])
+
+  # Named list of ISMs -> group levels match the list names
+  bm_named <- dbind(first = m1, second = m2)
+  expect_identical(levels(bm_named@groups), c("first", "second"))
+
+  # Unnamed list -> levels are "1", "2", ... (backward compat)
+  bm_unnamed <- dbind(m1, m2)
+  expect_identical(levels(bm_unnamed@groups), c("1", "2"))
+
+  # Mixed named list with a BISM entry -> ISM entries get list names,
+  # BISM entries get their original @groups levels
+  b1 <- match_on(pr ~ cost + strata(group), data = np[np$group < 3,])
+  bm_mixed <- dbind(b1, extra = m3)
+  bism_levels <- levels(b1@groups)
+  expect_identical(levels(bm_mixed@groups), c(bism_levels, "extra"))
+
+  # Partially named list -> named entries use names, unnamed fall back to index
+  bm_partial <- dbind(a = m1, m2, m3)
+  expect_identical(levels(bm_partial@groups), c("a", "2", "3"))
+
+  # Unnamed fallback indices skip names that collide with existing labels
+  bm_collision <- dbind(m1, b1)
+  # m1 at position 1 collides with b1's groups "1"/"2", so gets "3"
+  # Levels preserve input order: m1's group first, then b1's groups
+  expect_identical(levels(bm_collision@groups), c("3", bism_levels))
+
+  # Named list passed as single argument
+  bm_named_list <- dbind(list(x = m1, y = m2))
+  expect_identical(levels(bm_named_list@groups), c("x", "y"))
+})
+
 test_that("dbind'ing a very large number of matrices", {
   data(nuclearplants)
 
