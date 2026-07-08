@@ -76,6 +76,7 @@ Collate:
     'matched.distances.R'
     'matchfailed.R'
     'max.controls.cap.R'
+    'maxflow.R'
     'mdist.R'
     'min.controls.cap.R'
     'optmatchS3.R'
