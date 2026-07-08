@@ -85,6 +85,81 @@ test_that("fullmatch agrees: min.omit.fraction is exactly feasible", {
   expect_false(any(subproblemSuccess(f.past)))
 })
 
+test_that("drop.isolated.rows exempts unmatchable treated units", {
+  isolated <- matrix(c(1, 1, Inf, Inf),
+                     nrow = 2, byrow = TRUE,
+                     dimnames = list(c("A", "B"), c("c1", "c2")))
+  r <- maxflow_feasibility(isolated, drop.isolated.rows = TRUE)
+  expect_true(r$feasible)
+  expect_equal(r$unmatchable.row.units, "B")
+  expect_equal(r$deficient.row.units, character(0))
+  expect_equal(r$max.controls.matchable, 1L) # A alone, capped at 1
+  expect_equal(r$min.omit.fraction, 0.5)
+  expect_equal(r$max.mean.controls, 1) # per required (matchable) row unit
+})
+
+test_that("recovery via max flow omits as few controls as possible", {
+  old <- options(fullmatch_try_recovery = TRUE)
+  on.exit(options(old))
+
+  ## Cost-guided recovery (the pre-#200 heuristic) would solve without
+  ## max.controls, giving B one control (cost 5) and A four (cost 4), and
+  ## after capping at max.controls conclude only 3 controls are usable
+  ## (omit.fraction 0.4). The max flow answer: all of B on c1, c2 and two
+  ## of c3..c5 on A, so 4 controls (omit.fraction 0.2).
+  d <- matrix(c(1, 1, 1, 1, 1,
+                5, 5, Inf, Inf, Inf),
+              nrow = 2, byrow = TRUE,
+              dimnames = list(c("A", "B"), paste0("c", 1:5)))
+  fm <- suppressWarnings(
+    fullmatch(d, min.controls = 1, max.controls = 2))
+  expect_true(all(subproblemSuccess(fm)))
+  expect_equal(unname(attr(fm, "omit.fraction")), 0.2)
+  expect_equal(sum(!is.na(fm[paste0("c", 1:5)])), 4)
+  ## B's matched set keeps both of its permissible controls
+  expect_equal(fm[["B"]], fm[["c1"]])
+  expect_equal(fm[["B"]], fm[["c2"]])
+})
+
+test_that("recovery reports why omission cannot help, when verbose", {
+  old <- options(fullmatch_try_recovery = TRUE,
+                 optmatch_verbose_messaging = TRUE)
+  on.exit(options(old))
+
+  ## A and B each need 2 controls; B can only ever reach c1
+  contested <- matrix(c(1, 1, Inf,
+                        1, Inf, Inf),
+                      nrow = 2, byrow = TRUE,
+                      dimnames = list(c("A", "B"), c("c1", "c2", "c3")))
+  w <- capture_warnings(
+    fm <- fullmatch(contested, min.controls = 2, max.controls = 2))
+  expect_true(all(is.na(fm)))
+  expect_true(any(grepl("cannot be given min.controls", w)))
+
+  ## a treated unit with no eligible controls at all is named, alongside
+  ## the deficiency that actually makes the subproblem unrecoverable
+  isolated <- matrix(c(1, 1,
+                       1, Inf,
+                       Inf, Inf),
+                     nrow = 3, byrow = TRUE,
+                     dimnames = list(c("A", "B", "C"), c("c1", "c2")))
+  w <- capture_warnings(
+    fm <- fullmatch(isolated, min.controls = 2, max.controls = 2))
+  expect_true(any(grepl("no permissible control: C", w)))
+  expect_true(any(grepl("cannot be given min.controls", w)))
+})
+
+test_that("#226: pairmatch says plainly when controls demand is impossible", {
+  m <- matrix(1, nrow = 2, ncol = 3,
+              dimnames = list(c("t1", "t2"), c("c1", "c2", "c3")))
+  expect_error(pairmatch(m, controls = 2),
+               "not enough controls in some subclasses")
+  expect_error(pairmatch(m, controls = 2),
+               "needing 4 controls \\(controls = 2\\), but only 3 eligible")
+  ## controls = 1 with more treated than controls remains allowed (#116)
+  expect_error(suppressWarnings(pairmatch(t(m))), NA)
+})
+
 test_that("fullmatch agrees when min.controls < max.controls", {
   old <- options(fullmatch_try_recovery = FALSE)
   on.exit(options(old))

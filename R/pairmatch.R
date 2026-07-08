@@ -202,12 +202,38 @@ pairmatch.matrix <- function(x,
     control_group_n <- ncol(prob)
     control_group_overage <- control_group_n - control * treatment_group_n
     treatment_group_overage <- treatment_group_n - control_group_n/control
-      return(ifelse(control_group_overage>=0,
-                    control_group_overage/control_group_n,
-                    -1*treatment_group_overage/treatment_group_n))
+      return(list(omf = ifelse(control_group_overage>=0,
+                               control_group_overage/control_group_n,
+                               -1*treatment_group_overage/treatment_group_n),
+                  n.treated = treatment_group_n,
+                  n.controls = control_group_n))
   }
 
-  omf <- mapply(controls, subprobs, FUN = get_omf)
+  omf_info <- mapply(controls, subprobs, FUN = get_omf, SIMPLIFY = FALSE)
+  omf <- vapply(omf_info, `[[`, numeric(1), "omf")
+
+  # A negative omit.fraction with controls = 1 directs fullmatch to pair
+  # each control with a strict subset of the treated units (see Details);
+  # with controls >= 2 it means the demand for controls cannot be met, and
+  # fullmatch would reject it with an error phrased in terms pairmatch
+  # users may not know (#226). Catch it here and say what happened.
+  controls.vec <- rep_len(controls, length(subprobs))
+  short <- controls.vec >= 2 & omf < 0
+  if (any(short)) {
+    labels <- names(subprobs)
+    if (is.null(labels)) labels <- as.character(seq_along(subprobs))
+    details <- vapply(which(short), function(i) {
+      paste0("subclass ", labels[i], " has ", omf_info[[i]]$n.treated,
+             " treated units, needing ",
+             controls.vec[i] * omf_info[[i]]$n.treated,
+             " controls (controls = ", controls.vec[i], "), but only ",
+             omf_info[[i]]$n.controls, " eligible controls")
+    }, character(1))
+    stop("not enough controls in some subclasses: ",
+         paste(details, collapse = "; "),
+         ". Reduce 'controls' or consider fullmatch().",
+         call. = FALSE)
+  }
 
 
   if(!remove.unmatchables) {

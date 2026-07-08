@@ -565,7 +565,46 @@ fullmatch.matrix <- function(x,
     }
     # if max.control is in [1, Inf), and we're infeasible
     if(is.finite(mxctl.r) & mxctl.r >= 1) {
-      # Re-solve with no max.control
+      if (mnctl.r >= 1 & (is.na(omf.r) || omf.r >= 0)) {
+        # No sharing of controls, so the smallest feasible omit.fraction --
+        # equivalently, the largest feasible mean.controls -- is computable
+        # exactly via max flow (#200)
+        nc.d <- dim(d.r)[2]
+        mnc.eff <- max(1, floor(mnctl.r))
+        mxc.eff <- ceiling(min(mxctl.r, nc.d))
+        n.mc.asked <- round(nc.d * (1 - if (is.na(omf.r)) 0 else omf.r))
+        if (mnc.eff <= mxc.eff) {
+          mf <- maxflow_feasibility(d.r,
+                                    min.controls = mnc.eff,
+                                    max.controls = mxc.eff,
+                                    drop.isolated.rows = TRUE)
+          if (mf$feasible && mf$max.controls.matchable > 0 &&
+              n.mc.asked > mf$max.controls.matchable) {
+            new.omf.r <- mf$min.omit.fraction
+            new.omit.fraction <<- c(new.omit.fraction, new.omf.r)
+            return(.fullmatch(d.r, mnctl.r, mxctl.r, new.omf.r, hint.r, solver))
+          }
+        }
+        # omitting further controls cannot make this subproblem feasible
+        if (getOption("optmatch_verbose_messaging", FALSE)) {
+          msg <- if (mnc.eff > mxc.eff) {
+            paste0("A subproblem is infeasible and omitting controls cannot ",
+                   "make it feasible: min.controls (=", mnc.eff, ") exceeds ",
+                   "the number of controls available (", nc.d, ").")
+          } else {
+            maxflow_infeasibility_message(mf, mnc.eff, n.mc.asked)
+          }
+          warning(msg, call. = FALSE)
+        }
+        if (!exists("tmp")) {
+          tmp <- .fullmatch(d.r, mnctl.r, mxctl.r, omf.r, hint.r, solver)
+        }
+        new.omit.fraction <<- c(new.omit.fraction, omf.r)
+        return(tmp)
+      }
+      # Sharing of controls permitted (min.controls < 1), where the max flow
+      # translation isn't yet worked out: re-solve with no max.control and
+      # read off a feasible, though not necessarily optimal, omit.fraction
       tmp2 <- list(.fullmatch(d.r, mnctl.r, Inf, omf.r, hint.r, solver))
       tmp2.optmatch <- makeOptmatch(d.r, tmp2, match.call(), data)
       trial.ss <- stratumStructure(tmp2.optmatch)
