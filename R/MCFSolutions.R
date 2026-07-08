@@ -445,6 +445,7 @@ setMethod("node.labels<-", "ANY", function(x, value) NULL)
 ## tables will be aligned using their "name" columns,
 ## not their node.labels (rownames).
 #' @keywords internal
+#' @export
 update.NodeInfo  <- function(object, new, ...)
 {
     stopifnot(is(object, "NodeInfo"), is(new, "NodeInfo"),
@@ -464,6 +465,7 @@ update.NodeInfo  <- function(object, new, ...)
 }
 ##* `dplyr::filter()` method for NodeInfo's.
 #' @keywords internal
+#' @export
 filter.NodeInfo  <- function(.data, ...) {
     x  <- as(.data, "tbl_df")
     ans  <- filter(x, ...)
