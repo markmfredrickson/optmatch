@@ -137,9 +137,14 @@ fmatch <- function(distance,
     stop('Cannot choose "(_End_)" as unit name')
 
   ## Bypass solver if problem is recognizably infeasible
+  ## The products below are counts of units, which on large problems can
+  ## exceed .Machine$integer.max (e.g. 1.5e4 treated x 3.7e5 controls).
+  ## Integer overflow would make them NA and the `if` would then stop with
+  ## "missing value where TRUE/FALSE needed" instead of reporting the
+  ## infeasibility, so compute them in double precision.
   if ( (mxr >1 & nt/mxr > n.mc) | #max.row.units too low
-       (mxr==1L & nt * mnc > n.mc) | #min.col.units too high
-       (nt * mxc < n.mc)) { #max.col.units too low
+       (mxr==1L & as.numeric(nt) * mnc > n.mc) | #min.col.units too high
+       (as.numeric(nt) * mxc < n.mc)) { #max.col.units too low
 
     out <- as.data.frame(distance, row.names = NULL)
     out$solution <- rep(-1L, narcs)
