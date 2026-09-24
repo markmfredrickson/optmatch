@@ -43,6 +43,7 @@ Ben B. Hansen
 ## Examples
 
 ``` r
+
 data(plantdist)
 plantsfm <- fullmatch(plantdist)
 #> Warning: Without 'data' argument the order of the match is not guaranteed

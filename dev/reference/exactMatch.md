@@ -89,6 +89,7 @@ Mark M. Fredrickson
 ## Examples
 
 ``` r
+
 data(nuclearplants)
 
 ### First generate a standard propensity score

@@ -189,7 +189,8 @@ has placed in the same matched sets.
 |       |      |          |   Z   | 6.1  |   730    |
 
 New-site (left columns) versus existing-site (right columns) plants.
-“date” is `date-65`; “capacity” is `cap-400`.
+“date” is `date-65`; “capacity” is `cap-400`. {.table
+style="width:72%;"}
 
 For basic summary information about this match, try
 

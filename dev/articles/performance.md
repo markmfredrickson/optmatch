@@ -29,7 +29,7 @@ memory usage with simulated data described in its own section.
 ## Simulated Data
 
 Before proceeding to the actual profiling, we begin by creating some
-simulated data.[¹](#fn1) We use 1000 individuals, with 442 receiving the
+simulated data.[^1] We use 1000 individuals, with 442 receiving the
 treatment condition. Treatment assignment is based on a simple linear
 model of 3 covariates (two Normal variables and one categorical variable
 with 5 levels).
@@ -48,7 +48,7 @@ treated and control units.
 
 ## Distance Creation
 
-We begin by benchmarking dense distance creation.[²](#fn2) The
+We begin by benchmarking dense distance creation.[^2] The
 **match_on.numeric** method has the least complicated interface and
 applies the least pre-processing to the input. Figure 2 shows the
 profile data for using **match_on.numeric** with the propensity score.
@@ -233,11 +233,10 @@ Figure 12. Run times for increasingly large problems for the
 ## Environment
 
 ``` r
+
 sessionInfo()
 ```
 
-------------------------------------------------------------------------
+[^1]: See the file **setup.R** for the supporting code.
 
-1.  See the file **setup.R** for the supporting code.
-
-2.  See the file **distance.R** for implementation details.
+[^2]: See the file **distance.R** for implementation details.

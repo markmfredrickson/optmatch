@@ -124,24 +124,24 @@ np.missing <- data.frame(nuclearplants[c('cost', 'pr')], np.missing)
 np.filled <- fill.NAs(pr ~ t1 * t2, np.missing)
 # Look at np.filled to establish what missingness flags were created
 head(np.filled)
-#>   pr       t1 t2    t1:t2 t1.NA t2.NA
-#> H  0 13.72414 46 840.8333  TRUE FALSE
-#> I  0 10.00000 73 730.0000 FALSE FALSE
-#> A  1 10.00000 85 850.0000 FALSE FALSE
-#> J  0 11.00000 67 737.0000 FALSE FALSE
-#> B  1 11.00000 78 858.0000 FALSE FALSE
-#> K  0 13.00000 51 663.0000 FALSE FALSE
+#>   pr t1 t2 t1:t2 t1.NA t2.NA
+#> H  0 14 46   644 FALSE FALSE
+#> I  0 10 73   730 FALSE FALSE
+#> A  1 10 85   850 FALSE FALSE
+#> J  0 11 67   737 FALSE FALSE
+#> B  1 11 78   858 FALSE FALSE
+#> K  0 13 51   663 FALSE FALSE
 (np.glm <- glm(pr ~ ., family=binomial, data=np.filled))
 #> 
 #> Call:  glm(formula = pr ~ ., family = binomial, data = np.filled)
 #> 
 #> Coefficients:
 #> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  
-#>  -39.532987     0.594190     0.432671     0.002249    -0.583510     0.601206  
+#>  -21.049981     0.115834     0.206145     0.005593     2.705296     1.761089  
 #> 
 #> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
 #> Null Deviance:       39.75 
-#> Residual Deviance: 21.06     AIC: 33.06
+#> Residual Deviance: 27.2  AIC: 39.2
 (glm(pr ~ t1 + t2 + `t1:t2` + t1.NA + t2.NA,
                 family=binomial, data=np.filled))
 #> 
@@ -150,11 +150,11 @@ head(np.filled)
 #> 
 #> Coefficients:
 #> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  
-#>  -39.532987     0.594190     0.432671     0.002249    -0.583510     0.601206  
+#>  -21.049981     0.115834     0.206145     0.005593     2.705296     1.761089  
 #> 
 #> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
 #> Null Deviance:       39.75 
-#> Residual Deviance: 21.06     AIC: 33.06
+#> Residual Deviance: 27.2  AIC: 39.2
 # In a non-interactive session, the following may help, as long as
 # the formula passed to `fill.NAs` (plus any missingness flags) is
 # the desired formula for the glm.
@@ -164,19 +164,19 @@ head(np.filled)
 #> 
 #> Coefficients:
 #> (Intercept)           t1           t2      `t1:t2`    t1.NATRUE    t2.NATRUE  
-#>  -39.532987     0.594190     0.432671     0.002249    -0.583510     0.601206  
+#>  -21.049981     0.115834     0.206145     0.005593     2.705296     1.761089  
 #> 
 #> Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
 #> Null Deviance:       39.75 
-#> Residual Deviance: 21.06     AIC: 33.06
+#> Residual Deviance: 27.2  AIC: 39.2
 
 ### produce a matrix of propensity distances based on the propensity model
 ### with fill-in and flagging. Then perform pair matching on it:
 pairmatch(match_on(np.glm, data=np.filled), data=np.filled)
 #>    H    I    A    J    B    K    L    M    C    N    O    P    Q    R    S    T 
-#> <NA>  1.4  1.1  1.3  1.2 <NA> <NA> <NA>  1.3  1.8 <NA> <NA>  1.6  1.2 1.10 <NA> 
+#> <NA>  1.7  1.1 <NA>  1.2 <NA> <NA> <NA>  1.3  1.4 <NA> <NA> 1.10 <NA> <NA> <NA> 
 #>    U    D    V    E    W    F    X    G    Y    Z    d    e    f    a    b    c 
-#>  1.9  1.4  1.7  1.5 <NA>  1.6  1.5  1.7 <NA>  1.1 <NA> <NA> <NA>  1.8  1.9 1.10 
+#>  1.6  1.4  1.9  1.5  1.3  1.6  1.5  1.7 <NA>  1.8  1.2 <NA>  1.1  1.8  1.9 1.10 
 
 ## fill NAs without using treatment contrasts by making a list of contrasts for
 ## each factor ## following hints from https://stackoverflow.com/a/4569239/161808
